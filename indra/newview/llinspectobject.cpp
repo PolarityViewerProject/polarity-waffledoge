@@ -30,7 +30,7 @@
 #include "llinspectobject.h"
 
 // Viewer
-#include "llfloatersidepanelcontainer.h"
+#include "llfloatertaskinfo.h"
 #include "llinspect.h"
 #include "llmediaentry.h"
 #include "llnotificationsutil.h"	// *TODO: Eliminate, add LLNotificationsUtil wrapper
@@ -40,15 +40,9 @@
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
 #include "llviewerobjectlist.h"	// to select the requested object
-// [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0c)
-#include "rlvactions.h"
-#include "rlvcommon.h"
-#include "lltoolpie.h"
-// [/RLVa:KB]
 
 // Linden libraries
 #include "llbutton.h"			// setLabel(), not virtual!
-#include "llclickaction.h"
 #include "llfloaterreg.h"
 #include "llmenubutton.h"
 #include "llresmgr.h"			// getMonetaryString
@@ -77,18 +71,18 @@ public:
 	LLInspectObject(const LLSD& object_id);
 	virtual ~LLInspectObject();
 	
-	/*virtual*/ BOOL postBuild(void);
+	BOOL postBuild(void) override;
 	
 	// Because floater is single instance, need to re-parse data on each spawn
 	// (for example, inspector about same avatar but in different position)
-	/*virtual*/ void onOpen(const LLSD& avatar_id);
+	void onOpen(const LLSD& avatar_id) override;
 	
 	// Release the selection and do other cleanup
-	/*virtual*/ void onClose(bool app_quitting);
+	void onClose(bool app_quitting) override;
 	
 	// override the inspector mouse leave so timer is only paused if 
 	// gear menu is not open
-	/* virtual */ void onMouseLeave(S32 x, S32 y, MASK mask);
+	void onMouseLeave(S32 x, S32 y, MASK mask) override;
 	
 private:
 	// Refresh displayed data with information from selection manager
@@ -116,7 +110,6 @@ private:
 	void onClickMoreInfo();
 	void onClickZoomIn();  
 	
-private:
 	LLUUID				mObjectID;
 	LLUUID				mPreviousObjectID;
 	S32					mObjectFace;
@@ -127,11 +120,11 @@ private:
 
 LLInspectObject::LLInspectObject(const LLSD& sd)
 :	LLInspect( LLSD() ),	// single_instance, doesn't really need key
-	mObjectID(NULL),			// set in onOpen()
+	mObjectID(nullptr),			// set in onOpen()
 	mObjectFace(0),
-	mObjectSelection(NULL),
-	mMediaImpl(NULL),
-	mMediaEntry(NULL)
+	mMediaImpl(nullptr),
+	mMediaEntry(nullptr),
+	mObjectSelection(nullptr)
 {
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in postBuild.
@@ -256,7 +249,7 @@ void LLInspectObject::onOpen(const LLSD& data)
 void LLInspectObject::onClose(bool app_quitting)
 {
 	// Release selection to deselect
-	mObjectSelection = NULL;
+	mObjectSelection = nullptr;
 	mPreviousObjectID = mObjectID;
 
 	getChild<LLMenuButton>("gear_btn")->hideMenu();
@@ -334,7 +327,7 @@ void LLInspectObject::updateButtons(LLSelectNode* nodep)
 	hideButtons();
 	
 	LLViewerObject* object = nodep->getObject();
-	LLViewerObject *parent = (LLViewerObject*)object->getParent();
+	LLViewerObject *parent = static_cast<LLViewerObject*>(object->getParent());
 	bool for_copy = anyone_copy_selection(nodep);
 	bool for_sale = enable_buy_object();
 	S32 price = nodep->mSaleInfo.getSalePrice();
@@ -365,10 +358,6 @@ void LLInspectObject::updateButtons(LLSelectNode* nodep)
 		|| (parent && parent->flagHandleTouch()))
 	{
 		getChild<LLUICtrl>("touch_btn")->setVisible(true);
-// [RLVa:KB] - Checked: RLVa-1.2.1
-		if (RlvActions::isRlvEnabled())
-			getChild<LLUICtrl>("touch_btn")->setEnabled(RlvActions::canTouch(object));
-// [/RLVa:KB]
 		updateTouchLabel(nodep);
 	}
 	else if ( enable_object_open() )
@@ -398,15 +387,6 @@ void LLInspectObject::updateSitLabel(LLSelectNode* nodep)
 	{
 		sit_btn->setLabel( getString("Sit") );
 	}
-
-// [RLVa:KB] - Checked: 2010-03-06 (RLVa-1.2.0c) | Added: RLVa-1.2.0a
-	// RELEASE-RLVa: [SL-2.0.0] Make sure we're examining the same object that handle_sit_or_stand() will request a sit for
-	if (RlvActions::isRlvEnabled())
-	{
-		const LLPickInfo& pick = LLToolPie::getInstance()->getPick();
-		sit_btn->setEnabled( (pick.mObjectID.notNull()) && (RlvActions::canSit(pick.getObject(), pick.mObjectOffset)) );
-	}
-// [/RLVa:KB]
 }
 
 void LLInspectObject::updateTouchLabel(LLSelectNode* nodep)
@@ -463,8 +443,7 @@ void LLInspectObject::updateMediaCurrentURL()
 	if(mMediaImpl.notNull() && mMediaImpl->hasMedia())
 	{
 		
-		LLPluginClassMedia* media_plugin = NULL;
-		media_plugin = mMediaImpl->getMediaPlugin();
+		LLPluginClassMedia* media_plugin = mMediaImpl->getMediaPlugin();
 		if(media_plugin)
 		{
 			if(media_plugin->pluginSupportsMediaTime())
@@ -502,15 +481,10 @@ void LLInspectObject::updateCreator(LLSelectNode* nodep)
 		// a clickable link		
 		// Objects cannot be created by a group, so use agent URL format
 		LLUUID creator_id = nodep->mPermissions->getCreator();
-//		std::string creator_url = 
-//			LLSLURL("agent", creator_id, "about").getSLURLString();
-// [RLVa:KB] - Checked: RLVa-1.2.2
-		// Only anonymize the creator if they're also the owner or if they're a nearby avie
-		bool fRlvHideCreator = (!RlvActions::canShowName(RlvActions::SNC_DEFAULT, creator_id)) && ((nodep->mPermissions->getOwner() == creator_id) || (RlvUtil::isNearbyAgent(creator_id)));
-		const std::string creator_url = LLSLURL("agent", creator_id, (!fRlvHideCreator) ? "about" : "rlvanonym").getSLURLString();
-// [/RLVa:KB]
+		std::string creator_url =
+			LLSLURL("agent", creator_id, "about").getSLURLString();
 		args["[CREATOR]"] = creator_url;
-
+				
 		// created by one user but owned by another
 		std::string owner_url;
 		LLUUID owner_id;
@@ -523,11 +497,7 @@ void LLInspectObject::updateCreator(LLSelectNode* nodep)
 		else
 		{
 			owner_id = nodep->mPermissions->getOwner();
-//			owner_url = LLSLURL("agent", owner_id, "about").getSLURLString();
-// [RLVa:KB] - Checked: RLVa-1.2.2
-			bool fRlvHideOwner = (!RlvActions::canShowName(RlvActions::SNC_DEFAULT, owner_id));
-			owner_url = LLSLURL("agent", owner_id, (!fRlvHideOwner) ? "about" : "rlvanonym").getSLURLString();
-// [/RLVa:KB]
+			owner_url =	LLSLURL("agent", owner_id, "about").getSLURLString();
 		}
 		args["[OWNER]"] = owner_url;
 		
@@ -577,7 +547,7 @@ void LLInspectObject::updateSecureBrowsing()
 	if(mMediaImpl.notNull() 
 	   && mMediaImpl->hasMedia())
 	{
-		LLPluginClassMedia* media_plugin = NULL;
+		LLPluginClassMedia* media_plugin = nullptr;
 		std::string current_url = "";
 		media_plugin = mMediaImpl->getMediaPlugin();
 		if(media_plugin)
@@ -676,9 +646,7 @@ void LLInspectObject::onClickOpen()
 
 void LLInspectObject::onClickMoreInfo()
 {
-	LLSD key;
-	key["task"] = "task";
-	LLFloaterSidePanelContainer::showPanel("inventory", key);
+	LLFloaterTaskInfo::showTask();
 	closeFloater();
 }
 

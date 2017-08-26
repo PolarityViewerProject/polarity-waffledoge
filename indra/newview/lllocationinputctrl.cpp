@@ -47,10 +47,12 @@
 // newview includes
 #include "llagent.h"
 #include "llenvmanager.h"
+#include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llinventoryobserver.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
+#include "lllightshare.h"
 #include "llpathfindingmanager.h"
 #include "llpathfindingnavmesh.h"
 #include "llpathfindingnavmeshstatus.h"
@@ -65,9 +67,6 @@
 #include "llviewermenu.h"
 #include "llurllineeditorctrl.h"
 #include "llagentui.h"
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.0d)
-#include "rlvhandler.h"
-// [/RLVa:KB]
 
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llpathfindingmanager.h"
@@ -207,7 +206,8 @@ LLLocationInputCtrl::Params::Params()
 	see_avatars_icon("see_avatars_icon"),
 	maturity_help_topic("maturity_help_topic"),
 	pathfinding_dirty_icon("pathfinding_dirty_icon"),
-	pathfinding_disabled_icon("pathfinding_disabled_icon")
+	pathfinding_disabled_icon("pathfinding_disabled_icon"),
+	lightshare_icon("lightshare_icon")
 {
 }
 
@@ -220,6 +220,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mForSaleBtn(NULL),
 	mInfoBtn(NULL),
 	mRegionCrossingSlot(),
+	mLightshareChangedSlot(),
 	mNavMeshSlot(),
 	mIsNavMeshDirty(false),
 	mLandmarkImageOn(NULL),
@@ -227,6 +228,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mIconMaturityGeneral(NULL),
 	mIconMaturityAdult(NULL),
 	mIconMaturityModerate(NULL),
+	isHumanReadableLocationVisible(false),
 	mMaturityHelpTopic(p.maturity_help_topic)
 {
 	// Lets replace default LLLineEditor with LLLocationLineEditor
@@ -369,6 +371,13 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mParcelIcon[PATHFINDING_DISABLED_ICON] = LLUICtrlFactory::create<LLIconCtrl>(pathfinding_disabled_icon);
 	mParcelIcon[PATHFINDING_DISABLED_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, PATHFINDING_DISABLED_ICON));
 	addChild(mParcelIcon[PATHFINDING_DISABLED_ICON]);
+	
+	LLIconCtrl::Params lightshare_icon = p.lightshare_icon;
+	lightshare_icon.tool_tip = LLStringExplicit("Lightshare");
+	lightshare_icon.mouse_opaque = true;
+	mParcelIcon[LIGHTSHARE_ICON] = LLUICtrlFactory::create<LLIconCtrl>(lightshare_icon);
+	mParcelIcon[LIGHTSHARE_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, LIGHTSHARE_ICON));
+	addChild(mParcelIcon[LIGHTSHARE_ICON]);
 
 	LLTextBox::Params damage_text = p.damage_text;
 	damage_text.tool_tip = LLTrans::getString("LocationCtrlDamageTooltip");
@@ -426,6 +435,9 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 
 	mRegionCrossingSlot = gAgent.addRegionChangedCallback(boost::bind(&LLLocationInputCtrl::onRegionBoundaryCrossed, this));
 	createNavMeshStatusListenerForCurrentRegion();
+	
+	mLightshareChangedSlot = LLLightshare::instance().addLightshareChangedCallback(
+														boost::bind(&LLLocationInputCtrl::refresh, this));
 
 	mRemoveLandmarkObserver	= new LLRemoveLandmarkObserver(this);
 	mAddLandmarkObserver	= new LLAddLandmarkObserver(this);
@@ -457,6 +469,7 @@ LLLocationInputCtrl::~LLLocationInputCtrl()
 	mParcelPropertiesControlConnection.disconnect();
 	mParcelMgrConnection.disconnect();
 	mLocationHistoryConnection.disconnect();
+	mLightshareChangedSlot.disconnect();
 }
 
 void LLLocationInputCtrl::setEnabled(BOOL enabled)
@@ -638,31 +651,19 @@ void LLLocationInputCtrl::reshape(S32 width, S32 height, BOOL called_from_parent
 
 void LLLocationInputCtrl::onInfoButtonClicked()
 {
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
-		return;
-// [/RLVa:KB]
-
-	LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "agent"));
+	// <alchemy>
+	LLViewerParcelMgr::getInstance()->selectParcelAt(gAgent.getPositionGlobal());
+	LLFloaterReg::showInstance("about_land");
+	// </alchemy>
 }
 
 void LLLocationInputCtrl::onForSaleButtonClicked()
 {
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
-		return;
-// [/RLVa:KB]
-
 	handle_buy_land();
 }
 
 void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 {
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
-		return;
-// [/RLVa:KB]
-
 	LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
 	// Landmark exists, open it for preview and edit
 	if(landmark && landmark->getUUID().notNull())
@@ -790,10 +791,6 @@ void LLLocationInputCtrl::onTextEditorRightClicked(S32 x, S32 y, MASK mask)
 
 void LLLocationInputCtrl::refresh()
 {
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-	mInfoBtn->setEnabled(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC));
-// [/RLVa:KB]
-
 	refreshLocation();			// update location string
 	refreshParcelIcons();
 	updateAddLandmarkButton();	// indicate whether current parcel has been landmarked 
@@ -810,12 +807,11 @@ void LLLocationInputCtrl::refreshLocation()
 		return;
 	}
 
+	static LLCachedControl<bool> navbar_show_coord(gSavedSettings, "NavBarShowCoordinates");
 	// Update location field.
 	std::string location_name;
 	LLAgentUI::ELocationFormat format =
-		(gSavedSettings.getBOOL("NavBarShowCoordinates")
-			? LLAgentUI::LOCATION_FORMAT_FULL
-			: LLAgentUI::LOCATION_FORMAT_NO_COORDS);
+		(navbar_show_coord ? LLAgentUI::LOCATION_FORMAT_FULL : LLAgentUI::LOCATION_FORMAT_NO_COORDS);
 
 	if (!LLAgentUI::buildLocationString(location_name, format)) 
 	{
@@ -898,6 +894,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		mParcelIcon[DAMAGE_ICON]->setVisible(  allow_damage );
 		mParcelIcon[PATHFINDING_DIRTY_ICON]->setVisible(mIsNavMeshDirty);
 		mParcelIcon[PATHFINDING_DISABLED_ICON]->setVisible(!mIsNavMeshDirty && !pathfinding_dynamic_enabled);
+		mParcelIcon[LIGHTSHARE_ICON]->setVisible(LLLightshare::instance().getState());
 
 		mDamageText->setVisible(allow_damage);
 		mParcelIcon[SEE_AVATARS_ICON]->setVisible( !see_avs );
@@ -963,20 +960,26 @@ void LLLocationInputCtrl::refreshMaturityButton()
 	switch(sim_access)
 	{
 	case SIM_ACCESS_PG:
+	{
 		rating_image = mIconMaturityGeneral;
-		rating_tooltip = LLTrans::getString("LocationCtrlGeneralIconTooltip");
+		static std::string loc_ctrl_gen_icon_tooltip = LLTrans::getString("LocationCtrlGeneralIconTooltip");
+		rating_tooltip = loc_ctrl_gen_icon_tooltip;
 		break;
-
+	}
 	case SIM_ACCESS_ADULT:
+	{
 		rating_image = mIconMaturityAdult;
-		rating_tooltip = LLTrans::getString("LocationCtrlAdultIconTooltip");
+		static std::string loc_ctrl_adult_icon_tooltip = LLTrans::getString("LocationCtrlAdultIconTooltip");
+		rating_tooltip = loc_ctrl_adult_icon_tooltip;
 		break;
-
+	}
 	case SIM_ACCESS_MATURE:
+	{
 		rating_image = mIconMaturityModerate;
-		rating_tooltip = LLTrans::getString("LocationCtrlModerateIconTooltip");
+		static std::string loc_ctrl_mod_icon_tooltip = LLTrans::getString("LocationCtrlGeneralIconTooltip");
+		rating_tooltip = loc_ctrl_mod_icon_tooltip;
 		break;
-
+	}
 	default:
 		button_visible = false;
 		break;
@@ -1071,9 +1074,6 @@ void LLLocationInputCtrl::enableAddLandmarkButton(bool val)
 // depending on whether current parcel has been landmarked.
 void LLLocationInputCtrl::updateAddLandmarkButton()
 {
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-	mAddLandmarkBtn->setVisible(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC));
-// [/RLVa:KB]
 	enableAddLandmarkButton(LLLandmarkActions::hasParcelLandmark());
 }
 void LLLocationInputCtrl::updateAddLandmarkTooltip()
@@ -1103,9 +1103,6 @@ void LLLocationInputCtrl::updateContextMenu(){
 		{
 			landmarkItem->setLabel(LLTrans::getString("EditLandmarkNavBarMenu"));
 		}
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-		landmarkItem->setEnabled(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC));
-// [/RLVa:KB]
 	}
 }
 void LLLocationInputCtrl::updateWidgetlayout()
@@ -1161,23 +1158,17 @@ void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
 	}
 	else if (item == "landmark")
 	{
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-		if (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
+		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
+		
+		if(!landmark)
 		{
-// [/RLVa:KB]
-			LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
-			
-			if(!landmark)
-			{
-				LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
-			}
-			else
-			{
-				LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "landmark").with("id",landmark->getUUID()));
-			}
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.0d) | Added: RLVa-1.2.0d
+			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
 		}
-// [/RLVa:KB]
+		else
+		{
+			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "landmark").with("id",landmark->getUUID()));
+
+		}
 	}
 	else if (item == "cut")
 	{
@@ -1299,6 +1290,9 @@ void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
 		break;
 	case SEE_AVATARS_ICON:
 		LLNotificationsUtil::add("SeeAvatars");
+		break;
+	case LIGHTSHARE_ICON:
+		LLLightshare::instance().processLightshareRefresh();
 		break;
 	case ICON_COUNT:
 		break;

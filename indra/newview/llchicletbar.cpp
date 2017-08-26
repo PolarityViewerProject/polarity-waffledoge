@@ -41,8 +41,8 @@ namespace
 }
 
 LLChicletBar::LLChicletBar()
-:	mChicletPanel(NULL),
-	mToolbarStack(NULL)
+:	mChicletPanel(nullptr),
+	mToolbarStack(nullptr)
 {
 	buildFromFile("panel_chiclet_bar.xml");
 }
@@ -65,16 +65,12 @@ void LLChicletBar::showWellButton(const std::string& well_name, bool visible)
 	LLView * panel = findChild<LLView>(well_name + "_panel");
 	if (!panel)	return;
 
-	if(LLFloaterNotificationsTabbed::getInstance()->isWindowEmpty()) // <polarity>
-	{
-		visible = false;
-	}
 	panel->setVisible(visible);
 }
 
 void LLChicletBar::log(LLView* panel, const std::string& descr)
 {
-	if (NULL == panel) return;
+	if (nullptr == panel) return;
 	LLView* layout = panel->getParent();
 	LL_DEBUGS("Chiclet Bar Rects") << descr << ": "
 		<< "panel: " << panel->getName()

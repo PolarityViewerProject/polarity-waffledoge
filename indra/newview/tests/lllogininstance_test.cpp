@@ -103,13 +103,9 @@ LLSD LLCredential::getLoginParams()
 	result["last"] ="mylast";
 	return result;
 }
-void LLCredential::identifierType(std::string &idType)
-{
-}
-
-void LLCredential::authenticatorType(std::string &idType)
-{
-}
+void LLCredential::identifierType(std::string &idType) { }
+void LLCredential::authenticatorType(std::string &idType) { }
+LLSD LLCredential::asLLSD(bool) { return LLSD(); }
 
 //-----------------------------------------------------------------------------
 #include "../llviewernetwork.h"
@@ -123,45 +119,55 @@ bool LLGridManager::addGrid(LLSD& grid_data)
 }
 LLGridManager::LLGridManager()
 :
-	mIsInProductionGrid(false)
+	mPlatform(NOPLATFORM)
 {	
 }
 
-void LLGridManager::getLoginURIs(std::vector<std::string>& uris)
+void LLGridManager::getLoginURIs(std::vector<std::string>& uris) const
 {
 	uris.push_back(VIEWERLOGIN_URI);
 }
 
-void LLGridManager::addSystemGrid(const std::string& label, 
-								  const std::string& name, 
-								  const std::string& login, 
+void LLGridManager::addSystemGrid(const std::string& label,
+								  const std::string& name,
+								  const std::string& login,
 								  const std::string& helper,
 								  const std::string& login_page,
+								  const std::string& password_url,
+								  const std::string& register_url,
 								  const std::string& update_url_base,
 								  const std::string& web_profile_url,
+								  const std::string& administrator,
+								  const std::string& platform,
 								  const std::string& login_id)
 {
 }
-std::map<std::string, std::string> LLGridManager::getKnownGrids()
+
+std::map<std::string, std::string> LLGridManager::getKnownGrids() const
 {
 	std::map<std::string, std::string> result;
 	return result;
 }
 
-void LLGridManager::setGridChoice(const std::string& grid_name)
+void LLGridManager::setGridChoice(const std::string&, const bool)
 {
 }
 
-bool LLGridManager::isInProductionGrid()
+bool LLGridManager::isInSecondlife() const
 {
 	return false;
 }
 
-std::string LLGridManager::getSLURLBase(const std::string& grid_name)
+bool LLGridManager::isInOpenSim() const
+{
+	return false;
+}
+
+std::string LLGridManager::getSLURLBase(const std::string& grid_name) const
 {
 	return "myslurl";
 }
-std::string LLGridManager::getAppSLURLBase(const std::string& grid_name)
+std::string LLGridManager::getAppSLURLBase(const std::string& grid_name) const
 {
 	return "myappslurl";
 }
@@ -174,16 +180,16 @@ LLControlGroup::LLControlGroup(const std::string& name) :
 	LLInstanceTracker<LLControlGroup, std::string>(name){}
 LLControlGroup::~LLControlGroup() {}
 void LLControlGroup::setBOOL(const std::string& name, BOOL val) {}
-BOOL LLControlGroup::getBOOL(const std::string& name) { return FALSE; }
-F32 LLControlGroup::getF32(const std::string& name) { return 0.0f; }
+BOOL LLControlGroup::getBOOL(const std::string& name) const { return FALSE; }
+F32 LLControlGroup::getF32(const std::string& name) const { return 0.0f; }
 U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only) { return 1; }
 void LLControlGroup::setString(const std::string& name, const std::string& val) {}
-std::string LLControlGroup::getString(const std::string& name) { return "test_string"; }
+std::string LLControlGroup::getString(const std::string& name) const { return "test_string"; }
 LLControlVariable* LLControlGroup::declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return NULL; }
 LLControlVariable* LLControlGroup::declareString(const std::string& name, const std::string &initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return NULL; }
 
 #include "lluicolortable.h"
-void LLUIColorTable::saveUserSettings(void)const {}
+void LLUIColorTable::saveUserSettings(const bool scrub) const {}
 
 //-----------------------------------------------------------------------------
 #include "../llversioninfo.h"
@@ -208,19 +214,18 @@ void LLUpdaterService::initialize(const std::string& channel,
 								  const std::string& version,
 								  const std::string& platform,
 								  const std::string& platform_version,
-								  const bool&         willing_to_test,
 								  const unsigned char uniqueid[MD5HEX_STR_SIZE],
-								  const std::string& auth_token
+								  const bool&         willing_to_test
 								  ) {}
 
-void LLUpdaterService::setCheckPeriod(unsigned int seconds) const {}
-void LLUpdaterService::startChecking(bool install_if_ready) const {}
-void LLUpdaterService::stopChecking() const {}
-bool LLUpdaterService::isChecking() const { return false; }
-LLUpdaterService::eUpdaterState LLUpdaterService::getState() const { return INITIAL; }
-std::string LLUpdaterService::updatedVersion() const { return ""; }
+void LLUpdaterService::setCheckPeriod(unsigned int seconds) {}
+void LLUpdaterService::startChecking(bool install_if_ready) {}
+void LLUpdaterService::stopChecking() {}
+bool LLUpdaterService::isChecking() { return false; }
+LLUpdaterService::eUpdaterState LLUpdaterService::getState() { return INITIAL; }
+std::string LLUpdaterService::updatedVersion() { return ""; }
 
-bool llHashedUniqueID(unsigned char id[MD5HEX_STR_SIZE]) 
+bool llHashedUniqueID(unsigned char* id) 
 {
 	memcpy( id, "66666666666666666666666666666666", MD5HEX_STR_SIZE );
 	return true;

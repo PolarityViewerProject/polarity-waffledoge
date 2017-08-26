@@ -47,6 +47,9 @@
 #include "test_httpheaders.hpp"
 #include "test_httprequestqueue.hpp"
 
+#include "llsd.h"
+#include "lldate.h"
+#include "lluri.h"
 #include "llproxy.h"
 #include "llcleanup.h"
 

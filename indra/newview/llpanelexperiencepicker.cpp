@@ -74,7 +74,7 @@ LLPanelExperiencePicker::~LLPanelExperiencePicker()
 
 BOOL LLPanelExperiencePicker::postBuild()
 {
-	getChild<LLLineEditor>(TEXT_EDIT)->setKeystrokeCallback( boost::bind(&LLPanelExperiencePicker::editKeystroke, this, _1, _2),NULL);
+	getChild<LLLineEditor>(TEXT_EDIT)->setKeystrokeCallback( boost::bind(&LLPanelExperiencePicker::editKeystroke, this, _1, _2), nullptr);
 
 	childSetAction(BTN_FIND, boost::bind(&LLPanelExperiencePicker::onBtnFind, this));
 	getChildView(BTN_FIND)->setEnabled(TRUE);
@@ -109,7 +109,7 @@ BOOL LLPanelExperiencePicker::postBuild()
 
 void LLPanelExperiencePicker::editKeystroke( class LLLineEditor* caller, void* user_data )
 {
-	getChildView(BTN_FIND)->setEnabled(true);
+	getChildView(BTN_FIND)->setEnabled(!caller->getText().empty());
 }
 
 void LLPanelExperiencePicker::onBtnFind()
@@ -117,7 +117,8 @@ void LLPanelExperiencePicker::onBtnFind()
 	mCurrentPage=1;
 	boost::cmatch what;
 	std::string text = getChild<LLUICtrl>(TEXT_EDIT)->getValue().asString();
-	const boost::regex expression("secondlife:///app/experience/[\\da-f-]+/profile");
+	// *TODO: this should be part of LLUrlEntry
+	static const boost::regex expression("secondlife:///app/experience/[\\da-f-]+/profile");
 	if (boost::regex_match(text.c_str(), what, expression))
 	{
 		LLURI uri(text);
@@ -261,7 +262,7 @@ void LLPanelExperiencePicker::onBtnSelect()
 		return;
 	}
 
-	if(mSelectionCallback)
+	if(mSelectionCallback != nullptr)
 	{
 		const LLScrollListCtrl* results = getChild<LLScrollListCtrl>(LIST_RESULTS);
 		uuid_vec_t experience_ids;

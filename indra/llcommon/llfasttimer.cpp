@@ -39,13 +39,12 @@
 #include "lltracerecording.h"
 #include "lltracethreadrecorder.h"
 
-#include <boost/bind.hpp>
 #include <queue>
 
 
 #if LL_WINDOWS
 #include "lltimer.h"
-#elif LL_LINUX || LL_SOLARIS
+#elif LL_LINUX
 #include <sys/time.h>
 #include <sched.h>
 #include "lltimer.h"
@@ -66,20 +65,20 @@ bool        BlockTimer::sLog		     = false;
 std::string BlockTimer::sLogName         = "";
 bool        BlockTimer::sMetricLog       = false;
 
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 U64         BlockTimer::sClockResolution = 1000000000; // Nanosecond resolution
 #else
 U64         BlockTimer::sClockResolution = 1000000; // Microsecond resolution
 #endif
 
-static LLMutex*			sLogLock = NULL;
+static LLMutex*			sLogLock = nullptr;
 static std::queue<LLSD> sLogQueue;
 
 block_timer_tree_df_iterator_t begin_block_timer_tree_df(BlockTimerStatHandle& id) 
 { 
 	return block_timer_tree_df_iterator_t(&id, 
-		boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
-		boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
+		std::bind(std::mem_fn(&BlockTimerStatHandle::beginChildren), std::placeholders::_1),
+		std::bind(std::mem_fn(&BlockTimerStatHandle::endChildren), std::placeholders::_1));
 }
 
 block_timer_tree_df_iterator_t end_block_timer_tree_df() 
@@ -90,8 +89,8 @@ block_timer_tree_df_iterator_t end_block_timer_tree_df()
 block_timer_tree_df_post_iterator_t begin_block_timer_tree_df_post(BlockTimerStatHandle& id) 
 { 
 	return block_timer_tree_df_post_iterator_t(&id, 
-							boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
-							boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
+							std::bind(std::mem_fn(&BlockTimerStatHandle::beginChildren), std::placeholders::_1),
+							std::bind(std::mem_fn(&BlockTimerStatHandle::endChildren), std::placeholders::_1));
 }
 
 block_timer_tree_df_post_iterator_t end_block_timer_tree_df_post() 
@@ -102,8 +101,8 @@ block_timer_tree_df_post_iterator_t end_block_timer_tree_df_post()
 block_timer_tree_bf_iterator_t begin_block_timer_tree_bf(BlockTimerStatHandle& id)
 { 
 	return block_timer_tree_bf_iterator_t(&id, 
-		boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
-		boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
+		std::bind(std::mem_fn(&BlockTimerStatHandle::beginChildren), std::placeholders::_1),
+		std::bind(std::mem_fn(&BlockTimerStatHandle::endChildren), std::placeholders::_1));
 }
 
 block_timer_tree_bf_iterator_t end_block_timer_tree_bf()
@@ -114,8 +113,8 @@ block_timer_tree_bf_iterator_t end_block_timer_tree_bf()
 block_timer_tree_df_iterator_t begin_timer_tree(BlockTimerStatHandle& id) 
 	{
 	return block_timer_tree_df_iterator_t(&id, 
-		boost::bind(boost::mem_fn(&BlockTimerStatHandle::beginChildren), _1), 
-							boost::bind(boost::mem_fn(&BlockTimerStatHandle::endChildren), _1));
+		std::bind(std::mem_fn(&BlockTimerStatHandle::beginChildren), std::placeholders::_1),
+				  std::bind(std::mem_fn(&BlockTimerStatHandle::endChildren), std::placeholders::_1));
 	}
 
 block_timer_tree_df_iterator_t end_timer_tree() 
@@ -133,7 +132,7 @@ struct SortTimerByName
 		}
 };
 
-static BlockTimerStatHandle sRootTimer("root", NULL);
+static BlockTimerStatHandle sRootTimer("root", nullptr);
 BlockTimerStatHandle& BlockTimer::getRootTimeBlock()
 {
 	return sRootTimer;
@@ -153,12 +152,12 @@ void BlockTimer::setLogLock(LLMutex* lock)
 
 
 //static
-#if (LL_DARWIN || LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
+#if (LL_DARWIN || LL_LINUX) && !(defined(__i386__) || defined(__amd64__))
 U64 BlockTimer::countsPerSecond()
 {
 	return sClockResolution;
 }
-#else // windows or x86-mac or x86-linux or x86-solaris
+#else // windows or x86-mac or x86-linux
 U64 BlockTimer::countsPerSecond()
 {
 #if LL_FASTTIMER_USE_RDTSC || !LL_WINDOWS
@@ -176,14 +175,16 @@ U64 BlockTimer::countsPerSecond()
 		QueryPerformanceFrequency((LARGE_INTEGER*)&sCPUClockFrequency);
 		firstcall = false;
 	}
-	return sCPUClockFrequency.value();
+	return sCPUClockFrequency;
 #endif
 }
 #endif
 
 BlockTimerStatHandle::BlockTimerStatHandle(const char* name, const char* description)
-:	StatType<TimeBlockAccumulator>(name, description)
-{}
+	:	StatType<TimeBlockAccumulator>(name, description)
+	,	mCollapsed(false)
+	{
+	}
 
 TimeBlockTreeNode& BlockTimerStatHandle::getTreeNode() const
 {
@@ -308,15 +309,15 @@ void BlockTimer::processTimes()
 	updateTimes();
 
 	// reset for next frame
-	for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(),
-			end_it = BlockTimerStatHandle::instance_tracker_t::endInstances();
+	for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), 
+		end_it = BlockTimerStatHandle::instance_tracker_t::endInstances();
 		it != end_it;
 		++it)
 	{
 		BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
 		TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 
-		accumulator.mLastCaller = NULL;
+		accumulator.mLastCaller = nullptr;
 		accumulator.mMoveUpTree = false;
 	}
 #endif
@@ -367,7 +368,7 @@ void BlockTimer::logStats()
 			for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), 
 				end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(); 
 				it != end_it; 
-			++it)
+				++it)
 			{
 				BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
 				LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
@@ -442,13 +443,13 @@ void BlockTimer::writeLog(std::ostream& os)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TimeBlockAccumulator::TimeBlockAccumulator() 
-:	mTotalTimeCounter(0),
-	mSelfTimeCounter(0),
+:	mParent(nullptr),
+	mLastCaller(nullptr),
+	mTotalTimeCounter(0),
+    mSelfTimeCounter(0),
 	mCalls(0),
-	mLastCaller(NULL),
 	mActiveCount(0),
-	mMoveUpTree(false),
-	mParent(NULL)
+	mMoveUpTree(false)
 {}
 
 void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other, EBufferAppendType append_type )

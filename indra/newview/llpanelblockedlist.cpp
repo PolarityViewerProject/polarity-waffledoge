@@ -63,6 +63,10 @@ const std::string BLOCKED_PARAM_NAME = "blocked_to_select";
 
 LLPanelBlockedList::LLPanelBlockedList()
 :	LLPanel()
+,	mBlockedList(nullptr)
+,	mBlockedGearMBtn(nullptr)
+,	mUnblockBtn(nullptr)
+,	mBlockLimitText(nullptr)
 {
 	mCommitCallbackRegistrar.add("Block.Action",	boost::bind(&LLPanelBlockedList::onCustomAction,  this, _2));
 	mEnableCallbackRegistrar.add("Block.Check",		boost::bind(&LLPanelBlockedList::isActionChecked, this, _2));
@@ -96,16 +100,19 @@ BOOL LLPanelBlockedList::postBuild()
 		break;
 	}
 
+	mBlockedGearMBtn = getChild<LLMenuButton>("blocked_gear_btn");
 	// Use the context menu of the Block list for the Block tab gear menu.
 	LLToggleableMenu* blocked_gear_menu = mBlockedList->getContextMenu();
 	if (blocked_gear_menu)
 	{
-		getChild<LLMenuButton>("blocked_gear_btn")->setMenu(blocked_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
+		mBlockedGearMBtn->setMenu(blocked_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
 	}
 
-	getChild<LLButton>("unblock_btn")->setCommitCallback(boost::bind(&LLPanelBlockedList::unblockItem, this));
+	mUnblockBtn = getChild<LLButton>("unblock_btn");
+	mUnblockBtn->setCommitCallback(boost::bind(&LLPanelBlockedList::unblockItem, this));
 	getChild<LLFilterEditor>("blocked_filter_input")->setCommitCallback(boost::bind(&LLPanelBlockedList::onFilterEdit, this, _2));
 
+	mBlockLimitText = getChild<LLTextBox>("block_limit");
 	return LLPanel::postBuild();
 }
 
@@ -125,6 +132,7 @@ void LLPanelBlockedList::onOpen(const LLSD& key)
 
 void LLPanelBlockedList::selectBlocked(const LLUUID& mute_id)
 {
+	mBlockedList->resetSelection();
 	mBlockedList->selectItemByUUID(mute_id);
 }
 
@@ -140,12 +148,12 @@ void LLPanelBlockedList::showPanelAndSelect(const LLUUID& idToSelect)
 //////////////////////////////////////////////////////////////////////////
 void LLPanelBlockedList::updateButtons()
 {
-	bool hasSelected = NULL != mBlockedList->getSelectedItem();
-	getChildView("unblock_btn")->setEnabled(hasSelected);
-	getChildView("blocked_gear_btn")->setEnabled(hasSelected);
+	bool hasSelected = nullptr != mBlockedList->getSelectedItem();
+	mUnblockBtn->setEnabled(hasSelected);
+	mBlockedGearMBtn->setEnabled(hasSelected);
 
-	getChild<LLUICtrl>("block_limit")->setTextArg("[COUNT]", llformat("%d", mBlockedList->getMuteListSize()));
-	getChild<LLUICtrl>("block_limit")->setTextArg("[LIMIT]", llformat("%d", gSavedSettings.getS32("MuteListLimit")));
+	mBlockLimitText->setTextArg("[COUNT]", llformat("%d", mBlockedList->getMuteListSize()));
+	mBlockLimitText->setTextArg("[LIMIT]", llformat("%d", gSavedSettings.getS32("MuteListLimit")));
 }
 
 void LLPanelBlockedList::unblockItem()
@@ -257,8 +265,7 @@ void LLPanelBlockedList::callbackBlockByName(const std::string& text)
 
 // Constructor/Destructor
 LLFloaterGetBlockedObjectName::LLFloaterGetBlockedObjectName(const LLSD& key)
-: LLFloater(key)
-, mGetObjectNameCallback(NULL)
+: LLFloater(key)  
 {
 }
 

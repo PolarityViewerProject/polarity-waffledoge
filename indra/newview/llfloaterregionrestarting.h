@@ -28,7 +28,6 @@
 #define LL_LLFLOATERREGIONRESTARTING_H
 
 #include "llfloater.h"
-#include "lltextbox.h"
 #include "lleventtimer.h"
 
 class LLFloaterRegionRestarting : public LLFloater,  public LLEventTimer
@@ -42,10 +41,10 @@ public:
 private:
 	LLFloaterRegionRestarting(const LLSD& key);
 	virtual ~LLFloaterRegionRestarting();
-	virtual BOOL postBuild();
-	virtual BOOL tick();
-	virtual void refresh();
-	virtual void draw();
+	BOOL postBuild() override;
+	BOOL tick() override;
+	void refresh() override;
+	void draw() override;
 	virtual void regionChange();
 
 	std::string mName;

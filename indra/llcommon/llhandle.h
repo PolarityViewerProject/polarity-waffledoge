@@ -26,11 +26,10 @@
 */
 #ifndef LLHANDLE_H
 #define LLHANDLE_H
-#include "llrefcount.h"
+
 #include "llpointer.h"
 #include "llexception.h"
-#include <stdexcept>
-#include <boost/utility/enable_if.hpp>
+#include "llrefcount.h"
 #include <boost/throw_exception.hpp>
 
 /**
@@ -40,7 +39,7 @@
 class LLTombStone : public LLRefCount
 {
 public:
-	LLTombStone(void* target = NULL) : mTarget(target) {}
+	LLTombStone(void* target = nullptr) : mTarget(target) {}
 
 	void setTarget(void* target) { mTarget = target; }
 	void* getTarget() const { return mTarget; }
@@ -88,13 +87,13 @@ public:
 	LLHandle() : mTombStone(getDefaultTombStone()) {}
 
 	template<typename U>
-	LLHandle(const LLHandle<U>& other, typename boost::enable_if< typename std::is_convertible<U*, T*> >::type* dummy = 0)
+	LLHandle(const LLHandle<U>& other, typename std::enable_if<std::is_convertible<U*, T*>::value>::type* dummy = nullptr)
 	: mTombStone(other.mTombStone)
 	{}
 
 	bool isDead() const 
 	{ 
-		return mTombStone->getTarget() == NULL; 
+		return mTombStone->getTarget() == nullptr; 
 	}
 
 	void markDead() 
@@ -197,7 +196,7 @@ public:
 	}
 
 	template <typename U>
-	LLHandle<U> getDerivedHandle(typename boost::enable_if< typename std::is_convertible<U*, T*> >::type* dummy = 0) const
+	LLHandle<U> getDerivedHandle(typename std::enable_if<std::is_convertible<U*, T*>::value>::type* dummy = nullptr) const
 	{
 		LLHandle<U> downcast_handle;
 		downcast_handle.mTombStone = getHandle().mTombStone;

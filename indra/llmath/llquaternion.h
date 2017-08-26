@@ -154,12 +154,11 @@ public:
 	};
 	// Creates a quaternions from maya's rotation representation,
 	// which is 3 rotations (in DEGREES) in the specified order
-	//friend LLQuaternion mayaQ(F32 x, F32 y, F32 z, Order order);
-	static LLQuaternion mayaQ(F32 x, F32 y, F32 z, Order order);
+	friend LLQuaternion mayaQ(F32 x, F32 y, F32 z, Order order);
 
 	// Conversions between Order and strings like "xyz" or "ZYX"
 	friend const char *OrderToString( const Order order );
-	//friend Order StringToOrder( const char *str );
+	friend Order StringToOrder( const char *str );
 
 	static BOOL parseQuat(const std::string& buf, LLQuaternion* value);
 

@@ -45,7 +45,6 @@ LLWorldMapMessage::LLWorldMapMessage() :
 	mSLURLRegionName(),
 	mSLURLRegionHandle(0),
 	mSLURL(),
-	mSLURLCallback(0),
 	mSLURLTeleport(false)
 {
 }
@@ -166,11 +165,13 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 	//LL_INFOS("World Map") << "LLWorldMap::processMapBlockReply(), num_blocks = " << num_blocks << LL_ENDL;
 
 	bool found_null_sim = false;
-
+	LLFloaterWorldMap* floater_map = LLFloaterWorldMap::getInstance();
 	for (S32 block=0; block<num_blocks; ++block)
 	{
 		U16 x_regions;
 		U16 y_regions;
+		U16 x_size = 256;
+		U16 y_size = 256;
 		std::string name;
 		U8 accesscode;
 		U32 region_flags;
@@ -185,15 +186,29 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 //		msg->getU8Fast(_PREHASH_Data, _PREHASH_WaterHeight, water_height, block);
 //		msg->getU8Fast(_PREHASH_Data, _PREHASH_Agents, agents, block);
 		msg->getUUIDFast(_PREHASH_Data, _PREHASH_MapImageID, image_id, block);
+		if(msg->getNumberOfBlocksFast(_PREHASH_Size) > 0)
+		{
+			msg->getU16Fast(_PREHASH_Size, _PREHASH_SizeX, x_size, block);
+			msg->getU16Fast(_PREHASH_Size, _PREHASH_SizeY, y_size, block);
+		}
+		if(x_size == 0 || (x_size % 16) != 0|| (y_size % 16) != 0)
+		{
+			x_size = 256;
+			y_size = 256;
+		}
 
 		U32 x_world = (U32)(x_regions) * REGION_WIDTH_UNITS;
 		U32 y_world = (U32)(y_regions) * REGION_WIDTH_UNITS;
 
 		// name shouldn't be empty, see EXT-4568
-		llassert(!name.empty());
+		if (name.empty() && accesscode != 255)
+		{
+			LL_WARNS("World Map") << "MapBlockReply returned an empty region name; not inserting in the world map" << LL_ENDL;
+			continue;
+		}
 
 		// Insert that region in the world map, if failure, flag it as a "null_sim"
-		if (!(LLWorldMap::getInstance()->insertRegion(x_world, y_world, name, image_id, (U32)accesscode, region_flags)))
+		if (!(LLWorldMap::getInstance()->insertRegion(x_world, y_world, x_size, y_size, name, image_id, (U32)accesscode, region_flags)))
 		{
 			found_null_sim = true;
 		}
@@ -208,19 +223,19 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 				gAgent.teleportViaLocation(pos_global);
 			}
 			// Update the "real" tracker information
-			gFloaterWorldMap->trackLocation(pos_global);
+			floater_map->trackLocation(pos_global);
 		}
 
 		// Handle the SLURL callback if any
 		url_callback_t callback = LLWorldMapMessage::getInstance()->mSLURLCallback;
-		if(callback != NULL)
+		if(callback)
 		{
 			U64 handle = to_region_handle(x_world, y_world);
 			// Check if we reached the requested region
 			if ((LLStringUtil::compareInsensitive(LLWorldMapMessage::getInstance()->mSLURLRegionName, name)==0)
 				|| (LLWorldMapMessage::getInstance()->mSLURLRegionHandle == handle))
 			{
-				LLWorldMapMessage::getInstance()->mSLURLCallback = NULL;
+				LLWorldMapMessage::getInstance()->mSLURLCallback = nullptr;
 				LLWorldMapMessage::getInstance()->mSLURLRegionName.clear();
 				LLWorldMapMessage::getInstance()->mSLURLRegionHandle = 0;
 
@@ -229,7 +244,7 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 		}
 	}
 	// Tell the UI to update itself
-	gFloaterWorldMap->updateSims(found_null_sim);
+	floater_map->updateSims(found_null_sim);
 }
 
 // public static

@@ -33,7 +33,6 @@
 
 #include "llwlparammanager.h"
 #include "llglslshader.h"
-#include "lluictrlfactory.h"
 #include "llsliderctrl.h"
 #include "pipeline.h"
 
@@ -152,9 +151,9 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 	
 	if (LLPipeline::sRenderDeferred && !LLPipeline::sReflectionRender && !LLPipeline::sUnderWaterRender)
 	{
-		shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2f);
+		shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2f); // <alchemy/>
 	} else {
-		shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0f);
+		shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0f); // <alchemy/>
 	}
 }
 
@@ -221,14 +220,6 @@ void LLWLParamSet::set(const std::string& paramName, const LLColor4 & val)
 
 LLVector4 LLWLParamSet::getVector(const std::string& paramName, bool& error) 
 {
-	// <FS:ND> Early exit when paramName isn't even there. Safes us a lot of allocations/deallocations each frame
-	if( !mParamValues.has( paramName ) )
-	{
-		error = true;
-		return LLVector4(0,0,0,0);
-	}
-	// </FS:ND>
-
 	// test to see if right type
 	LLSD cur_val = mParamValues.get(paramName);
 	if (!cur_val.isArray()) 
@@ -249,14 +240,6 @@ LLVector4 LLWLParamSet::getVector(const std::string& paramName, bool& error)
 
 F32 LLWLParamSet::getFloat(const std::string& paramName, bool& error) 
 {
-	// <FS:ND> Early exit when paramName isn't even there. Safes us a lot of allocations/deallocations each frame
-	if( !mParamValues.has( paramName ) )
-	{
-		error = true;
-		return 0.;
-	}
-	// </FS:ND>
-
 	// test to see if right type
 	LLSD cur_val = mParamValues.get(paramName);
 	if (cur_val.isArray() && cur_val.size() != 0) 
@@ -305,14 +288,6 @@ void LLWLParamSet::setEastAngle(float val)
 void LLWLParamSet::mix(LLWLParamSet& src, LLWLParamSet& dest, F32 weight)
 {
 	// set up the iterators
-
-	// keep cloud positions and coverage the same
-	/// TODO masking will do this later
-	F32 cloudPos1X = (F32) mParamValues["cloud_pos_density1"][0].asReal();
-	F32 cloudPos1Y = (F32) mParamValues["cloud_pos_density1"][1].asReal();
-	F32 cloudPos2X = (F32) mParamValues["cloud_pos_density2"][0].asReal();
-	F32 cloudPos2Y = (F32) mParamValues["cloud_pos_density2"][1].asReal();
-	F32 cloudCover = (F32) mParamValues["cloud_shadow"][0].asReal();
 
 	LLSD srcVal;
 	LLSD destVal;
@@ -395,17 +370,9 @@ void LLWLParamSet::mix(LLWLParamSet& src, LLWLParamSet& dest, F32 weight)
 		}
 	}
 
+	// now setup the sun properly
 	setSunAngle((1 - weight) * srcSunAngle + weight * destSunAngle);
 	setEastAngle((1 - weight) * srcEastAngle + weight * destEastAngle);
-	
-	// now setup the sun properly
-
-	// reset those cloud positions
-	mParamValues["cloud_pos_density1"][0] = cloudPos1X;
-	mParamValues["cloud_pos_density1"][1] = cloudPos1Y;
-	mParamValues["cloud_pos_density2"][0] = cloudPos2X;
-	mParamValues["cloud_pos_density2"][1] = cloudPos2Y;
-	mParamValues["cloud_shadow"][0] = cloudCover;
 }
 
 void LLWLParamSet::updateCloudScrolling(void) 

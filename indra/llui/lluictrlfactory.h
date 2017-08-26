@@ -172,17 +172,12 @@ public:
 				// not of right type, so delete it
 				if (!widget) 
 				{
-					LL_WARNS() << "Widget in " << filename << " was of type " << typeid(view).name() << " instead of expected type " << typeid(T).name() << LL_ENDL;
-
-#if LL_DARWIN
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdelete-incomplete"
-					delete view;
-#pragma clang diagnostic pop
-#else
-					delete view;
-#endif
-					view = NULL;
+					// <alchemy> - UNDEFINED BEHAVIOR
+					LL_ERRS() << "Widget in " << filename << " was of type " << typeid(view).name() << " instead of expected type " << typeid(T).name() << LL_ENDL;
+					//LL_WARNS() << "Widget in " << filename << " was of type " << typeid(view).name() << " instead of expected type " << typeid(T).name() << LL_ENDL;
+					//delete view;
+					//view = NULL;
+					// </alchemy>
 				}
 			}
 		}
@@ -207,7 +202,6 @@ fail:
 private:
 	//NOTE: both friend declarations are necessary to keep both gcc and msvc happy
 	template <typename T> friend class LLChildRegistry;
-	template <typename T> template <typename U> friend class LLChildRegistry<T>::Register;
 
 	static void copyName(LLXMLNodePtr src, LLXMLNodePtr dest);
 

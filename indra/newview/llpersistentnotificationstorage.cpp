@@ -36,8 +36,11 @@
 #include "llnotificationstorage.h"
 #include "llscreenchannel.h"
 #include "llscriptfloater.h"
+#include "llviewercontrol.h"
 #include "llviewermessage.h"
 #include "llviewernetwork.h"
+#include <boost/smart_ptr.hpp>
+
 LLPersistentNotificationStorage::LLPersistentNotificationStorage():
 	  LLNotificationStorage("")
 	, mLoaded(false)

@@ -32,8 +32,10 @@
 
 #include "llfloaterreg.h"
 #include "lluictrl.h"
+#include "lltextbox.h"
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llviewercontrol.h"
 #include "llviewerwindow.h"
 
 static S32 sSeconds;
@@ -43,8 +45,8 @@ LLFloaterRegionRestarting::LLFloaterRegionRestarting(const LLSD& key) :
 	LLFloater(key),
 	LLEventTimer(1)
 {
-	mName = key["NAME"].asString();
-	sSeconds = key["SECONDS"].asInteger();
+	mName = key["NAME"].asString(); // <alchemy/>
+	sSeconds = key["SECONDS"].asInteger(); // <alchemy/>
 }
 
 LLFloaterRegionRestarting::~LLFloaterRegionRestarting()
@@ -99,6 +101,10 @@ void LLFloaterRegionRestarting::refresh()
 void LLFloaterRegionRestarting::draw()
 {
 	LLFloater::draw();
+
+	static LLCachedControl<bool> alchemyRegionShake(gSavedSettings, "AlchemyRegionRestartShake", true);
+	if (!alchemyRegionShake)
+		return;
 
 	const F32 SHAKE_INTERVAL = 0.025;
 	const F32 SHAKE_TOTAL_DURATION = 1.8; // the length of the default alert tone for this

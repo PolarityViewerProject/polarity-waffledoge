@@ -50,6 +50,7 @@
 		</combo_box>
 		<check_box label="Arayüz" name="ui_check"/>
 		<check_box label="BÜG&apos;ler" name="hud_check"/>
+		<check_box label="Kare dondur (tam ekran)" name="freeze_frame_check"/>
 		<check_box label="Otomatik yenile" name="auto_snapshot_check"/>
 		<text name="filter_list_label">
 			Filtre:

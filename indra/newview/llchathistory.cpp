@@ -27,17 +27,16 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-// replaced with pvchathistory to avoid merge breakage
-#if LL_CHAT_HISTORY
+
 #include "llchathistory.h"
 
 #include "llavatarnamecache.h"
 #include "llinstantmessage.h"
 
+#include "alavatarcolormgr.h"
 #include "llimview.h"
 #include "llcommandhandler.h"
 #include "llpanel.h"
-#include "lluictrlfactory.h"
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
 #include "llcallingcard.h" //for LLAvatarTracker
@@ -57,21 +56,14 @@
 #include "llviewerregion.h"
 #include "llviewertexteditor.h"
 #include "llworld.h"
-#include "lluiconstants.h"
 #include "llstring.h"
 #include "llurlaction.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
-#include "llmutelist.h"
-#include <boost/algorithm/string/predicate.hpp> // <polarity> for BOOST functions
+#include "llviewermenu.h"
+#include "llweb.h"
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f)
-#include "rlvcommon.h"
-// [/RLVa:KB]
+#include <boost/algorithm/string/predicate.hpp> // <alchemy/>
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
@@ -84,7 +76,7 @@ public:
 	// requests will be throttled from a non-trusted browser
 	LLObjectIMHandler() : LLCommandHandler("objectim", UNTRUSTED_THROTTLE) {}
 
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web) override
 	{
 		if (params.size() < 1)
 		{
@@ -100,10 +92,6 @@ public:
 		LLSD payload;
 		payload["object_id"] = object_id;
 		payload["owner_id"] = query_map["owner"];
-// [RLVa:KB] - Checked: 2010-11-02 (RLVa-1.2.2a) | Modified: RLVa-1.2.2a
-		if (query_map.has("rlv_shownames"))
-			payload["rlv_shownames"] = query_map["rlv_shownames"];
-// [/RLVa:KB]
 		payload["name"] = query_map["name"];
 		payload["slurl"] = LLWeb::escapeURL(query_map["slurl"]);
 		payload["group_owned"] = query_map["groupowned"];
@@ -118,21 +106,17 @@ class LLChatHistoryHeader: public LLPanel
 public:
 	LLChatHistoryHeader()
 	:	LLPanel(),
-		mInfoCtrl(NULL),
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.2a) | Added: RLVa-1.2.0f
-		mShowContextMenu(true), 
-		mShowInfoCtrl(true),
-// [/RLVa:KB]
 		mPopupMenuHandleAvatar(),
 		mPopupMenuHandleObject(),
+		mInfoCtrl(nullptr),
 		mAvatarID(),
 		mSourceType(CHAT_SOURCE_UNKNOWN),
 		mFrom(),
 		mSessionID(),
 		mMinUserNameWidth(0),
-		mUserNameFont(NULL),
-		mUserNameTextBox(NULL),
-		mTimeBoxTextBox(NULL),
+		mUserNameFont(nullptr),
+		mUserNameTextBox(nullptr),
+		mTimeBoxTextBox(nullptr),
 		mAvatarNameCacheConnection()
 	{}
 
@@ -149,9 +133,21 @@ public:
 		{
 			mAvatarNameCacheConnection.disconnect();
 		}
+		LLMenuGL* menu_avatar = (LLMenuGL*) mPopupMenuHandleAvatar.get();
+		if (menu_avatar)
+		{
+			menu_avatar->die();
+			mPopupMenuHandleAvatar.markDead();
+		}
+		LLMenuGL* menu_object = (LLMenuGL*) mPopupMenuHandleObject.get();
+		if (menu_object)
+		{
+			menu_object->die();
+			mPopupMenuHandleObject.markDead();
+		}
 	}
 
-	BOOL handleMouseUp(S32 x, S32 y, MASK mask)
+	BOOL handleMouseUp(S32 x, S32 y, MASK mask) override
 	{
 		return LLPanel::handleMouseUp(x,y,mask);
 	}
@@ -286,9 +282,9 @@ public:
 	void mute(const LLUUID& participant_id, U32 flags)
 	{
 		BOOL is_muted = LLMuteList::getInstance()->isMuted(participant_id, flags);
-		std::string name;
-		gCacheName->getFullName(participant_id, name);
-		LLMute mute(participant_id, name, LLMute::AGENT);
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(participant_id, &av_name);
+		LLMute mute(participant_id, av_name.getUserName(), LLMute::AGENT);
 
 		if (!is_muted)
 		{
@@ -300,7 +296,7 @@ public:
 		}
 	}
 
-	BOOL postBuild()
+	BOOL postBuild() override
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar registrar_enable;
@@ -350,7 +346,7 @@ public:
 		return 	child->pointInView(local_x, local_y);
 	}
 
-	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask)
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override
 	{
 		if(pointInChild("avatar_icon",x,y) || pointInChild("user_name",x,y))
 		{
@@ -363,11 +359,7 @@ public:
 
 	void showInspector()
 	{
-//		if (mAvatarID.isNull() && CHAT_SOURCE_SYSTEM != mSourceType) return;
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.2a) | Added: RLVa-1.2.0f
-		// Don't double-click show the inspector if we're not showing the info control
-		if ( (!mShowInfoCtrl) || (mAvatarID.isNull() && CHAT_SOURCE_SYSTEM != mSourceType) ) return;
-// [/RLVa:KB]
+		if (mAvatarID.isNull() && CHAT_SOURCE_SYSTEM != mSourceType) return;
 		
 		if (mSourceType == CHAT_SOURCE_OBJECT)
 		{
@@ -431,24 +423,8 @@ public:
 
 			// Start with blank so sample data from XUI XML doesn't
 			// flash on the screen
-//			user_name->setValue( LLSD() );
-//			fetchAvatarName();
-// [RLVa:KB] - Checked: 2010-11-01 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-			if (!chat.mRlvNamesFiltered)
-			{
-				user_name->setValue( LLSD() );
-				fetchAvatarName();
-			}
-			else
-			{
-				// If the agent's chat was subject to @shownames=n we should display their anonimized name
-				mFrom = chat.mFromName;
-				user_name->setValue(mFrom);
-				user_name->setToolTip(mFrom);
-				setToolTip(mFrom);
-				updateMinUserNameWidth();
-			}
-// [/RLVa:KB]
+			user_name->setValue( LLSD() );
+			fetchAvatarName();
 		}
 		else if (chat.mChatStyle == CHAT_STYLE_HISTORY ||
 				 mSourceType == CHAT_SOURCE_AGENT)
@@ -469,7 +445,7 @@ public:
 					std::string username = chat.mFromName.substr(username_start + 2);
 					username = username.substr(0, username.length() - 1);
 					LLStyle::Params style_params_name;
-					LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
+					LLColor4 userNameColor = LLUIColorTable::instance().getColor("ChatHeaderUserNameColor"); // <alchemy/>
 					style_params_name.color(userNameColor);
 					style_params_name.font.name("SansSerifSmall");
 					style_params_name.font.style("NORMAL");
@@ -501,15 +477,6 @@ public:
 		if(mSourceType != CHAT_SOURCE_AGENT ||	mAvatarID.isNull())
 			icon->setDrawTooltip(false);
 
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.2a) | Added: RLVa-1.2.0f
-		// Don't show the context menu, info control or avatar icon tooltip if this chat was subject to @shownames=n
-		if ( (chat.mRlvNamesFiltered) && ((CHAT_SOURCE_AGENT == mSourceType) || (CHAT_SOURCE_OBJECT == mSourceType))  )
-		{
-			mShowInfoCtrl = mShowContextMenu = false;
-			icon->setDrawTooltip(false);
-		}
-// [/RLVa:KB]
-
 		switch (mSourceType)
 		{
 			case CHAT_SOURCE_AGENT:
@@ -518,8 +485,6 @@ public:
 			case CHAT_SOURCE_OBJECT:
 				icon->setValue(LLSD("OBJECT_Icon"));
 				break;
-			case CHAT_SOURCE_MOTD:
-			/* FALLTHROUGH */
 			case CHAT_SOURCE_SYSTEM:
 				icon->setValue(LLSD("SL_Logo"));
 				break;
@@ -552,7 +517,7 @@ public:
 		}
 	}
 
-	/*virtual*/ void draw()
+	/*virtual*/ void draw() override
 	{
 		LLTextBox* user_name = mUserNameTextBox; //getChild<LLTextBox>("user_name");
 		LLTextBox* time_box = mTimeBoxTextBox; //getChild<LLTextBox>("time_box");
@@ -588,10 +553,6 @@ protected:
 
 	void showContextMenu(S32 x,S32 y)
 	{
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.2a) | Added: RLVa-1.2.0f
-		if (!mShowContextMenu)
-			return;
-// [/RLVa:KB]
 		if(mSourceType == CHAT_SOURCE_SYSTEM)
 			showSystemContextMenu(x,y);
 		if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_AGENT)
@@ -657,7 +618,7 @@ protected:
 				menu->setItemEnabled("Chat History", LLLogChat::isTranscriptExist(mAvatarID));
 			}
 
-			menu->setItemEnabled("Map", (LLAvatarTracker::instance().isBuddyOnline(mAvatarID) && is_agent_mappable(mAvatarID)) || gAgent.isGodlike() );
+			menu->setItemEnabled("Map", (LLAvatarTracker::instance().isBuddyOnline(mAvatarID) && LLAvatarActions::isAgentMappable(mAvatarID)) || gAgent.isGodlike() );
 			menu->buildDrawLabels();
 			menu->updateParent(LLMenuGL::sMenuContainer);
 			LLMenuGL::showPopup(this, menu, x, y);
@@ -666,10 +627,7 @@ protected:
 
 	void showInfoCtrl()
 	{
-//		const bool isVisible = !mAvatarID.isNull() && !mFrom.empty() && CHAT_SOURCE_SYSTEM != mSourceType;
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.2a) | Added: RLVa-1.2.0f
-		const bool isVisible = mShowInfoCtrl && !mAvatarID.isNull() && !mFrom.empty() && CHAT_SOURCE_SYSTEM != mSourceType;
-// [/RLVa:KB]
+		const bool isVisible = !mAvatarID.isNull() && !mFrom.empty() && CHAT_SOURCE_SYSTEM != mSourceType;
 		if (isVisible)
 		{
 			const LLRect sticky_rect = mUserNameTextBox->getRect();
@@ -688,6 +646,9 @@ private:
 	void setTimeField(const LLChat& chat)
 	{
 		LLTextBox* time_box = getChild<LLTextBox>("time_box");
+
+		LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatHeaderTimestampColor"); // <alchemy/>
+		time_box->setColor(timestamp_color); // <alchemy/>
 
 		LLRect rect_before = time_box->getRect();
 
@@ -731,12 +692,13 @@ private:
 		user_name->setValue( LLSD(av_name.getDisplayName() ) );
 		user_name->setToolTip( av_name.getUserName() );
 
-		if (gSavedSettings.getBOOL("NameTagShowUsernames") && 
+		static LLCachedControl<bool> nameTagShowUsername(gSavedSettings, "NameTagShowUsernames");
+		if (nameTagShowUsername && 
 			av_name.useDisplayNames() &&
 			!av_name.isDisplayNameDefault())
 		{
 			LLStyle::Params style_params_name;
-			LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
+			LLColor4 userNameColor = LLUIColorTable::instance().getColor("ChatHeaderUserNameColor"); // <alchemy/>
 			style_params_name.color(userNameColor);
 			style_params_name.font.name("SansSerifSmall");
 			style_params_name.font.style("NORMAL");
@@ -759,10 +721,6 @@ protected:
 	EChatSourceType		mSourceType;
 	std::string			mFrom;
 	LLUUID				mSessionID;
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.2a) | Added: RLVa-1.2.0f
-	bool                mShowContextMenu;
-	bool                mShowInfoCtrl;
-// [/RLVa:KB]
 
 	S32					mMinUserNameWidth;
 	const LLFontGL*		mUserNameFont;
@@ -775,6 +733,8 @@ private:
 
 LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 :	LLUICtrl(p),
+	mIsLastMessageFromLog(false),
+	mNotifyAboutUnreadMsg(p.notify_unread_msg),
 	mMessageHeaderFilename(p.message_header),
 	mMessageSeparatorFilename(p.message_separator),
 	mLeftTextPad(p.left_text_pad),
@@ -784,15 +744,13 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 	mTopSeparatorPad(p.top_separator_pad),
 	mBottomSeparatorPad(p.bottom_separator_pad),
 	mTopHeaderPad(p.top_header_pad),
-	mBottomHeaderPad(p.bottom_header_pad),
-	mIsLastMessageFromLog(false),
-	mNotifyAboutUnreadMsg(p.notify_unread_msg)
+	mBottomHeaderPad(p.bottom_header_pad)
 {
 	LLTextEditor::Params editor_params(p);
 	editor_params.rect = getLocalRect();
 	editor_params.follows.flags = FOLLOWS_ALL;
 	editor_params.enabled = false; // read only
-	editor_params.show_context_menu = "true";
+	editor_params.show_context_menu = true;
 	editor_params.trusted_content = false;
 	mEditor = LLUICtrlFactory::create<LLTextEditor>(editor_params, this);
 	mEditor->setIsFriendCallback(LLAvatarActions::isFriend);
@@ -802,10 +760,7 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 
 LLSD LLChatHistory::getValue() const
 {
-  LLSD* text=new LLSD(); 
-  text->assign(mEditor->getText());
-  return *text;
-    
+	return LLSD(mEditor->getText());
 }
 
 LLChatHistory::~LLChatHistory()
@@ -880,7 +835,7 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 
 LLView* LLChatHistory::getSeparator()
 {
-	LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessageSeparatorFilename, NULL, LLPanel::child_registry_t::instance());
+	LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessageSeparatorFilename, nullptr, LLPanel::child_registry_t::instance());
 	return separator;
 }
 
@@ -900,6 +855,7 @@ void LLChatHistory::clear()
 {
 	mLastFromName.clear();
 	mEditor->clear();
+	mEditor->blockUndo(); // AL:LL:WTF: why is chat history a text editor with an undo stack...
 	mLastFromID = LLUUID::null;
 }
 
@@ -949,48 +905,16 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mMoreChatPanel->reshape(mMoreChatPanel->getRect().getWidth(), height);
 	}
 
-	static LLColor4 default_name_color = LLUIColorTable::getInstance()->getColor("ChatHeaderDisplayNameColor");
-	static LLColor4 system_color = LLUIColorTable::getInstance()->getColor("SystemChatColor");
-	LLColor4 name_color;
-	LLColor4 txt_color;
-#ifdef PVDATA_SYSTEM
-	static LLCachedControl<bool> color_pvagent_chat(gSavedSettings, "PVChat_ColorManager_ColorMessages", false);
-	// <polarity> Colored names for special users, short-circuit getChatColor for agents
-	if (chat.mChatStyle != CHAT_STYLE_HISTORY)
-	{
-		switch (chat.mSourceType)
-		{
-		case CHAT_SOURCE_AGENT:
-			if (chat.mFromID.notNull())
-			{
-				// <polarity> Attempt to detect beggars and such
-				gPVOldAPI->checkBeggar(chat.mFromID, chat.mText);
-				name_color = gPVOldAPI->getColor(chat.mFromID, default_name_color);
-				if (!color_pvagent_chat)
-				{
-					LLViewerChat::getChatColor(chat, txt_color);
-				}
-				else
-				{
-					txt_color = name_color;
-				}
-				break;
-			}
-		default:
-			LLViewerChat::getChatColor(chat, name_color);
-			LLViewerChat::getChatColor(chat, txt_color);
-			break;
-		}
-	}
-	// else
-	// skip, processed down below
-	// </polarity>
-#else
-	// untested!
-	LLColor4 name_color(default_name_color);
-	LLViewerChat::getChatColor(chat, txt_color);
-#endif
+	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
+	LLColor4 name_color = LLUIColorTable::instance().getColor("ChatHeaderDisplayNameColor"); // <alchemy/>
 
+	static LLCachedControl<bool> use_colorizer(gSavedSettings, "AlchemyChatColorManager", false);
+	if (use_colorizer && chat.mSourceType != CHAT_SOURCE_OBJECT && chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && chat.mFromID != gAgent.getID())
+	{
+		name_color = ALAvatarColorMgr::instance().getColor(chat.mFromID);
+	}
+
+	LLViewerChat::getChatColor(chat,txt_color);
 	LLFontGL* fontp = LLViewerChat::getChatFont();	
 	std::string font_name = LLFontGL::nameFromFont(fontp);
 	std::string font_size = LLFontGL::sizeFromFont(fontp);	
@@ -1009,7 +933,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	std::string prefix = chat.mText.substr(0, 4);
 
 	//IRC styled /me messages.
-	bool irc_me = boost::iequals(prefix, "/me ") || boost::iequals(prefix, "/me'"); // <polarity> case insensitive /ME and /ME'S
+	bool irc_me = boost::iequals(prefix, "/me ") || boost::iequals(prefix, "/me'"); // <alchemy/>
 
 	// Delimiter after a name in header copy/past and in plain text mode
 	std::string delimiter = ": ";
@@ -1043,11 +967,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	// We graying out chat history by graying out messages that contains full date in a time string
 	if (message_from_log)
 	{
-		static LLColor4 history_color = LLUIColorTable::getInstance()->getColor("ChatHistoryTextColor");
-		body_message_params.color(history_color);
-		body_message_params.readonly_color(history_color);
-		name_params.color(history_color);
-		name_params.readonly_color(history_color);
+		txt_color = LLColor4::grey;
+		body_message_params.color(txt_color);
+		body_message_params.readonly_color(txt_color);
+		name_params.color(txt_color);
+		name_params.readonly_color(txt_color);
 	}
 
 	bool prependNewLineState = mEditor->getText().size() != 0;
@@ -1057,20 +981,18 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	{
 		square_brackets = chat.mSourceType == CHAT_SOURCE_SYSTEM;
 
-		LLStyle::Params timestamp_style(body_message_params);
-
 		// out of the timestamp
 		if (args["show_time"].asBoolean())
 		{
+			LLStyle::Params timestamp_style(body_message_params);
 			if (!message_from_log)
 			{
 				LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
 				timestamp_style.color(timestamp_color);
 				timestamp_style.readonly_color(timestamp_color);
-				
-				mEditor->appendText("[" + chat.mTimeStr + "] ", prependNewLineState, timestamp_style);
-				prependNewLineState = false;
 			}
+			mEditor->appendText("[" + chat.mTimeStr + "] ", prependNewLineState, timestamp_style);
+			prependNewLineState = false;
 		}
 
         // out the opening square bracket (if need)
@@ -1083,27 +1005,16 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		// names showing
 		if (args["show_names_for_p2p_conv"].asBoolean() && utf8str_trim(chat.mFromName).size() != 0)
 		{
-			static LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
 			if ( chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
 			{
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f) | Added: RLVa-1.2.0f
-				// NOTE-RLVa: we don't need to do any @shownames or @showloc filtering here because we'll already have an existing URL
-				std::string url = chat.mURL;
-				RLV_ASSERT( (url.empty()) || (std::string::npos != url.find("objectim")) );
-				if ( (url.empty()) || (std::string::npos == url.find("objectim")) )
-				{
-// [/RLVa:KB]
-					// for object IMs, create a secondlife:///app/objectim SLapp
-					/*std::string*/ url = LLViewerChat::getSenderSLURL(chat, args);
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f) | Added: RLVa-1.2.0f
-				}
-// [/RLVa:KB]
+				// for object IMs, create a secondlife:///app/objectim SLapp
+				std::string url = LLViewerChat::getSenderSLURL(chat, args);
 
 				// set the link for the object name to be the objectim SLapp
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(body_message_params);
-				//link_params.color.control = "HTMLLinkColor";
+				LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 				link_params.color = link_color;
 				link_params.readonly_color = link_color;
 				link_params.is_link = true;
@@ -1112,22 +1023,22 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				mEditor->appendText(chat.mFromName + delimiter, prependNewLineState, link_params);
 				prependNewLineState = false;
 			}
-//			else if (chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f) | Added: RLVa-1.2.0f
-			else if (chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log && !chat.mRlvNamesFiltered)
-// [/RLVa:KB]
+			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
 				LLStyle::Params link_params(body_message_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
-				// use url color if no special color was set
-				if (name_color == default_name_color)
-				{
-					name_color = link_color;
-				}
-				link_params.override_link_style = true;
-				link_params.color = name_color;
-				link_params.readonly_color = name_color;
 
+				if (use_colorizer && chat.mFromID != gAgent.getID())
+				{
+					link_params.override_link_style = true;
+					link_params.color = name_color;
+					link_params.readonly_color = name_color;
+				}
+				static LLCachedControl<bool> alchemyPlainChatNameBold(gSavedSettings, "AlchemyPlainChatNameBold", false);
+				if (alchemyPlainChatNameBold)
+				{
+					link_params.font.style = "BOLD";
+				}
 				// Add link to avatar's inspector and delimiter to message.
 				mEditor->appendText(std::string(link_params.link_href) + delimiter,
 					prependNewLineState, link_params);
@@ -1144,7 +1055,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	else // showing timestamp and name in the expanded mode
 	{
 		prependNewLineState = false;
-		LLView* view = NULL;
+		LLView* view = nullptr;
 		LLInlineViewSegment::Params p;
 		p.force_newline = true;
 		p.left_pad = mLeftWidgetPad;
@@ -1214,54 +1125,40 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 		if (create_toast)
 		{
-			LLNotificationPtr notification = LLNotificationsUtil::find(chat.mNotifId);
-			if (notification != NULL)
-			{
-				LLIMToastNotifyPanel* notify_box = new LLIMToastNotifyPanel(
+		LLNotificationPtr notification = LLNotificationsUtil::find(chat.mNotifId);
+		if (notification != nullptr)
+		{
+			LLIMToastNotifyPanel* notify_box = new LLIMToastNotifyPanel(
 					notification, chat.mSessionID, LLRect::null, !use_plain_text_chat_history, mEditor);
 
-				//Prepare the rect for the view
-				LLRect target_rect = mEditor->getDocumentView()->getRect();
-				// squeeze down the widget by subtracting padding off left and right
-				target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
-				target_rect.mRight -= mRightWidgetPad;
-				notify_box->reshape(target_rect.getWidth(), notify_box->getRect().getHeight());
-				notify_box->setOrigin(target_rect.mLeft, notify_box->getRect().mBottom);
+			//Prepare the rect for the view
+			LLRect target_rect = mEditor->getDocumentView()->getRect();
+			// squeeze down the widget by subtracting padding off left and right
+			target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
+			target_rect.mRight -= mRightWidgetPad;
+			notify_box->reshape(target_rect.getWidth(),	notify_box->getRect().getHeight());
+			notify_box->setOrigin(target_rect.mLeft, notify_box->getRect().mBottom);
 
-				LLInlineViewSegment::Params params;
-				params.view = notify_box;
-				params.left_pad = mLeftWidgetPad;
-				params.right_pad = mRightWidgetPad;
-				mEditor->appendWidget(params, "\n", false);
-			}
+			LLInlineViewSegment::Params params;
+			params.view = notify_box;
+			params.left_pad = mLeftWidgetPad;
+			params.right_pad = mRightWidgetPad;
+			mEditor->appendWidget(params, "\n", false);
 		}
+	}
 	}
 
 	// usual messages showing
 	else
 	{
-		//std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
-		std::string message;
-		// <polarity> Strip leading space in IRC_STYLE messsages coming from objects with empty name
-		if(irc_me && chat.mFromName.empty())
-		{
-			message = chat.mText.substr(4);
-		}
-		else if(irc_me)
-		{
-			message = chat.mText.substr(3);
-		}
-		else
-		{
-			message = chat.mText;
-		}
-		// <polarity>
+		std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
+
 
 		//MESSAGE TEXT PROCESSING
 		//*HACK getting rid of redundant sender names in system notifications sent using sender name (see EXT-5010)
 		if (use_plain_text_chat_history && !from_me && chat.mFromID.notNull())
 		{
-			std::string slurl_about = LLSLURL("app", chat.mFromID, "about").getSLURLString();
+			std::string slurl_about = LLSLURL("agent", chat.mFromID, "about").getSLURLString();
 			if (message.length() > slurl_about.length() && 
 				message.compare(0, slurl_about.length(), slurl_about) == 0)
 			{
@@ -1310,4 +1207,3 @@ void LLChatHistory::draw()
 
 	LLUICtrl::draw();
 }
-#endif // LL_CHAT_HISTORY

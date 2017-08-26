@@ -34,21 +34,24 @@
 #include "llpanelmediasettingssecurity.h"
 #include "llpanelmediasettingspermissions.h"
 #include "llviewercontrol.h"
-#include "lluictrlfactory.h"
 #include "llbutton.h"
+#include "lltabcontainer.h"
 #include "llselectmgr.h"
 #include "llsdutil.h"
 
-LLFloaterMediaSettings* LLFloaterMediaSettings::sInstance = NULL;
+LLFloaterMediaSettings* LLFloaterMediaSettings::sInstance = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////
 // 
 LLFloaterMediaSettings::LLFloaterMediaSettings(const LLSD& key)
 	: LLFloater(key),
-	mTabContainer(NULL),
-	mPanelMediaSettingsGeneral(NULL),
-	mPanelMediaSettingsSecurity(NULL),
-	mPanelMediaSettingsPermissions(NULL),
+	mOKBtn(nullptr),
+	mCancelBtn(nullptr),
+	mApplyBtn(nullptr),
+	mTabContainer(nullptr),
+	mPanelMediaSettingsGeneral(nullptr),
+	mPanelMediaSettingsSecurity(nullptr),
+	mPanelMediaSettingsPermissions(nullptr),
 	mIdenticalHasMediaInfo( true ),
 	mMultipleMedia(false),
 	mMultipleValidMedia(false)
@@ -62,22 +65,22 @@ LLFloaterMediaSettings::~LLFloaterMediaSettings()
 	if ( mPanelMediaSettingsGeneral )
 	{
 		delete mPanelMediaSettingsGeneral;
-		mPanelMediaSettingsGeneral = NULL;
+		mPanelMediaSettingsGeneral = nullptr;
 	}
 
 	if ( mPanelMediaSettingsSecurity )
 	{
 		delete mPanelMediaSettingsSecurity;
-		mPanelMediaSettingsSecurity = NULL;
+		mPanelMediaSettingsSecurity = nullptr;
 	}
 
 	if ( mPanelMediaSettingsPermissions )
 	{
 		delete mPanelMediaSettingsPermissions;
-		mPanelMediaSettingsPermissions = NULL;
+		mPanelMediaSettingsPermissions = nullptr;
 	}
 
-	sInstance = NULL;
+	sInstance = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,13 +88,13 @@ LLFloaterMediaSettings::~LLFloaterMediaSettings()
 BOOL LLFloaterMediaSettings::postBuild()
 {
 	mApplyBtn = getChild<LLButton>("Apply");
-	mApplyBtn->setClickedCallback(onBtnApply, this);
+	mApplyBtn->setCommitCallback(boost::bind(&LLFloaterMediaSettings::onBtnApply, this));
 		
 	mCancelBtn = getChild<LLButton>("Cancel");
-	mCancelBtn->setClickedCallback(onBtnCancel, this);
+	mCancelBtn->setCommitCallback(boost::bind(&LLFloaterMediaSettings::onBtnCancel, this));
 
 	mOKBtn = getChild<LLButton>("OK");
-	mOKBtn->setClickedCallback(onBtnOK, this);
+	mOKBtn->setCommitCallback(boost::bind(&LLFloaterMediaSettings::onBtnOK, this));
 			
 	mTabContainer = getChild<LLTabContainer>( "tab_container" );
 	
@@ -222,37 +225,31 @@ void LLFloaterMediaSettings::clearValues( bool editable)
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// static
-void LLFloaterMediaSettings::onBtnOK( void* userdata )
+void LLFloaterMediaSettings::onBtnOK()
 {
-	sInstance->commitFields();
+	commitFields();
 
-	sInstance->apply();
+	apply();
 
-	sInstance->closeFloater();
+	closeFloater();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// static
-void LLFloaterMediaSettings::onBtnApply( void* userdata )
+void LLFloaterMediaSettings::onBtnApply()
 {
-	sInstance->commitFields();
+	commitFields();
 
-	sInstance->apply();
+	apply();
 
-	sInstance->mInitialValues.clear();
-	sInstance->mPanelMediaSettingsGeneral->getValues( sInstance->mInitialValues );
-	sInstance->mPanelMediaSettingsSecurity->getValues( sInstance->mInitialValues );
-	sInstance->mPanelMediaSettingsPermissions->getValues( sInstance->mInitialValues );
+	mInitialValues.clear();
+	mPanelMediaSettingsGeneral->getValues( mInitialValues );
+	mPanelMediaSettingsSecurity->getValues( mInitialValues );
+	mPanelMediaSettingsPermissions->getValues( mInitialValues );
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// static
-void LLFloaterMediaSettings::onBtnCancel( void* userdata )
+void LLFloaterMediaSettings::onBtnCancel()
 {
-	sInstance->closeFloater(); 
+	closeFloater(); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -276,7 +273,7 @@ const std::string LLFloaterMediaSettings::getHomeUrl()
 // virtual 
 void LLFloaterMediaSettings::draw()
 {
-	if (NULL != mApplyBtn)
+	if (nullptr != mApplyBtn)
 	{
 		// Set the enabled state of the "Apply" button if values changed
 		mApplyBtn->setEnabled( haveValuesChanged() );
@@ -317,5 +314,3 @@ bool LLFloaterMediaSettings::instanceExists()
 {
 	return LLFloaterReg::findTypedInstance<LLFloaterMediaSettings>("media_settings");
 }
-
-

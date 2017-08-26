@@ -33,7 +33,6 @@
 #include "llsdutil.h"
 
 // Linden library includes
-#include "llapr.h"
 #include "llavatarnamecache.h"
 #include "llvoavatarself.h"
 #include "llbufferstream.h"
@@ -73,9 +72,6 @@
 #include "lleventfilter.h"
 
 #include "stringize.h"
-
-// for base64 decoding
-#include "apr_base64.h"
 
 #define USE_SESSION_GROUPS 0
 #define VX_NULL_POSITION -2147483648.0 /*The Silence*/
@@ -147,7 +143,7 @@ static int scale_speaker_volume(float volume)
 
 class LLVivoxVoiceClientMuteListObserver : public LLMuteListObserver
 {
-	/* virtual */ void onChange()  { LLVivoxVoiceClient::getInstance()->muteListChanged();}
+	/* virtual */ void onChange() override { LLVivoxVoiceClient::getInstance()->muteListChanged();}
 };
 
 
@@ -173,69 +169,69 @@ static void killGateway()
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 LLVivoxVoiceClient::LLVivoxVoiceClient() :
+	mAvatarNameCacheConnection(),
 	mSessionTerminateRequested(false),
 	mRelogRequested(false),
+	mSpatialJoiningNum(0),
 	mConnected(false),
 	mTerminateDaemon(false),
-	mPump(NULL),
-	mSpatialJoiningNum(0),
 
+	mPump(nullptr),
 	mTuningMode(false),
 	mTuningEnergy(0.0f),
 	mTuningMicVolume(0),
-	mTuningMicVolumeDirty(true),
-	mTuningSpeakerVolume(50),     // Set to 50 so the user can hear himself when he sets his mic volume
+	mTuningMicVolumeDirty(true),     // Set to 50 so the user can hear himself when he sets his mic volume
+	mTuningSpeakerVolume(50),
 	mTuningSpeakerVolumeDirty(true),
-	mDevicesListUpdated(false),
 
+	mDevicesListUpdated(false),
 	mAreaVoiceDisabled(false),
 	mAudioSession(),
 	mAudioSessionChanged(false),
-	mNextAudioSession(),
 
-	mCurrentParcelLocalID(0),
+	mNextAudioSession(),
+    mCurrentParcelLocalID(0),
     mConnectorEstablished(false),
-    mAccountLoggedIn(false),
+	mAccountLoggedIn(false),
 	mNumberOfAliases(0),
 	mCommandCookie(0),
-	mLoginRetryCount(0),
 
+	mLoginRetryCount(0),
 	mBuddyListMapPopulated(false),
 	mBlockRulesListReceived(false),
-	mAutoAcceptRulesListReceived(false),
 
+	mAutoAcceptRulesListReceived(false),
 	mCaptureDeviceDirty(false),
 	mRenderDeviceDirty(false),
-	mSpatialCoordsDirty(false),
 	mIsInitialized(false),
 
+	mShutdownComplete(true),
+	mSpatialCoordsDirty(false),
 	mMuteMic(false),
+
 	mMuteMicDirty(false),
 	mFriendsListDirty(true),
-
 	mEarLocation(0),
 	mSpeakerVolumeDirty(true),
 	mSpeakerMuteDirty(true),
+
 	mMicVolume(0),
 	mMicVolumeDirty(true),
 
 	mVoiceEnabled(false),
+
 	mWriteInProgress(false),
-
 	mLipSyncEnabled(false),
-
 	mVoiceFontsReceived(false),
+
 	mVoiceFontsNew(false),
 	mVoiceFontListDirty(false),
-
 	mCaptureBufferMode(false),
 	mCaptureBufferRecording(false),
 	mCaptureBufferRecorded(false),
 	mCaptureBufferPlaying(false),
-	mShutdownComplete(true),
-	mPlayRequestCount(0),
 
-	mAvatarNameCacheConnection(),
+	mPlayRequestCount(0),
     mIsInTuningMode(false),
     mIsInChannel(false),
     mIsJoiningSession(false),
@@ -255,7 +251,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 //	gMuteListp->addObserver(&mutelist_listener);
 
 	
-#if LL_DARWIN || LL_LINUX || LL_SOLARIS
+#if LL_DARWIN || LL_LINUX
 		// HACK: THIS DOES NOT BELONG HERE
 		// When the vivox daemon dies, the next write attempt on our socket generates a SIGPIPE, which kills us.
 		// This should cause us to ignore SIGPIPE and handle the error through proper channels.
@@ -295,13 +291,13 @@ void LLVivoxVoiceClient::init(LLPumpIO *pump)
 
 void LLVivoxVoiceClient::terminate()
 {
-    // needs to be done manually here since we will not get another pass in 
-    // coroutines... that mechanism is long since gone.
-    if (mIsLoggedIn)
-        logoutOfVivox(false);
+	// needs to be done manually here since we will not get another pass in 
+	// coroutines... that mechanism is long since gone.
+	if (mIsLoggedIn)
+		logoutOfVivox(false);
 	if(mConnected)
 	{
-        breakVoiceConnection(false);
+		breakVoiceConnection(false);
 		mConnected = false;
 	}
 	else
@@ -398,6 +394,10 @@ void LLVivoxVoiceClient::connectorCreate()
 {
 	std::ostringstream stream;
 	std::string logpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+	if (LLStringUtil::endsWith(logpath, gDirUtilp->getDirDelimiter()))
+	{
+		logpath.pop_back();
+	}
 	std::string loglevel = "0";
 	
 	// Transition to stateConnectorStarted when the connector handle comes back.
@@ -413,7 +413,10 @@ void LLVivoxVoiceClient::connectorCreate()
 		<< "<ClientName>V2 SDK</ClientName>"
 		<< "<AccountManagementServer>" << mVoiceAccountServerURI << "</AccountManagementServer>"
 		<< "<Mode>Normal</Mode>"
-        << "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
+#ifndef LL_LINUX
+		<< "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
+#endif
+		<< (gSavedSettings.getBOOL("VoiceMultiInstance") ? "<MinimumPort>30000</MinimumPort><MaximumPort>50000</MaximumPort>" : "")
 		<< "<Logging>"
 		<< "<Folder>" << logpath << "</Folder>"
 		<< "<FileNamePrefix>Connector</FileNamePrefix>"
@@ -444,12 +447,6 @@ void LLVivoxVoiceClient::connectorShutdown()
 		
 		writeString(stream.str());
 	}
-	// <FS:Ansariel> Cut down wait on logout
-	else
-	{
-		mShutdownComplete = true;
-	}
-	// </FS:Ansariel>
 }
 
 void LLVivoxVoiceClient::userAuthorized(const std::string& user_id, const LLUUID &agentID)
@@ -502,7 +499,7 @@ void LLVivoxVoiceClient::setLoginInfo(
 		// we have an empty account server name
 		// so we fall back to hardcoded defaults
 
-		if(LLGridManager::getInstance()->isInProductionGrid())
+		if(LLGridManager::getInstance()->isInSLMain())
 		{
 			// Use the release account server
 			mVoiceSIPURIHostName = "bhr.vivox.com";
@@ -630,6 +627,8 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
         std::string exe_path = gDirUtilp->getExecutableDir();
         exe_path += gDirUtilp->getDirDelimiter();
 #if LL_WINDOWS
+        exe_path += "voice";
+        exe_path += gDirUtilp->getDirDelimiter();
         exe_path += "SLVoice.exe";
 #elif LL_DARWIN
         exe_path += "../Resources/SLVoice";
@@ -637,7 +636,8 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
         exe_path += "SLVoice";
 #endif
         // See if the vivox executable exists
-        if (LLFile::isfile(exe_path))
+        llstat s;
+        if (!LLFile::stat(exe_path, &s))
         {
             // vivox executable exists.  Build the command line and launch the daemon.
             LLProcess::Params params;
@@ -659,6 +659,10 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             {
                 log_folder = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
             }
+            if (LLStringUtil::endsWith(log_folder, gDirUtilp->getDirDelimiter()))
+            {
+                log_folder.pop_back();
+            }
 
             params.args.add("-lf");
             params.args.add(log_folder);
@@ -668,8 +672,25 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
                 params.args.add("-st");
                 params.args.add(shutdown_timeout);
             }
+
+			// If we allow multiple instances of the viewer to start the voicedaemon
+			if (gSavedSettings.getBOOL("VoiceMultiInstance"))
+			{
+				// Set TEMPORARY random voice port
+				LLControlVariable* voice_port = gSavedSettings.getControl("VivoxVoicePort");
+				if (voice_port)
+				{
+					S32 port_nr = 30000 + ll_rand(20000);
+					voice_port->setValue(LLSD(port_nr), false);
+				}
+				// Tell voice gateway to listen to a specific port
+				params.args.add("-i");
+				params.args.add(llformat("127.0.0.1:%u", gSavedSettings.getU32("VivoxVoicePort")));
+			}
+
             params.cwd = gDirUtilp->getAppRODataDir();
 
+#ifndef LL_LINUX
 #           ifdef VIVOX_HANDLE_ARGS
             params.args.add("-ah");
             params.args.add(LLVivoxSecurity::getInstance()->accountHandle());
@@ -677,6 +698,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             params.args.add("-ch");
             params.args.add(LLVivoxSecurity::getInstance()->connectorHandle());
 #           endif // VIVOX_HANDLE_ARGS
+#endif
 
             sGatewayPtr = LLProcess::create(params);
 
@@ -786,7 +808,7 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("voiceAccountProvision", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts = boost::make_shared<LLCore::HttpOptions>();
     int retryCount(0);
 
     LLSD result;
@@ -893,15 +915,6 @@ bool LLVivoxVoiceClient::breakVoiceConnection(bool corowait)
             // and so the viewer is attempting to go away.  Don't slow it down 
             // longer than this.
             _sleep(1000);
-            // <FS:Ansariel> Cut down wait on logout
-            // Need to check messages on the service pump for the connector shutdown response
-            // which sets mShutdownComplete to true!
-            while (gMessageSystem->checkAllMessages(gFrameCount, gServicePump))
-            {
-                // Do nothing - just check messages
-            }
-            gMessageSystem->processAcks();
-            // </FS:Ansariel>
         }
 #endif
     }
@@ -956,14 +969,8 @@ bool LLVivoxVoiceClient::loginToVivox()
                     errs << mVoiceAccountServerURI << "\n:UDP: 3478, 3479, 5060, 5062, 12000-17000";
                     args["HOSTID"] = errs.str();
                     mTerminateDaemon = true;
-                    if (LLGridManager::getInstance()->isSystemGrid())
-                    {
-                        LLNotificationsUtil::add("NoVoiceConnect", args);
-                    }
-                    else
-                    {
-                        LLNotificationsUtil::add("NoVoiceConnect-GIAB", args);
-                    }
+                    LLNotificationsUtil::add("NoVoiceConnect", args);
+
 
                     mIsLoggingIn = false;
                     return false;
@@ -1028,10 +1035,7 @@ void LLVivoxVoiceClient::logoutOfVivox(bool wait)
     if (wait)
     {
         LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
-        // <FS:Ansariel> Typo fix
-        //LLSD timeoutResult(LLSDMap("lougout", "timeout"));
-        LLSD timeoutResult(LLSDMap("logout", "timeout"));
-        // </FS:Ansariel>
+        LLSD timeoutResult(LLSDMap("lougout", "timeout"));
 
         LLSD result = llcoro::suspendUntilEventOnWithTimeout(voicePump, LOGIN_ATTEMPT_TIMEOUT, timeoutResult);
 
@@ -1076,7 +1080,7 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
     //_INFOS("Voice") << "Requesting voice info for Parcel" << LL_ENDL;
 
     LLViewerRegion * region = gAgent.getRegion();
-    if (region == NULL || !region->capabilitiesReceived())
+    if (region == nullptr || !region->capabilitiesReceived())
     {
         LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest capability not yet available, deferring" << LL_ENDL;
         return false;
@@ -1377,12 +1381,10 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
                 LL_WARNS("Voice") << "called with no session handle" << LL_ENDL;
             }
         }
-        // <FS:Ansariel> This is usually the case because ::terminate() is logging us out beforehand
-        //else
-        //{
-        //    LL_WARNS("Voice") << "Session " << mAudioSession->mHandle << " already terminated by logout." << LL_ENDL;
-        //}
-        // </FS:Ansariel>
+        else
+        {
+            LL_WARNS("Voice") << "Session " << mAudioSession->mHandle << " already terminated by logout." << LL_ENDL;
+        }
 
         sessionStatePtr_t oldSession = mAudioSession;
 
@@ -1455,7 +1457,7 @@ bool LLVivoxVoiceClient::waitForChannel()
             {
                 recordingAndPlaybackMode();
             }
-            else if (checkParcelChanged() || (mNextAudioSession == NULL))
+            else if (checkParcelChanged() || (mNextAudioSession == nullptr))
             {
                 // the parcel is changed, or we have no pending audio sessions,
                 // so try to request the parcel voice info
@@ -1856,7 +1858,9 @@ void LLVivoxVoiceClient::loginSendMessage()
 		<< "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
 		<< "<AccountName>" << mAccountName << "</AccountName>"
         << "<AccountPassword>" << mAccountPassword << "</AccountPassword>"
+#ifndef LL_LINUX
         << "<AccountHandle>" << LLVivoxSecurity::getInstance()->accountHandle() << "</AccountHandle>"
+#endif
 		<< "<AudioSessionAnswerMode>VerifyAnswer</AudioSessionAnswerMode>"
 		<< "<EnableBuddiesAndPresence>false</EnableBuddiesAndPresence>"
 		<< "<EnablePresencePersistence>0</EnablePresencePersistence>"
@@ -2506,14 +2510,6 @@ static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVe
 #endif
 }
 
-void LLVivoxVoiceClient::setHidden(bool hidden)
-{
-    mHidden = hidden;
-    
-    sendPositionAndVolumeUpdate();
-    return;
-}
-
 void LLVivoxVoiceClient::sendPositionAndVolumeUpdate(void)
 {	
 	std::ostringstream stream;
@@ -2544,14 +2540,6 @@ void LLVivoxVoiceClient::sendPositionAndVolumeUpdate(void)
 		// SLIM SDK: the old SDK was doing a transform on the passed coordinates that the new one doesn't do anymore.
 		// The old transform is replicated by this function.
 		oldSDKTransform(l, u, a, pos, vel);
-        
-        if (mHidden)
-        {
-            for (int i=0;i<3;++i)
-            {
-                pos.mdV[i] = VX_NULL_POSITION;
-            }
-        }
 		
 		stream
 			<< "<Position>"
@@ -2613,21 +2601,12 @@ void LLVivoxVoiceClient::sendPositionAndVolumeUpdate(void)
 		l = earRot.getLeftRow();
 		u = earRot.getUpRow();
 		a = earRot.getFwdRow();
-
-        pos = earPosition;
+		pos = earPosition;
 		vel = earVelocity;
 
 //		LL_DEBUGS("Voice") << "Sending listener position " << earPosition << LL_ENDL;
 		
 		oldSDKTransform(l, u, a, pos, vel);
-		
-        if (mHidden)
-        {
-            for (int i=0;i<3;++i)
-            {
-                pos.mdV[i] = VX_NULL_POSITION;
-            }
-        }
         
 		stream
 			<< "<Position>"
@@ -2852,19 +2831,13 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
 		errs << mVoiceAccountServerURI << "\n:UDP: 3478, 3479, 5060, 5062, 12000-17000";
 		args["HOSTID"] = errs.str();
 		mTerminateDaemon = true;
-		if (LLGridManager::getInstance()->isSystemGrid())
-		{
-			LLNotificationsUtil::add("NoVoiceConnect", args);	
-		}
-		else
-		{
-			LLNotificationsUtil::add("NoVoiceConnect-GIAB", args);	
-		}
+        LLNotificationsUtil::add("NoVoiceConnect", args);
 
         result["connector"] = LLSD::Boolean(false);
 	}
 	else
 	{
+#ifndef LL_LINUX
 		// Connector created, move forward.
         if (connectorHandle == LLVivoxSecurity::getInstance()->connectorHandle())
         {
@@ -2883,6 +2856,15 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
                               << LL_ENDL;
             result["connector"] = LLSD::Boolean(false);
         }
+#else
+        LL_INFOS("Voice") << "Connector.Create succeeded, Vivox SDK version is " << versionID << LL_ENDL;
+        mVoiceVersion.serverVersion = versionID;
+        LLVivoxSecurity::getInstance()->setConnectorHandle(connectorHandle);
+        mConnectorEstablished = true;
+        mTerminateDaemon = false;
+ 
+        result["connector"] = LLSD::Boolean(true);
+#endif
 	}
 
     LLEventPumps::instance().post("vivoxClientPump", result);
@@ -2910,6 +2892,9 @@ void LLVivoxVoiceClient::loginResponse(int statusCode, std::string &statusString
 	else
 	{
 		// Login succeeded, move forward.
+#ifdef LL_LINUX
+        LLVivoxSecurity::getInstance()->setAccountHandle(accountHandle);
+#endif
 		mAccountLoggedIn = true;
 		mNumberOfAliases = numberOfAliases;
         result["login"] = LLSD::String("response_ok");
@@ -3060,7 +3045,6 @@ void LLVivoxVoiceClient::connectorShutdownResponse(int statusCode, std::string &
 	}
 	
 	mConnected = false;
-	mShutdownComplete = true; // <FS:Ansariel> Cut down wait on logout
 	
     LLSD vivoxevent(LLSDMap("connector", LLSD::Boolean(false)));
 
@@ -3857,13 +3841,13 @@ void LLVivoxVoiceClient::muteListChanged()
 // Managing list of participants
 LLVivoxVoiceClient::participantState::participantState(const std::string &uri) : 
 	 mURI(uri), 
-	 mPTT(false), 
-	 mIsSpeaking(false), 
-	 mIsModeratorMuted(false), 
 	 mLastSpokeTimestamp(0.f), 
 	 mPower(0.f), 
 	 mVolume(LLVoiceClient::VOLUME_DEFAULT), 
-	 mUserVolume(0),
+	 mUserVolume(0), 
+	 mPTT(false), 
+	 mIsSpeaking(false), 
+	 mIsModeratorMuted(false),
 	 mOnMuteList(false), 
 	 mVolumeSet(false),
 	 mVolumeDirty(false), 
@@ -4327,7 +4311,7 @@ void LLVivoxVoiceClient::endUserIMSession(const LLUUID &uuid)
 }
 bool LLVivoxVoiceClient::isValidChannel(std::string &sessionHandle)
 {
-  return(findSession(sessionHandle) != NULL);
+  return(findSession(sessionHandle) != nullptr);
 	
 }
 bool LLVivoxVoiceClient::answerInvite(std::string &sessionHandle)
@@ -4394,7 +4378,7 @@ BOOL LLVivoxVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
 	BOOL result = TRUE; 
     sessionStatePtr_t session(findSession(session_id));
 	
-	if(session != NULL)
+	if(session != nullptr)
 	{
 		result = session->isCallBackPossible();
 	}
@@ -4409,7 +4393,7 @@ BOOL LLVivoxVoiceClient::isSessionTextIMPossible(const LLUUID &session_id)
 	bool result = TRUE;
     sessionStatePtr_t session(findSession(session_id));
 	
-	if(session != NULL)
+	if(session != nullptr)
 	{
 		result = session->isTextIMPossible();
 	}
@@ -4553,11 +4537,12 @@ bool LLVivoxVoiceClient::IDFromName(const std::string inName, LLUUID &uuid)
 
 		// Reverse the transforms done by nameFromID
 		std::string temp = name;
+		temp.erase(0,1);
 		LLStringUtil::replaceChar(temp, '-', '+');
 		LLStringUtil::replaceChar(temp, '_', '/');
 
-		U8 rawuuid[UUID_BYTES + 1]; 
-		int len = apr_base64_decode_binary(rawuuid, temp.c_str() + 1);
+		U8 rawuuid[UUID_BYTES];
+		int len = LLBase64::decode(temp, rawuuid, UUID_BYTES);
 		if(len == UUID_BYTES)
 		{
 			// The decode succeeded.  Stuff the bits into the result's UUID
@@ -5060,7 +5045,7 @@ void LLVivoxVoiceClient::recordingLoopSave(const std::string& filename)
 {
 //	LL_DEBUGS("Voice") << "sending SessionGroup.ControlRecording (Flush)" << LL_ENDL;
 
-	if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
+	if(mAudioSession != nullptr && !mAudioSession->mGroupHandle.empty())
 	{
 		std::ostringstream stream;
 		stream
@@ -5078,7 +5063,7 @@ void LLVivoxVoiceClient::recordingStop()
 {
 //	LL_DEBUGS("Voice") << "sending SessionGroup.ControlRecording (Stop)" << LL_ENDL;
 
-	if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
+	if(mAudioSession != nullptr && !mAudioSession->mGroupHandle.empty())
 	{
 		std::ostringstream stream;
 		stream
@@ -5095,7 +5080,7 @@ void LLVivoxVoiceClient::filePlaybackStart(const std::string& filename)
 {
 //	LL_DEBUGS("Voice") << "sending SessionGroup.ControlPlayback (Start)" << LL_ENDL;
 
-	if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
+	if(mAudioSession != nullptr && !mAudioSession->mGroupHandle.empty())
 	{
 		std::ostringstream stream;
 		stream
@@ -5113,7 +5098,7 @@ void LLVivoxVoiceClient::filePlaybackStop()
 {
 //	LL_DEBUGS("Voice") << "sending SessionGroup.ControlPlayback (Stop)" << LL_ENDL;
 
-	if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
+	if(mAudioSession != nullptr && !mAudioSession->mGroupHandle.empty())
 	{
 		std::ostringstream stream;
 		stream
@@ -5156,8 +5141,7 @@ LLVivoxVoiceClient::sessionState::sessionState() :
     mReconnect(false),
     mVolumeDirty(false),
     mMuteDirty(false),
-    mParticipantsChanged(false),
-    mMyIterator()
+    mParticipantsChanged(false)
 {
 }
 
@@ -5176,9 +5160,9 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::create
 
 LLVivoxVoiceClient::sessionState::~sessionState()
 {
-    LL_INFOS("Voice") << "Destroying session handle=" << mHandle << " SIP=" << mSIPURI << LL_ENDL;
-    if (mMyIterator != mSession.end())
-        mSession.erase(mMyIterator);
+	LL_INFOS("Voice") << "Destroying session handle=" << mHandle << " SIP=" << mSIPURI << LL_ENDL;
+	if (mMyIterator != mSession.end())
+		mSession.erase(mMyIterator);
 
 	removeAllParticipants();
 }
@@ -5649,7 +5633,7 @@ void LLVivoxVoiceClient::notifyFriendObservers()
 		)
 	{
 		LLFriendObserver* observer = *it;
-		it++;
+		++it;
 		// The only friend-related thing we notify on is online/offline transitions.
 		observer->changed(LLFriendObserver::ONLINE);
 	}
@@ -5842,10 +5826,10 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 	}
 	else
 	{
-		font_id.generate(STRINGIZE(font_type << ":" << name));
+		font_id.generate(llformat("%d:%s", font_type, name.c_str()));
 	}
 
-	voiceFontEntry *font = NULL;
+	voiceFontEntry *font = nullptr;
 
 	voice_font_map_t& font_map = template_font ? mVoiceFontTemplateMap : mVoiceFontMap;
 	voice_effect_list_t& font_list = template_font ? mVoiceFontTemplateList : mVoiceFontList;
@@ -6198,7 +6182,7 @@ void LLVivoxVoiceClient::removeObserver(LLVoiceEffectObserver* observer)
 bool LLVivoxVoiceClient::onCheckVoiceEffect(const std::string& voice_effect_name)
 {
 	LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
-	if (NULL != effect_interfacep)
+	if (nullptr != effect_interfacep)
 	{
 		const LLUUID& currect_voice_effect_id = effect_interfacep->getVoiceEffect();
 
@@ -6226,7 +6210,7 @@ bool LLVivoxVoiceClient::onCheckVoiceEffect(const std::string& voice_effect_name
 void LLVivoxVoiceClient::onClickVoiceEffect(const std::string& voice_effect_name)
 {
 	LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
-	if (NULL != effect_interfacep)
+	if (nullptr != effect_interfacep)
 	{
 		if (voice_effect_name == "NoVoiceMorphing")
 		{
@@ -6261,7 +6245,7 @@ void LLVivoxVoiceClient::updateVoiceMorphingMenu()
 			{
 				LLMenuGL * voice_morphing_menup = gMenuBarView->findChildMenuByName("VoiceMorphing", TRUE);
 
-				if (NULL != voice_morphing_menup)
+				if (nullptr != voice_morphing_menup)
 				{
 					S32 items = voice_morphing_menup->getItemCount();
 					if (items > 0)
@@ -6488,7 +6472,7 @@ void LLVivoxVoiceClient::captureBufferPlayStopSendMessage()
 
 LLVivoxProtocolParser::LLVivoxProtocolParser()
 {
-	parser = XML_ParserCreate(NULL);
+	parser = XML_ParserCreate(nullptr);
 	
 	reset();
 }
@@ -6558,7 +6542,7 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
 		// Reset internal state of the LLVivoxProtocolParser (no effect on the expat parser)
 		reset();
 		
-		XML_ParserReset(parser, NULL);
+		XML_ParserReset(parser, nullptr);
 		XML_SetElementHandler(parser, ExpatStartTag, ExpatEndTag);
 		XML_SetCharacterDataHandler(parser, ExpatCharHandler);
 		XML_SetUserData(parser, this);	
@@ -6748,21 +6732,21 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		
 		// Closing a tag. Finalize the text we've accumulated and reset
 		if (!stricmp("ReturnCode", tag))
-			returnCode = strtol(string.c_str(), NULL, 10);
+			returnCode = strtol(string.c_str(), nullptr, 10);
 		else if (!stricmp("SessionHandle", tag))
 			sessionHandle = string;
 		else if (!stricmp("SessionGroupHandle", tag))
 			sessionGroupHandle = string;
 		else if (!stricmp("StatusCode", tag))
-			statusCode = strtol(string.c_str(), NULL, 10);
+			statusCode = strtol(string.c_str(), nullptr, 10);
 		else if (!stricmp("StatusString", tag))
 			statusString = string;
 		else if (!stricmp("ParticipantURI", tag))
 			uriString = string;
 		else if (!stricmp("Volume", tag))
-			volume = strtol(string.c_str(), NULL, 10);
+			volume = strtol(string.c_str(), nullptr, 10);
 		else if (!stricmp("Energy", tag))
-			energy = (F32)strtod(string.c_str(), NULL);
+			energy = (F32)strtod(string.c_str(), nullptr);
 		else if (!stricmp("IsModeratorMuted", tag))
 			isModeratorMuted = !stricmp(string.c_str(), "true");
 		else if (!stricmp("IsSpeaking", tag))
@@ -6770,7 +6754,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		else if (!stricmp("Alias", tag))
 			alias = string;
 		else if (!stricmp("NumberOfAliases", tag))
-			numberOfAliases = strtol(string.c_str(), NULL, 10);
+			numberOfAliases = strtol(string.c_str(), nullptr, 10);
 		else if (!stricmp("Application", tag))
 			applicationString = string;
 		else if (!stricmp("ConnectorHandle", tag))
@@ -6780,7 +6764,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		else if (!stricmp("AccountHandle", tag))
 			accountHandle = string;
 		else if (!stricmp("State", tag))
-			state = strtol(string.c_str(), NULL, 10);
+			state = strtol(string.c_str(), nullptr, 10);
 		else if (!stricmp("URI", tag))
 			uriString = string;
 		else if (!stricmp("IsChannel", tag))
@@ -6800,11 +6784,11 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		else if (!stricmp("AccountName", tag))
 			nameString = string;
 		else if (!stricmp("ParticipantType", tag))
-			participantType = strtol(string.c_str(), NULL, 10);
+			participantType = strtol(string.c_str(), nullptr, 10);
 		else if (!stricmp("IsLocallyMuted", tag))
 			isLocallyMuted = !stricmp(string.c_str(), "true");
 		else if (!stricmp("MicEnergy", tag))
-			energy = (F32)strtod(string.c_str(), NULL);
+			energy = (F32)strtod(string.c_str(), nullptr);
 		else if (!stricmp("ChannelName", tag))
 			nameString = string;
 		else if (!stricmp("ChannelURI", tag))
@@ -6861,7 +6845,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		}
 		else if (!stricmp("ID", tag))
 		{
-			id = strtol(string.c_str(), NULL, 10);
+			id = strtol(string.c_str(), nullptr, 10);
 		}
 		else if (!stricmp("Description", tag))
 		{
@@ -6877,11 +6861,11 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		}
 		else if (!stricmp("Type", tag))
 		{
-			fontType = strtol(string.c_str(), NULL, 10);
+			fontType = strtol(string.c_str(), nullptr, 10);
 		}
 		else if (!stricmp("Status", tag))
 		{
-			fontStatus = strtol(string.c_str(), NULL, 10);
+			fontStatus = strtol(string.c_str(), nullptr, 10);
 		}
 		else if (!stricmp("MediaCompletionType", tag))
 		{

@@ -59,40 +59,39 @@ inline void LLImageTGA::decodeTruecolorPixel15( U8* dst, const U8* src )
 
 LLImageTGA::LLImageTGA() 
 	: LLImageFormatted(IMG_CODEC_TGA),
-	  mColorMap( NULL ),
-	  mColorMapStart( 0 ),
-	  mColorMapLength( 0 ),
-	  mColorMapBytesPerEntry( 0 ),
-	  mIs15Bit( false ),
-
-	  mAttributeBits(0),
-	  mColorMapDepth(0),
-	  mColorMapIndexHi(0),
-	  mColorMapIndexLo(0),
-	  mColorMapLengthHi(0),
-	  mColorMapLengthLo(0),
-	  mColorMapType(0),
 	  mDataOffset(0),
-	  mHeightHi(0),
-	  mHeightLo(0),
 	  mIDLength(0),
+	  mColorMapType(0),
 	  mImageType(0),
-	  mInterleave(0),
+	  mColorMapIndexLo(0),
+	  mColorMapIndexHi(0),
+	  mColorMapLengthLo(0),
+	  mColorMapLengthHi(0),
+	  mColorMapDepth(0),
+	  mXOffsetLo(0),
+	  mXOffsetHi(0),
+	  mYOffsetLo(0),
+	  mYOffsetHi(0),
+	  mWidthLo(0),
+	  mWidthHi(0),
+	  mHeightLo(0),
+	  mHeightHi(0),
+	  mPixelSize(0),
+	  mAttributeBits(0),
 	  mOriginRightBit(0),
 	  mOriginTopBit(0),
-	  mPixelSize(0),
-	  mWidthHi(0),
-	  mWidthLo(0),
-	  mXOffsetHi(0),
-	  mXOffsetLo(0),
-	  mYOffsetHi(0),
-	  mYOffsetLo(0)
+	  mInterleave(0),
+	  mColorMap(nullptr),
+	  mColorMapStart(0),
+	  mColorMapLength(0),
+	  mColorMapBytesPerEntry(0),
+	  mIs15Bit(false)
 {
 }
 
 LLImageTGA::LLImageTGA(const std::string& file_name) 
 	: LLImageFormatted(IMG_CODEC_TGA),
-	  mColorMap( NULL ),
+	  mColorMap(nullptr ),
 	  mColorMapStart( 0 ),
 	  mColorMapLength( 0 ),
 	  mColorMapBytesPerEntry( 0 ),
@@ -116,10 +115,16 @@ bool LLImageTGA::updateData()
 		setLastError("LLImageTGA uninitialized");
 		return false;
 	}
+
+	// Check to make sure we can get at least the header information.
+	if (getDataSize() < 18) {
+		setLastError("Unable to load file. File is too small to be a TGA.");
+		return false;
+	}
 	
 	// Pull image information from the header...
 	U8	flags;
-	U8	junk[256];
+	//U8	junk[256];
 
 	/****************************************************************************
 	**
@@ -227,11 +232,15 @@ bool LLImageTGA::updateData()
 	}
 
 	// discard the ID field, if any
+#if 0
 	if (mIDLength)
 	{
 		memcpy(junk, getData()+mDataOffset, mIDLength);	/* Flawfinder: ignore */
 		mDataOffset += mIDLength;
 	}
+#else
+	mDataOffset += mIDLength;
+#endif
 	
 	// check to see if there's a colormap since even rgb files can have them
 	S32 color_map_bytes = 0;
@@ -260,15 +269,30 @@ bool LLImageTGA::updateData()
 		}
 		color_map_bytes = mColorMapLength * mColorMapBytesPerEntry;
 
+		if (mColorMapBytesPerEntry > 0 && (INT32_MAX / mColorMapBytesPerEntry) < mColorMapLength)
+		{
+			setLastError("Unable to load file.  Color Map Bytes count overflowed.");
+			return false;
+		}
+
+		if ((mDataOffset + color_map_bytes <= mDataOffset) || (getDataSize() < mDataOffset + color_map_bytes))
+		{
+			setLastError("Unable to load file.  Color Map Bytes would be out of bounds.");
+			return false;
+		}
+
 		// Note: although it's legal for TGA files to have color maps and not use them
 		// (some programs actually do this and use the color map for other ends), we'll
 		// only allocate memory for one if _we_ intend to use it.
 		if ( (1 == mImageType) || (9 == mImageType)  )
 		{
-			mColorMap = new U8[ color_map_bytes ];  
-			if (!mColorMap)
+			try
 			{
-				LL_WARNS() << "Out of Memory in bool LLImageTGA::updateData(), size: " << color_map_bytes << LL_ENDL;
+				mColorMap = new U8[color_map_bytes];
+			}
+			catch (const std::bad_alloc& e)
+			{
+				LL_ERRS() << "Failed to allocate memory with exception: " << e.what() << LL_ENDL;
 				return false;
 			}
 			memcpy( mColorMap, getData() + mDataOffset, color_map_bytes );	/* Flawfinder: ignore */
@@ -340,11 +364,6 @@ bool LLImageTGA::decode(LLImageRaw* raw_image, F32 decode_time)
 
 	raw_image->resize(getWidth(), getHeight(), getComponents());
 
-	// <FS:ND> Handle out of memory situations a bit more graceful than a crash
-	if( raw_image->isBufferInvalid() )
-		return FALSE;
-	// </FS:ND>
-
 	if( (getComponents() != 1) &&
 		(getComponents() != 3) &&
 		(getComponents() != 4) )
@@ -375,11 +394,6 @@ bool LLImageTGA::decode(LLImageRaw* raw_image, F32 decode_time)
 
 bool LLImageTGA::decodeTruecolor( LLImageRaw* raw_image, bool rle, bool flipped )
 {
-	// <FS:ND> Handle out of memory situations a bit more graceful than a crash
-	if( !raw_image || raw_image->isBufferInvalid() )
-		return false;
-	// </FS:ND>
-
 	bool success = false;
 	bool alpha_opaque = false;
 	if( rle )
@@ -537,11 +551,6 @@ void LLImageTGA::decodeColorMapPixel32( U8* dst, const U8* src )
 
 bool LLImageTGA::decodeColorMap( LLImageRaw* raw_image, bool rle, bool flipped )
 {
-	// <FS:ND> Handle out of memory situations a bit more graceful than a crash
-	if( !raw_image || raw_image->isBufferInvalid() )
-		return FALSE;
-	// </FS:ND>
-
 	// If flipped, origin is the top left.  Need to reverse the order of the rows.
 	// Otherwise the origin is the bottom left.
 
@@ -828,9 +837,11 @@ bool LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, bool &alpha_opaque
 			}
 
 			src += 4;
-			register U32 value = rgba;
+			U32 value = rgba;
 			do
 			{
+				if (dst_pixels > last_dst_pixel)
+					return false;
 				*dst_pixels = value;
 				dst_pixels++;
 				block_pixel_count--;
@@ -843,6 +854,9 @@ bool LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, bool &alpha_opaque
 			do
 			{
 				if (src + 3 >= last_src)
+					return false;
+
+				if (dst_pixels > last_dst_pixel)
 					return false;
 				
 				((U8*)dst_pixels)[0] = src[2];
@@ -873,9 +887,10 @@ bool LLImageTGA::decodeTruecolorRle15( LLImageRaw* raw_image )
 	U8* src = getData() + mDataOffset;
 
 	U8* last_src = src + getDataSize();
-	U8* last_dst = dst + getComponents() * (getHeight() * getWidth() - 1);
+	U8* last_dst = dst + raw_image->getDataSize();
+	U8* last_dst_pixel = dst + getComponents() * (getHeight() * getWidth() - 1);
 
-	while( dst <= last_dst )
+	while( dst <= last_dst_pixel )
 	{
 		// Read RLE block header
 
@@ -889,9 +904,12 @@ bool LLImageTGA::decodeTruecolorRle15( LLImageRaw* raw_image )
 		if( block_header_byte & 0x80 )
 		{
 			// Encoded (duplicate-pixel) block
+			if (src + 2 >= last_src)
+				return false;
+
 			do
 			{
-				if (src + 2 >= last_src)
+				if (dst + 3 >= last_dst)
 					return false;
 				
 				decodeTruecolorPixel15( dst, src );   // slow
@@ -907,6 +925,9 @@ bool LLImageTGA::decodeTruecolorRle15( LLImageRaw* raw_image )
 			do
 			{
 				if (src + 2 >= last_src)
+					return false;
+
+				if (dst + 3 >= last_dst)
 					return false;
 
 				decodeTruecolorPixel15( dst, src );
@@ -931,9 +952,10 @@ bool LLImageTGA::decodeTruecolorRle24( LLImageRaw* raw_image )
 	U8* src = getData() + mDataOffset;
 
 	U8* last_src = src + getDataSize();
-	U8* last_dst = dst + getComponents() * (getHeight() * getWidth() - 1);
+	U8* last_dst = dst + raw_image->getDataSize();
+	U8* last_dst_pixel = dst + getComponents() * (getHeight() * getWidth() - 1);
 
-	while( dst <= last_dst )
+	while( dst <= last_dst_pixel )
 	{
 		// Read RLE block header
 
@@ -949,7 +971,7 @@ bool LLImageTGA::decodeTruecolorRle24( LLImageRaw* raw_image )
 			// Encoded (duplicate-pixel) block
 			do
 			{
-				if (src + 2 >= last_src)
+				if (dst + 2 >= last_dst)
 					return false;
 				dst[0] = src[2];
 				dst[1] = src[1];
@@ -966,6 +988,9 @@ bool LLImageTGA::decodeTruecolorRle24( LLImageRaw* raw_image )
 			do
 			{
 				if (src + 2 >= last_src)
+					return false;
+
+				if (dst + 2 >= last_dst)
 					return false;
 				
 				dst[0] = src[2];
@@ -991,9 +1016,10 @@ bool LLImageTGA::decodeTruecolorRle8( LLImageRaw* raw_image )
 	U8* src = getData() + mDataOffset;
 
 	U8* last_src = src + getDataSize();
-	U8* last_dst = dst + getHeight() * getWidth() - 1;
+	U8* last_dst = src + raw_image->getDataSize();
+	U8* last_dst_pixel = dst + getHeight() * getWidth() - 1;
 	
-	while( dst <= last_dst )
+	while( dst <= last_dst_pixel )
 	{
 		// Read RLE block header
 
@@ -1006,10 +1032,10 @@ bool LLImageTGA::decodeTruecolorRle8( LLImageRaw* raw_image )
 		U8 block_pixel_count = (block_header_byte & 0x7F) + 1;
 		if( block_header_byte & 0x80 )
 		{
-			if (src >= last_src)
-				return false;
-			
 			// Encoded (duplicate-pixel) block
+			if (dst + block_pixel_count >= last_dst)
+				return false;
+
 			memset( dst, *src, block_pixel_count );
 			dst += block_pixel_count;
 			src++;
@@ -1020,6 +1046,9 @@ bool LLImageTGA::decodeTruecolorRle8( LLImageRaw* raw_image )
 			do
 			{
 				if (src >= last_src)
+					return false;
+
+				if (dst >= last_dst)
 					return false;
 				
 				*dst = *src;
@@ -1066,8 +1095,7 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 	// Only works for unflipped monochrome RLE images
 	if( (getComponents() != 1) || (mImageType != 11) || mOriginTopBit || mOriginRightBit ) 
 	{
-		LL_WARNS() << "LLImageTGA trying to alpha-gradient process an image that's not a standard RLE, one component image" << LL_ENDL;
-		LL_WARNS() << "getComponents(): " << getComponents() << " mImageType: " << mImageType << " mOriginTopBit:" << mOriginTopBit << " mOriginRightBit: " << mOriginRightBit << LL_ENDL;
+		LL_ERRS() << "LLImageTGA trying to alpha-gradient process an image that's not a standard RLE, one component image" << LL_ENDL;
 		return false;
 	}
 
@@ -1075,7 +1103,10 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 
 	U8* dst = raw_image->getData();
 	U8* src = getData() + mDataOffset;
-	U8* last_dst = dst + getHeight() * getWidth() - 1;
+
+	U8* last_src = src + getDataSize();
+	U8* last_dst = dst + raw_image->getDataSize();
+	U8* last_dst_pixel = dst + getHeight() * getWidth() - 1;
 
 	if( domain > 0 )
 	{
@@ -1093,7 +1124,7 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 			lut[i] = (U8)llclampb( 255.f * ( i/255.f * scale + bias ) );
 		}
 
-		while( dst <= last_dst )
+		while( dst <= last_dst_pixel )
 		{
 			// Read RLE block header
 			U8 block_header_byte = *src;
@@ -1103,6 +1134,12 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 			if( block_header_byte & 0x80 )
 			{
 				// Encoded (duplicate-pixel) block
+				if (src >= last_src)
+					return false;
+
+				if (dst + block_pixel_count >= last_dst)
+					return false;
+
 				memset( dst, lut[ *src ], block_pixel_count );
 				dst += block_pixel_count;
 				src++;
@@ -1112,6 +1149,12 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 				// Unencoded block
 				do
 				{
+					if (src >= last_src)
+						return false;
+					
+					if (dst >= last_dst)
+						return false;
+					
 					*dst = lut[ *src ];
 					dst++;
 					src++;
@@ -1126,7 +1169,7 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 		// Process using a simple comparison agains a threshold
 		const U8 threshold = (U8)(0xFF * llclampf( 1.f - weight ));
 
-		while( dst <= last_dst )
+		while( dst <= last_dst_pixel )
 		{
 			// Read RLE block header
 			U8 block_header_byte = *src;
@@ -1136,6 +1179,12 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 			if( block_header_byte & 0x80 )
 			{
 				// Encoded (duplicate-pixel) block
+				if (src >= last_src)
+					return false;
+
+				if (dst + block_pixel_count >= last_dst)
+					return false;
+
 				memset( dst, ((*src >= threshold) ? 0xFF : 0), block_pixel_count );
 				dst += block_pixel_count;
 				src++;
@@ -1145,6 +1194,12 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 				// Unencoded block
 				do
 				{
+					if (src >= last_src)
+						return false;
+
+					if (dst >= last_dst)
+						return false;
+
 					*dst = (*src >= threshold) ? 0xFF : 0;
 					dst++;
 					src++;
@@ -1171,17 +1226,8 @@ bool LLImageTGA::loadFile( const std::string& path )
 	{
 		return false;
 	}
-	//< FS:ND> FIRE-16342 make sure no one overwrites this file while we load it	
-
-	// LLFILE* file = LLFile::fopen(path, "rb");	/* Flawfinder: ignore */
-#ifndef LL_WINDOWS
-	LLFILE* file = LLFile::fopen(path, "rb");	/* Flawfinder: ignore */
-#else
-	LLFILE* file = LLFile::_fsopen(path, "rb", _SH_DENYWR);/* Flawfinder: ignore */
-#endif
-
-	// </FS:ND:
 	
+	LLFILE* file = LLFile::fopen(path, "rb");	/* Flawfinder: ignore */
 	if( !file )
 	{
 		LL_WARNS() << "Couldn't open file " << path << LL_ENDL;
@@ -1195,14 +1241,14 @@ bool LLImageTGA::loadFile( const std::string& path )
 		fseek(file, 0, SEEK_SET);
 	}
 
-	U8* buffer = allocateData(file_size);
-	if(!buffer)
+	if (file_size < 0)
 	{
-		LL_WARNS() << "could not allocate memory for image loading, size: " << file_size << LL_ENDL;
+		LL_WARNS() << "Couldn't determine file size " << path << LL_ENDL;
 		fclose(file);
 		return false;
 	}
 
+	U8* buffer = allocateData(file_size);
 	S32 bytes_read = fread(buffer, 1, file_size, file);
 	if( bytes_read != file_size )
 	{

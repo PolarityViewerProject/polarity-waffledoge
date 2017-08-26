@@ -28,8 +28,6 @@
 #ifndef LL_LLFORMAT_H
 #define LL_LLFORMAT_H
 
-#include <string>
-
 // Use as follows:
 // LL_INFOS() << llformat("Test:%d (%.2f %.2f)", idx, x, y) << LL_ENDL;
 //

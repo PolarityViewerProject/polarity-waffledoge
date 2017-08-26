@@ -45,11 +45,10 @@ class LLFloaterEditSky : public LLFloater
 public:
 	LLFloaterEditSky(const LLSD &key);
 
-	/// when user hits the delete preset button
-	void onDeletePreset();
-	/*virtual*/	BOOL	postBuild();
-	/*virtual*/ void	onOpen(const LLSD& key);
-	/*virtual*/ void	draw();
+	/*virtual*/	BOOL	postBuild() override;
+	/*virtual*/ void	onOpen(const LLSD& key) override;
+	/*virtual*/ void	onClose(bool app_quitting) override;
+	/*virtual*/ void	draw() override;
 
 private:
 	void initCallbacks(void);
@@ -100,9 +99,6 @@ private:
 
 	void onBtnSave();
 	void onBtnCancel();
-	// <polarity> Change windlight editor cancel behavior
-	void onBtnReset();
-	// </polarity>
 
 	void onSkyPresetListChange();
 	void onRegionSettingsChange();
@@ -110,9 +106,8 @@ private:
 
 	LLLineEditor*	mSkyPresetNameEditor;
 	LLComboBox*		mSkyPresetCombo;
-	LLButton*	 mMakeDefaultCheckBox;
+	LLCheckBoxCtrl*	mMakeDefaultCheckBox;
 	LLButton*		mSaveButton;
-	LLButton*	 mDeleteButton;
 };
 
 #endif // LL_LLFLOATEREDITSKY_H

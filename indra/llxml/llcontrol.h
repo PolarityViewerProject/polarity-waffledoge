@@ -44,8 +44,6 @@ class LLVector3;
 class LLVector3d;
 class LLColor4;
 class LLColor3;
-// <Black Dragon:NiranV> Vector4
-class LLVector4;
 
 // if this is changed, also modify mTypeString in llcontrol.h
 typedef enum e_control_type
@@ -61,25 +59,8 @@ typedef enum e_control_type
 	TYPE_COL4,
 	TYPE_COL3,
 	TYPE_LLSD,
-	// <Black Dragon:NiranV> Vector4
-	TYPE_VEC4,
 	TYPE_COUNT
 } eControlType;
-	   
-// Settings Sanity check
-typedef enum e_sanity_type
-{
-	SANITY_TYPE_NONE = 0,
-	SANITY_TYPE_EQUALS,
-	SANITY_TYPE_NOT_EQUALS,
-	SANITY_TYPE_LESS_THAN,
-	SANITY_TYPE_GREATER_THAN,
-	SANITY_TYPE_LESS_THAN_EQUALS,
-	SANITY_TYPE_GREATER_THAN_EQUALS,
-	SANITY_TYPE_BETWEEN,
-	SANITY_TYPE_NOT_BETWEEN,
-	SANITY_TYPE_COUNT
-} eSanityType;
 
 class LLControlVariable : public LLRefCount
 {
@@ -90,8 +71,6 @@ class LLControlVariable : public LLRefCount
 public:
 	typedef boost::signals2::signal<bool(LLControlVariable* control, const LLSD&), boost_boolean_combiner> validate_signal_t;
 	typedef boost::signals2::signal<void(LLControlVariable* control, const LLSD&, const LLSD&)> commit_signal_t;
-	// Settings Sanity check
-	typedef boost::signals2::signal<void(LLControlVariable* control, const LLSD&)> sanity_signal_t;
 
 	enum ePersist
 	{
@@ -103,35 +82,23 @@ public:
 private:
 	std::string		mName;
 	std::string		mComment;
-	eControlType	mType;   
+	eControlType	mType;
 	ePersist		mPersist;
 	bool			mHideFromSettingsEditor;
 	std::vector<LLSD> mValues;
 
 	commit_signal_t mCommitSignal;
 	validate_signal_t mValidateSignal;
-	// Settings Sanity check
- 	eSanityType	 mSanityType;
-	std::string	 mSanityComment;
-	std::vector<LLSD> mSanityValues;  
-	sanity_signal_t mSanitySignal;
 	
 public:
 	LLControlVariable(const std::string& name, eControlType type,
 					  LLSD initial, const std::string& comment,
-					  eSanityType sanityType,
-					  LLSD sanityValues,
-					  const std::string& sanityComment,
 					  ePersist persist = PERSIST_NONDFT, bool hidefromsettingseditor = false);
 
 	virtual ~LLControlVariable();
 	
 	const std::string& getName() const { return mName; }
 	const std::string& getComment() const { return mComment; }
-	// Settings Sanity check
-	eSanityType getSanityType() { return mSanityType; }
-	const std::string& getSanityComment() const { return mSanityComment; }
-	const std::vector<LLSD>& getSanityValues() { return mSanityValues; };
 
 	eControlType type()		{ return mType; }
 	bool isType(eControlType tp) { return tp == mType; }
@@ -141,17 +108,9 @@ public:
 	commit_signal_t* getSignal() { return &mCommitSignal; } // shorthand for commit signal
 	commit_signal_t* getCommitSignal() { return &mCommitSignal; }
 	validate_signal_t* getValidateSignal() { return &mValidateSignal; }
-	// Settings Sanity check
-	sanity_signal_t* getSanitySignal() { return &mSanitySignal; }
-	// Settings Sanity check
-	bool isSane();
 
-// [RLVa:KB] - Patch: RLVa-2.1.0
-	bool hasUnsavedValue() { return mValues.size() > 2; }
-// [/RLVa:KB]
 	bool isDefault() { return (mValues.size() == 1); }
-
-	bool shouldSave();
+	bool shouldSave(bool nondefault_only);
 	bool isPersisted() { return mPersist != PERSIST_NO; }
 	bool isHiddenFromSettingsEditor() { return mHideFromSettingsEditor; }
 	LLSD get()			const	{ return getValue(); }
@@ -167,10 +126,7 @@ public:
 	void setComment(const std::string& comment);
 
 private:
-	void firePropertyChanged(const LLSD &pPreviousValue)
-	{
-		mCommitSignal(this, mValues.back(), pPreviousValue);
-	}
+	void firePropertyChanged(const LLSD &pPreviousValue);
 	LLSD getComparableValue(const LLSD& value);
 	bool llsd_compare(const LLSD& a, const LLSD & b);
 };
@@ -209,18 +165,11 @@ protected:
 	ctrl_name_table_t mNameTable;
 	static const std::string mTypeString[TYPE_COUNT];
 
-	std::set<std::string> mIncludedFiles;
+	std::set<std::string> mIncludedFiles; // <alchemy/> - To prevent perpetual recursion.
 
-	// Settings Sanity check
-	static const std::string mSanityTypeString[SANITY_TYPE_COUNT];
-public:                                              
+public:
 	static eControlType typeStringToEnum(const std::string& typestr);
-
 	static std::string typeEnumToString(eControlType typeenum);	
-	// Settings Sanity check
-	static eSanityType sanityTypeStringToEnum(const std::string& sanitystr);
-	static std::string sanityTypeEnumToString(eSanityType sanitytypeenum);
-	
 
 	LLControlGroup(const std::string& name);
 	~LLControlGroup();
@@ -228,7 +177,7 @@ public:
 	
 	typedef LLInstanceTracker<LLControlGroup, std::string>::instance_iter instance_iter;
 
-	LLControlVariablePtr getControl(const std::string& name);
+	LLControlVariablePtr getControl(const std::string& name) const;
 
 	struct ApplyFunctor
 	{
@@ -237,10 +186,7 @@ public:
 	};
 	void applyToAll(ApplyFunctor* func);
 
-	// Settings Sanity check
-	//	LLControlVariable* declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, LLControlVariable::ePersist persist, BOOL hidefromsettingseditor = FALSE);
-	LLControlVariable* declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, eSanityType sanity_type, LLSD sanity_value, const std::string& sanity_comment, LLControlVariable::ePersist persist, BOOL hidefromsettingseditor = FALSE);
-
+	LLControlVariable* declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, LLControlVariable::ePersist persist, BOOL hidefromsettingseditor = FALSE);
 	LLControlVariable* declareU32(const std::string& name, U32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 	LLControlVariable* declareS32(const std::string& name, S32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 	LLControlVariable* declareF32(const std::string& name, F32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
@@ -253,30 +199,27 @@ public:
 	LLControlVariable* declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 	LLControlVariable* declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 
-	// <Black Dragon:NiranV> Vector4
-	LLControlVariable* declareVec4(const std::string& name, const LLVector4 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-
-	std::string getString(const std::string& name);
-	std::string getText(const std::string& name);
-	BOOL		getBOOL(const std::string& name);
-	S32			getS32(const std::string& name);
-	F32			getF32(const std::string& name);
-	U32			getU32(const std::string& name);
+	std::string getString(const std::string& name) const;
+	std::string getText(const std::string& name) const;
+	BOOL		getBOOL(const std::string& name) const;
+	bool		getBool(const std::string& name) const;
+	S32			getS32(const std::string& name) const;
+	F32			getF32(const std::string& name) const;
+	U32			getU32(const std::string& name) const;
 	
-	LLWString	getWString(const std::string& name);
-	LLVector3	getVector3(const std::string& name);
-	LLVector3d	getVector3d(const std::string& name);
-	LLRect		getRect(const std::string& name);
-	LLSD        getLLSD(const std::string& name);
+	LLWString	getWString(const std::string& name) const;
+	LLVector3	getVector3(const std::string& name) const;
+	LLVector3d	getVector3d(const std::string& name) const;
+	LLRect		getRect(const std::string& name) const;
+	LLSD        getLLSD(const std::string& name) const;
 
 
-	LLColor4	getColor(const std::string& name);
-	LLColor4	getColor4(const std::string& name);
-	LLColor3	getColor3(const std::string& name);
-	LLVector4	getVector4(const std::string& name);
+	LLColor4	getColor(const std::string& name) const;
+	LLColor4	getColor4(const std::string& name) const;
+	LLColor3	getColor3(const std::string& name) const;
 
 	// generic getter
-	template<typename T> T get(const std::string& name)
+	template<typename T> T get(const std::string& name) const
 	{
 		LLControlVariable* control = getControl(name);
 		LLSD value;
@@ -306,9 +249,6 @@ public:
 	void	setColor4(const std::string& name, const LLColor4 &val);
 	void    setLLSD(const std::string& name, const LLSD& val);
 
-	// <Black Dragon:NiranV> Vector4
-	void	setVector4(const std::string& name, const LLVector4 &val);
-
 	// type agnostic setter that takes LLSD
 	void	setUntypedValue(const std::string& name, const LLSD& val);
 
@@ -327,13 +267,13 @@ public:
 		}
 	}
 	
-	BOOL    controlExists(const std::string& name);
+	BOOL    controlExists(const std::string& name) const;
 
 	// Returns number of controls loaded, 0 if failed
 	// If require_declaration is false, will auto-declare controls it finds
 	// as the given type.
 	U32	loadFromFileLegacy(const std::string& filename, BOOL require_declaration = TRUE, eControlType declare_as = TYPE_STRING);
- 	U32 saveToFile(const std::string& filename);
+ 	U32 saveToFile(const std::string& filename, BOOL nondefault_only);
  	U32	loadFromFile(const std::string& filename, bool default_values = false, bool save_values = true);
 	void	resetToDefaults();
 };
@@ -372,14 +312,10 @@ public:
 	{
 		if(!group.controlExists(name))
 		{
-			// <polarity> Make missing controls more obvious
-			LL_WARNS("Settings") << "Control named \"" << name << "\" not found! Please add it to settings.xml to ensure proper viewer functionality." << LL_ENDL;
+			LL_ERRS() << "Control named " << name << "not found." << LL_ENDL;
 		}
-		// <polarity> Don't bind control if it doesn't exist. This avoids crashes.
-		else
-		{
-			bindToControl(group, name);
-		}
+
+		bindToControl(group, name);
 	}
 
 	~LLControlCache()
@@ -392,7 +328,6 @@ private:
 	void bindToControl(LLControlGroup& group, const std::string& name)
 	{
 		LLControlVariablePtr controlp = group.getControl(name);
-		// <polarity> You crash here if you are missing a setting and the check above failed.
 		mType = controlp->type();
 		mCachedValue = convert_from_llsd<T>(controlp->get(), mType, name);
 
@@ -412,10 +347,7 @@ private:
 		init_value = convert_to_llsd(default_value);
 		if(type < TYPE_COUNT)
 		{
-			// Settings Sanity check
-			// group.declareControl(name, type, init_value, comment, LLControlVariable::PERSIST_NO);
-			group.declareControl(name, type, init_value, comment, SANITY_TYPE_NONE, LLSD(), std::string(""), LLControlVariable::PERSIST_NO);
-			// </FS_Zi>
+			group.declareControl(name, type, init_value, comment, LLControlVariable::PERSIST_NO);
 			return true;
 		}
 		return false;
@@ -460,7 +392,7 @@ public:
 	}
 
 	operator const T&() const { return mCachedControlPtr->getValue(); }
-	operator boost::function<const T&()> () const { return boost::function<const T&()>(*this); }
+	operator std::function<const T&()> () const { return std::function<const T&()>(*this); }
 	const T& operator()() { return mCachedControlPtr->getValue(); }
 
 private:
@@ -481,18 +413,12 @@ template <> eControlType get_control_type<LLColor4>();
 template <> eControlType get_control_type<LLColor3>();
 template <> eControlType get_control_type<LLSD>();
 
-// <Black Dragon:NiranV> Vector4
-template <> eControlType get_control_type<LLVector4>();
-
 template <> LLSD convert_to_llsd<U32>(const U32& in);
 template <> LLSD convert_to_llsd<LLVector3>(const LLVector3& in);
 template <> LLSD convert_to_llsd<LLVector3d>(const LLVector3d& in); 
 template <> LLSD convert_to_llsd<LLRect>(const LLRect& in);
 template <> LLSD convert_to_llsd<LLColor4>(const LLColor4& in);
 template <> LLSD convert_to_llsd<LLColor3>(const LLColor3& in);
-
-// <Black Dragon:NiranV> Vector4
-template <> LLSD convert_to_llsd<LLVector4>(const LLVector4& in);
 
 template<> std::string convert_from_llsd<std::string>(const LLSD& sd, eControlType type, const std::string& control_name);
 template<> LLWString convert_from_llsd<LLWString>(const LLSD& sd, eControlType type, const std::string& control_name);
@@ -506,9 +432,6 @@ template<> U32 convert_from_llsd<U32>(const LLSD& sd, eControlType type, const s
 template<> LLColor3 convert_from_llsd<LLColor3>(const LLSD& sd, eControlType type, const std::string& control_name);
 template<> LLColor4 convert_from_llsd<LLColor4>(const LLSD& sd, eControlType type, const std::string& control_name);
 template<> LLSD convert_from_llsd<LLSD>(const LLSD& sd, eControlType type, const std::string& control_name);
-
-// <Black Dragon:NiranV> Vector4
-template<> LLVector4 convert_from_llsd<LLVector4>(const LLSD& sd, eControlType type, const std::string& control_name);
 
 //#define TEST_CACHED_CONTROL 1
 #ifdef TEST_CACHED_CONTROL

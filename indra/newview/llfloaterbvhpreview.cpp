@@ -64,7 +64,6 @@
 #include "llviewermenufile.h"	// upload_new_resource()
 #include "llvoavatar.h"
 #include "pipeline.h"
-#include "lluictrlfactory.h"
 #include "lltrans.h"
 
 const S32 PREVIEW_BORDER_WIDTH = 2;
@@ -80,51 +79,17 @@ const F32 MAX_CAMERA_ZOOM = 10.f;
 
 const F32 BASE_ANIM_TIME_OFFSET = 5.f;
 
-std::string STATUS[] =
-{
-	"E_ST_OK",
-	"E_ST_EOF",
-	"E_ST_NO_CONSTRAINT",
-	"E_ST_NO_FILE",
-	"E_ST_NO_HIER",
-	"E_ST_NO_JOINT",
-	"E_ST_NO_NAME",
-	"E_ST_NO_OFFSET",
-	"E_ST_NO_CHANNELS",
-	"E_ST_NO_ROTATION",
-	"E_ST_NO_AXIS",
-	"E_ST_NO_MOTION",
-	"E_ST_NO_FRAMES",
-	"E_ST_NO_FRAME_TIME",
-	"E_ST_NO_POS",
-	"E_ST_NO_ROT",
-	"E_ST_NO_XLT_FILE",
-	"E_ST_NO_XLT_HEADER",
-	"E_ST_NO_XLT_NAME",
-	"E_ST_NO_XLT_IGNORE",
-	"E_ST_NO_XLT_RELATIVE",
-	"E_ST_NO_XLT_OUTNAME",
-	"E_ST_NO_XLT_MATRIX",
-	"E_ST_NO_XLT_MERGECHILD",
-	"E_ST_NO_XLT_MERGEPARENT",
-	"E_ST_NO_XLT_PRIORITY",
-	"E_ST_NO_XLT_LOOP",
-	"E_ST_NO_XLT_EASEIN",
-	"E_ST_NO_XLT_EASEOUT",
-	"E_ST_NO_XLT_HAND",
-	"E_ST_NO_XLT_EMOTE",
-"E_ST_BAD_ROOT"
-};
-
 //-----------------------------------------------------------------------------
 // LLFloaterBvhPreview()
 //-----------------------------------------------------------------------------
 LLFloaterBvhPreview::LLFloaterBvhPreview(const std::string& filename) : 
-	LLFloaterNameDesc(filename)
+	LLFloaterNameDesc(filename),
+	mLastMouseX(0),
+	mLastMouseY(0),
+	mPlayButton(nullptr),
+	mPauseButton(nullptr),
+	mStopButton(nullptr)
 {
-	mLastMouseX = 0;
-	mLastMouseY = 0;
-
 	mIDList["Standing"] = ANIM_AGENT_STAND;
 	mIDList["Walking"] = ANIM_AGENT_FEMALE_WALK;
 	mIDList["Sitting"] = ANIM_AGENT_SIT_FEMALE;
@@ -191,8 +156,8 @@ std::map <std::string, std::string> LLFloaterBvhPreview::getJointAliases()
 //-----------------------------------------------------------------------------
 BOOL LLFloaterBvhPreview::postBuild()
 {
-	LLKeyframeMotion* motionp = NULL;
-	LLBVHLoader* loaderp = NULL;
+	LLKeyframeMotion* motionp = nullptr;
+	LLBVHLoader* loaderp = nullptr;
 
 	if (!LLFloaterNameDesc::postBuild())
 	{
@@ -231,12 +196,12 @@ BOOL LLFloaterBvhPreview::postBuild()
 		// loading a bvh file
 
 		// now load bvh file
-		S32 file_size;
+		apr_off_t file_size;
 		
 		LLAPRFile infile ;
-		infile.open(mFilenameAndPath, LL_APR_RB, NULL, &file_size);
+		apr_status_t s = infile.open(mFilenameAndPath, LL_APR_RB, nullptr, &file_size);
 		
-		if (!infile.getFileHandle())
+		if (s != APR_SUCCESS)
 		{
 			LL_WARNS() << "Can't open BVH file:" << mFilename << LL_ENDL;	
 		}
@@ -256,7 +221,7 @@ BOOL LLFloaterBvhPreview::postBuild()
                 std::map<std::string, std::string> joint_alias_map = getJointAliases();
     
 				loaderp = new LLBVHLoader(file_buffer, load_status, line_number, joint_alias_map);
-				std::string status = getString(STATUS[load_status]);
+				std::string status = getString(BVHSTATUS[load_status]);
 				
 				if(load_status == E_ST_NO_XLT_FILE)
 				{
@@ -340,7 +305,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 		}
 		else
 		{
-			mAnimPreview = NULL;
+			mAnimPreview = nullptr;
 			mMotionID.setNull();
 			getChild<LLUICtrl>("bad_animation_text")->setValue(getString("failed_to_initialize"));
 		}
@@ -359,14 +324,14 @@ BOOL LLFloaterBvhPreview::postBuild()
 			else
 			{
 				LLUIString out_str = getString("failed_file_read");
-				out_str.setArg("[STATUS]", getString(STATUS[loaderp->getStatus()])); 
+				out_str.setArg("[STATUS]", getString(BVHSTATUS[loaderp->getStatus()]));
 				getChild<LLUICtrl>("bad_animation_text")->setValue(out_str.getString());
 			}
 		}
 
 		//setEnabled(FALSE);
 		mMotionID.setNull();
-		mAnimPreview = NULL;
+		mAnimPreview = nullptr;
 	}
 
 	refresh();
@@ -381,7 +346,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 //-----------------------------------------------------------------------------
 LLFloaterBvhPreview::~LLFloaterBvhPreview()
 {
-	mAnimPreview = NULL;
+	mAnimPreview = nullptr;
 
 	setEnabled(FALSE);
 }
@@ -402,16 +367,16 @@ void LLFloaterBvhPreview::draw()
 
 		gGL.getTexUnit(0)->bind(mAnimPreview);
 
-		gGL.begin( LLRender::QUADS );
+		gGL.begin( LLRender::TRIANGLE_STRIP );
 		{
 			gGL.texCoord2f(0.f, 1.f);
 			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
 			gGL.texCoord2f(0.f, 0.f);
 			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
-			gGL.texCoord2f(1.f, 0.f);
-			gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 			gGL.texCoord2f(1.f, 1.f);
 			gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
+			gGL.texCoord2f(1.f, 0.f);
+			gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 		}
 		gGL.end();
 
@@ -465,7 +430,7 @@ void LLFloaterBvhPreview::resetMotion()
 	}
 	else
 	{
-		mPauseRequest = NULL;	
+		mPauseRequest = nullptr;	
 	}
 }
 
@@ -589,11 +554,11 @@ void LLFloaterBvhPreview::onBtnPlay()
 		if (!avatarp->isMotionActive(mMotionID))
 		{
 			resetMotion();
-			mPauseRequest = NULL;
+			mPauseRequest = nullptr;
 		}
 		else if (avatarp->areAnimationsPaused())
 		{			
-			mPauseRequest = NULL;
+			mPauseRequest = nullptr;
 		}
 	}
 }
@@ -685,7 +650,7 @@ void LLFloaterBvhPreview::onCommitBaseAnim()
 
 		if (!paused)
 		{
-			mPauseRequest = NULL;
+			mPauseRequest = nullptr;
 		}
 	}
 }

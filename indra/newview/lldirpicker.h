@@ -31,17 +31,12 @@
 #ifndef LL_LLDIRPICKER_H
 #define LL_LLDIRPICKER_H
 
-#include "stdtypes.h"
-
 #if LL_DARWIN
 
 // AssertMacros.h does bad things.
 #undef verify
 #undef check
 #undef require
-
-#include <vector>
-#include "llstring.h"
 
 #endif
 
@@ -71,7 +66,7 @@ private:
 	void buildDirname( void );
 	bool check_local_file_access_enabled();
 
-#if LL_LINUX || LL_SOLARIS || LL_DARWIN
+#if LL_LINUX || LL_DARWIN
 	// On Linux we just implement LLDirPicker on top of LLFilePicker
 	LLFilePicker *mFilePicker;
 #endif

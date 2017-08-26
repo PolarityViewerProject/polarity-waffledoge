@@ -51,17 +51,21 @@ class LLFloaterTopObjects : public LLFloater
 {
 	friend class LLFloaterReg;
 public:
+	// Opens the floater on screen.
+//	static void show();
+
+	// Opens the floater if it's not on-screen.
 	// Juggles the UI based on method = "scripts" or "colliders"
 	static void handle_land_reply(LLMessageSystem* msg, void** data);
 	void handleReply(LLMessageSystem* msg, void** data);
 	
 	void clearList();
 	void updateSelectionInfo();
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 
 	void onRefresh();
 
-	void setMode(U32 mode);
+	static void setMode(U32 mode);
 	void disableRefreshBtn();
 
 private:
@@ -71,7 +75,7 @@ private:
 	void initColumns(LLCtrlListInterface *list);
 
 	void onCommitObjectsList();
-	void onDoubleClickObjectsList();
+	static void onDoubleClickObjectsList(void* data);
 	void onClickShowBeacon();
 
 	void doToObjects(int action, bool all);
@@ -109,6 +113,8 @@ private:
 		ACTION_RETURN = 0,
 		ACTION_DISABLE
 	};
+
+	static LLFloaterTopObjects* sInstance;
 };
 
 #endif

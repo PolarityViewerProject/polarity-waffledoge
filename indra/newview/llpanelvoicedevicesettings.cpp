@@ -38,9 +38,6 @@
 #include "llvoiceclient.h"
 #include "llvoicechannel.h"
 
-// Library includes (after viewer)
-#include "lluictrlfactory.h"
-
 
 static LLPanelInjector<LLPanelVoiceDeviceSettings> t_panel_group_general("panel_voice_device_settings");
 static const std::string DEFAULT_DEVICE("Default");
@@ -49,8 +46,8 @@ static const std::string DEFAULT_DEVICE("Default");
 LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
 	: LLPanel()
 {
-	mCtrlInputDevices = NULL;
-	mCtrlOutputDevices = NULL;
+	mCtrlInputDevices = nullptr;
+	mCtrlOutputDevices = nullptr;
 	mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
 	mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 	mDevicesUpdated = FALSE;  //obsolete

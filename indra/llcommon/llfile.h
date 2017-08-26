@@ -119,15 +119,6 @@ typedef stream_wrapper<std::fstream, std::ios_base::in | std::ios_base::out > ll
 typedef stream_wrapper<std::ifstream, std::ios_base::in > llifstream;
 typedef stream_wrapper<std::ofstream, std::ios_base::out > llofstream;
 
-/**
- * @breif filesize helpers.
- *
- * The file size helpers are not considered particularly efficient,
- * and should only be used for config files and the like -- not in a
- * loop.
- */
-std::streamsize LL_COMMON_API llifstream_size(llifstream& fstr);
-std::streamsize LL_COMMON_API llofstream_size(llofstream& fstr);
 
 #else // ! LL_WINDOWS
 
@@ -136,6 +127,6 @@ typedef std::fstream  llfstream;
 typedef std::ifstream llifstream;
 typedef std::ofstream llofstream;
 
-#endif // LL_WINDOWS or ! LL_WINDOWS
+#endif // LL_WINDOWS or !LL_WINDOWS
 
 #endif // not LL_LLFILE_H

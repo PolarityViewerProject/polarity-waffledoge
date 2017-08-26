@@ -29,18 +29,9 @@
 #include "llviewerprecompiledheaders.h"
 #include "llsidepanelinventorysubpanel.h"
 
-#include "roles_constants.h"
-
 #include "llagent.h"
-#include "llavataractions.h"
 #include "llbutton.h"
-#include "llfloaterreg.h"
-#include "llgroupactions.h"
-#include "llinventorymodel.h"
-#include "lllineeditor.h"
 #include "llradiogroup.h"
-#include "llviewercontrol.h"
-#include "llviewerobjectlist.h"
 
 
 ///----------------------------------------------------------------------------
@@ -50,10 +41,10 @@
 // Default constructor
 LLSidepanelInventorySubpanel::LLSidepanelInventorySubpanel(const LLPanel::Params& p)
   : LLPanel(p),
+	mSaveBtn(nullptr),
+	mCancelBtn(nullptr),
 	mIsDirty(TRUE),
-	mIsEditing(FALSE),
-	mCancelBtn(NULL),
-	mSaveBtn(NULL)
+	mIsEditing(FALSE)
 {
 }
 

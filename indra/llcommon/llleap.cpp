@@ -20,7 +20,6 @@
 #include <algorithm>
 // std headers
 // external library headers
-#include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/tokenizer.hpp>
 // other Linden headers
@@ -445,7 +444,7 @@ LLLeap* LLLeap::create(const std::string& desc, const std::vector<std::string>& 
     }
     catch (const LLLeap::Error&)
     {
-        return NULL;
+        return nullptr;
     }
 }
 

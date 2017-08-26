@@ -7,12 +7,9 @@ include(Variables)
 # - The stub source package, selected by -DHAVOK:BOOL=OFF 
 # - The prebuilt package available to those with sublicenses, selected by -DHAVOK_TPV:BOOL=ON
 
-# <polarity> We're not TPV, we will never have the HAVOK lib
-# if (INSTALL_PROPRIETARY)
-#   set(HAVOK ON CACHE BOOL "Use Havok physics library")
-# else()
-   set(HAVOK OFF CACHE BOOL "Use Havok physics library")
-# endif (INSTALL_PROPRIETARY)
+if (INSTALL_PROPRIETARY)
+   set(HAVOK ON CACHE BOOL "Use Havok physics library")
+endif (INSTALL_PROPRIETARY)
 
 
 # Note that the use_prebuilt_binary macros below do not in fact include binaries;
@@ -26,33 +23,18 @@ if (HAVOK)
    set(LLPHYSICSEXTENSIONS_LIBRARIES    llphysicsextensions)
 
 elseif (HAVOK_TPV)
-   #use_prebuilt_binary(llphysicsextensions_tpv)
-   use_prebuilt_binary( llphysicsextensions_stub )
+   use_prebuilt_binary(llphysicsextensions_tpv)
    set(LLPHYSICSEXTENSIONS_LIBRARIES    llphysicsextensions_tpv)
-
-   # <FS:ND> include paths for LLs version and ours are different.
    set(LLPHYSICSEXTENSIONS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/llphysicsextensions)
-   # </FS:ND>
-
-   # <FS:ND> havok lib get installed to packages/lib
-   link_directories( ${LIBS_PREBUILT_DIR}/lib )
-   # </FS:ND>
-
 else (HAVOK)
+if (NOT USE_LL_STUBS)
    use_prebuilt_binary( ndPhysicsStub )
-
-# <FS:ND> Don't set this variable, there is no need to build any stub source if using ndPhysicsStub
-#   set(LLPHYSICSEXTENSIONS_SRC_DIR ${LIBS_PREBUILT_DIR}/llphysicsextensions/stub)
-# </FS:ND>
-
    set(LLPHYSICSEXTENSIONS_LIBRARIES nd_hacdConvexDecomposition hacd nd_Pathing )
-
-   # <FS:ND> include paths for LLs version and ours are different.
    set(LLPHYSICSEXTENSIONS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/ )
-   # </FS:ND>
-
+else (NOT USE_LL_STUBS)
+   use_prebuilt_binary(llphysicsextensions_stub)
+   set(LLPHYSICSEXTENSIONS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/llphysicsextensions) 
+   set(LLPHYSICSEXTENSIONS_SRC_DIR ${LIBS_PREBUILT_DIR}/llphysicsextensions/stub)
+   set(LLPHYSICSEXTENSIONS_LIBRARIES    llphysicsextensionsstub)
+endif (NOT USE_LL_STUBS)
 endif (HAVOK)
-
-# <FS:ND> include paths for LLs version and ours are different.
-#set(LLPHYSICSEXTENSIONS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/llphysicsextensions) 
-# </FS:ND>

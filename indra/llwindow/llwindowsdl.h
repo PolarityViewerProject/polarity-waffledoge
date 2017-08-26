@@ -65,7 +65,7 @@ public:
 	/*virtual*/ BOOL setPosition(LLCoordScreen position);
 	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size);
 	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size);
-	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, EVSyncSetting vsync_setting, const LLCoordScreen * const posp = NULL);
+	/*virtual*/ BOOL switchContext(U32 window_mode, const LLCoordScreen &size, U32 vsync_setting, const LLCoordScreen * const posp = NULL);
 	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position);
 	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position);
 	/*virtual*/ void showCursor();
@@ -86,7 +86,7 @@ public:
 	/*virtual*/ BOOL isPrimaryTextAvailable();
 	/*virtual*/ BOOL pasteTextFromPrimary(LLWString &dst);
 	/*virtual*/ BOOL copyTextToPrimary(const LLWString & src);
- 
+	/*virtual*/ void setWindowTitle(const std::string& title);
 	/*virtual*/ void flashIcon(F32 seconds);
 	/*virtual*/ F32 getGamma();
 	/*virtual*/ BOOL setGamma(const F32 gamma); // Set the gamma
@@ -123,8 +123,6 @@ public:
 	/*virtual*/ void bringToFront();
 
 	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
-	// <polarity> Dynamic window title
-	/*virtual*/ void setTitle(const std::string& title);
 	
 	static std::vector<std::string> getDynamicFallbackFontList();
 
@@ -134,8 +132,6 @@ public:
 	Window mSDL_XWindowID;
 	Display *mSDL_Display;
 #endif
-	void (*Lock_Display)(void);
-	void (*Unlock_Display)(void);
 
 #if LL_GTK
 	// Lazily initialize and check the runtime GTK version for goodness.
@@ -149,8 +145,8 @@ public:
 
 protected:
 	LLWindowSDL(LLWindowCallbacks* callbacks,
-		const std::string& title, int x, int y, int width, int height, U32 flags,
-		BOOL fullscreen, BOOL clearBg, EVSyncSetting vsync_setting, BOOL use_gl,
+		const std::string& title, S32 x, S32 y, S32 width, S32 height, U32 flags,
+		U32 window_mode, BOOL clearBg, U32 vsync_setting, BOOL use_gl,
 		BOOL ignore_pixel_depth, U32 fsaa_samples);
 	~LLWindowSDL();
 
@@ -175,7 +171,7 @@ protected:
 	//
 
 	// create or re-create the GL context/window.  Called from the constructor and switchContext().
-	BOOL createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, EVSyncSetting vsync_setting);
+	BOOL createContext(int x, int y, int width, int height, int bits, U32 window_mode, U32 vsync_setting);
 	void destroyContext();
 	void setupFailure(const std::string& text, const std::string& caption, U32 type);
 	void fixWindowSize(void);
@@ -214,6 +210,7 @@ private:
 	U32 mKeyScanCode;
         U32 mKeyVirtualKey;
 	SDLMod mKeyModifiers;
+	U32 mKeySym;
 };
 
 

@@ -128,7 +128,6 @@ public:
 	BOOL 			isInitialized() const 	{ return mInitialized; }
 public:
 	std::string		mMOTD; 					// Message of the day
-	std::string		mChatMOTD;				// MOTD in Chat
 private:
 	BOOL			mInitialized;
 	BOOL			mFirstLogin;
@@ -332,6 +331,15 @@ private:
 	S32				mCurrentFidget;
 
 	//--------------------------------------------------------------------
+	// Crouch
+	//--------------------------------------------------------------------
+public:
+	bool isCrouching() const;
+	void toggleCrouch() { mCrouch = !mCrouch; }
+private:
+	bool mCrouch;
+
+	//--------------------------------------------------------------------
 	// Fly
 	//--------------------------------------------------------------------
 public:
@@ -407,31 +415,19 @@ public:
 		DOUBLETAP_SLIDERIGHT
 	};
 
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-	void			setAlwaysRun();
-	void			setTempRun();
-	void			clearAlwaysRun();
-	void			clearTempRun();
-	void 			sendWalkRun();
-	bool			getTempRun()			{ return mbTempRun; }
-	bool			getRunning() const 		{ return (mbAlwaysRun) || (mbTempRun); }
-// [/RLVa:KB]
-//	void			setAlwaysRun() 			{ mbAlwaysRun = true; }
-//	void			clearAlwaysRun() 		{ mbAlwaysRun = false; }
-//	void			setRunning() 			{ mbRunning = true; }
-//	void			clearRunning() 			{ mbRunning = false; }
-//	void 			sendWalkRun(bool running);
+	void			setAlwaysRun() 			{ mbAlwaysRun = true; }
+	void			clearAlwaysRun() 		{ mbAlwaysRun = false; }
+	void			setRunning() 			{ mbRunning = true; }
+	void			clearRunning() 			{ mbRunning = false; }
+	void 			sendWalkRun(bool running);
 	bool			getAlwaysRun() const 	{ return mbAlwaysRun; }
-//	bool			getRunning() const 		{ return mbRunning; }
+	bool			getRunning() const 		{ return mbRunning; }
 public:
 	LLFrameTimer 	mDoubleTapRunTimer;
 	EDoubleTapRunMode mDoubleTapRunMode;
 private:
 	bool 			mbAlwaysRun; 			// Should the avatar run by default rather than walk?
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-	bool 			mbTempRun;
-// [/RLVa:KB]
-//	bool 			mbRunning;				// Is the avatar trying to run right now?
+	bool 			mbRunning;				// Is the avatar trying to run right now?
 	bool			mbTeleportKeepsLookAt;	// Try to keep look-at after teleport is complete
 
 	//--------------------------------------------------------------------
@@ -441,6 +437,12 @@ public:
 	void			standUp();
 	/// @brief ground-sit at agent's current position
 	void			sitDown();
+	
+	void			setSitDownAway(bool away);
+	bool			isAwaySitting() const { return mIsAwaySitting; }
+	
+private:
+	bool			mIsAwaySitting;
 
 	//--------------------------------------------------------------------
 	// Do Not Disturb
@@ -530,12 +532,12 @@ private:
 	// All turn off autopilot and make sure the camera is behind the avatar.
 	// Direction is either positive, zero, or negative
 public:
-	void			moveAt(S32 direction,const bool reset_view = false);
+	void			moveAt(S32 direction, bool reset_view = true);
 	void			moveAtNudge(S32 direction);
-	void			moveLeft(S32 direction, const bool reset_view = false);
+	void			moveLeft(S32 direction);
 	void			moveLeftNudge(S32 direction);
-	void			moveUp(S32 direction,const bool reset_view = false);
-	void			moveYaw(F32 mag,const bool reset_view = false);
+	void			moveUp(S32 direction);
+	void			moveYaw(F32 mag, bool reset_view = true);
 	void			movePitch(F32 mag);
 
 	BOOL			isMovementLocked() const				{ return mMovementKeysLocked; }
@@ -625,7 +627,7 @@ public:
 public:
 	// ! TODO ! Define ERROR and PROGRESS enums here instead of exposing the mappings.
 	static std::map<std::string, std::string> sTeleportErrorMessages;
-	static std::map<std::string, std::string> sTeleportProgressMessages; // This may not get destroyed correctly on shutdown
+	static std::map<std::string, std::string> sTeleportProgressMessages;
 private:
 	LLSLURL * mTeleportSourceSLURL; 			// SLURL where last TP began
 
@@ -637,10 +639,7 @@ public:
 	void 			teleportHome()	{ teleportViaLandmark(LLUUID::null); }	// Go home
 	void 			teleportViaLure(const LLUUID& lure_id, BOOL godlike);	// To an invited location
 	void 			teleportViaLocation(const LLVector3d& pos_global);		// To a global location - this will probably need to be deprecated
-// [RLVa:KB] - Checked: RLVa-2.0.0
-	void			teleportViaLocationLookAt(const LLVector3d& pos_global, const LLVector3& look_at = LLVector3::zero);// To a global location, preserving camera rotation
-// [/RLVa:KB]
-//	void			teleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
+	void			teleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
 	void 			teleportCancel();										// May or may not be allowed by server
     void            restoreCanceledTeleportRequest();
 	bool			getTeleportKeepsLookAt() { return mbTeleportKeepsLookAt; } // Whether look-at reset after teleport
@@ -658,8 +657,6 @@ public:
 	void            setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange);
 
 private:
-
-
 	friend class LLTeleportRequest;
 	friend class LLTeleportRequestViaLandmark;
 	friend class LLTeleportRequestViaLure;
@@ -677,22 +674,17 @@ private:
 	bool            hasPendingTeleportRequest();
 	void            startTeleportRequest();
 
-// [RLVa:KB] - Checked: RLVa-2.0.0
-	void 			teleportRequest(const U64& region_handle, const LLVector3& pos_local, const LLVector3& look_at = LLVector3(0, 1, 0));
-// [/RLVa:KB]
-//	void 			teleportRequest(const U64& region_handle,
-//									const LLVector3& pos_local,				// Go to a named location home
-//									bool look_at_from_camera = false);
+	void 			teleportRequest(const U64& region_handle,
+									const LLVector3& pos_local,				// Go to a named location home
+									bool look_at_from_camera = false);
 	void 			doTeleportViaLandmark(const LLUUID& landmark_id);			// Teleport to a landmark
 	void 			doTeleportViaLure(const LLUUID& lure_id, BOOL godlike);	// To an invited location
 	void 			doTeleportViaLocation(const LLVector3d& pos_global);		// To a global location - this will probably need to be deprecated
-// [RLVa:KB] - Checked: RLVa-2.0.0
-	void			doTeleportViaLocationLookAt(const LLVector3d& pos_global, const LLVector3& look_at);// To a global location, preserving camera rotation
-// [/RLVa:KB]
-//	void			doTeleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
+	void			doTeleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
 
 	void            handleTeleportFinished();
 	void            handleTeleportFailed();
+	void			handleServerBakeRegionTransition(const LLUUID& region_id);
 
     static void     onCapabilitiesReceivedAfterTeleport();
 
@@ -830,6 +822,7 @@ public:
 	
 private:
 	BOOL			mShowAvatar; 		// Should we render the avatar?
+	U32				mAppearanceSerialNum;
 
 	//--------------------------------------------------------------------
 	// Rendering state bitmap helpers
@@ -845,7 +838,7 @@ private:
 	// HUD
 	//--------------------------------------------------------------------
 public:
-	LLColor4 getEffectColor() const;
+	const LLColor4	getEffectColor();
 	void			setEffectColor(const LLColor4 &color);
 private:
 	LLUIColor * mEffectColor;
@@ -930,6 +923,8 @@ private:
 public:
 	void			sendMessage(); // Send message to this agent's region
 	void			sendReliableMessage();
+	void 			dumpSentAppearance(const std::string& dump_prefix);
+	void			sendAgentSetAppearance();
 	void 			sendAgentDataUpdateRequest();
 	void 			sendAgentUserInfoRequest();
 	// IM to Email and Online visibility
@@ -943,6 +938,7 @@ public:
 	static void		processAgentGroupDataUpdate(LLMessageSystem *msg, void **);
 	static void		processAgentDropGroup(LLMessageSystem *msg, void **);
 	static void		processScriptControlChange(LLMessageSystem *msg, void **);
+	static void		processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void **user_data);
 	
 /**                    Messaging
  **                                                                            **
@@ -988,5 +984,25 @@ inline bool operator==(const LLGroupData &a, const LLGroupData &b)
 {
 	return (a.mID == b.mID);
 }
+
+class LLAgentQueryManager
+{
+	friend class LLAgent;
+	friend class LLAgentWearables;
+	
+public:
+	LLAgentQueryManager();
+	virtual ~LLAgentQueryManager();
+	
+	BOOL 			hasNoPendingQueries() const 	{ return getNumPendingQueries() == 0; }
+	S32 			getNumPendingQueries() const 	{ return mNumPendingQueries; }
+private:
+	S32				mNumPendingQueries;
+	S32				mWearablesCacheQueryID;
+	U32				mUpdateSerialNum;
+	S32		    	mActiveCacheQueries[LLAvatarAppearanceDefines::BAKED_NUM_INDICES];
+};
+
+extern LLAgentQueryManager gAgentQueryManager;
 
 #endif

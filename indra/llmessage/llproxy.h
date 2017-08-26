@@ -33,6 +33,7 @@
 #include "llsingleton.h"
 #include "llthread.h"
 #include <curl/curl.h>
+#include <string>
 
 // SOCKS error codes returned from the StartProxy method
 #define SOCKS_OK 0
@@ -207,13 +208,16 @@ enum LLSocks5AuthType
  * thread-safe method to apply those options to a curl request
  * (LLProxy::applyProxySettings()). This method is overloaded
  * to accommodate the various abstraction libcurl layers that exist
- * throughout the viewer (CURL).
+ * throughout the viewer (LLCurlEasyRequest, LLCurl::Easy, and CURL).
+ *
+ * If you are working with LLCurl or LLCurlEasyRequest objects,
+ * the configured proxy settings will be applied in the constructors
+ * of those request handles.  If you are working with CURL objects
+ * directly, you will need to pass the handle of the request to
+ * applyProxySettings() before issuing the request.
  *
  * To ensure thread safety, all LLProxy members that relate to the HTTP
  * proxy require the LLProxyMutex to be locked before accessing.
- * 
- * *TODO$: This should be moved into the LLCore::Http space.
- * 
  */
 class LLProxy: public LLSingleton<LLProxy>
 {

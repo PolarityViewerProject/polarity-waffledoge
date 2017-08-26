@@ -31,11 +31,12 @@
 // Header Files
 //-----------------------------------------------------------------------------
 #include "llviewerjoint.h"
-#include "llstring.h"
 #include "lluuid.h"
 
 class LLDrawable;
 class LLViewerObject;
+
+extern const F32 MAX_ATTACHMENT_DIST;
 
 //-----------------------------------------------------------------------------
 // class LLViewerJointAttachment
@@ -51,13 +52,13 @@ public:
 
 	// Returns true if this object is transparent.
 	// This is used to determine in which order to draw objects.
-	/*virtual*/ BOOL isTransparent();
+	/*virtual*/ BOOL isTransparent() override;
 
 	// Draws the shape attached to a joint.
 	// Called by render().
-	/*virtual*/ U32 drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy );
+	/*virtual*/ U32 drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy ) override;
 	
-	/*virtual*/ BOOL updateLOD(F32 pixel_area, BOOL activate);
+	/*virtual*/ BOOL updateLOD(F32 pixel_area, BOOL activate) override;
 
 	//
 	// accessors
@@ -72,7 +73,7 @@ public:
 	void setIsHUDAttachment(BOOL is_hud) { mIsHUDAttachment = is_hud; }
 	BOOL getIsHUDAttachment() const { return mIsHUDAttachment; }
 
-	BOOL isAnimatable() const { return FALSE; }
+	BOOL isAnimatable() const override { return FALSE; }
 
 	S32 getGroup() const { return mGroup; }
 	S32 getPieSlice() const { return mPieSlice; }

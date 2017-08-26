@@ -67,7 +67,7 @@ S32 LLImageGL::sCount					= 0;
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
 F32 LLImageGL::sLastFrameTime			= 0.f;
 BOOL LLImageGL::sAllowReadBackRaw       = FALSE ;
-LLImageGL* LLImageGL::sDefaultGLTexture = NULL ;
+LLImageGL* LLImageGL::sDefaultGLTexture = nullptr ;
 bool LLImageGL::sCompressTextures = false;
 
 std::set<LLImageGL*> LLImageGL::sImageList;
@@ -293,7 +293,7 @@ void LLImageGL::destroyGL(BOOL save_state)
 				if(!glimage->readBackRaw(glimage->mCurrentDiscardLevel, glimage->mSaveData, false)) //necessary, keep it.
 				{
 					glimage->disclaimMem(glimage->mSaveData);
-					glimage->mSaveData = NULL ;
+					glimage->mSaveData = nullptr ;
 				}
 			}
 
@@ -322,7 +322,7 @@ void LLImageGL::restoreGL()
 				glimage->createGLTexture(glimage->mCurrentDiscardLevel, glimage->mSaveData, 0, TRUE, glimage->getCategory());
 				stop_glerror();
 			}
-			glimage->mSaveData = NULL; // deletes data
+			glimage->mSaveData = nullptr; // deletes data
 		}
 	}
 }
@@ -367,7 +367,7 @@ BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, B
 
 LLImageGL::LLImageGL(BOOL usemipmaps)
 :	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-	mSaveData(0)
+	mSaveData(nullptr)
 {
 	init(usemipmaps);
 	setSize(0, 0, 0);
@@ -377,7 +377,7 @@ LLImageGL::LLImageGL(BOOL usemipmaps)
 
 LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps)
 :	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-	mSaveData(0)
+	mSaveData(nullptr)
 {
 	llassert( components <= 4 );
 	init(usemipmaps);
@@ -388,7 +388,7 @@ LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps)
 
 LLImageGL::LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps)
 :	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-	mSaveData(0)
+	mSaveData(nullptr)
 {
 	init(usemipmaps);
 	setSize(0, 0, 0);
@@ -406,6 +406,8 @@ LLImageGL::~LLImageGL()
 	sCount--;
 }
 
+const S8 INVALID_OFFSET = -99 ;
+
 void LLImageGL::init(BOOL usemipmaps)
 {
 	// keep these members in the same order as declared in llimagehl.h
@@ -415,7 +417,7 @@ void LLImageGL::init(BOOL usemipmaps)
 	mTextureMemory = (S32Bytes)0;
 	mLastBindTime = 0.f;
 
-	mPickMask = NULL;
+	mPickMask = nullptr;
 	mPickMaskWidth = 0;
 	mPickMaskHeight = 0;
 	mUseMipMaps = usemipmaps;
@@ -423,9 +425,12 @@ void LLImageGL::init(BOOL usemipmaps)
 	mAutoGenMips = FALSE;
 
 	mIsMask = FALSE;
-	mNeedsAlphaAndPickMask = TRUE ;
+	mMaskRMSE = 1.f ;
+	mMaskMidPercentile = 1.f;
+
+	mNeedsAlphaAndPickMask = FALSE ;
 	mAlphaStride = 0 ;
-	mAlphaOffset = 0 ;
+	mAlphaOffset = INVALID_OFFSET ;
 
 	mGLTextureCreated = FALSE ;
 	mTexName = 0;
@@ -469,7 +474,7 @@ void LLImageGL::cleanup()
 	}
 	freePickMask();
 
-	mSaveData = NULL; // deletes data
+	mSaveData = nullptr; // deletes data
 }
 
 //----------------------------------------------------------------------------
@@ -769,11 +774,11 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 				S32 w = width, h = height;
 
 
-				const U8* new_data = 0;
+				const U8* new_data = nullptr;
 				(void)new_data;
 
-				const U8* prev_mip_data = 0;
-				const U8* cur_mip_data = 0;
+				const U8* prev_mip_data = nullptr;
+				const U8* cur_mip_data = nullptr;
 #ifdef SHOW_ASSERT
 				S32 cur_mip_size = 0;
 #endif
@@ -848,7 +853,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 				if (prev_mip_data && prev_mip_data != data_in)
 				{
 					delete[] prev_mip_data;
-					prev_mip_data = NULL;
+					prev_mip_data = nullptr;
 				}
 			}
 		}
@@ -908,7 +913,7 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 		//LL_WARNS() << "Setting subimage on image without GL texture" << LL_ENDL;
 		return FALSE;
 	}
-	if (datap == NULL)
+	if (datap == nullptr)
 	{
 		// *TODO: Re-enable warning?  Ran into thread locking issues? DK 2011-02-18
 		//LL_WARNS() << "Setting subimage on image with NULL datap" << LL_ENDL;
@@ -1640,19 +1645,12 @@ BOOL LLImageGL::getBoundRecently() const
 	return (BOOL)(sLastFrameTime - mLastBindTime < MIN_TEXTURE_LIFETIME);
 }
 
-BOOL LLImageGL::getIsAlphaMask() const
-{
-	llassert_always(!sSkipAnalyzeAlpha);
-	return mIsMask;
-}
-
 void LLImageGL::setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target)
 {
 	mTarget = target;
 	mBindTarget = bind_target;
 }
 
-const S8 INVALID_OFFSET = -99 ;
 void LLImageGL::setNeedsAlphaAndPickMask(BOOL need_mask) 
 {
 	if(mNeedsAlphaAndPickMask != need_mask)
@@ -1666,7 +1664,6 @@ void LLImageGL::setNeedsAlphaAndPickMask(BOOL need_mask)
 		else //do not need alpha mask
 		{
 			mAlphaOffset = INVALID_OFFSET ;
-			mIsMask = FALSE;
 		}
 	}
 }
@@ -1689,8 +1686,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 		mAlphaStride = 2;
 		break;
 	case GL_RGB:
-		mNeedsAlphaAndPickMask = FALSE ;
-		mIsMask = FALSE;
+		setNeedsAlphaAndPickMask(FALSE);
 		return ; //no alpha channel.
 	case GL_RGBA:
 		mAlphaStride = 4;
@@ -1736,22 +1732,28 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 	{
 		LL_WARNS() << "Cannot analyze alpha for image with format type " << std::hex << mFormatType << std::dec << LL_ENDL;
 
-		mNeedsAlphaAndPickMask = FALSE ;
-		mIsMask = FALSE;
+		setNeedsAlphaAndPickMask(FALSE);
 	}
 }
 
+//std::map<LLGLuint, std::list<std::pair<std::string,std::string> > > sTextureMaskMap;
 void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 {
-	if(sSkipAnalyzeAlpha || !mNeedsAlphaAndPickMask)
+	//if (sTextureMaskMap.find(getTexName()) != sTextureMaskMap.end())
+	//	sTextureMaskMap.erase(getTexName());
+	if(!mNeedsAlphaAndPickMask)
 	{
 		return ;
 	}
+
+	F64 sum = 0;
 
 	U32 length = w * h;
 	U32 alphatotal = 0;
 	
 	U32 sample[16] = {0};
+
+	U32 min = 0, max = 0, mids = 0;
 
 	// generate histogram of quantized alpha.
 	// also add-in the histogram of a 2x2 box-sampled version.  The idea is
@@ -1784,9 +1786,20 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 				++sample[s3/16];
 				++sample[s4/16];
 
+				min = std::min(std::min(std::min(std::min(min, s1), s2), s3), s4);
+				max = std::max(std::max(std::max(std::max(max, s1), s2), s3), s4);
+				mids += (s1 > 2 && s1 < 253) + (s2 > 2 && s2 < 253) + (s3 > 2 && s3 < 253) + (s4 > 2 && s4 < 253);
+
 				const U32 asum = (s1+s2+s3+s4);
 				alphatotal += asum;
 				sample[asum/(16*4)] += 4;
+
+				S32 avg = (s1+s2+s3+s4)/4;
+				if(avg >=128)
+				{
+					avg-=255;
+				}
+				sum+=F64(avg*avg*4)/F64(length);
 			}
 			
 			
@@ -1803,9 +1816,26 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 			alphatotal += s1;
 			++sample[s1/16];
 			current += mAlphaStride;
+
+			min = std::min(min, s1);
+			max = std::max(max, s1);
+			mids += (s1 > 2 && s1 < 253);
+
+			if(i%2==0)
+			{
+				const U32 s2 = *current;
+				min = std::min(min, s2);
+				max = std::max(max, s2);
+				mids += (s2 > 2 && s2 < 253);
+
+				S32 avg = (s1+s2)/2;
+				if(avg >=128)
+					avg-=255;
+				sum+=F64(avg*avg*2)/F64(length);
+			}
 		}
 	}
-	
+
 	// if more than 1/16th of alpha samples are mid-range, this
 	// shouldn't be treated as a 1-bit mask
 
@@ -1814,7 +1844,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 	// this to be an intentional effect and don't treat as a mask.
 
 	U32 midrangetotal = 0;
-	for (U32 i = 2; i < 13; i++)
+	for (U32 i = 3; i < 13; i++)
 	{
 		midrangetotal += sample[i];
 	}
@@ -1839,6 +1869,24 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 	{
 		mIsMask = TRUE;
 	}
+
+	mMaskMidPercentile = (F32) mids / (F32) (w * h);
+	mMaskRMSE = ((max - min) % 255) == 0 ? sqrt(sum) / 255.0 : FLT_MAX;
+	
+	//std::list<std::pair<std::string,std::string> > &data = sTextureMaskMap[getTexName()];
+	//data.clear();
+	//data.push_back(std::make_pair("RMSE", llformat("%f",mMaskRMSE)));
+	//data.push_back(std::make_pair(" MidPercent", llformat("%f",mMaskMidPercentile)));
+	//data.push_back(std::make_pair(" Mids", llformat("%u", mids)));
+	//data.push_back(std::make_pair(" sum", llformat("%lf",sum)));
+	//data.push_back(std::make_pair(" n", llformat("%u",h*w)));
+	//data.push_back(std::make_pair("legacymask", mIsMask ? "TRUE" : "FALSE"));
+	//data.push_back(std::make_pair(" index", llformat("%u",getTexName())));
+	//data.push_back(std::make_pair(" length", llformat("%u",length)));
+	//data.push_back(std::make_pair(" stride", llformat("%i",S32(mAlphaOffset))));
+	//data.push_back(std::make_pair(" split", llformat("%u|%u|%u",lowerhalftotal,midrangetotal,upperhalftotal)));
+	//data.push_back(std::make_pair(" alphatotal", llformat("%u",alphatotal)));
+	//data.push_back(std::make_pair(" alphatotal/48", llformat("%u",length/48)));
 }
 
 //----------------------------------------------------------------------------
@@ -1863,12 +1911,12 @@ U32 LLImageGL::createPickMask(S32 pWidth, S32 pHeight)
 void LLImageGL::freePickMask()
 {
 	// pickmask validity depends on old image size, delete it
-	if (mPickMask != NULL)
+	if (mPickMask != nullptr)
 	{
 		disclaimMem((mPickMaskWidth * mPickMaskHeight + 7) / 8);
 		delete [] mPickMask;
 	}
-	mPickMask = NULL;
+	mPickMask = nullptr;
 	mPickMaskWidth = mPickMaskHeight = 0;
 }
 

@@ -86,8 +86,8 @@ protected:
 	virtual ~HttpService();
 
 private:
-	HttpService(const HttpService &) = delete;			// Not defined
-	void operator=(const HttpService &) = delete;		// Not defined
+	HttpService(const HttpService &) = delete;				// Not defined
+	HttpService& operator=(const HttpService &) = delete;	// Not defined
 
 public:
 	enum EState
@@ -226,7 +226,7 @@ protected:
 	// === shared data ===
 	static volatile EState				sState;
 	HttpRequestQueue *					mRequestQueue;	// Refcounted
-	LLAtomic32<U32>							mExitRequested;
+	LLAtomicU32							mExitRequested;
 	LLCoreInt::HttpThread *				mThread;
 	
 	// === working-thread-only data ===

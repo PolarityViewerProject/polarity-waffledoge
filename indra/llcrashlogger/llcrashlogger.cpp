@@ -34,7 +34,6 @@
 #include "llcrashlogger.h"
 #include "llcrashlock.h"
 #include "linden_common.h"
-#include "llapr.h"
 #include "llstring.h"
 #include "indra_constants.h"	// CRASH_BEHAVIOR_...
 #include "llerror.h"
@@ -51,7 +50,6 @@
 #include "llcleanup.h"
 
 #include <curl/curl.h>
-#include "pvconstants.h"
 
 BOOL gBreak = false;
 BOOL gSent = false;
@@ -66,8 +64,8 @@ public:
     LLCrashLoggerHandler() {}
 
 protected:
-    virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
-    virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
+	void onSuccess(LLCore::HttpResponse * response, const LLSD &content) override;
+	void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status) override;
 
 };
 
@@ -89,7 +87,7 @@ LLCrashLogger::LLCrashLogger() :
 	mCrashBehavior(CRASH_BEHAVIOR_ALWAYS_SEND),
 	mCrashInPreviousExec(false),
 	mCrashSettings("CrashSettings"),
-	mCrashHost(""),
+	mCrashHost("https://www.polarityviewer.org/report/"),
 	mSentCrashLogs(false)
 {
 }
@@ -238,12 +236,12 @@ void LLCrashLogger::gatherFiles()
 		if(mDebugLog.has("CAFilename"))
 		{
             LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
-                LLCore::HttpRequest::GLOBAL_POLICY_ID, mDebugLog["CAFilename"].asString(), NULL);
+                LLCore::HttpRequest::GLOBAL_POLICY_ID, mDebugLog["CAFilename"].asString(), nullptr);
 		}
 		else
 		{
             LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
-                LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
+                LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), nullptr);
 		}
 
 		LL_INFOS("CRASHREPORT") << "Using log file from debug log " << mFileMap["SecondLifeLog"] << LL_ENDL;
@@ -253,7 +251,7 @@ void LLCrashLogger::gatherFiles()
 	{
 		// Figure out the filename of the second life log
         LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
-            LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
+            LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), nullptr);
         
 		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"Polarity.log");
         mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
@@ -292,15 +290,15 @@ void LLCrashLogger::gatherFiles()
                 std::stringstream s;
                 s << f.rdbuf();
 
-		std::string crash_info = s.str();
-		if(itr->first == "SecondLifeLog")
-		{
-			if(!mCrashInfo["DebugLog"].has("StartupState"))
-			{
-				mCrashInfo["DebugLog"]["StartupState"] = getStartupStateFromLog(crash_info);
-			}
-			trimSLLog(crash_info);
-		}
+                std::string crash_info = s.str();
+                if(itr->first == "SecondLifeLog")
+                {
+                    if(!mCrashInfo["DebugLog"].has("StartupState"))
+                    {
+                        mCrashInfo["DebugLog"]["StartupState"] = getStartupStateFromLog(crash_info);
+                    }
+                    trimSLLog(crash_info);
+                }
 
                 mCrashInfo[(*itr).first] = LLStringFn::strip_invalid_xml(rawstr_to_utf8(crash_info));
             }
@@ -331,7 +329,7 @@ void LLCrashLogger::gatherFiles()
 
     if (!has_minidump)  //Viewer was probably so hosed it couldn't write remaining data.  Try brute force.
     {
-       //Look for a filename at least 30 characters long in the dump dir which contains the characters MDMP as the first 4 characters in the file.
+        //Look for a filename at least 30 characters long in the dump dir which contains the characters MDMP as the first 4 characters in the file.
         typedef std::vector<std::string> vec;
         std::string pathname = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"");
         LL_WARNS("CRASHREPORT") << "Searching for minidump in " << pathname << LL_ENDL;
@@ -341,7 +339,7 @@ void LLCrashLogger::gatherFiles()
             if ( ( iter->length() > 30 ) && (iter->rfind(".dmp") == (iter->length()-4) ) )
             {
                 std::string fullname = pathname + *iter;
-                llifstream fdat( fullname.c_str(), std::ifstream::binary);
+                llifstream fdat( fullname.c_str(), std::ios_base::binary);
                 if (fdat)
                 {
                     char buf[5];
@@ -384,8 +382,7 @@ const char* const CRASH_SETTINGS_FILE = "settings_crash_behavior.xml";
 
 std::string LLCrashLogger::loadCrashURLSetting()
 {
-	// <polarity> No crash host for the moment
-#if 0
+
 	// First check user_settings (in the user's home dir)
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 	if (! mCrashSettings.loadFromFile(filename))
@@ -395,11 +392,7 @@ std::string LLCrashLogger::loadCrashURLSetting()
 		mCrashSettings.loadFromFile(filename);
 	}
     
-
     return mCrashHost;
-#else
-	return "";
-#endif
 
 //    if (! mCrashSettings.controlExists("CrashHostUrl"))
 //    {
@@ -429,7 +422,7 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
 
         LL_INFOS("CRASHREPORT") << "POST crash data to " << host << LL_ENDL;
         LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(httpRequest.get(), LLCore::HttpRequest::DEFAULT_POLICY_ID, 0,
-            host, data, httpOpts, LLCore::HttpHeaders::ptr_t(), LLCore::HttpHandler::ptr_t(new LLCrashLoggerHandler));
+            host, data, httpOpts, LLCore::HttpHeaders::ptr_t(), boost::static_pointer_cast<LLCore::HttpHandler>(boost::make_shared<LLCrashLoggerHandler>()));
 
         if (handle == LLCORE_HTTP_HANDLE_INVALID)
         {
@@ -574,15 +567,13 @@ bool LLCrashLogger::init()
     
     LLCore::LLHttp::initialize();
 
-	static const std::string app_name_str = APP_NAME;
-	
-	// Default to the product name "Polarity" (this is overridden by the -name argument)
-	mProductName = app_name_str;
-	
 	// We assume that all the logs we're looking for reside on the current drive
-	gDirUtilp->initAppDirs(mProductName);
+	gDirUtilp->initAppDirs("Polarity");
 
 	LLError::initForApplication(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+
+	// Default to the product name "Second Life" (this is overridden by the -name argument)
+	mProductName = "Polarity";
 
 	// Rename current log file to ".old"
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log.old");

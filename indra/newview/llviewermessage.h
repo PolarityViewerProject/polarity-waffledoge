@@ -80,13 +80,6 @@ void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data
 void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data);
 void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_data);
 
-// <FS:Techwolf Lupindo> area search
-// send object properties to all classes that need it
-void process_object_properties(LLMessageSystem *msg, void**user_data);
-// </FS:Techwolf Lupindo> area search
-// <FS:Ansariel> Anti spam
-void process_object_properties_family(LLMessageSystem *msg, void**user_data);
-
 void send_simulator_throttle_settings(const LLHost &host);
 void process_kill_object(	LLMessageSystem *mesgsys, void **user_data);
 void process_time_synch(	LLMessageSystem *mesgsys, void **user_data);
@@ -216,7 +209,7 @@ class LLViewerMessage : public  LLSingleton<LLViewerMessage>
 {
 	LLSINGLETON_EMPTY_CTOR(LLViewerMessage);
 public:
-	typedef boost::function<void()> teleport_started_callback_t;
+	typedef std::function<void()> teleport_started_callback_t;
 	typedef boost::signals2::signal<void()> teleport_started_signal_t;
 	boost::signals2::connection setTeleportStartedCallback(teleport_started_callback_t cb);
 
@@ -248,9 +241,9 @@ public:
 	bool mPersist;
 
 	// LLNotificationResponderInterface implementation
-	/*virtual*/ LLSD asLLSD();
-	/*virtual*/ void fromLLSD(const LLSD& params);
-	/*virtual*/ void handleRespond(const LLSD& notification, const LLSD& response);
+	/*virtual*/ LLSD asLLSD() override;
+	/*virtual*/ void fromLLSD(const LLSD& params) override;
+	/*virtual*/ void handleRespond(const LLSD& notification, const LLSD& response) override;
 
 	void send_auto_receive_response(void);
 
@@ -262,7 +255,7 @@ private:
 
 	void initRespondFunctionMap();
 
-	typedef boost::function<bool (const LLSD&, const LLSD&)> respond_function_t;
+	typedef std::function<bool (const LLSD&, const LLSD&)> respond_function_t;
 	typedef std::map<std::string, respond_function_t> respond_function_map_t;
 
 	respond_function_map_t mRespondFunctions;

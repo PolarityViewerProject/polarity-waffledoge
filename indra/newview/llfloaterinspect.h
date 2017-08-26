@@ -36,9 +36,6 @@
 class LLObjectSelection;
 class LLScrollListCtrl;
 class LLUICtrl;
-// [RLVa:KB] - Checked: RLVa-2.0.1
-class LLSelectNode;
-// [/RLVa:KB]
 
 class LLFloaterInspect : public LLFloater
 {
@@ -46,14 +43,14 @@ class LLFloaterInspect : public LLFloater
 public:
 
 //	static void show(void* ignored = NULL);
-	void onOpen(const LLSD& key);
-	virtual BOOL postBuild();
+	void onOpen(const LLSD& key) override;
+	BOOL postBuild() override;
 	void dirty();
 	LLUUID getSelectedUUID();
-	virtual void draw();
-	virtual void refresh();
+	void draw() override;
+	void refresh() override;
 //	static BOOL isVisible();
-	virtual void onFocusReceived();
+	void onFocusReceived() override;
 	void onClickCreatorProfile();
 	void onClickOwnerProfile();
 	void onSelectObject();
@@ -63,10 +60,6 @@ protected:
 	// protected members
 	void setDirty() { mDirty = TRUE; }
 	bool mDirty;
-
-// [RLVa:KB] - Checked: RLVa-2.0.1
-	const LLSelectNode* getSelectedNode() /*const*/;
-// [/RLVa:KB]
 
 private:
 	void onGetOwnerNameCallback();

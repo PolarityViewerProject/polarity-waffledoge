@@ -63,8 +63,6 @@
 #include "llviewerdisplay.h"
 #include "llviewerwindow.h"
 #include "llprogressview.h"
-#include <tchar.h>
-#include "pvgpuinfo.h"
 ////////////////////////////////////////////////////////////////////////////
 
 void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
@@ -96,10 +94,10 @@ LLTextureKey::LLTextureKey(LLUUID id, ETexListType tex_type)
 
 LLViewerTextureList::LLViewerTextureList() 
 	: mForceResetTextureStats(FALSE),
-	mInitialized(FALSE),
 	mUpdateStats(FALSE),
 	mMaxResidentTexMemInMegaBytes(0),
-	mMaxTotalTextureMemInMegaBytes(0)
+	mMaxTotalTextureMemInMegaBytes(0),
+	mInitialized(FALSE)
 {
 }
 
@@ -112,7 +110,7 @@ void LLViewerTextureList::init()
 	mMaxTotalTextureMemInMegaBytes = (U32Bytes)0;
 	
 	// Update how much texture RAM we're allowed to use.
-	updateMaxResidentTexMem(0); // 0 = use current
+	updateMaxResidentTexMem(S32Megabytes(0)); // 0 = use current
 	
 	doPreloadImages();
 }
@@ -156,13 +154,13 @@ void LLViewerTextureList::doPreloadImages()
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
 		mImagePreloads.insert(image);
 	}
-	image = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryLines.tga", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
+	image = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryLines.png", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
 	if (image) 
 	{
 		image->setAddressMode(LLTexUnit::TAM_WRAP);	
 		mImagePreloads.insert(image);
 	}
-	image = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryPassLines.tga", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
+	image = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryPassLines.png", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
 	if (image) 
 	{
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
@@ -183,14 +181,14 @@ void LLViewerTextureList::doPreloadImages()
 	}
 	// Invisiprim alpha replacement
 	image = LLViewerTextureManager::getFetchedTextureFromFile("transparent.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
-		0, 0, LLUUID("e97cf410-8e61-7005-ec06-629eba4cd1fb"));
+		0, 0, IMG_ALPHA_GRAD);
 	if (image)
 	{
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
 		mImagePreloads.insert(image);
 	}
 	image = LLViewerTextureManager::getFetchedTextureFromFile("transparent.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
-		0, 0, LLUUID("38b86f85-2575-52a9-a531-23108d8da837"));
+		0, 0, IMG_ALPHA_GRAD_2D);
 	if (image)
 	{
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
@@ -292,7 +290,7 @@ void LLViewerTextureList::shutdown()
 		if (desired >= 0 && desired < MAX_DISCARD_LEVEL)
 		{
 			S32 pixel_area = image->getWidth(desired) * image->getHeight(desired);
-			image_area_list.insert(std::make_pair(pixel_area, image));
+			image_area_list.emplace(pixel_area, image);
 		}
 	}
 	
@@ -350,6 +348,7 @@ void LLViewerTextureList::dump()
 		<< " size " << image->getWidth() << "x" << image->getHeight()
 		<< " discard " << image->getDiscardLevel()
 		<< " desired " << image->getDesiredDiscardLevel()
+		<< " references " << image->getNumRefs()
 		<< " http://asset.siva.lindenlab.com/" << image->getID() << ".texture"
 		<< LL_ENDL;
 	}
@@ -967,9 +966,9 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			if ((decode_priority_test < old_priority_test * .8f) ||
 				(decode_priority_test > old_priority_test * 1.25f))
 			{
-				mImageList.erase(imagep) ;
+				removeImageFromList(imagep);
 				imagep->setDecodePriority(decode_priority);
-				mImageList.insert(imagep);
+				addImageToList(imagep);
 			}
 		}
 	}
@@ -1228,7 +1227,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 	}
 	// Run threads
 	S32 fetch_pending = 0;
-	while (1)
+	while (true)
 	{
 		LLAppViewer::instance()->getTextureCache()->update(1); // unpauses the texture cache thread
 		LLAppViewer::instance()->getImageDecodeThread()->update(1); // unpauses the image thread
@@ -1343,105 +1342,101 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 	return compressedImage;
 }
 
-// Returns min setting for TextureMemory (in MB), NOT VRAM
+// Returns min setting for TextureMemory (in MB)
 S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 {
-	return S32Megabytes(32); // <polarity />
+	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryKB();
+	//min texture mem sets to 64M if total physical mem is more than 1.5GB
+	return (system_ram > S32Megabytes(1500)) ? S32Megabytes(64) : gMinVideoRam ;
 }
 
 //static
-// Returns the maximum value TextureMemory can be, based on the amount of VRAM the video card in use has.
-S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommended)
+// Returns max setting for TextureMemory (in MB)
+S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, float mem_multiplier)
 {
-	static const S64Megabytes VRAM_BIG_THRESHOLD(4096);
-	S64Megabytes Hardware_VRAM_MB = PVGPUInfo::vRAMGetTotalOnboard();
-	F64Megabytes adjusted_max_vram = Hardware_VRAM_MB;
-	bool leave_vram_for_os = (bool)gSavedSettings.getBOOL("PVDebug_ReserveVRAMForSystem");
-
-	// Set max texture memory to 75% of available VRAM. Linden Lab's original value was 50%.
-	adjusted_max_vram = F64Megabytes((Hardware_VRAM_MB * 3) / 4);
-	LL_INFOS() << "MAX VIDEO TEXTURE MEMORY SHRINK FROM " << Hardware_VRAM_MB << " TO " << adjusted_max_vram << LL_ENDL;
-
-	// reminder: this is the texture memory, it must not take all the VRAM because we have more data to store as well.
-	if (get_recommended)
+	S32Megabytes max_texmem;
+	if (gGLManager.mVRAM != 0)
 	{
-		LL_DEBUGS() << "GETTING RECOMMENDED" << LL_ENDL;
-		if (gGLManager.mIsATI)
+		// Treat any card with < 32 MB (shudder) as having 32 MB
+		//  - it's going to be swapping constantly regardless
+		S32Megabytes max_vram(gGLManager.mVRAM);
+
+		if(gGLManager.mIsATI)
 		{
-			leave_vram_for_os = true; // forced in ATI's case. Sorry guys, you swap too hard.
+			//shrink the availabe vram for ATI cards because some of them do not handel texture swapping well.
+			max_vram = max_vram * 0.75f; 
 		}
-		if (leave_vram_for_os)
-		{
-			// Make sure we leave some VRAM for the OS
-			F64Megabytes used_vram = PVGPUInfo::vRAMGetUsedOthers();
-			if (used_vram <= F64Megabytes(0))
-			{
-				// Work around math error if the GPU API doesn't return that info
-				used_vram = F64Megabytes(256);
-			}
-			adjusted_max_vram = llclamp(adjusted_max_vram, used_vram, adjusted_max_vram - used_vram); // adjust here if still swapping
-		}
-		LL_INFOS() << "RECOMMENDED VIDEO TEXTURE MEMORY: " << adjusted_max_vram << LL_ENDL;
+
+		max_vram = llmax(max_vram, getMinVideoRamSetting());
+		max_texmem = max_vram;
+		if (!get_recommended)
+			max_texmem *= 2;
 	}
-	/*
 	else
 	{
-		llassert(adjusted_max_vram > S32Megabytes(0))
-		if (S64Megabytes(gMaxVideoRam) != adjusted_max_vram) // be nice on memory writes
+		if (!get_recommended)
 		{
-			//gMaxVideoRam = S32Megabytes(adjusted_max_vram);
-			LL_INFOS() << "FINAL MAX VIDEO TEXTURE MEMORY SHRINK FROM " << gMaxVideoRam << " TO " << adjusted_max_vram << LL_ENDL;
-			LL_INFOS() << "Texture memory allocation updated" << LL_ENDL;
+			max_texmem = S32Megabytes(512);
 		}
+		else if (gSavedSettings.getBOOL("NoHardwareProbe")) //did not do hardware detection at startup
+		{
+			max_texmem = S32Megabytes(512);
+		}
+		else
+		{
+			max_texmem = S32Megabytes(128);
+		}
+
+		LL_WARNS() << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << LL_ENDL;
 	}
-	*/
-	LL_INFOS() << "FINAL MAX VIDEO TEXTURE MEMORY SHRINK FROM " << gMaxVideoRam << " TO " << adjusted_max_vram << LL_ENDL;
-	LL_DEBUGS() << "EXITING FUNCTION" << LL_ENDL;
-	return adjusted_max_vram;
+
+	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryKB(); // In MB
+	//LL_INFOS() << "*** DETECTED " << system_ram << " MB of system memory." << LL_ENDL;
+	if (get_recommended)
+		max_texmem = llmin(max_texmem, system_ram/2);
+	else
+		max_texmem = llmin(max_texmem, system_ram);
+		
+    // limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
+	max_texmem = llmin(max_texmem, (S32Megabytes) (mem_multiplier * max_texmem));
+
+	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam); 
+	
+	return max_texmem;
 }
 
-// <polarity> TODO: Make this dynamic based on the snapshot texture size
 const S32Megabytes VIDEO_CARD_FRAMEBUFFER_MEM(12);
-const S32Megabytes MIN_MEM_FOR_NON_TEXTURE(256); // <polarity>
-
-// Updates TextureMemory based on user selection and current limits
-void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
+const S32Megabytes MIN_MEM_FOR_NON_TEXTURE(512);
+void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 {
-	LL_DEBUGS() << "ENTERING FUNCTION" << LL_ENDL;
 	// Initialize the image pipeline VRAM settings
 	S32Megabytes cur_mem(gSavedSettings.getS32("TextureMemory"));
-
-// ------------------------------------------------------------------
-// DirectX-less minimum VRAM fix
-//
-	if (mem <= 0 || cur_mem.value() <= 0) // convention for "use current"
+	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
+	S32Megabytes default_mem = getMaxVideoRamSetting(true, mem_multiplier); // recommended default
+	if (mem == (S32Megabytes)0)
 	{
-		llassert(0); // This should not happen
-		mem = getMaxVideoRamSetting(true).value(); // recommended default
+		mem = cur_mem > (S32Megabytes)0 ? cur_mem : default_mem;
+	}
+	else if (mem < (S32Megabytes)0)
+	{
+		mem = default_mem;
 	}
 
-	// disable clamping for now as it breaks on some systems, causing infinite loop.
-	//mem = llclamp(mem, getMinVideoRamSetting().value(), getMaxVideoRamSetting(false, mem_multiplier).value());
-	if (S32Megabytes(mem) != cur_mem)
+	mem = llclamp(mem, getMinVideoRamSetting(), getMaxVideoRamSetting(false, mem_multiplier));
+	if (mem != cur_mem)
 	{
-		if (S32Megabytes(mem) < getMinVideoRamSetting())
-		{
-			LL_WARNS() << "assigned memory value is lower than minimum value!" << LL_ENDL;
-		}
-		gSavedSettings.setS32("TextureMemory", mem);
-		LL_DEBUGS() << "TEXTURE MEMORY SET" << LL_ENDL;
-
+		gSavedSettings.setS32("TextureMemory", mem.value());
 		return; //listener will re-enter this function
 	}
-//
-// ------------------------------------------------------------------
-#if LL_VRAM_CODE
-	//@todo Document this for maintainability and future improvement. I don't even know why this code does what it does...
-	S32 vb_mem = mem;
-	S32 fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM.value(), S32(vb_mem / 4));
-	mMaxResidentTexMemInMegaBytes = S32Megabytes(vb_mem - fb_mem) ; //in MB
+
+	// TODO: set available resident texture mem based on use by other subsystems
+	// currently max(12MB, VRAM/4) assumed...
 	
-#ifdef LL_X86_64
+	S32Megabytes vb_mem = mem;
+	S32Megabytes fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM, vb_mem/4);
+	mMaxResidentTexMemInMegaBytes = (vb_mem - fb_mem) ; //in MB
+	
+#if defined(_WIN64) || defined(__amd64__) || defined(__x86_64__)
 	if (mMaxResidentTexMemInMegaBytes > gMaxVideoRam / 2)
 	{
 		mMaxTotalTextureMemInMegaBytes = gMaxVideoRam + (S32Megabytes) (mMaxResidentTexMemInMegaBytes * 0.25f);
@@ -1459,31 +1454,22 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 #endif
 
 	//system mem
-	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryClamped();
+	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryKB();
 
 	//minimum memory reserved for non-texture use.
-	//if system_ram >= 1GB, reserve at least 'MIN_MEM_FOR_NON_TEXTURE' for non-texture use;
+	//if system_raw >= 1GB, reserve at least 512MB for non-texture use;
 	//otherwise reserve half of the system_ram for non-texture use.
-	S32Megabytes min_non_texture_mem = llmin(system_ram / 2, MIN_MEM_FOR_NON_TEXTURE);
+	S32Megabytes min_non_texture_mem = llmin(system_ram / 2, MIN_MEM_FOR_NON_TEXTURE) ; 
 
 	if (mMaxTotalTextureMemInMegaBytes > system_ram - min_non_texture_mem)
 	{
 		mMaxTotalTextureMemInMegaBytes = system_ram - min_non_texture_mem ;
 	}
 	
-	LL_INFOS() << "Total Video Memory set to: " << mem << "MB" << LL_ENDL;
-	LL_INFOS() << "Total Texture Memory set to: " << mMaxTotalTextureMemInMegaBytes << LL_ENDL;
-	LL_INFOS() << "Maximum Resident Texture Memory set to: " << mMaxResidentTexMemInMegaBytes << LL_ENDL;
-#else
-
-	S32 fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM.value(), (mem / 4));
-	mMaxResidentTexMemInMegaBytes = S32Megabytes(mem - fb_mem);
-	mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 1.75f;
-
-	LL_INFOS() << "Available Video Memory set to: " << mMaxTotalTextureMemInMegaBytes << LL_ENDL;
-	LL_INFOS() << "Available Texture Memory set to: " << mMaxResidentTexMemInMegaBytes << LL_ENDL;
-#endif // LL_VRAM_CODE
-	LL_DEBUGS() << "EXITING FUNCTION" << LL_ENDL;
+	LL_INFOS() << "Total Video Memory set to: " << vb_mem << " MB" << LL_ENDL;
+	LL_INFOS() << "Available Texture Memory set to: " << (vb_mem - fb_mem) << " MB" << LL_ENDL;
+	LL_INFOS() << "Total Texture Memory set to: " << mMaxTotalTextureMemInMegaBytes << " MB" << LL_ENDL;
+	LL_INFOS() << "Maxiumum Resident Texture Memory set to: " << mMaxResidentTexMemInMegaBytes << " MB" << LL_ENDL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1745,7 +1731,7 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 		// Don't add downloadable content into this list
 		// all UI images are non-deletable and list does not support deletion
 		imagep->setNoDelete();
-		mUIImages.insert(std::make_pair(name, new_imagep));
+		mUIImages.emplace(name, new_imagep);
 		mUITextureList.push_back(imagep);
 	}
 

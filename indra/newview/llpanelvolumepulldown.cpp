@@ -37,13 +37,11 @@
 
 // Linden libs
 #include "llbutton.h"
+#include "llcheckboxctrl.h"
 #include "lltabcontainer.h"
 #include "llfloaterreg.h"
 #include "llfloaterpreference.h"
 #include "llsliderctrl.h"
-
-/* static */ const F32 LLPanelVolumePulldown::sAutoCloseFadeStartTimeSec = 2.0f;
-/* static */ const F32 LLPanelVolumePulldown::sAutoCloseTotalTimeSec = 3.0f;
 
 ///----------------------------------------------------------------------------
 /// Class LLPanelVolumePulldown
@@ -56,6 +54,7 @@ LLPanelVolumePulldown::LLPanelVolumePulldown()
 
     mCommitCallbackRegistrar.add("Vol.setControlFalse", boost::bind(&LLPanelVolumePulldown::setControlFalse, this, _2));
 	mCommitCallbackRegistrar.add("Vol.GoAudioPrefs", boost::bind(&LLPanelVolumePulldown::onAdvancedButtonClick, this, _2));
+	mCommitCallbackRegistrar.add("Vol.SetSounds", boost::bind(&LLPanelVolumePulldown::onClickSetSounds, this, _2));
 	buildFromFile( "panel_volume_pulldown.xml");
 }
 
@@ -66,40 +65,6 @@ BOOL LLPanelVolumePulldown::postBuild()
 	volslider->setValue(gSavedSettings.getF32("AudioLevelMaster"));
 
 	return LLPanel::postBuild();
-}
-
-/*virtual*/
-void LLPanelVolumePulldown::onMouseEnter(S32 x, S32 y, MASK mask)
-{
-	mHoverTimer.stop();
-	LLPanel::onMouseEnter(x,y,mask);
-}
-
-/*virtual*/
-void LLPanelVolumePulldown::onTopLost()
-{
-	setVisible(FALSE);
-}
-
-/*virtual*/
-void LLPanelVolumePulldown::onMouseLeave(S32 x, S32 y, MASK mask)
-{
-	mHoverTimer.start();
-	LLPanel::onMouseLeave(x,y,mask);
-}
-
-/*virtual*/ 
-void LLPanelVolumePulldown::onVisibilityChange ( BOOL new_visibility )
-{
-	if (new_visibility)	
-	{
-		mHoverTimer.start(); // timer will be stopped when mouse hovers over panel
-	}
-	else
-	{
-		mHoverTimer.stop();
-
-	}
 }
 
 void LLPanelVolumePulldown::onAdvancedButtonClick(const LLSD& user_data)
@@ -132,11 +97,18 @@ void LLPanelVolumePulldown::setControlFalse(const LLSD& user_data)
 		control->set(LLSD(FALSE));
 }
 
+void LLPanelVolumePulldown::onClickSetSounds(const LLSD& user_data)
+{
+	// Disable Enable gesture sounds checkbox if the master sound is disabled
+	// or if sound effects are disabled.
+	getChild<LLCheckBoxCtrl>("gesture_audio_play_btn")->setEnabled(!gSavedSettings.getBOOL("MuteSounds"));
+}
+
 //virtual
 void LLPanelVolumePulldown::draw()
 {
 	F32 alpha = mHoverTimer.getStarted() 
-		? clamp_rescale(mHoverTimer.getElapsedTimeF32(), sAutoCloseFadeStartTimeSec, sAutoCloseTotalTimeSec, 1.f, 0.f)
+		? clamp_rescale(mHoverTimer.getElapsedTimeF32(), AUTO_CLOSE_FADE_START_TIME_SEC, AUTO_CLOSE_TOTAL_TIME_SEC, 1.f, 0.f)
 		: 1.0f;
 	LLViewDrawContext context(alpha);
 

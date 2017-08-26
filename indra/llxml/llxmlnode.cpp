@@ -42,7 +42,7 @@
 #include "llquaternion.h"
 #include "llstring.h"
 #include "lluuid.h"
-#include "lldir.h"
+#include "llrand.h"
 
 // static
 BOOL LLXMLNode::sStripEscapedStrings = TRUE;
@@ -117,6 +117,7 @@ LLXMLNode::LLXMLNode(LLStringTableEntry* name, BOOL is_attribute) :
 // copy constructor (except for the children)
 LLXMLNode::LLXMLNode(const LLXMLNode& rhs) : 
 	mID(rhs.mID),
+    mParser(NULL),
 	mIsAttribute(rhs.mIsAttribute),
 	mVersionMajor(rhs.mVersionMajor), 
 	mVersionMinor(rhs.mVersionMinor), 
@@ -124,8 +125,7 @@ LLXMLNode::LLXMLNode(const LLXMLNode& rhs) :
 	mPrecision(rhs.mPrecision),
 	mType(rhs.mType),
 	mEncoding(rhs.mEncoding),
-	mLineNumber(0),
-	mParser(NULL),
+    mLineNumber(0),
 	mParent(NULL),
 	mChildren(NULL),
 	mAttributes(),
@@ -289,7 +289,7 @@ void LLXMLNode::addChild(LLXMLNodePtr& new_child)
 			mChildren->head = new_child;
 			mChildren->tail = new_child;
 		}
-		mChildren->map.insert(std::make_pair(new_child->mName, new_child));
+		mChildren->map.emplace(new_child->mName, new_child);
 
 		if (mChildren->tail != new_child)
 		{
@@ -1300,7 +1300,7 @@ BOOL LLXMLNode::getAttributeU8(const char* name, U8& value )
 BOOL LLXMLNode::getAttributeS8(const char* name, S8& value )
 {
 	LLXMLNodePtr node;
-	S32 val;
+	S32 val = 0;
 	if (!(getAttribute(name, node) && node->getIntValue(1, &val)))
 	{
 		return false;
@@ -1312,7 +1312,7 @@ BOOL LLXMLNode::getAttributeS8(const char* name, S8& value )
 BOOL LLXMLNode::getAttributeU16(const char* name, U16& value )
 {
 	LLXMLNodePtr node;
-	U32 val;
+	U32 val = 0;
 	if (!(getAttribute(name, node) && node->getUnsignedValue(1, &val)))
 	{
 		return false;
@@ -1324,7 +1324,7 @@ BOOL LLXMLNode::getAttributeU16(const char* name, U16& value )
 BOOL LLXMLNode::getAttributeS16(const char* name, S16& value )
 {
 	LLXMLNodePtr node;
-	S32 val;
+	S32 val = 0;
 	if (!(getAttribute(name, node) && node->getIntValue(1, &val)))
 	{
 		return false;
@@ -1686,12 +1686,13 @@ const char *LLXMLNode::parseFloat(const char *str, F64 *dest, U32 precision, Enc
 		case 32:
 			{
 				U32 short_dest = (U32)bytes_dest;
-				F32 ret_val = *(F32 *)&short_dest;
+				F32 ret_val;
+				memcpy(&ret_val, &short_dest, sizeof(ret_val));
 				*dest = ret_val;
 			}
 			break;
 		case 64:
-			*dest = *(F64 *)&bytes_dest;
+			memcpy(dest, &bytes_dest, sizeof(*dest));
 			break;
 		default:
 			return NULL;
@@ -2066,7 +2067,7 @@ U32 LLXMLNode::getStringValue(U32 expected_length, std::string *array)
 	
 	std::string::size_type n = 0;
 	std::string::size_type m = 0;
-	while(1)
+	while(true)
 	{
 		if (num_returned_strings >= expected_length)
 		{
@@ -2114,19 +2115,19 @@ U32 LLXMLNode::getUUIDValue(U32 expected_length, LLUUID *array)
 		LLUUID uuid_value;
 		value_string = skipWhitespace(value_string);
 
-		if (strlen(value_string) < UUID_STR_LENGTH)
+		if (strlen(value_string) < (UUID_STR_LENGTH-1))		/* Flawfinder: ignore */
 		{
 			break;
 		}
-		char uuid_string[UUID_STR_SIZE];
-		memcpy(uuid_string, value_string, UUID_STR_LENGTH);
-		uuid_string[UUID_STR_LENGTH] = 0;
+		char uuid_string[UUID_STR_LENGTH];		/* Flawfinder: ignore */
+		memcpy(uuid_string, value_string, (UUID_STR_LENGTH-1));		/* Flawfinder: ignore */
+		uuid_string[(UUID_STR_LENGTH-1)] = 0;
 
 		if (!LLUUID::parseUUID(std::string(uuid_string), &uuid_value))
 		{
 			break;
 		}
-		value_string = &value_string[UUID_STR_LENGTH];
+		value_string = &value_string[(UUID_STR_LENGTH-1)];
 		array[i] = uuid_value;
 	}
 #if LL_DEBUG
@@ -2331,7 +2332,6 @@ void LLXMLNode::setUnsignedValue(U32 length, const U32* array, Encoding encoding
 				new_value.append(llformat("%08X", array[pos]));
 			}
 		}
-		mValue = new_value;
 	}
 	// TODO -- Handle Base32
 
@@ -2710,8 +2710,7 @@ U32 LLXMLNode::getChildCount() const
 
 U32 get_rand(U32 max_value)
 {
-	U32 random_num = rand() + ((U32)rand() << 16);
-	return (random_num % max_value);
+	return static_cast<U32>(ll_rand(max_value));
 }
 
 LLXMLNode *get_rand_node(LLXMLNode *node)
@@ -3220,14 +3219,14 @@ std::string LLXMLNode::getTextContents() const
 	{
 		// Case 1: node has quoted text
 		S32 num_lines = 0;
-		while(1)
+		while(true)
 		{
 			// mContents[n] == '"'
 			++n;
 			std::string::size_type t = n;
 			std::string::size_type m = 0;
 			// fix-up escaped characters
-			while(1)
+			while(true)
 			{
 				m = contents.find_first_of("\\\"", t); // find first \ or "
 				if ((m == std::string::npos) || (contents[m] == '\"'))

@@ -49,9 +49,9 @@ public:
 	
 	/// Load the given url in the operating system's web browser, async if we want to return immediately
 	/// before browser has spawned
-	static void loadURLExternal(const std::string& url, bool async = true);
-	//static void loadURLExternal(const std::string& url) { loadURLExternal(url, LLStringUtil::null); }
-	//static void loadURLExternal(const std::string& url, const std::string& uuid);
+	static void loadURLExternal(const std::string& url) {loadURLExternal(url, LLStringUtil::null);}
+	static void loadURLExternal(const std::string& url, const std::string& uuid);
+	static void loadURLExternal(const std::string& url, bool async, const std::string& uuid = LLStringUtil::null);
 
 	static void loadURL(const std::string& url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null);
 	// load content using built-in browser

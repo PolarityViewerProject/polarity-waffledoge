@@ -72,7 +72,7 @@ LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)
 
 // public
 LLScrollListItem* LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPosition pos,
-								 BOOL enabled, const std::string& suffix, const std::string& prefix)
+								 BOOL enabled, const std::string& suffix)
 {
 	//LL_INFOS() << "LLNameListCtrl::addNameItem " << agent_id << LL_ENDL;
 
@@ -81,7 +81,7 @@ LLScrollListItem* LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPositi
 	item.enabled = enabled;
 	item.target = INDIVIDUAL;
 
-	return addNameItemRow(item, pos, suffix, prefix);
+	return addNameItemRow(item, pos, suffix);
 }
 
 // virtual, public
@@ -300,13 +300,12 @@ LLScrollListItem* LLNameListCtrl::addElement(const LLSD& element, EAddPosition p
 LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	const LLNameListCtrl::NameItem& name_item,
 	EAddPosition pos,
-	const std::string& suffix,
-	const std::string& prefix)
+	const std::string& suffix)
 {
 	LLUUID id = name_item.value().asUUID();
 	LLNameListItem* item = new LLNameListItem(name_item,name_item.target() == GROUP, name_item.target() == EXPERIENCE);
 
-	if (!item) return NULL;
+	if (!item) return nullptr;
 
 	LLScrollListCtrl::addRow(item, name_item, pos);
 
@@ -347,7 +346,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 					}
 					mAvatarNameCacheConnections.erase(it);
 				}
-				mAvatarNameCacheConnections[id] = LLAvatarNameCache::get(id,boost::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, suffix, prefix, item->getHandle()));
+				mAvatarNameCacheConnections[id] = LLAvatarNameCache::get(id,boost::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, suffix, item->getHandle()));
 
 				if(mPendingLookupsRemaining <= 0)
 				{
@@ -377,7 +376,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	LLScrollListCell* cell = item->getColumn(mNameColumnIndex);
 	if (cell)
 	{
-		cell->setValue(prefix + fullname);
+		cell->setValue(fullname);
 	}
 
 	dirtyColumns();
@@ -420,7 +419,6 @@ void LLNameListCtrl::removeNameItem(const LLUUID& agent_id)
 void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,
 									   std::string suffix,
-									   std::string prefix,
 									   LLHandle<LLNameListItem> item)
 {
 	avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(agent_id);
@@ -443,11 +441,6 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 	if (!suffix.empty())
 	{
 		name.append(suffix);
-	}
-
-	if (!prefix.empty())
-	{
-	    name.insert(0, prefix);
 	}
 
 	LLNameListItem* list_item = item.get();

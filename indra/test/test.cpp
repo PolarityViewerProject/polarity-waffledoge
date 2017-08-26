@@ -36,11 +36,12 @@
  *
  */
 
+
 #include "linden_common.h"
 
 #include <memory>
 #include "llerrorcontrol.h"
-//#include "lltut.h"
+#include "lltut.h"
 #include "tests/wrapllerrs.h"             // RecorderProxy
 #include "stringize.h"
 #include "namedtempfile.h"
@@ -581,7 +582,7 @@ int main(int argc, char **argv)
 			case 'h':
 				stream_usage(std::cout, argv[0]);
 				return 0;
-				//break;
+				break;
 			case 'l':
 				stream_groups(std::cout, argv[0]);
 				return 0;
@@ -612,7 +613,7 @@ int main(int argc, char **argv)
 			default:
 				stream_usage(std::cerr, argv[0]);
 				return 1;
-				//break;
+				break;
 		}
 	}
 
@@ -675,4 +676,5 @@ int main(int argc, char **argv)
 	return retval;
 
 	//delete mycallback;
+
 }

@@ -9,48 +9,37 @@
  width="0">
   <!-- DEFAULT styles for avatar item -->
   <default_style
-   font="SansSerif"
-   font.size="Small"
+   font="SansSerifSmall"
    font.style="NORMAL"
-   color="Magenta"/>
+   color="DkGray"/>
 
   <!-- styles for avatar item INVITED to voice call -->
   <voice_call_invited_style
-   font="SansSerif"
-   font.size="Small"
+   font="SansSerifSmall"
    font.style="NORMAL"
    color="AvatarListItemIconVoiceInvitedColor"/>
 
   <!-- styles for avatar item JOINED to voice call -->
   <voice_call_joined_style
-   font="SansSerif"
-   font.size="Small"
+   font="SansSerifSmall"
    font.style="NORMAL"
    color="White"/>
 
   <!-- styles for avatar item which HAS LEFT voice call -->
   <voice_call_left_style
-   font="SansSerif"
-   font.size="Small"
+   font="SansSerifSmall"
    font.style="ITALIC"
    color="LtGray_50"/>
 
   <!-- styles for ONLINE avatar item -->
   <online_style
-   font="SansSerif"
-   font.size="Small"
+   font="SansSerifSmall"
    font.style="NORMAL"
-   color="White"/>
+   color="AvatarListItemOnlineColor"/>
 
   <!-- styles for OFFLINE avatar item -->
   <offline_style
-   font="SansSerif"
-   font.size="Small"
+   font="SansSerifSmall"
    font.style="NORMAL"
    color="Gray"/>
-
-<color_style
- font="SansSerif"
- font.size="Small"
- font.style="NORMAL"/>
 </avatar_list_item>

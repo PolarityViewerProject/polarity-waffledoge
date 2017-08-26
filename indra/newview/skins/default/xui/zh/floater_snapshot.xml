@@ -50,6 +50,7 @@
 		</combo_box>
 		<check_box label="介面" name="ui_check"/>
 		<check_box label="擡頭顯示" name="hud_check"/>
+		<check_box label="將幀凍結（全螢幕）" name="freeze_frame_check"/>
 		<check_box label="自動刷新" name="auto_snapshot_check"/>
 		<text name="filter_list_label">
 			濾鏡：

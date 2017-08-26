@@ -92,6 +92,7 @@ public:
 	 * Show avatar profile.
 	 */
 	static void showProfile(const LLUUID& id);
+	static void showWebProfile(const LLUUID& id);
 	static void hideProfile(const LLUUID& id);
 	static bool profileVisible(const LLUUID& id);
 	static LLFloater* getProfileFloater(const LLUUID& id);
@@ -170,28 +171,30 @@ public:
 	 */	
 	static void inviteToGroup(const LLUUID& id);
 	
-	static void freezeAvatar(const LLUUID& id);
-
-	static void ejectAvatar(const LLUUID& id, bool ban_enabled = false);
 	/**
 	 * Kick avatar off grid
 	 */	
-	static void kick(const LLUUID& id);
+	static void godKick(const LLUUID& id);
 
 	/**
 	 * Freeze avatar
 	 */	
-	static void freeze(const LLUUID& id);
+	static void godFreeze(const LLUUID& id);
 
 	/**
 	 * Unfreeze avatar
 	 */	
-	static void unfreeze(const LLUUID& id);
+	static void godUnfreeze(const LLUUID& id);
 
 	/**
 	 * Open csr page for avatar
 	 */	
 	static void csr(const LLUUID& id, std::string name);
+	
+	/**
+	 * Zooms in to the avatar
+	 */
+	static void zoomIn(const LLUUID& id);
 
 	/**
 	 * Checks whether we can offer a teleport to the avatar, only offline friends
@@ -213,8 +216,13 @@ public:
 	 *
 	 * @return false if the selected items cannot be shared or the active inventory panel cannot be obtained
 	 */
-	static bool canShareSelectedItems(LLInventoryPanel* inv_panel = NULL);
+	static bool canShareSelectedItems(LLInventoryPanel* inv_panel = nullptr);
 
+	/**
+	 * Checks whether agent is mappable
+	 */
+	static bool isAgentMappable(const LLUUID& agent_id);
+	
 	/**
 	 * Builds a string of residents' display names separated by "words_separator" string.
 	 *
@@ -236,34 +244,48 @@ public:
 	 */
 	static void viewChatHistory(const LLUUID& id);
 
-	// <polarity> PLVR-32 Refresh texture on objects and avatars
-	static void refreshAppearance(const LLUUID& id);
-	static void refreshAppearances(const uuid_vec_t& ids);
-	// </polarity> PLVR-32 Refresh texture on objects and avatars
-
 	static std::set<LLUUID> getInventorySelectedUUIDs();
 
 	/**
-	* Copy the selected avatar's name, slurl, or UUID to clipboard
-	*/
-	enum ECopyDataType {
+     * Copy the selected avatar's name, slurl, or UUID to clipboard
+	 */
+	enum ECopyDataType{
 		E_DATA_NAME = 0,
 		E_DATA_SLURL,
-		E_DATA_UUID,
-		E_DATA_DISPLAYNAME
+		E_DATA_UUID
 	};
 	static void copyData(const LLUUID& id, ECopyDataType type);
 	static void copyData(const uuid_vec_t& ids, ECopyDataType type);
+
+	static bool canTeleportTo(const LLUUID& avatar_id);
+	static void teleportTo(const LLUUID& avatar_id);
+	
+	static bool canFreezeEject(const LLUUID& avatar_id);
+	static bool canFreezeEject(const uuid_vec_t& ids);
+	static void parcelFreeze(const LLUUID& avatar_id);
+	static void parcelFreeze(const uuid_vec_t& ids);
+	static void parcelEject(const LLUUID& avatar_id);
+	static void parcelEject(const uuid_vec_t& ids);
+
+	static bool canManageAvatarsEstate(const LLUUID& avatar_id);
+	static bool canManageAvatarsEstate(const uuid_vec_t& ids);
+	static void estateTeleportHome(const LLUUID& avatar_id);
+	static void estateTeleportHome(const uuid_vec_t& ids);
+	static void estateKick(const LLUUID& avatar_id);
+	static void estateKick(const uuid_vec_t& ids);
+	static void estateBan(const LLUUID& avatar_id);
+	static void estateBan(const uuid_vec_t& ids);
 
 private:
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
 	static bool handleRemove(const LLSD& notification, const LLSD& response);
 	static bool handlePay(const LLSD& notification, const LLSD& response, LLUUID avatar_id);
-	static bool handleFreezeAvatar(const LLSD& notification, const LLSD& response);
-	static bool handleEjectAvatar(const LLSD& notification, const LLSD& response);
-	static bool handleKick(const LLSD& notification, const LLSD& response);
-	static bool handleFreeze(const LLSD& notification, const LLSD& response);
-	static bool handleUnfreeze(const LLSD& notification, const LLSD& response);
+	static bool handleGodKick(const LLSD& notification, const LLSD& response);
+	static bool handleParcelFreeze(const LLSD& notification, const LLSD& response);
+	static bool handleParcelEject(const LLSD& notification, const LLSD& response);
+	static bool handleEstateTeleportHome(const LLSD& notification, const LLSD& response);
+	static bool handleEstateKick(const LLSD& notification, const LLSD& response);
+	static bool handleEstateBan(const LLSD& notification, const LLSD& response);
 	static void callback_invite_to_group(LLUUID group_id, LLUUID id);
 
 	// Just request friendship, no dialog.

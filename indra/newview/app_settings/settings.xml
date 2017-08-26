@@ -4,9 +4,7 @@
 <map>
   <key>Include</key>
   <array>
-    <string>settings_obsidian.xml</string>
-    <string>settings_polarity.xml</string>
-    <string>settings_rlva.xml</string>
+    <string>settings_extra.xml</string>
   </array>
   <key>ImporterDebug</key>
   <map>
@@ -97,7 +95,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>300.0</real>
+      <integer>300</integer>
     </map>
     <key>AckCollectTime</key>
     <map>
@@ -130,7 +128,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1.0</real>
+      <real>0.95</real>
     </map>
     <key>AdvanceSnapshot</key>
     <map>
@@ -341,13 +339,13 @@
     <key>AudioLevelMedia</key>
     <map>
       <key>Comment</key>
-      <string>Audio level of Quicktime movies</string>
+      <string>Audio level of parcel Media</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.5</real>
+      <real>0.3</real>
     </map>
     <key>AudioLevelMic</key>
     <map>
@@ -369,7 +367,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.5</real>
+      <real>0.3</real>
     </map>
     <key>AudioLevelRolloff</key>
     <map>
@@ -980,7 +978,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>None</string>
+      <string>Socks</string>
     </map>
     <key>Socks5ProxyHost</key>
     <map>
@@ -1392,13 +1390,13 @@
     <key>CacheSize</key>
     <map>
       <key>Comment</key>
-      <string>Controls amount of hard drive space reserved for local file caching in MB. Warning: using a cache size greater than 3 GB will lead to corruption.</string>
+      <string>Controls amount of hard drive space reserved for local file caching in MB</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>2048</integer>
+      <integer>1024</integer>
     </map>
     <key>CacheValidateCounter</key>
     <map>
@@ -1471,7 +1469,22 @@
       <array>
         <real>-3.0</real>
         <real>0.0</real>
-        <real>0.3</real>
+        <real>0.75</real>
+      </array>
+    </map>
+    <key>CameraOffsetShoulderView</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial camera offset from avatar in Rear View</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>-1.7</real>
+        <real>-0.7</real>
+        <real>-0.350</real>
       </array>
     </map>
     <key>CameraOffsetFrontView</key>
@@ -1585,7 +1598,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>20.2</real>
+    <real>20.0</real>
   </map>
 
   <key>CameraFNumber</key>
@@ -1597,7 +1610,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>22.1</real>
+    <real>12.0</real>
   </map>
 
   <key>CameraFocalLength</key>
@@ -1609,7 +1622,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>22</real>
+    <real>35</real>
   </map>
 
   <key>CameraFieldOfView</key>
@@ -1621,7 +1634,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>67.0</real>
+    <real>40.0</real>
   </map>
 
   <key>CertStore</key>
@@ -1634,6 +1647,17 @@
       <string>String</string>
       <key>Value</key>
       <string>default</string>
+    </map>
+    <key>ChatAutocompleteGestures</key>
+    <map>
+      <key>Comment</key>
+      <string>Auto-complete gestures in nearby chat</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>ChatBarStealsFocus</key>
     <map>
@@ -1653,7 +1677,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -1671,13 +1695,13 @@
     <key>ChatFontSize</key>
     <map>
       <key>Comment</key>
-      <string>Size of chat text in chat console (0 = small, 1 = big)</string>
+      <string>Size of chat text in chat console (0 = monospace, 1 = small, 2 = normal, 3 = big, 4 = huge)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>4</integer>
+      <integer>1</integer>
     </map>
     <key>ChatFullWidth</key>
     <map>
@@ -2053,7 +2077,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>512000</integer>
+      <integer>564000</integer>
     </map>
     <key>CrashOnStartup</key>
     <map>
@@ -2423,7 +2447,7 @@
       <key>Comment</key>
       <string>Show tooltips with XUI path to widget</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -3221,17 +3245,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DisableVerticalSync</key>
-    <map>
-      <key>Comment</key>
-      <string>Update frames as fast as possible (FALSE = update frames between display scans)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>EnableGroupChatPopups</key>
     <map>
       <key>Comment</key>
@@ -3540,17 +3553,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>MinObjectsForUnlinkConfirm</key>
-    <map>
-      <key>Comment</key>
-      <string>Minimum amount of objects in linkset for showing confirmation dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>6</integer>
-    </map>
     <key>EffectScriptChatParticles</key>
       <map>
       <key>Comment</key>
@@ -3705,7 +3707,7 @@
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>10.0</real>
+        <real>15.0</real>
         </map>
     <key>FilterItemsMaxTimePerFrameVisible</key>
     <map>
@@ -4220,6 +4222,21 @@
       <array>
         <real>1.0</real>
         <real>0.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+    <key>FocusOffsetShoulderView</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial focus point offset relative to avatar for the camera preset Rear View (x-axis is forward)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3D</string>
+      <key>Value</key>
+      <array>
+        <real>0.0</real>
+        <real>-0.740</real>
         <real>0.7</real>
       </array>
     </map>
@@ -4311,17 +4328,6 @@
       <string>U32</string>
       <key>Value</key>
       <integer>255</integer>
-    </map>
-    <key>ForceLoginURL</key>
-    <map>
-      <key>Comment</key>
-      <string>Force a specified URL for login page content - used if exists</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
     </map>
     <key>ForceShowGrid</key>
     <map>
@@ -4587,7 +4593,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>HttpRangeRequestsDisable</key>
     <map>
@@ -4785,7 +4791,7 @@
 		<key>Type</key>
 		<string>Boolean</string>
 		<key>Value</key>
-		<integer>0</integer>
+		<integer>1</integer>
 	</map>
     <key>InventoryOutboxDisplayBoth</key>
     <map>
@@ -5172,10 +5178,32 @@
       <key>Value</key>
       <string>http://wiki.secondlife.com/wiki/[LSL_STRING]</string>
     </map>
-    <key>LagMeterShrunk</key>
+    <key>GridStatusRSS</key>
     <map>
       <key>Comment</key>
-      <string>Last large/small state for lag meter</string>
+      <string>URL that points to SL Grid Status RSS</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://secondlife-status.statuspage.io/history.atom</string>
+    </map>
+    <key>GridStatusUpdateDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Timer delay for updating Grid Status RSS.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>60.0</real>
+    </map>
+    <key>TestGridStatusRSSFromFile</key>
+    <map>
+      <key>Comment</key>
+      <string>For testing only: Don't update rss xml file from server.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -5415,6 +5443,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>LinkReplaceBatchSize</key>
+    <map>
+      <key>Comment</key>
+      <string>The maximum size of a batch in a link replace operation</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>25</integer>
+    </map>
+    <key>LinkReplaceBatchPauseTime</key>
+    <map>
+      <key>Comment</key>
+      <string>The time in seconds between two batches in a link replace operation</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>LipSyncAah</key>
     <map>
       <key>Comment</key>
@@ -5503,18 +5553,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  <key>LoginContentVersion</key>
-  <map>
-    <key>Comment</key>
-    <string>Version of login page web based content to display</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>String</string>
-    <key>Value</key>
-    <string>2</string>
-  </map>
-
   <key>LoginSRVTimeout</key>
   <map>
     <key>Comment</key>
@@ -6338,7 +6376,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-            <real>600.0</real>
+            <real>300.0</real>
         </map>
     <key>MemProfiling</key>
     <map>
@@ -6395,17 +6433,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>MeshEnabled</key>
-  <map>
-    <key>Comment</key>
-    <string>Expose UI for mesh functionality (may require restart to take effect).</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
   <key>MeshImportUseSLM</key>
   <map>
     <key>Comment</key>
@@ -6470,7 +6497,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>256.0</real>
+      <real>30.0</real>
     </map>
     <key>MiniMapRotate</key>
     <map>
@@ -6646,7 +6673,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>4096</integer>
+      <real>4096.0</real>
     </map>
     <key>NewObjectCreationThrottle</key>
     <map>
@@ -6758,17 +6785,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>NoQuickTime</key>
-    <map>
-      <key>Comment</key>
-      <string>Disable QuickTime for a particular viewer run</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>NoVerifySSLCert</key>
     <map>
       <key>Comment</key>
@@ -6807,85 +6823,85 @@
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Conference IM Notifications.
-        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
+        Allowed values: [openconversations,toast,flash,noaction]
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>String</string>
       <key>Value</key>
-      <integer>2</integer>
-    </map>  
+      <string>toast</string>
+    </map>
     <key>NotificationFriendIMOptions</key>
     <map>
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Friend IM Notifications.
-        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
+        Allowed values: [openconversations,toast,flash,noaction]
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>String</string>
       <key>Value</key>
-      <integer>2</integer>
+      <string>toast</string>
     </map>
     <key>NotificationGroupChatOptions</key>
     <map>
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Group Chat Notifications.
-        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
+        Allowed values: [openconversations,toast,flash,noaction]
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>String</string>
       <key>Value</key>
-      <integer>2</integer>
+      <string>toast</string>
     </map>
     <key>NotificationNearbyChatOptions</key>
     <map>
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Nearby Chat Notifications.
-        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
+        Allowed values: [openconversations,toast,flash,noaction]
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>String</string>
       <key>Value</key>
-      <integer>2</integer>
+      <string>toast</string>
     </map>
     <key>NotificationNonFriendIMOptions</key>
     <map>
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Non Friend IM Notifications.
-        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
+        Allowed values: [openconversations,toast,flash,noaction]
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>String</string>
       <key>Value</key>
-      <integer>2</integer>
-    </map>  
+      <string>toast</string>
+    </map>
     <key>NotificationObjectIMOptions</key>
     <map>
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Object IM Notifications.
-        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
+        Allowed values: [openconversations,toast,flash,noaction]
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>String</string>
       <key>Value</key>
-      <integer>2</integer>
-    </map>  
+      <string>toast</string>
+    </map>
     <key>NotificationToastLifeTime</key>
     <map>
       <key>Comment</key>
@@ -7432,7 +7448,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>PlayTypingAnim</key>
     <map>
@@ -7443,7 +7459,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>PlaySoundIncomingVoiceCall</key>
     <map>
@@ -7633,7 +7649,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
    <key>PostFirstLoginIntroURL</key>
    <map>
@@ -8012,7 +8028,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>QAMode</key>
     <map>
@@ -8067,7 +8083,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>QuitAfterSeconds</key>
     <map>
@@ -8356,7 +8372,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>RenderAttachedLights</key>
         <map>
@@ -8380,6 +8396,17 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
+  <key>AlwaysRenderFriends</key>
+    <map>
+      <key>Comment</key>
+      <string>Always render friends regardless of max complexity</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>RenderAvatar</key>
     <map>
       <key>Comment</key>
@@ -8566,13 +8593,11 @@
     <integer>1</integer>
   </map>
 
-<!--   <key>RenderShadowNearDist</key>
+  <key>RenderShadowNearDist</key>
   <map>
     <key>Comment</key>
     <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
     <key>Persist</key>
-    <integer>1</integer>
-    <key>HideFromEditor</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
@@ -8582,7 +8607,7 @@
       <real>256</real>
       <real>256</real>
     </array>
-  </map> -->
+  </map>
   <key>RenderShadowClipPlanes</key>
   <map>
     <key>Comment</key>
@@ -9046,7 +9071,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1.0</real>
+    <real>0.5</real>
   </map>
 
   <key>RenderSpotLightsInNondeferred</key>
@@ -9280,6 +9305,19 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+
+  <key>RenderDeferredBlurLight</key>
+  <map>
+    <key>Comment</key>
+    <string>Execute shadow softening shader in deferred renderer.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+
   <key>RenderDeferredSunWash</key>
   <map>
     <key>Comment</key>
@@ -9429,7 +9467,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>64.0</real>
+      <real>256.0</real>
     </map>
     <key>RenderAutoMaskAlphaNonDeferred</key>
     <map>
@@ -9497,6 +9535,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+  <key>RenderDeferredDisplayGamma</key>
+  <map>
+    <key>Comment</key>
+    <string>Gamma ramp exponent for final correction before display gamma.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.2</real>
+  </map>
     <key>RenderGLCoreProfile</key>
     <map>
       <key>Comment</key>
@@ -10121,7 +10170,7 @@
   <key>RenderAutoMuteRenderWeightLimit</key>
   <map>
     <key>Comment</key>
-    <string>OBSOLETE. This setting has been renamed RenderAvatarMaxComplexity.</string>
+    <string>OBSOLETE. This setting has been renamed RenderAvatarMaxNonImpostors.</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>HideFromEditor</key>
@@ -10134,13 +10183,24 @@
   <key>ShowMyComplexityChanges</key>
   <map>
     <key>Comment</key>
-    <string>How long to show notices about avatar complexity (set to zero to disable those notices).</string>
+    <string>How long to show notices about avatar complexity (set to zero to disable those notices)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>10</integer>
+    <integer>0</integer>
+  </map>
+  <key>MaxAttachmentComplexity</key>
+  <map>
+    <key>Comment</key>
+    <string>Attachment's render weight limit</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0E6</real>
   </map>
   <key>ComplexityChangesPopUpDelay</key>
   <map>
@@ -10157,13 +10217,13 @@
   <map>
     <key>Comment</key>
     <string>Maximum Avatar Complexity; above this value, the avatar is
-    rendered as a solid color outline (0 to disable this limit). Use the same way as RenderAutoMuteRenderWeightLimit.</string>
+    rendered as a solid color outline (0 to disable this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>100000</integer>
+    <integer>0</integer>
   </map>
   <key>RenderHUDObjectsWarning</key>
   <map>
@@ -10267,17 +10327,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>RenderUseTransformFeedback</key>
-  <map>
-    <key>Comment</key>
-    <string>[EXPERIMENTAL] Use transform feedback shaders for LoD updates</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
 
   <key>RenderVBOMappingDisable</key>
     <map>
@@ -10341,7 +10390,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -10363,7 +10412,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>S32</string>
       <key>Value</key>
       <integer>512</integer>
     </map>
@@ -10710,6 +10759,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ScriptDialogLimitations</key>
+    <map>
+      <key>Comment</key>
+      <string>Limits amount of dialogs per script (0 - per object, 1 - per channel, 2 - per channel for attachments, 3 - per channel for HUDs, 4 -unconstrained for HUDs)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>SecondLifeEnterprise</key>
     <map>
       <key>Comment</key>
@@ -10877,6 +10937,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ShowBuildButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/hides build button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowCameraButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide view button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
   <key>ShowConsoleWindow</key>
   <map>
     <key>Comment</key>
@@ -10963,7 +11045,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>ShowEventRecorderMenuItems</key>
     <map>
@@ -11009,6 +11091,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowMiniMapButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/hides mini-map button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowMoveButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/hides move button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
 	<key>ShowScriptErrors</key>
     <map>
       <key>Comment</key>
@@ -11031,6 +11135,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ShowSearchButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/hides search button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ShowSnapshotButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/hides snapshot button button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowObjectRenderingCost</key>
     <map>
       <key>Comment</key>
@@ -11041,6 +11167,28 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>ShowNavbarFavoritesPanel</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide navigation bar favorites panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ShowWorldMapButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/hides map button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>GroupListShowIcons</key>
     <map>
@@ -11259,7 +11407,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>ShowAdultGroups</key>
     <map>
@@ -11604,7 +11752,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>default</string>
+      <string>polarity</string>
     </map>
     <key>SkinningSettingsFile</key>
     <map>
@@ -11710,6 +11858,17 @@
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>SyncMaterialSettings</key>
+    <map>
+      <key>Comment</key>
+      <string>SyncMaterialSettings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -12129,7 +12288,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1500.0</real>
+      <real>500.0</real>
     </map>
     <key>UpdaterMaximumBandwidth</key>
     <map>
@@ -12459,7 +12618,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>7</real>
+      <real>4</real>
     </map>
     <key>UIImgDefaultEyesUUID</key>
     <map>
@@ -13251,9 +13410,9 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>15</integer>
+      <integer>12</integer>
     </map>
-<!--     <key>UpdaterServiceSetting</key>
+    <key>UpdaterServiceSetting</key>
     <map>
       <key>Comment</key>
       <string>Configure updater service.</string>
@@ -13263,7 +13422,7 @@
       <string>U32</string>
       <key>Value</key>
       <integer>3</integer>
-    </map> -->
+    </map>
     <key>UpdaterServiceCheckPeriod</key>
     <map>
       <key>Comment</key>
@@ -13667,20 +13826,9 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string/>
-    </map>
-    <key>UserLoginInfoCmdLine</key>
-    <map>
-      <key>Comment</key>
-      <string>Command line supplied user login data.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
       <string>LLSD</string>
       <key>Value</key>
-      <array/>
+      <string/>
     </map>
     <key>VFSOldSize</key>
     <map>
@@ -14109,19 +14257,6 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>WatchdogDisabled</key>
-    <map>
-      <key>Comment</key>
-      <string> </string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>HideFromEditor</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
       <integer>0</integer>
     </map>
     <key>WaterGLFogDensityScale</key>
@@ -14166,7 +14301,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>3</integer>
+      <integer>8</integer>
     </map>
     <key>FlashPeriod</key>
     <map>
@@ -14208,7 +14343,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>S32</string>
+      <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -14219,7 +14354,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>S32</string>
+      <string>U32</string>
       <key>Value</key>
       <integer>738</integer>
     </map>
@@ -14241,7 +14376,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>S32</string>
+      <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -14252,7 +14387,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>S32</string>
+      <string>U32</string>
       <key>Value</key>
       <integer>1024</integer>
     </map>
@@ -14500,6 +14635,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>AssetStorageLogFrequency</key>
+        <map>
+        <key>Comment</key>
+        <string>Seconds between display of AssetStorage info in log (0 for never)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>60.0</real>
+        </map>
     <key>LogWearableAssetSave</key>
     <map>
       <key>Comment</key>
@@ -14573,6 +14719,15 @@
         <key>Value</key>
             <real>1</real>
         </map>
+    <key>PoolSizeAssetStorage</key>
+        <map>
+        <key>Comment</key>
+            <string>Coroutine Pool size for AssetStorage requests</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <real>12</real>
+        </map>
 
     <!-- Settings below are for back compatibility only.
     They are not used in current viewer anymore. But they can't be removed to avoid
@@ -14645,10 +14800,11 @@
       <string>LLSD</string>
       <key>Value</key>
       <array>
-	      <string>snapshot</string>
-	      <string>postcard</string>
-	      <string>mini_map</string>
-	      <string>beacons</string>
+        <string>beacons</string>
+        <string>mini_map</string>
+        <string>postcard</string>
+        <string>snapshot</string>
+        <string>stats</string>
       </array>
     </map>
     <key>LandmarksSortedByDate</key>
@@ -14959,6 +15115,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>UseHTTPInventory</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow use of http inventory transfers instead of UDP</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ClickToWalk</key>
     <map>
       <key>Comment</key>
@@ -15030,6 +15197,22 @@
         <integer>0</integer>
         </array>
         </map>
+    <key>GridStatusFloaterRect</key>
+    <map>
+        <key>Comment</key>
+        <string>Web profile floater dimensions</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Rect</string>
+        <key>Value</key>
+        <array>
+            <integer>0</integer>
+            <integer>520</integer>
+            <integer>625</integer>
+            <integer>0</integer>
+        </array>
+    </map>
     <key>HelpFloaterOpen</key>
     <map>
       <key>Comment</key>
@@ -15749,14 +15932,14 @@
   <key>FMODProfilerEnable</key>
   <map>
     <key>Comment</key>
-    <string>Enable profiler tool if using FMOD</string>
+    <string>Enable profiler tool if using FMOD Studio</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
-    </map>
+  </map>
   <key>FMODDecodeBufferSize</key>
   <map>
     <key>Comment</key>
@@ -15767,7 +15950,7 @@
     <string>U32</string>
     <key>Value</key>
     <integer>1000</integer>
-    </map>
+  </map>
   <key>FMODResampleMethod</key>
   <map>
     <key>Comment</key>

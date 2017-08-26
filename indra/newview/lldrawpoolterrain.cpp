@@ -56,7 +56,7 @@ int DebugDetailMap = 0;
 
 S32 LLDrawPoolTerrain::sDetailMode = 1;
 F32 LLDrawPoolTerrain::sDetailScale = DETAIL_SCALE;
-static LLGLSLShader* sShader = NULL;
+static LLGLSLShader* sShader = nullptr;
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_TERRAIN("Terrain Shadow");
 
 
@@ -64,15 +64,12 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 	LLFacePool(POOL_TERRAIN),
 	mTexturep(texturep)
 {
-	U32 format = GL_ALPHA8;
-	U32 int_format = GL_ALPHA;
-
 	// Hack!
-	static LLCachedControl<F32> RenderTerrainScale(gSavedSettings, "RenderTerrainScale");
-	static LLCachedControl<S32> RenderTerrainDetail(gSavedSettings, "RenderTerrainDetail");
-	sDetailScale = 1.f/RenderTerrainScale;
-	sDetailMode = static_cast<S32>(RenderTerrainDetail);
+	sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
+	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
 
+	const U32 format = GL_ALPHA8;
+	const U32 int_format = GL_ALPHA;
 
 	m2DAlphaRampImagep = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient_2d.j2c", 
 													FTT_LOCAL_FILE,
@@ -119,8 +116,9 @@ U32 LLDrawPoolTerrain::getVertexDataMask()
 void LLDrawPoolTerrain::prerender()
 {
 	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
-	static LLCachedControl<S32> render_terrain_detail(gSavedSettings, "RenderTerrainDetail", 1);
-	sDetailMode = static_cast<S32>(render_terrain_detail);
+
+	static LLCachedControl<S32> renderTerrainDetail(gSavedSettings, "RenderTerrainDetail");
+	sDetailMode = (S32)renderTerrainDetail;
 }
 
 void LLDrawPoolTerrain::beginRenderPass( S32 pass )
@@ -214,10 +212,10 @@ void LLDrawPoolTerrain::render(S32 pass)
 	}
 
 	// Special-case for land ownership feedback
-	static LLCachedControl<bool> show_parcel_owners(gSavedSettings, "ShowParcelOwners", false);
-	if (show_parcel_owners)
+	static LLCachedControl<bool> showParcelOwners(gSavedSettings, "ShowParcelOwners");
+	if (showParcelOwners)
 	{
-		highlightParcelOwners();
+		renderParcelOwnersOverlay();
 	}
 }
 
@@ -249,10 +247,9 @@ void LLDrawPoolTerrain::renderDeferred(S32 pass)
 	renderFullShader();
 
 	// Special-case for land ownership feedback
-	static LLCachedControl<bool> show_parcel_owners(gSavedSettings, "ShowParcelOwners", false);
-	if (show_parcel_owners)
+	if (gSavedSettings.getBOOL("ShowParcelOwners"))
 	{
-		highlightParcelOwners();
+		renderParcelOwnersOverlay();
 	}
 
 }
@@ -319,16 +316,10 @@ void LLDrawPoolTerrain::renderFullShader()
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-// [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
-	LLViewerTexture *detail_texture0p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[0] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-	LLViewerTexture *detail_texture1p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[1] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-	LLViewerTexture *detail_texture2p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[2] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-	LLViewerTexture *detail_texture3p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[3] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-// [/SL:KB]
-//	LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
-//	LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
-//	LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
-//	LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
+	LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
+	LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
+	LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
+	LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
 	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
 	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
@@ -449,7 +440,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
-void LLDrawPoolTerrain::highlightParcelOwners()
+void LLDrawPoolTerrain::renderParcelOwnersOverlay()
 {
 	if (mVertexShaderLevel > 1)
 	{ //use fullbright shader for highlighting
@@ -476,16 +467,10 @@ void LLDrawPoolTerrain::renderFull4TU()
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-// [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
-	LLViewerTexture *detail_texture0p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[0] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-	LLViewerTexture *detail_texture1p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[1] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-	LLViewerTexture *detail_texture2p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[2] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-	LLViewerTexture *detail_texture3p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[3] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-// [/SL:KB]
-//	LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
-//	LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
-//	LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
-//	LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
+	LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
+	LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
+	LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
+	LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
 	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
 	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
@@ -684,16 +669,10 @@ void LLDrawPoolTerrain::renderFull2TU()
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-// [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
-	LLViewerTexture *detail_texture0p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[0] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-	LLViewerTexture *detail_texture1p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[1] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-	LLViewerTexture *detail_texture2p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[2] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-	LLViewerTexture *detail_texture3p = (LLPipeline::sRenderTextures) ? compp->mDetailTextures[3] : LLViewerFetchedTexture::sDefaultDiffuseImagep;
-// [/SL:KB]
-//	LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
-//	LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
-//	LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
-//	LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
+	LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
+	LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
+	LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
+	LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
 	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
 	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;

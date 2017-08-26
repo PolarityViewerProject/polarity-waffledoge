@@ -38,7 +38,6 @@
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "llcheckboxctrl.h"
-#include "lluictrlfactory.h"
 #include "llviewercamera.h"
 #include "llcombobox.h"
 #include "lllineeditor.h"
@@ -52,8 +51,6 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 
-#include "lldaycyclemanager.h"
-#include "llenvmanager.h"
 #include "llwlparamset.h"
 
 #include "llviewershadermgr.h"
@@ -62,18 +59,14 @@
 #include "curl/curl.h"
 #include "llstreamtools.h"
 
-// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-#include <boost/algorithm/string.hpp>
-// [/RLVa:KB]
-
 LLWLParamManager::LLWLParamManager() :
 
 	//set the defaults for the controls
 
 	/// Sun Delta Terrain tweak variables.
 	mSunDeltaYaw(180.0f),
-	mSceneLightStrength(2.0f),
 	mWLGamma(1.0f, "gamma"),
+	mSceneLightStrength(2.0f),
 
 	mBlueHorizon(0.25f, 0.25f, 1.0f, 1.0f, "blue_horizon", "WLBlueHorizon"),
 	mHazeDensity(1.0f, "haze_density"),
@@ -257,13 +250,13 @@ void LLWLParamManager::addAllSkies(const LLWLParamKey::EScope scope, const LLSD&
 	}
 }
 
-void LLWLParamManager::refreshRegionPresets()
+void LLWLParamManager::refreshRegionPresets(const LLSD& region_sky_presets)
 {
 	// Remove all region sky presets because they may belong to a previously visited region.
 	clearParamSetsOfScope(LLEnvKey::SCOPE_REGION);
 
 	// Add all sky presets belonging to the current region.
-	addAllSkies(LLEnvKey::SCOPE_REGION, LLEnvManagerNew::instance().getRegionSettings().getSkyMap());
+	addAllSkies(LLEnvKey::SCOPE_REGION, region_sky_presets);
 }
 
 void LLWLParamManager::loadAllPresets()
@@ -280,7 +273,7 @@ void LLWLParamManager::loadPresetsFromDir(const std::string& dir)
 	LL_INFOS("AppInit", "Shaders") << "Loading sky presets from " << dir << LL_ENDL;
 
 	LLDirIterator dir_iter(dir, "*.xml");
-	while (1)
+	while (true)
 	{
 		std::string file;
 		if (!dir_iter.next(file))
@@ -492,38 +485,23 @@ bool LLWLParamManager::applyDayCycleParams(const LLSD& params, LLEnvKey::EScope 
 	return true;
 }
 
-bool LLWLParamManager::applySkyParams(const LLSD& params, bool interpolate /*= false*/)
+void LLWLParamManager::setDefaultDay()
 {
-	if (params.size() == 0)
-	{
-		LL_WARNS() << "Undefined sky params" << LL_ENDL;
-		return false;
-	}
+	mDay.loadDayCycleFromFile("Default.xml");
+}
 
-	if (interpolate)
-	{
-		LL_DEBUGS("Windlight") << "DEBUG: APPLYSKYPARAMS WITH INTERPOLATION" << LL_ENDL;
-		if (mAnimator.getIsRunning())
-		{
-			LL_DEBUGS("Windlight") << "DEBUG: ANIMATOR IS RUNNING, RESETTING IT" << LL_ENDL;
-			resetAnimator(0.f, true);
-		}
-		
-		if (!params.has("mName") || mCurParams.mName != params["mName"])
-		{
-			LL_DEBUGS("Windlight") << "DEBUG: CALLING STARTINTERPOLATIONSKY" << LL_ENDL;
-			LLWLParamManager::getInstance()->mAnimator.startInterpolationSky(params);
-		}
-	}
-	else
-	{
-		LL_DEBUGS("Windlight") << "DEBUG: INTERPOLATION WAS OFF, DEACTIVATING ANIMATOR AND USING SETALL" << LL_ENDL;
-		mAnimator.deactivate();
-		mCurParams.setAll(params);
-	}
-
+bool LLWLParamManager::applySkyParams(const LLSD& params)
+{
+	mAnimator.deactivate();
+	mCurParams.setAll(params);
 	return true;
 }
+
+void LLWLParamManager::setDefaultSky()
+{
+	getParamSet(LLWLParamKey("Default", LLWLParamKey::SCOPE_LOCAL), mCurParams);
+}
+
 
 void LLWLParamManager::resetAnimator(F32 curTime, bool run)
 {
@@ -646,6 +624,18 @@ bool LLWLParamManager::isSystemPreset(const std::string& preset_name) const
 	return gDirUtilp->fileExists(getSysDir() + escapeString(preset_name) + ".xml");
 }
 
+bool LLWLParamManager::presetExists(const std::string& name) const
+{
+	for (const auto& preset : mParamList)
+	{
+		if (LLStringUtil::compareInsensitive(preset.first.name, name))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void LLWLParamManager::getPresetNames(preset_name_list_t& region, preset_name_list_t& user, preset_name_list_t& sys) const
 {
 	region.clear();
@@ -675,39 +665,10 @@ void LLWLParamManager::getPresetNames(preset_name_list_t& region, preset_name_li
 	}
 }
 
-// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-const std::string& LLWLParamManager::findPreset(const std::string& strPresetName, LLEnvKey::EScope eScope)
-{
-	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator itList = mParamList.begin(); itList != mParamList.end(); itList++)
-	{
-		const LLWLParamKey& wlKey = itList->first;
-		if ( (wlKey.scope == eScope) && (boost::iequals(wlKey.name, strPresetName)) )
-			return wlKey.name;
-	}
-	return LLStringUtil::null;
-}
-// [/RLVa:KB]
-
 void LLWLParamManager::getUserPresetNames(preset_name_list_t& user) const
 {
 	preset_name_list_t region, sys; // unused
 	getPresetNames(region, user, sys);
-}
-
-void LLWLParamManager::getLocalPresetNames(preset_name_list_t& local) const
-{
-	local.clear();
-
-	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator it = mParamList.begin(); it != mParamList.end(); it++)
-	{
-		const LLWLParamKey& key = it->first;
-		const std::string& name = key.name;
-
-		if (key.scope != LLEnvKey::SCOPE_REGION)
-		{
-			local.push_back(name);
-		}
-	}
 }
 
 void LLWLParamManager::getPresetKeys(preset_key_list_t& keys) const
@@ -732,34 +693,8 @@ void LLWLParamManager::initSingleton()
 
 	loadAllPresets();
 
-	// load the day
-	std::string preferred_day = LLEnvManagerNew::instance().getDayCycleName();
-	if (!LLDayCycleManager::instance().getPreset(preferred_day, mDay))
-	{
-		// Fall back to default.
-		LL_WARNS() << "No day cycle named " << preferred_day << ", falling back to defaults" << LL_ENDL;
-		mDay.loadDayCycleFromFile("Default.xml");
-
-		// *TODO: Fix user preferences accordingly.
-	}
-
-	// *HACK - sets cloud scrolling to what we want... fix this better in the future
-	std::string sky = LLEnvManagerNew::instance().getSkyPresetName();
-	if (!getParamSet(LLWLParamKey(sky, LLWLParamKey::SCOPE_LOCAL), mCurParams))
-	{
-		LL_WARNS() << "No sky preset named " << sky << ", falling back to defaults" << LL_ENDL;
-		getParamSet(LLWLParamKey("Default", LLWLParamKey::SCOPE_LOCAL), mCurParams);
-
-		// *TODO: Fix user preferences accordingly.
-	}
-
-	// set it to noon
-	resetAnimator(0.5, LLEnvManagerNew::instance().getUseDayCycle());
-
 	// but use linden time sets it to what the estate is
 	mAnimator.setTimeType(LLWLAnimator::TIME_LINDEN);
-
-	LLEnvManagerNew::instance().usePrefs();
 }
 
 // static
@@ -777,36 +712,29 @@ std::string LLWLParamManager::getUserDir()
 // static
 std::string LLWLParamManager::escapeString(const std::string& str)
 {
-	// Don't use LLURI::escape() because it doesn't encode '-' characters
-	// which may break handling of some system presets like "A-12AM".
-	char* curl_str = curl_escape(str.c_str(), str.size());
-	std::string escaped_str(curl_str);
-	curl_free(curl_str);
-
-	// <FS:Ansariel> FIRE-10861: Fix Windlight settings order
-	// And neither does cURL...
-	LLStringUtil::replaceString(escaped_str, "-", "%2D");
-	LLStringUtil::replaceString(escaped_str, ".", "%2E");
-	// </FS:Ansariel>
-	// <polarity> Ansariel, you're so Lazy
-	LLStringUtil::replaceString(escaped_str, "!", "%21");
-	LLStringUtil::replaceString(escaped_str, "#", "%23");
-	LLStringUtil::replaceString(escaped_str, "$", "%24");
-	LLStringUtil::replaceString(escaped_str, "&", "%26");
-	LLStringUtil::replaceString(escaped_str, "'", "%27");
-	LLStringUtil::replaceString(escaped_str, "(", "%28");
-	LLStringUtil::replaceString(escaped_str, ")", "%29");
-	LLStringUtil::replaceString(escaped_str, "*", "%2A");
-	LLStringUtil::replaceString(escaped_str, "+", "%2B");
-	LLStringUtil::replaceString(escaped_str, ",", "%2C");
-	LLStringUtil::replaceString(escaped_str, "/", "%2F");
-	LLStringUtil::replaceString(escaped_str, ":", "%3A");
-	LLStringUtil::replaceString(escaped_str, ";", "%3B");
-	LLStringUtil::replaceString(escaped_str, "=", "%3D");
-	LLStringUtil::replaceString(escaped_str, "?", "%3F");
-	LLStringUtil::replaceString(escaped_str, "@", "%40");
-	LLStringUtil::replaceString(escaped_str, "[", "%5B");
-	LLStringUtil::replaceString(escaped_str, "]", "%5D");
-	// <polarity>
-	return escaped_str;
+	static const char hex[] = "0123456789ABCDEF";
+	std::stringstream escaped_str;
+	for (std::string::const_iterator iter = str.begin(); iter != str.end(); ++iter)
+	{
+		switch (*iter) {
+		case '0': case '1': case '2': case '3': case '4':
+		case '5': case '6': case '7': case '8': case '9':
+		case 'a': case 'b': case 'c': case 'd': case 'e':
+		case 'f': case 'g': case 'h': case 'i': case 'j':
+		case 'k': case 'l': case 'm': case 'n': case 'o':
+		case 'p': case 'q': case 'r': case 's': case 't':
+		case 'u': case 'v': case 'w': case 'x': case 'y': case 'z':
+		case 'A': case 'B': case 'C': case 'D': case 'E':
+		case 'F': case 'G': case 'H': case 'I': case 'J':
+		case 'K': case 'L': case 'M': case 'N': case 'O':
+		case 'P': case 'Q': case 'R': case 'S': case 'T':
+		case 'U': case 'V': case 'W': case 'X': case 'Y': case 'Z':
+			escaped_str << (*iter);
+			break;
+		default:
+			unsigned char c = (unsigned char)(*iter);
+			escaped_str << '%' << hex[c >> 4] << hex[c & 0xF];
+		}
+	}
+	return escaped_str.str();
 }

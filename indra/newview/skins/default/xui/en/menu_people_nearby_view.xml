@@ -34,6 +34,47 @@
          parameter="sort_distance"/>
     </menu_item_check>
     <menu_item_separator layout="topleft" />
+    <menu_item_check
+       label="Click to IM"
+       name="click_to_im">
+      <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+         parameter="click_im"/>
+      <menu_item_check.on_check
+         function="People.Nearby.ViewSort.CheckItem"
+         parameter="click_im"/>
+    </menu_item_check>
+    <menu_item_check
+       label="Click to View Profile"
+       name="click_to_view_profile">
+      <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+         parameter="click_profile"/>
+      <menu_item_check.on_check
+         function="People.Nearby.ViewSort.CheckItem"
+         parameter="click_profile"/>
+    </menu_item_check>
+    <menu_item_check
+       label="Click to Zoom In"
+       name="click_to_zoom_in">
+      <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+         parameter="click_zoom"/>
+      <menu_item_check.on_check
+         function="People.Nearby.ViewSort.CheckItem"
+         parameter="click_zoom"/>
+    </menu_item_check>
+    <menu_item_check
+       label="Click to Teleport To"
+       name="click_to_teleport_to">
+      <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+         parameter="click_teleport"/>
+      <menu_item_check.on_check
+         function="People.Nearby.ViewSort.CheckItem"
+         parameter="click_teleport"/>
+    </menu_item_check>
+    <menu_item_separator layout="topleft" />
     <menu_item_check name="view_icons" label="View People Icons">
         <menu_item_check.on_click
          function="People.Nearby.ViewSort.Action"
@@ -57,5 +98,14 @@
         <menu_item_check.on_check
          function="CheckControl"
          parameter="NearbyListHideUsernames" />
+    </menu_item_check>
+    <menu_item_separator layout="topleft" />
+    <menu_item_check name ="radar_alerts" label="Radar alerts">
+        <menu_item_check.on_check
+         function="CheckControl"
+         parameter="AlchemyRadarAlerts" />
+        <menu_item_check.on_click
+         function="ToggleControl"
+         parameter="AlchemyRadarAlerts" />
     </menu_item_check>
 </toggleable_menu>

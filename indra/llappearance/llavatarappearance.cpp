@@ -26,14 +26,9 @@
  * $/LicenseInfo$
  */
 
-#if LL_MSVC
-// disable warning about boost::lexical_cast returning uninitialized data
-// when it fails to parse the string
-#pragma warning (disable:4701)
-#endif
-
 #include "linden_common.h"
 
+#include "indra_constants.h"
 #include "llavatarappearance.h"
 #include "llavatarappearancedefines.h"
 #include "llavatarjointmesh.h"
@@ -46,17 +41,8 @@
 #include "lltexglobalcolor.h"
 #include "llwearabledata.h"
 #include "boost/tokenizer.hpp"
-#include "llquaternion.h" // for MayaQ
-
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
-
-#include <boost/lexical_cast.hpp>
 
 using namespace LLAvatarAppearanceDefines;
-using namespace std::placeholders;
 
 //-----------------------------------------------------------------------------
 // Constants
@@ -134,7 +120,7 @@ private:
 //-----------------------------------------------------------------------------
 
 LLAvatarAppearance::LLAvatarXmlInfo::LLAvatarXmlInfo()
-	: mTexSkinColorInfo(0), mTexHairColorInfo(0), mTexEyeColorInfo(0)
+	: mTexSkinColorInfo(nullptr), mTexHairColorInfo(nullptr), mTexEyeColorInfo(nullptr)
 {
 }
 
@@ -175,31 +161,31 @@ LLAvatarAppearance::LLAvatarXmlInfo::~LLAvatarXmlInfo()
 //-----------------------------------------------------------------------------
 LLXmlTree LLAvatarAppearance::sXMLTree;
 LLXmlTree LLAvatarAppearance::sSkeletonXMLTree;
-LLAvatarSkeletonInfo* LLAvatarAppearance::sAvatarSkeletonInfo = NULL;
-LLAvatarAppearance::LLAvatarXmlInfo* LLAvatarAppearance::sAvatarXmlInfo = NULL;
+LLAvatarSkeletonInfo* LLAvatarAppearance::sAvatarSkeletonInfo = nullptr;
+LLAvatarAppearance::LLAvatarXmlInfo* LLAvatarAppearance::sAvatarXmlInfo = nullptr;
 
 
 LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
 	LLCharacter(),
-	mIsDummy(FALSE),
-	mTexSkinColor( NULL ),
-	mTexHairColor( NULL ),
-	mTexEyeColor( NULL ),
-	mPelvisToFoot(0.f),
 	mHeadOffset(),
-	mRoot(NULL),
-	mWearableData(wearable_data),
+	mRoot(nullptr),
+	mIsBuilt(FALSE),
+	mPelvisToFoot(0.f),
+	mIsDummy(FALSE),
+	mTexSkinColor(nullptr ),
+	mTexHairColor(nullptr ),
+	mTexEyeColor(nullptr ),
+    mWearableData(wearable_data),
     mNumBones(0),
     mNumCollisionVolumes(0),
-    mCollisionVolumes(NULL),
-    mIsBuilt(FALSE)
+    mCollisionVolumes(nullptr)
 {
 	llassert_always(mWearableData);
 	mBakedTextureDatas.resize(LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++ )
 	{
 		mBakedTextureDatas[i].mLastTextureID = IMG_DEFAULT_AVATAR;
-		mBakedTextureDatas[i].mTexLayerSet = NULL;
+		mBakedTextureDatas[i].mTexLayerSet = nullptr;
 		mBakedTextureDatas[i].mIsLoaded = false;
 		mBakedTextureDatas[i].mIsUsed = false;
 		mBakedTextureDatas[i].mMaskTexName = 0;
@@ -235,23 +221,24 @@ void LLAvatarAppearance::initInstance()
 		for (U32 lod = 0; lod < mesh_dict->mLOD; lod++)
 		{
 			LLAvatarJointMesh* mesh = createAvatarJointMesh();
-			std::string mesh_name = "m" + mesh_dict->mName + boost::lexical_cast<std::string>(lod);
+			std::string mesh_name = "m" + mesh_dict->mName + std::to_string(lod);
 			// We pre-pended an m - need to capitalize first character for camelCase
 			mesh_name[1] = toupper(mesh_name[1]);
 			mesh->setName(mesh_name);
 			mesh->setMeshID(mesh_index);
 			mesh->setPickName(mesh_dict->mPickName);
+			mesh->setIsTransparent(FALSE);
 			switch((S32)mesh_index)
 			{
 				case MESH_ID_HAIR:
+					mesh->setIsTransparent(TRUE);
+					break;
 				case MESH_ID_SKIRT:
 					mesh->setIsTransparent(TRUE);
 					break;
 				case MESH_ID_EYEBALL_LEFT:
 				case MESH_ID_EYEBALL_RIGHT:
-				mesh->setSpecular(1.f);
-				default:
-					mesh->setIsTransparent(FALSE);
+					mesh->setSpecular( LLColor4( 1.0f, 1.0f, 1.0f, 1.0f ), 1.f );
 					break;
 			}
 			
@@ -272,20 +259,12 @@ void LLAvatarAppearance::initInstance()
 		// Skip it if there's no associated baked texture.
 		if (baked_texture_index == BAKED_NUM_INDICES) continue;
 		
-		// <FS:Ansariel> FIRE-11915: Variable redefinition
-		//for (avatar_joint_mesh_list_t::iterator iter = mMeshLOD[mesh_index]->mMeshParts.begin();
-		//	 iter != mMeshLOD[mesh_index]->mMeshParts.end(); 
-		//	 ++iter)
-		//{
-		//	LLAvatarJointMesh* mesh = (*iter);
-		//	mBakedTextureDatas[(int)baked_texture_index].mJointMeshes.push_back(mesh);
-		for (avatar_joint_mesh_list_t::iterator ajm_iter = mMeshLOD[mesh_index]->mMeshParts.begin();
-			 ajm_iter != mMeshLOD[mesh_index]->mMeshParts.end(); 
-			 ++ajm_iter)
+		for (avatar_joint_mesh_list_t::iterator iter = mMeshLOD[mesh_index]->mMeshParts.begin();
+			 iter != mMeshLOD[mesh_index]->mMeshParts.end(); 
+			 ++iter)
 		{
-			LLAvatarJointMesh* mesh = (*ajm_iter);
+			LLAvatarJointMesh* mesh = (*iter);
 			mBakedTextureDatas[(S32)baked_texture_index].mJointMeshes.push_back(mesh);
-		// </FS:Ansariel> FIRE-11915: Variable redefinition
 		}
 	}
 
@@ -580,6 +559,7 @@ void LLAvatarAppearance::computeBodySize()
 		mBodySize = new_body_size;
 
         compareJointStateMaps(mLastBodySizeState, mCurrBodySizeState);
+		bodySizeChanged();
 	}
 }
 
@@ -629,7 +609,7 @@ BOOL LLAvatarAppearance::parseSkeletonFile(const std::string& filename)
 //-----------------------------------------------------------------------------
 BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent, S32 &volume_num, S32 &joint_num)
 {
-	LLJoint* joint = NULL;
+	LLJoint* joint = nullptr;
 
     LL_DEBUGS("BVH") << "bone info: name " << info->mName
                      << " isJoint " << info->mIsJoint
@@ -667,7 +647,7 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 	// SL-315
 	joint->setPosition(info->mPos);
     joint->setDefaultPosition(info->mPos);
-	joint->setRotation(LLQuaternion::mayaQ(info->mRot.mV[VX], info->mRot.mV[VY],
+	joint->setRotation(mayaQ(info->mRot.mV[VX], info->mRot.mV[VY],
 							 info->mRot.mV[VZ], LLQuaternion::XYZ));
 	joint->setScale(info->mScale);
 	joint->setDefaultScale(info->mScale);
@@ -704,12 +684,12 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 //-----------------------------------------------------------------------------
 // allocateCharacterJoints()
 //-----------------------------------------------------------------------------
-BOOL LLAvatarAppearance::allocateCharacterJoints( S32 num )
+BOOL LLAvatarAppearance::allocateCharacterJoints( U32 num )
 {
     if (mSkeleton.size() != num)
     {
         clearSkeleton();
-        mSkeleton = avatar_joint_list_t(num,NULL);
+        mSkeleton = avatar_joint_list_t(num, nullptr);
         mNumBones = num;
     }
 
@@ -747,7 +727,7 @@ BOOL LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
 	for (iter = info->mBoneInfoList.begin(); iter != info->mBoneInfoList.end(); ++iter)
 	{
 		LLAvatarBoneInfo *bone_info = *iter;
-		if (!setupBone(bone_info, NULL, current_volume_num, current_joint_num))
+		if (!setupBone(bone_info, nullptr, current_volume_num, current_joint_num))
 		{
 			LL_ERRS() << "Error parsing bone in skeleton file" << LL_ENDL;
 			return FALSE;
@@ -832,7 +812,7 @@ void LLAvatarAppearance::buildCharacter()
 			 meshIter != joint->mMeshParts.end(); ++meshIter)
 		{
 			LLAvatarJointMesh * mesh = *meshIter;
-			mesh->setMesh(NULL);
+			mesh->setMesh(nullptr);
 		}
 	}
 
@@ -1079,19 +1059,19 @@ BOOL LLAvatarAppearance::loadSkeletonNode ()
 	mRoot->addChild(mMeshLOD[MESH_ID_SKIRT]);
 	mRoot->addChild(mMeshLOD[MESH_ID_HEAD]);
 
-	LLAvatarJoint *skull = (LLAvatarJoint*)mRoot->findJoint("mSkull");
+	LLAvatarJoint *skull = dynamic_cast<LLAvatarJoint*>(mRoot->findJoint("mSkull"));
 	if (skull)
 	{
 		skull->addChild(mMeshLOD[MESH_ID_HAIR] );
 	}
 
-	LLAvatarJoint *eyeL = (LLAvatarJoint*)mRoot->findJoint("mEyeLeft");
+	LLAvatarJoint *eyeL = dynamic_cast<LLAvatarJoint*>(mRoot->findJoint("mEyeLeft"));
 	if (eyeL)
 	{
 		eyeL->addChild( mMeshLOD[MESH_ID_EYEBALL_LEFT] );
 	}
 
-	LLAvatarJoint *eyeR = (LLAvatarJoint*)mRoot->findJoint("mEyeRight");
+	LLAvatarJoint *eyeR = dynamic_cast<LLAvatarJoint*>(mRoot->findJoint("mEyeRight"));
 	if (eyeR)
 	{
 		eyeR->addChild( mMeshLOD[MESH_ID_EYEBALL_RIGHT] );
@@ -1136,7 +1116,7 @@ BOOL LLAvatarAppearance::loadMeshNodes()
 		const std::string &type = info->mType;
 		S32 lod = info->mLOD;
 
-		LLAvatarJointMesh* mesh = NULL;
+		LLAvatarJointMesh* mesh = nullptr;
 		U8 mesh_id = 0;
 		BOOL found_mesh_id = FALSE;
 
@@ -1182,7 +1162,7 @@ BOOL LLAvatarAppearance::loadMeshNodes()
 		// Do not touch!!!
 		mesh->setColor( LLColor4::white );
 
-		LLPolyMesh *poly_mesh = NULL;
+		LLPolyMesh *poly_mesh = nullptr;
 
 		if (!info->mReferenceMeshName.empty())
 		{
@@ -1212,7 +1192,7 @@ BOOL LLAvatarAppearance::loadMeshNodes()
 		}
 
 		// Multimap insert
-		mPolyMeshes.insert(std::make_pair(info->mMeshFileName, poly_mesh));
+		mPolyMeshes.emplace(info->mMeshFileName, poly_mesh);
 	
 		mesh->setMesh( poly_mesh );
 		mesh->setLOD( info->mMinPixelArea );
@@ -1331,7 +1311,7 @@ LLJoint *LLAvatarAppearance::getCharacterJoint( U32 num )
 	if ((S32)num >= mSkeleton.size()
 	    || (S32)num < 0)
 	{
-		return NULL;
+		return nullptr;
 	}
     if (!mSkeleton[num])
     {
@@ -1361,7 +1341,7 @@ LLJoint* LLAvatarAppearance::findCollisionVolume(U32 volume_id)
 {
 	if ((S32)volume_id > mNumCollisionVolumes)
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	return &mCollisionVolumes[volume_id];
@@ -1501,14 +1481,14 @@ BOOL LLAvatarAppearance::teToColorParams( ETextureIndex te, U32 *param_name )
 	return TRUE;
 }
 
-void LLAvatarAppearance::setClothesColor( ETextureIndex te, const LLColor4& new_color)
+void LLAvatarAppearance::setClothesColor( ETextureIndex te, const LLColor4& new_color, BOOL upload_bake )
 {
 	U32 param_name[3];
 	if( teToColorParams( te, param_name ) )
 	{
-		setVisualParamWeight( param_name[0], new_color.mV[VX]);
-		setVisualParamWeight( param_name[1], new_color.mV[VY]);
-		setVisualParamWeight( param_name[2], new_color.mV[VZ]);
+		setVisualParamWeight( param_name[0], new_color.mV[VX], upload_bake );
+		setVisualParamWeight( param_name[1], new_color.mV[VY], upload_bake );
+		setVisualParamWeight( param_name[2], new_color.mV[VZ], upload_bake );
 	}
 }
 
@@ -1935,6 +1915,7 @@ BOOL LLAvatarAppearance::LLAvatarXmlInfo::parseXmlMeshNodes(LLXmlTreeNode* root)
 				{
 					LL_WARNS() << "Unknown param type." << LL_ENDL;
 				}
+				delete info;
                 return FALSE;
 			}
 

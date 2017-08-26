@@ -43,10 +43,6 @@
 #include "llworld.h"
 #include "lltoolmgr.h"
 #include "llviewerjoystick.h"
-// [RLVa:KB] - RLVa-2.0.0
-#include "rlvactions.h"
-#include "rlvhandler.h"
-// [/RLVa:KB]
 
 // Linden library includes
 #include "lldrawable.h"
@@ -78,6 +74,7 @@ LLViewerCamera::LLViewerCamera() : LLCamera()
 {
 	calcProjection(getFar());
 	mCameraFOVDefault = DEFAULT_FIELD_OF_VIEW;
+	mSavedFOVDefault = DEFAULT_FIELD_OF_VIEW;
 	mCosHalfCameraFOV = cosf(mCameraFOVDefault * 0.5f);
 	mPixelMeterRatio = 0.f;
 	mScreenPixelArea = 0;
@@ -106,7 +103,7 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center,
 	mLastPointOfInterest = point_of_interest;
 
 	LLViewerRegion * regp = gAgent.getRegion();
-	F32 water_height = (NULL != regp) ? regp->getWaterHeight() : 0.f;
+	F32 water_height = (nullptr != regp) ? regp->getWaterHeight() : 0.f;
 
 	LLVector3 origin = center;
 	if (origin.mV[2] > water_height)
@@ -316,11 +313,6 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 		{
 			z_far = gAgentCamera.mDrawDistance;
 		}
-
-// [RLVa:KB] - Checked: RLVa-2.0.0
-		if (RlvActions::hasBehaviour(RLV_BHVR_FARTOUCH))
-			z_far = RlvActions::getModifierValue<float>(RLV_MODIFIER_FARTOUCHDIST);
-// [/RLVa:KB]
 	}
 	else
 	{
@@ -354,7 +346,6 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 
 	gGL.loadMatrix(proj_matp);
 
-	//@todo PLVR: use memcpy
 	for (U32 i = 0; i < 16; i++)
 	{
 		gGLProjection[i] = proj_matp[i];
@@ -369,7 +360,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 
 	modelview *= glm::make_mat4(ogl_matrix);
 	
-        F32* modelviewp = glm::value_ptr(modelview);
+	F32* modelviewp = glm::value_ptr(modelview);
 	gGL.loadMatrix(modelviewp);
 	
 	if (for_selection && (width > 1 || height > 1))
@@ -388,7 +379,6 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 	if (!for_selection && mZoomFactor == 1.f)
 	{
 		// Save GL matrices for access elsewhere in code, especially project_world_to_screen
-		//@todo PLVR: use memcpy
 		for (U32 i = 0; i < 16; i++)
 		{
 			gGLModelView[i] = modelviewp[i];
@@ -406,7 +396,7 @@ void LLViewerCamera::projectScreenToPosAgent(const S32 screen_x, const S32 scree
 	glm::vec3 agent_coord = glm::unProject(glm::vec3((F32) screen_x, (F32) screen_y, 0.f), 
 		glm::make_mat4(gGLModelView), glm::make_mat4(gGLProjection), glm::make_vec4((GLint*) gGLViewport));
 
-        pos_agent->setVec(agent_coord[0], agent_coord[1], agent_coord[2]);
+	pos_agent->setVec(agent_coord[0], agent_coord[1], agent_coord[2]);
 }
 
 // Uses the last GL matrices set in set_perspective to project a point from
@@ -431,7 +421,7 @@ BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 		}
 	}
 
-        if (pos_agent.mV[VZ] != 0.f)
+	if (pos_agent.mV[VZ] != 0.f)
 	{
 		LLRect world_view_rect = gViewerWindow->getWorldViewRectRaw();
 		glm::ivec4 viewport(world_view_rect.mLeft, world_view_rect.mBottom, world_view_rect.getWidth(), world_view_rect.getHeight());
@@ -794,18 +784,19 @@ BOOL LLViewerCamera::areVertsVisible(LLViewerObject* volumep, BOOL all_verts)
 
 void LLViewerCamera::setDefaultFOV(F32 vertical_fov_rads) 
 {
-// [RLVa:KB] - Checked: RLVa-2.0.0
-	F32 nCamFOVMin, nCamFOVMax;
-	if ( (RlvActions::isRlvEnabled()) && (RlvActions::getCameraFOVLimits(nCamFOVMin, nCamFOVMax)) )
-		vertical_fov_rads = llclamp(vertical_fov_rads, nCamFOVMin, nCamFOVMax);
-// [/RLVa:KB]
-
 	vertical_fov_rads = llclamp(vertical_fov_rads, getMinView(), getMaxView());
 	setView(vertical_fov_rads);
 	mCameraFOVDefault = vertical_fov_rads; 
 	mCosHalfCameraFOV = cosf(mCameraFOVDefault * 0.5f);
 }
 
+void LLViewerCamera::loadDefaultFOV()
+{
+	setView(mSavedFOVDefault);
+	mSavedFOVLoaded = true;
+	mCameraFOVDefault = mSavedFOVDefault; 
+	mCosHalfCameraFOV = cosf(mCameraFOVDefault * 0.5f);
+}
 
 // static
 void LLViewerCamera::updateCameraAngle( void* user_data, const LLSD& value)

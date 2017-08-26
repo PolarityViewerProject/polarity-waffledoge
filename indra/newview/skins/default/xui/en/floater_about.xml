@@ -10,12 +10,11 @@
  title="ABOUT [CAPITALIZED_APP_NAME]"
  width="470">
   
-RestrainedLove API: [RLV_VERSION]
   <tab_container
     follows="all" 
-    top="25"
+    top="20"
     left="10"
-    height="405" 
+    height="420" 
     width="450" 
     name="about_tab"
     tab_position="top">
@@ -28,8 +27,7 @@ RestrainedLove API: [RLV_VERSION]
         parse_urls="true" 
        follows="top|left"
        font="SansSerif"
-       height="343"
-       bg_readonly_color="Transparent"
+       height="358"
        left="5"
        max_length="65536"
        name="support_editor"
@@ -40,7 +38,7 @@ RestrainedLove API: [RLV_VERSION]
         follows="left|top" 
         label="Copy to Clipboard"
         name="copy_btn"
-        left="10"
+        left="5"
         top_pad="5"
         height="25"
         width="180" />
@@ -74,7 +72,6 @@ with open source contributions from:
        enabled="false" 
        follows="top|left"
        height="340"
-       bg_readonly_color="Transparent"
        left="5"
        text_color="LtGray"
        max_length="65536"
@@ -93,163 +90,121 @@ Dummy Name replaced at run time
       <text_editor
        enabled="false"
        follows="left|top"
-       height="375"
-       bg_readonly_color="Transparent"
+       height="385"
        left="5"
        text_color="LtGray"
        max_length="65536"
        name="licenses_editor"
        top="5"
-       width="435"
-       word_wrap="true">
-        3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
-        APR Copyright (C) 2011 The Apache Software Foundation
-        Collada DOM Copyright 2006 Sony Computer Entertainment Inc.
-        cURL Copyright (C) 1996-2010, Daniel Stenberg, (daniel@haxx.se)
-        DBus/dbus-glib Copyright (C) 2002, 2003  CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.
-        expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
-        FreeType Copyright (C) 1996-2002, 2006 David Turner, Robert Wilhelm, and Werner Lemberg.
-        GL Copyright (C) 1999-2004 Brian Paul.
-        GLOD Copyright (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Johns Hopkins University and David Luebke, Brenden Schubert, University of Virginia.
-        google-perftools Copyright (c) 2005, Google Inc.
-        Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited.
-        jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW)
-        jpeglib Copyright (C) 1991-1998, Thomas G. Lane.
-        ogg/vorbis Copyright (C) 2002, Xiphophorus
-        OpenSSL Copyright (C) 1998-2008 The OpenSSL Project.
-        PCRE Copyright (c) 1997-2012 University of Cambridge
-        SDL Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
-        SSLeay Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
-        xmlrpc-epi Copyright (C) 2000 Epinions, Inc.
-        zlib Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler.
+       width="435">
+3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
+APR Copyright (C) 2011 The Apache Software Foundation
+Collada DOM Copyright 2006 Sony Computer Entertainment Inc.
+cURL Copyright (C) 1996-2010, Daniel Stenberg, (daniel@haxx.se)
+DBus/dbus-glib Copyright (C) 2002, 2003  CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.
+expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
+FMOD Sound System, copyright © Firelight Technologies Pty, Ltd., 1994-2013.
+FreeType Copyright (C) 1996-2002, 2006 David Turner, Robert Wilhelm, and Werner Lemberg.
+GL Copyright (C) 1999-2004 Brian Paul.
+GLOD Copyright (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Johns Hopkins University and David Luebke, Brenden Schubert, University of Virginia.
+google-perftools Copyright (c) 2005, Google Inc.
+Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited.
+jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW)
+jpeglib Copyright (C) 1991-1998, Thomas G. Lane.
+ogg/vorbis Copyright (C) 2002, Xiphophorus
+OpenSSL Copyright (C) 1998-2008 The OpenSSL Project.
+PCRE Copyright (c) 1997-2012 University of Cambridge
+SDL Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
+SSLeay Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
+xmlrpc-epi Copyright (C) 2000 Epinions, Inc.
+zlib Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler.
 
-        Second Life Viewer uses Havok (TM) Physics. (c)Copyright 1999-2010 Havok.com Inc. (and its Licensors). All Rights Reserved. See www.havok.com for details.
+Second Life Viewer uses Havok (TM) Physics. (c)Copyright 1999-2010 Havok.com Inc. (and its Licensors). All Rights Reserved. See www.havok.com for details.
 
-        This software contains source code provided by NVIDIA Corporation.
+This software contains source code provided by NVIDIA Corporation.
 
-        All rights reserved.  See licenses.txt for details.
+All rights reserved.  See licenses.txt for details.
 
-        Voice chat Audio coding: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
+Voice chat Audio coding: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
       </text_editor>
       </panel>
     <panel
       border="true" 
       label="Polarity Credits" 
-      name="polarity_credits_panel">
+      help_topic="about_alchemy_credits_tab"
+      name="alchemy_credits_panel">
       <text
           follows="top|left|right"
-          height="20"
+          height="10"
           layout="topleft"
           left="5"
-          name="polarity_intro"
+          name="alchemy_intro"
           top="10"
           width="435"
           wrap="true">
-Polarity Viewer is brought to you by:
+Polarity Viewer is brought to you by the Polarity Viewer Team:
       </text>
       <text_editor
-       enabled="false"
+       enabled="false" 
        follows="top|left"
-       parse_urls="true"
-       height="25"
-       bg_readonly_color="Transparent"
+       height="103"
        left="5"
        text_color="LtGray"
        max_length="65536"
-       name="polarity_names"
-       top_pad="5"
-       width="445"
+       name="alchemy_names"
+       top_pad="10"
+       width="435"
        word_wrap="true">
-secondlife:///app/agent/680c62e6-5cdd-494f-a31e-646392aa768b/inspect, secondlife:///app/agent/584d796a-bb85-4fe9-8f7c-1f2fbf2ff164/inspect and secondlife:///app/agent/f1a73716-4ad2-4548-9f0e-634c7a98fe86/inspect
+ Xenhat Liamano, TheDarkest Fairey, Doug Falta
       </text_editor>
       <text
-        follows="top|left"
-        height="10"
-        layout="topleft"
-        left="5"
-        name="opensource_intro"
-        top_pad="0"
-        width="445"
-        wrap="true">
+          follows="top|left"
+          height="10"
+          layout="topleft"
+          left="5"
+          name="opensource_intro"
+          top_pad="2"
+          width="435"
+          wrap="true">
 with open source code from:
       </text>
       <text_editor
-       enabled="false"
+       enabled="false" 
        follows="top|left"
-       parse_urls="true"
-       height="35"
-       bg_readonly_color="Transparent"
+       height="103"
        left="5"
        text_color="LtGray"
        max_length="65536"
        name="opensource_names"
-       top_pad="5"
-       width="445"
+       top_pad="12"
+       width="435"
        word_wrap="true">
-[http://alchemyviewer.org Alchemy], [http://niranv-sl.blogspot.de/ Black Dragon], [http://catznip.com/ Catznip], [http://exodusviewer.com/ Exodus] and [http://www.firestormviewer.org Firestorm].
+Siana Gearz, Shyotl Kuhr, NiranV Dean, Qarl Fizz, , Tofu Buzzard, Ansariel Hiller, Kitty Barnett, Ayamo Nozaki, Sovereign Engineer, Cinder Roxley, Inusaito Kanya, Luminous Luminos, Electron Electricteeth
       </text_editor>
-       <text
-        follows="top|left"
-        height="10"
-        layout="topleft"
-        left="5"
-        name="special_thanks_intro"
-        top_pad="0"
-        width="220"
-        wrap="true">
-Special thanks:
+      <text
+          follows="top|left"
+          height="10"
+          layout="topleft"
+          left="5"
+          name="services_intro"
+          top_pad="2"
+          width="435"
+          wrap="true">
+and project infrastructure from:
       </text>
       <text_editor
-       enabled="false"
+       enabled="false" 
        follows="top|left"
-       parse_urls="true"
-       height="260"
-       bg_readonly_color="Transparent"
+       height="103"
        left="5"
-       text_color="LtGray"
        max_length="65536"
-       name="special_thanks_names"
-       top_pad="10"
-       width="225"
+       name="services_names"
+       top_pad="12"
+       width="435"
        word_wrap="true">
-Dummy Name Replaced at Runtime
-     </text_editor>
-  <text
-    follows="all"
-    height="25"
-    layout="topleft"
-    left_pad="0"
-    name="services_intro"
-    top_delta="-21"
-    right="-1"
-    wrap="true">
-Project infrastructure and extra software resources provided by:
-  </text>
-  <text_editor
-   enabled="false"
-   follows="all"
-   parse_urls="true"
-   bg_readonly_color="Transparent"
-   left_delta="0"
-   text_color="LtGray"
-   max_length="65536"
-   name="services_names"
-   top_pad="0"
-   right="-1"
-   bottom="-1"
-   word_wrap="true">
-[https://www.atlassian.com/ Atlassian]:
- Bamboo Automated Builds
- Bitbucket Repository hosting
- Confluence
- JIRA Bug Tracker
-[https://www.jetbrains.com/ JetBrains]:
- ReSharper Code Analysis
-[http://www.sublimetext.com/ Sublime Text]:
- Cross-platform code editor
- [https://scan.coverity.com/faq Coverity Scan]:
- Static Analysis
-</text_editor>
+Atlassian: Bitbucket, Confluence, Jira, Bamboo
+Coverity: Coverity Scan
+      </text_editor>
     </panel>
-  </tab_container>
+    </tab_container>
 </floater>

@@ -27,6 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llavatarnamecache.h"
 #include "llconversationlog.h"
 #include "llfloaterconversationpreview.h"
 #include "llimview.h"
@@ -41,15 +42,16 @@ const std::string LL_FCP_ACCOUNT_NAME("user_name");
 
 LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_id)
 :	LLFloater(session_id),
-	mChatHistory(NULL),
+	mMutex(),
+	mPageSpinner(nullptr),
+	mChatHistory(nullptr),
 	mSessionID(session_id.asUUID()),
 	mCurrentPage(0),
 	mPageSize(gSavedSettings.getS32("ConversationHistoryPageSize")),
+	mMessages(nullptr),
 	mAccountName(session_id[LL_FCP_ACCOUNT_NAME]),
 	mCompleteName(session_id[LL_FCP_COMPLETE_NAME]),
-	mMutex(),
 	mShowHistory(false),
-	mMessages(NULL),
 	mHistoryThreadsBusy(false),
 	mOpened(false)
 {
@@ -196,7 +198,7 @@ void LLFloaterConversationPreview::showHistory()
 {
 	// additional protection to avoid changes of mMessages in setPages
 	LLMutexLock lock(&mMutex);
-	if(mMessages == NULL || !mMessages->size() || mCurrentPage * mPageSize >= mMessages->size())
+	if(mMessages == nullptr || !mMessages->size() || mCurrentPage * mPageSize >= mMessages->size())
 	{
 		return;
 	}
@@ -221,7 +223,7 @@ void LLFloaterConversationPreview::showHistory()
 		else
  		{
 			std::string legacy_name = gCacheName->buildLegacyName(from);
- 			gCacheName->getUUID(legacy_name, from_id);
+			from_id = LLAvatarNameCache::findIdByName(legacy_name);
  		}
 
 		LLChat chat;
@@ -243,12 +245,10 @@ void LLFloaterConversationPreview::showHistory()
 		}
 
 		LLSD chat_args;
-		static LLCachedControl<bool> use_plain_text_chat_history(gSavedSettings, "PlainTextChatHistory");
-		static LLCachedControl<bool> im_show_time(gSavedSettings, "IMShowTime");
-		static LLCachedControl<bool> im_show_names(gSavedSettings, "IMShowNamesForP2PConv");
-		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
-		chat_args["show_time"] = im_show_time;
-		chat_args["show_names_for_p2p_conv"] = im_show_names;
+		chat_args["use_plain_text_chat_history"] =
+						gSavedSettings.getBOOL("PlainTextChatHistory");
+		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
+		chat_args["show_names_for_p2p_conv"] = gSavedSettings.getBOOL("IMShowNamesForP2PConv");
 
 		mChatHistory->appendMessage(chat,chat_args);
 	}

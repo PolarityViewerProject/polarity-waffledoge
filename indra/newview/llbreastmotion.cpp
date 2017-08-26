@@ -200,8 +200,7 @@ LLVector3 LLBreastMotion::calculateAcceleration_local(const LLVector3 &new_char_
 BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 {
 	// Skip if disabled globally.
-	static LLCachedControl<bool> avatar_physics(gSavedSettings, "AvatarPhysics");
-	if (!avatar_physics)
+	if (!gSavedSettings.getBOOL("AvatarPhysics"))
 	{
 		return TRUE;
 	}
@@ -323,8 +322,7 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 	mBreastVelocity_local_vec.clamp(-mBreastMaxVelocityParam*100.0, mBreastMaxVelocityParam*100.0);
 
 	// Temporary debugging setting to cause all avatars to move, for profiling purposes.
-	static LLCachedControl<bool> avatar_physics_test(gSavedSettings, "AvatarPhysicsTest");
-	if (avatar_physics_test)
+	if (gSavedSettings.getBOOL("AvatarPhysicsTest"))
 	{
 		mBreastVelocity_local_vec[0] = sin(mTimer.getElapsedTimeF32()*4.0)*5.0;
 		mBreastVelocity_local_vec[1] = sin(mTimer.getElapsedTimeF32()*3.0)*5.0;
@@ -344,7 +342,7 @@ BOOL LLBreastMotion::onUpdate(F32 time, U8* joint_mask)
 		if (mBreastParamsDriven[i])
 		{
 			mCharacter->setVisualParamWeight(mBreastParamsDriven[i],
-											 new_local_pt[i]);
+											 new_local_pt[i], FALSE);
 		}
 	}
 

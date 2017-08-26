@@ -44,6 +44,7 @@
 #include "llagent.h"
 #include "llavataractions.h"
 #include "llcallbacklist.h"
+#include "llcurrencywrapper.h"
 #include "llbuycurrencyhtml.h"
 #include "llfloaterreg.h"
 #include "llfolderview.h"
@@ -68,10 +69,6 @@
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-#include "rlvhandler.h"
-#include "rlvlocks.h"
-// [/RLVa:KB]
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
@@ -101,62 +98,62 @@ public:
 					  U32 flags=0);
 	virtual ~LLTaskInvFVBridge() {}
 
-	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
-	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
+	LLFontGL::StyleFlags getLabelStyle() const override { return LLFontGL::NORMAL; }
+	std::string getLabelSuffix() const override { return LLStringUtil::null; }
 
 	static LLTaskInvFVBridge* createObjectBridge(LLPanelObjectInventory* panel,
 												 LLInventoryObject* object);
-	void showProperties();
+	void showProperties() override;
 	void buyItem();
-	S32 getPrice();
+	S32 getPrice() const;
 	static bool commitBuyItem(const LLSD& notification, const LLSD& response);
 
 	// LLFolderViewModelItemInventory functionality
-	virtual const std::string& getName() const;
-	virtual const std::string& getDisplayName() const;
-	virtual const std::string& getSearchableName() const;
+	const std::string& getName() const override;
+	const std::string& getDisplayName() const override;
+	const std::string& getSearchableName() const override;
 
-	virtual PermissionMask getPermissionMask() const { return PERM_NONE; }
-	/*virtual*/ LLFolderType::EType getPreferredType() const { return LLFolderType::FT_NONE; }
-	virtual const LLUUID& getUUID() const { return mUUID; }
-	virtual time_t getCreationDate() const;
-	virtual void setCreationDate(time_t creation_date_utc);
+	PermissionMask getPermissionMask() const override { return PERM_NONE; }
+	/*virtual*/ LLFolderType::EType getPreferredType() const override { return LLFolderType::FT_NONE; }
+	const LLUUID& getUUID() const override { return mUUID; }
+	time_t getCreationDate() const override;
+	void setCreationDate(time_t creation_date_utc) override;
 
-	virtual LLUIImagePtr getIcon() const;
-	virtual void openItem();
+	LLUIImagePtr getIcon() const override;
+	void openItem() override;
 	virtual BOOL canOpenItem() const { return FALSE; }
-	virtual void closeItem() {}
-	virtual void selectItem() {}
-	virtual BOOL isItemRenameable() const;
-	virtual BOOL renameItem(const std::string& new_name);
-	virtual BOOL isItemMovable() const;
-	virtual BOOL isItemRemovable() const;
-	virtual BOOL removeItem();
-	virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch);
-	virtual void move(LLFolderViewModelItem* parent_listener);	
-	virtual BOOL isItemCopyable() const;
-	virtual BOOL copyToClipboard() const;
-	virtual BOOL cutToClipboard();
-	virtual BOOL isClipboardPasteable() const;
-	virtual void pasteFromClipboard();
-	virtual void pasteLinkFromClipboard();
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual void performAction(LLInventoryModel* model, std::string action);
-	virtual BOOL isUpToDate() const { return TRUE; }
-	virtual bool hasChildren() const { return FALSE; }
-	virtual LLInventoryType::EType getInventoryType() const { return LLInventoryType::IT_NONE; }
-	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
-	virtual EInventorySortGroup getSortGroup() const { return SG_ITEM; }
-	virtual LLInventoryObject* getInventoryObject() const { return findInvObject(); }
+	void closeItem() override {}
+	void selectItem() override {}
+	BOOL isItemRenameable() const override;
+	BOOL renameItem(const std::string& new_name) override;
+	BOOL isItemMovable() const override;
+	BOOL isItemRemovable() const override;
+	BOOL removeItem() override;
+	void removeBatch(std::vector<LLFolderViewModelItem*>& batch) override;
+	void move(LLFolderViewModelItem* parent_listener) override;
+	BOOL isItemCopyable() const override;
+	BOOL copyToClipboard() const override;
+	BOOL cutToClipboard() override;
+	BOOL isClipboardPasteable() const override;
+	void pasteFromClipboard() override;
+	void pasteLinkFromClipboard() override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	void performAction(LLInventoryModel* model, std::string action) override;
+	BOOL isUpToDate() const override { return TRUE; }
+	bool hasChildren() const override { return FALSE; }
+	LLInventoryType::EType getInventoryType() const override { return LLInventoryType::IT_NONE; }
+	LLWearableType::EType getWearableType() const override { return LLWearableType::WT_NONE; }
+	EInventorySortGroup getSortGroup() const override { return SG_ITEM; }
+	LLInventoryObject* getInventoryObject() const override { return findInvObject(); }
 
 
 	// LLDragAndDropBridge functionality
-	virtual LLToolDragAndDrop::ESource getDragSource() const { return LLToolDragAndDrop::SOURCE_WORLD; }
-	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
-	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+	LLToolDragAndDrop::ESource getDragSource() const override { return LLToolDragAndDrop::SOURCE_WORLD; }
+	BOOL startDrag(EDragAndDropType* type, LLUUID* id) const override;
+	BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
 							void* cargo_data,
-							std::string& tooltip_msg);
+							std::string& tooltip_msg) override;
 };
 
 LLTaskInvFVBridge::LLTaskInvFVBridge(
@@ -187,7 +184,7 @@ LLInventoryObject* LLTaskInvFVBridge::findInvObject() const
 	{
 		return object->getInventoryObject(mUUID);
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -201,27 +198,11 @@ void LLTaskInvFVBridge::showProperties()
 	show_task_item_profile(mUUID, mPanel->getTaskUUID());
 }
 
-struct LLBuyInvItemData
-{
-	LLUUID mTaskID;
-	LLUUID mItemID;
-	LLAssetType::EType mType;
-
-	LLBuyInvItemData(const LLUUID& task,
-					 const LLUUID& item,
-					 LLAssetType::EType type) :
-		mTaskID(task), mItemID(item), mType(type)
-	{}
-};
-
 void LLTaskInvFVBridge::buyItem()
 {
 	LL_INFOS() << "LLTaskInvFVBridge::buyItem()" << LL_ENDL;
 	LLInventoryItem* item = findItem();
 	if(!item || !item->getSaleInfo().isForSale()) return;
-	LLBuyInvItemData* inv = new LLBuyInvItemData(mPanel->getTaskUUID(),
-												 mUUID,
-												 item->getType());
 
 	const LLSaleInfo& sale_info = item->getSaleInfo();
 	const LLPermissions& perm = item->getPermissions();
@@ -232,7 +213,6 @@ void LLTaskInvFVBridge::buyItem()
 	{
 		LLNotificationsUtil::add("Cannot_Purchase_an_Attachment");
 		LL_INFOS() << "Attempt to purchase an attachment" << LL_ENDL;
-		delete inv;
 	}
 	else
 	{
@@ -263,24 +243,19 @@ void LLTaskInvFVBridge::buyItem()
        	}
 
 		LLSD payload;
-		payload["task_id"] = inv->mTaskID;
-		payload["item_id"] = inv->mItemID;
-		payload["type"] = inv->mType;
+		payload["task_id"] = mPanel->getTaskUUID();
+		payload["item_id"] = mUUID;
+		payload["type"] = item->getType();
 		LLNotificationsUtil::add(alertdesc, args, payload, LLTaskInvFVBridge::commitBuyItem);
 	}
 }
 
-S32 LLTaskInvFVBridge::getPrice()
+S32 LLTaskInvFVBridge::getPrice() const
 {
 	LLInventoryItem* item = findItem();
-	if(item)
-	{
-		return item->getSaleInfo().getSalePrice();
-	}
-	else
-	{
-		return -1;
-	}
+	return item 
+		? item->getSaleInfo().getSalePrice() 
+		: -1;
 }
 
 // static
@@ -383,16 +358,8 @@ void LLTaskInvFVBridge::openItem()
 
 BOOL LLTaskInvFVBridge::isItemRenameable() const
 {
-// [RLVa:KB] - Checked: 2010-09-28 (RLVa-1.2.1f) | Modified: RLVa-1.0.5a
-	LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
-	if ( (rlv_handler_t::isEnabled()) && (object) && (gRlvAttachmentLocks.isLockedAttachment(object->getRootEdit())) )
-	{
-		return FALSE;
-	}
-// [/RLVa:KB]
-
 	if(gAgent.isGodlike()) return TRUE;
-//	LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
+	LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
 	if(object)
 	{
 		LLInventoryItem* item = (LLInventoryItem*)(object->getInventoryObject(mUUID));
@@ -407,18 +374,10 @@ BOOL LLTaskInvFVBridge::isItemRenameable() const
 
 BOOL LLTaskInvFVBridge::renameItem(const std::string& new_name)
 {
-// [RLVa:KB] - Checked: 2010-09-28 (RLVa-1.2.1f) | Modified: RLVa-1.0.5a
 	LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
-	if ( (rlv_handler_t::isEnabled()) && (object) && (gRlvAttachmentLocks.isLockedAttachment(object->getRootEdit())) )
-	{
-		return FALSE;
-	}
-// [/RLVa:KB]
-
-//	LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
 	if(object)
 	{
-		LLViewerInventoryItem* item = NULL;
+		LLViewerInventoryItem* item = nullptr;
 		item = (LLViewerInventoryItem*)object->getInventoryObject(mUUID);
 		if(item && (gAgent.allowOperation(PERM_MODIFY, item->getPermissions(),
 										GP_OBJECT_MANIPULATE, GOD_LIKE)))
@@ -442,45 +401,12 @@ BOOL LLTaskInvFVBridge::isItemMovable() const
 	//	return TRUE;
 	//}
 	//return FALSE;
-// [RLVa:KB] - Checked: 2010-04-01 (RLVa-1.2.0c) | Modified: RLVa-1.0.5a
-	if (rlv_handler_t::isEnabled())
-	{
-		const LLViewerObject* pObj = gObjectList.findObject(mPanel->getTaskUUID());
-		if (pObj)
-		{
-			if (gRlvAttachmentLocks.isLockedAttachment(pObj->getRootEdit()))
-			{
-				return FALSE;
-			}
-			else if ( (gRlvHandler.hasBehaviour(RLV_BHVR_UNSIT)) || (gRlvHandler.hasBehaviour(RLV_BHVR_SITTP)) )
-			{
-				if ( (isAgentAvatarValid()) && (gAgentAvatarp->isSitting()) && (gAgentAvatarp->getRoot() == pObj->getRootEdit()) )
-					return FALSE;
-			}
-		}
-	}
-// [/RLVa:KB]
 	return TRUE;
 }
 
 BOOL LLTaskInvFVBridge::isItemRemovable() const
 {
 	const LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
-// [RLVa:KB] - Checked: 2010-04-01 (RLVa-1.2.0c) | Modified: RLVa-1.0.5a
-	if ( (object) && (rlv_handler_t::isEnabled()) )
-	{
-		if (gRlvAttachmentLocks.isLockedAttachment(object->getRootEdit()))
-		{
-			return FALSE;
-		}
-		else if ( (gRlvHandler.hasBehaviour(RLV_BHVR_UNSIT)) || (gRlvHandler.hasBehaviour(RLV_BHVR_SITTP)) )
-		{
-			if ( (isAgentAvatarValid()) && (gAgentAvatarp->isSitting()) && (gAgentAvatarp->getRoot() == object->getRootEdit()) )
-				return FALSE;
-		}
-	}
-// [/RLVa:KB]
-
 	if(object
 	   && (object->permModify() || object->permYouOwner()))
 	{
@@ -623,19 +549,12 @@ BOOL LLTaskInvFVBridge::startDrag(EDragAndDropType* type, LLUUID* id) const
 		LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
 		if(object)
 		{
-			LLInventoryItem* inv = NULL;
+			LLInventoryItem* inv = nullptr;
 			if((inv = (LLInventoryItem*)object->getInventoryObject(mUUID)))
 			{
 				const LLPermissions& perm = inv->getPermissions();
 				bool can_copy = gAgent.allowOperation(PERM_COPY, perm,
 														GP_OBJECT_MANIPULATE);
-// [RLVa:KB] - Checked: 2009-10-10 (RLVa-1.2.1f) | Modified: RLVa-1.0.5a
-				// Kind of redundant due to the note below, but in case that ever gets fixed
-				if ( (rlv_handler_t::isEnabled()) && (gRlvAttachmentLocks.isLockedAttachment(object->getRootEdit())) )
-				{
-					return FALSE;
-				}
-// [/RLVa:KB]
 				if (object->isAttachment() && !can_copy)
 				{
                     //RN: no copy contents of attachments cannot be dragged out
@@ -732,7 +651,7 @@ void LLTaskInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		else
 		{
 			std::ostringstream info;
-			info << LLTrans::getString("BuyforL$") << price;
+			info << LLCurrencyWrapper::wrapCurrency(LLTrans::getString("BuyforL$")) << price;
 			label.assign(info.str());
 		}
 
@@ -751,45 +670,20 @@ void LLTaskInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	else if (canOpenItem())
 	{
 		items.push_back(std::string("Task Open"));
-// [RLVa:KB] - Checked: 2010-03-01 (RLVa-1.2.0b) | Modified: RLVa-1.1.0a
-		if (rlv_handler_t::isEnabled())
-		{
-			LLViewerObject* pAttachObj = gObjectList.findObject(mPanel->getTaskUUID());
-			bool fLocked = (pAttachObj) ? gRlvAttachmentLocks.isLockedAttachment(pAttachObj->getRootEdit()) : false;
-			if ( ((LLAssetType::AT_NOTECARD == item->getType()) && ((gRlvHandler.hasBehaviour(RLV_BHVR_VIEWNOTE)) || (fLocked))) || 
-				 ((LLAssetType::AT_LSL_TEXT == item->getType()) && ((gRlvHandler.hasBehaviour(RLV_BHVR_VIEWSCRIPT)) || (fLocked))) ||
-				 ((LLAssetType::AT_TEXTURE == item->getType()) && (gRlvHandler.hasBehaviour(RLV_BHVR_VIEWTEXTURE))) )
-			{
-				disabled_items.push_back(std::string("Task Open"));
-			}
-		}
-// [/RLVa:KB]
 	}
 	items.push_back(std::string("Task Properties"));
-// [RLVa:KB] - Checked: 2010-09-28 (RLVa-1.2.1f) | Added: RLVa-1.2.1f
-	items.push_back(std::string("Task Rename"));
-	if ( (!isItemRenameable()) || ((flags & FIRST_SELECTED_ITEM) == 0) )
+	if(isItemRenameable())
 	{
-		disabled_items.push_back(std::string("Task Rename"));
+		items.push_back(std::string("Task Rename"));
+		if ((flags & FIRST_SELECTED_ITEM) == 0)
+		{
+			disabled_items.push_back(std::string("Task Rename"));
+		}
 	}
-	items.push_back(std::string("Task Remove"));
-	if (!isItemRemovable())
+	if(isItemRemovable())
 	{
-		disabled_items.push_back(std::string("Task Remove"));
+		items.push_back(std::string("Task Remove"));
 	}
-// [/RLVa:KB]
-//	if(isItemRenameable())
-//	{
-//		items.push_back(std::string("Task Rename"));
-//		if ((flags & FIRST_SELECTED_ITEM) == 0)
-//		{
-//			disabled_items.push_back(std::string("Task Rename"));
-//		}
-//	}
-//	if(isItemRemovable())
-//	{
-//		items.push_back(std::string("Task Remove"));
-//	}
 
 	hide_context_entries(menu, items, disabled_items);
 }
@@ -807,22 +701,22 @@ public:
 		const LLUUID& uuid,
 		const std::string& name);
 
-	virtual LLUIImagePtr getIcon() const;
-	virtual const std::string& getDisplayName() const;
-	virtual BOOL isItemRenameable() const;
+	LLUIImagePtr getIcon() const override;
+	const std::string& getDisplayName() const override;
+	BOOL isItemRenameable() const override;
 	// virtual BOOL isItemCopyable() const { return FALSE; }
-	virtual BOOL renameItem(const std::string& new_name);
-	virtual BOOL isItemRemovable() const;
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual bool hasChildren() const;
-	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
-	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+	BOOL renameItem(const std::string& new_name) override;
+	BOOL isItemRemovable() const override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	bool hasChildren() const override;
+	BOOL startDrag(EDragAndDropType* type, LLUUID* id) const override;
+	BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
 							void* cargo_data,
-							std::string& tooltip_msg);
-	virtual BOOL canOpenItem() const { return TRUE; }
-	virtual void openItem();
-	virtual EInventorySortGroup getSortGroup() const { return SG_NORMAL_FOLDER; }
+							std::string& tooltip_msg) override;
+	BOOL canOpenItem() const override { return TRUE; }
+	void openItem() override;
+	EInventorySortGroup getSortGroup() const override { return SG_NORMAL_FOLDER; }
 };
 
 LLTaskCategoryBridge::LLTaskCategoryBridge(
@@ -982,8 +876,8 @@ public:
 						const std::string& name) :
 		LLTaskInvFVBridge(panel, uuid, name) {}
 
-	virtual BOOL canOpenItem() const { return TRUE; }
-	virtual void openItem();
+	BOOL canOpenItem() const override { return TRUE; }
+	void openItem() override;
 };
 
 void LLTaskTextureBridge::openItem()
@@ -1014,10 +908,10 @@ public:
 					  const std::string& name) :
 		LLTaskInvFVBridge(panel, uuid, name) {}
 
-	virtual BOOL canOpenItem() const { return TRUE; }
-	virtual void openItem();
-	virtual void performAction(LLInventoryModel* model, std::string action);
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+	BOOL canOpenItem() const override { return TRUE; }
+	void openItem() override;
+	void performAction(LLInventoryModel* model, std::string action) override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
 	static void openSoundPreview(void* data);
 };
 
@@ -1075,7 +969,7 @@ void LLTaskSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		else
 		{
 			std::ostringstream info;
-			info <<  LLTrans::getString("BuyforL$") << price;
+			info <<  LLCurrencyWrapper::wrapCurrency(LLTrans::getString("BuyforL$")) << price;
 			label.assign(info.str());
 		}
 
@@ -1139,8 +1033,8 @@ public:
 							const std::string& name) :
 		LLTaskInvFVBridge(panel, uuid, name) {}
 
-	virtual BOOL isItemRenameable() const;
-	virtual BOOL renameItem(const std::string& new_name);
+	BOOL isItemRenameable() const override;
+	BOOL renameItem(const std::string& new_name) override;
 };
 
 BOOL LLTaskCallingCardBridge::isItemRenameable() const
@@ -1177,9 +1071,9 @@ public:
 					const std::string& name) :
 		LLTaskScriptBridge(panel, uuid, name) {}
 
-	virtual BOOL canOpenItem() const { return TRUE; }
-	virtual void openItem();
-	virtual BOOL removeItem();
+	BOOL canOpenItem() const override { return TRUE; }
+	void openItem() override;
+	BOOL removeItem() override;
 	//virtual void buildContextMenu(LLMenuGL& menu);
 
 	//static void copyToInventory(void* userdata);
@@ -1193,13 +1087,6 @@ void LLTaskLSLBridge::openItem()
 	{
 		return;
 	}
-// [RLVa:KB] - Checked: 2010-03-27 (RLVa-1.2.0b) | Modified: RLVa-1.1.0a
-	if ( (rlv_handler_t::isEnabled()) && (gRlvAttachmentLocks.isLockedAttachment(object->getRootEdit())) )
-	{
-		RlvUtil::notifyBlockedViewXXX(LLAssetType::AT_SCRIPT);
-		return;
-	}
-// [/RLVa:KB]
 	if (object->permModify() || gAgent.isGodlike())
 	{
 		LLSD floater_key;
@@ -1249,9 +1136,9 @@ public:
 						 const std::string& name) :
 		LLTaskInvFVBridge(panel, uuid, name) {}
 
-	virtual BOOL canOpenItem() const { return TRUE; }
-	virtual void openItem();
-	virtual BOOL removeItem();
+	BOOL canOpenItem() const override { return TRUE; }
+	void openItem() override;
+	BOOL removeItem() override;
 };
 
 void LLTaskNotecardBridge::openItem()
@@ -1261,14 +1148,6 @@ void LLTaskNotecardBridge::openItem()
 	{
 		return;
 	}
-
-// [RLVa:KB] - Checked: 2010-03-27 (RLVa-1.2.0b) | Modified: RLVa-1.2.0b
-	if ( (rlv_handler_t::isEnabled()) && (gRlvAttachmentLocks.isLockedAttachment(object->getRootEdit())) )
-	{
-		RlvUtil::notifyBlockedViewXXX(LLAssetType::AT_NOTECARD);
-		return;
-	}
-// [/RLVa:KB]
 
 	// Note: even if we are not allowed to modify copyable notecard, we should be able to view it
 	LLInventoryItem *item = dynamic_cast<LLInventoryItem*>(object->getInventoryObject(mUUID));
@@ -1306,9 +1185,9 @@ public:
 						const std::string& name) :
 	LLTaskInvFVBridge(panel, uuid, name) {}
 
-	virtual BOOL canOpenItem() const { return TRUE; }
-	virtual void openItem();
-	virtual BOOL removeItem();
+	BOOL canOpenItem() const override { return TRUE; }
+	void openItem() override;
+	BOOL removeItem() override;
 };
 
 void LLTaskGestureBridge::openItem()
@@ -1340,9 +1219,9 @@ public:
 						  const std::string& name) :
 		LLTaskInvFVBridge(panel, uuid, name) {}
 
-	virtual BOOL canOpenItem() const { return TRUE; }
-	virtual void openItem();
-	virtual BOOL removeItem();
+	BOOL canOpenItem() const override { return TRUE; }
+	void openItem() override;
+	BOOL removeItem() override;
 };
 
 void LLTaskAnimationBridge::openItem()
@@ -1379,7 +1258,7 @@ public:
 						 U32 flags) :
 		LLTaskInvFVBridge(panel, uuid, name, flags) {}
 
-	virtual LLUIImagePtr getIcon() const;
+	LLUIImagePtr getIcon() const override;
 };
 
 LLUIImagePtr LLTaskWearableBridge::getIcon() const
@@ -1399,10 +1278,10 @@ public:
 		const LLUUID& uuid,
 		const std::string& name);
 
-	virtual LLUIImagePtr getIcon() const;
-	virtual void openItem();
-	virtual void performAction(LLInventoryModel* model, std::string action);
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+	LLUIImagePtr getIcon() const override;
+	void openItem() override;
+	void performAction(LLInventoryModel* model, std::string action) override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
 };
 
 LLTaskMeshBridge::LLTaskMeshBridge(
@@ -1460,7 +1339,7 @@ void LLTaskMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		else
 		{
 			std::ostringstream info;
-			info <<  LLTrans::getString("BuyforL$") << price;
+			info <<  LLCurrencyWrapper::wrapCurrency(LLTrans::getString("BuyforL$")) << price;
 			label.assign(info.str());
 		}
 
@@ -1505,9 +1384,9 @@ void LLTaskMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory* panel,
 														 LLInventoryObject* object)
 {
-	LLTaskInvFVBridge* new_bridge = NULL;
+	LLTaskInvFVBridge* new_bridge = nullptr;
 	const LLInventoryItem* item = dynamic_cast<LLInventoryItem*>(object);
-	const U32 itemflags = ( NULL == item ? 0 : item->getFlags() );
+	const U32 itemflags = (nullptr == item ? 0 : item->getFlags() );
 	LLAssetType::EType type = object ? object->getType() : LLAssetType::AT_CATEGORY;
 	LLUUID object_id = object ? object->getUUID() : LLUUID::null;
 	std::string object_name = object ? object->getName() : std::string();
@@ -1606,8 +1485,8 @@ void do_nothing()
 // Default constructor
 LLPanelObjectInventory::LLPanelObjectInventory(const LLPanelObjectInventory::Params& p) :
 	LLPanel(p),
-	mScroller(NULL),
-	mFolders(NULL),
+	mScroller(nullptr),
+	mFolders(nullptr),
 	mHaveInventory(FALSE),
 	mIsInventoryEmpty(TRUE),
 	mInventoryNeedsUpdate(FALSE),
@@ -1665,8 +1544,8 @@ void LLPanelObjectInventory::clearContents()
 		// removes mFolders
 		removeChild( mScroller ); //*TODO: Really shouldn't do this during draw()/refresh()
 		mScroller->die();
-		mScroller = NULL;
-		mFolders = NULL;
+		mScroller = nullptr;
+		mFolders = nullptr;
 	}
 }
 
@@ -1687,10 +1566,10 @@ void LLPanelObjectInventory::reset()
 	p.title = "task inventory";
 	p.parent_panel = this;
 	p.tool_tip= LLTrans::getString("PanelContentsTooltip");
-	p.listener = LLTaskInvFVBridge::createObjectBridge(this, NULL);
+	p.listener = LLTaskInvFVBridge::createObjectBridge(this, nullptr);
 	p.folder_indentation = -14; // subtract space normally reserved for folder expanders
 	p.view_model = &mInventoryViewModel;
-	p.root = NULL;
+	p.root = nullptr;
     p.options_menu = "menu_inventory.xml";
 
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
@@ -1840,7 +1719,7 @@ void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root
 		return;
 	}
 	// Create a visible root category.
-	LLTaskInvFVBridge* bridge = NULL;
+	LLTaskInvFVBridge* bridge = nullptr;
 	bridge = LLTaskInvFVBridge::createObjectBridge(this, inventory_root);
 	if(bridge)
 	{
@@ -1871,7 +1750,7 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
 											  LLInventoryObject* parent,
 											  LLFolderViewFolder* folder)
 {
-	LLUIColor item_color = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+	static LLUIColor item_color = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
 
 	// Find all in the first pass
 	std::vector<obj_folder_pair*> child_categories;
@@ -1936,7 +1815,7 @@ void LLPanelObjectInventory::refresh()
 	//LL_INFOS() << "LLPanelObjectInventory::refresh()" << LL_ENDL;
 	BOOL has_inventory = FALSE;
 	const BOOL non_root_ok = TRUE;
-	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode(NULL, non_root_ok);
+	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode(nullptr, non_root_ok);
 	if(node)
 	{
 		LLViewerObject* object = node->getObject();
@@ -1960,7 +1839,7 @@ void LLPanelObjectInventory::refresh()
 				clearContents();
 
 				// Register for updates from this object,
-				registerVOInventoryListener(object,NULL);
+				registerVOInventoryListener(object, nullptr);
 			}
 			else if (mAttachmentUUID != object->getAttachmentItemID())
 			{
@@ -2052,8 +1931,8 @@ void LLPanelObjectInventory::draw()
 
 void LLPanelObjectInventory::deleteAllChildren()
 {
-	mScroller = NULL;
-	mFolders = NULL;
+	mScroller = nullptr;
+	mFolders = nullptr;
 	LLView::deleteAllChildren();
 }
 
@@ -2061,7 +1940,7 @@ BOOL LLPanelObjectInventory::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dro
 {
 	if (mFolders && mHaveInventory)
 	{
-		LLFolderViewItem* folderp = mFolders->getNextFromChild(NULL);
+		LLFolderViewItem* folderp = mFolders->getNextFromChild(nullptr);
 		if (!folderp)
 		{
 			return FALSE;
@@ -2106,7 +1985,7 @@ void LLPanelObjectInventory::onFocusLost()
 	// inventory no longer handles cut/copy/paste/delete
 	if (LLEditMenuHandler::gEditMenuHandler == mFolders)
 	{
-		LLEditMenuHandler::gEditMenuHandler = NULL;
+		LLEditMenuHandler::gEditMenuHandler = nullptr;
 	}
 	
 	LLPanel::onFocusLost();
@@ -2130,7 +2009,7 @@ LLFolderViewItem* LLPanelObjectInventory::getItemByID( const LLUUID& id )
 		return map_it->second;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void LLPanelObjectInventory::removeItemID( const LLUUID& id )
@@ -2154,7 +2033,9 @@ BOOL LLPanelObjectInventory::handleKeyHere( KEY key, MASK mask )
 	switch (key)
 	{
 	case KEY_DELETE:
+#if LL_DARWIN
 	case KEY_BACKSPACE:
+#endif
 		// Delete selected items if delete or backspace key hit on the inventory panel
 		// Note: on Mac laptop keyboards, backspace and delete are one and the same
 		if (isSelectionRemovable() && mask == MASK_NONE)

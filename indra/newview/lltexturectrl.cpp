@@ -86,6 +86,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	LLView* owner,
 	LLUUID image_asset_id,
 	LLUUID default_image_asset_id,
+	LLUUID transparent_image_asset_id,
 	LLUUID blank_image_asset_id,
 	BOOL tentative,
 	BOOL allow_no_texture,
@@ -101,14 +102,15 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mOriginalImageAssetID(image_asset_id),
 	mFallbackImage(fallback_image),
 	mDefaultImageAssetID(default_image_asset_id),
+	mTransparentImageAssetID(transparent_image_asset_id),
 	mBlankImageAssetID(blank_image_asset_id),
 	mTentative(tentative),
 	mAllowNoTexture(allow_no_texture),
 	mLabel(label),
-	mTentativeLabel(NULL),
-	mResolutionLabel(NULL),
+	mTentativeLabel(nullptr),
+	mResolutionLabel(nullptr),
 	mActive( TRUE ),
-	mFilterEdit(NULL),
+	mFilterEdit(nullptr),
 	mImmediateFilterPermMask(immediate_filter_perm_mask),
 	mDnDFilterPermMask(dnd_filter_perm_mask),
 	mNonImmediateFilterPermMask(non_immediate_filter_perm_mask),
@@ -117,10 +119,10 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mCanApply(true),
 	mCanPreview(true),
 	mPreviewSettingChanged(false),
-	mOnFloaterCommitCallback(NULL),
-	mOnFloaterCloseCallback(NULL),
-	mSetImageAssetIDCallback(NULL),
-	mOnUpdateImageStatsCallback(NULL)
+	mOnFloaterCommitCallback(nullptr),
+	mOnFloaterCloseCallback(nullptr),
+	mSetImageAssetIDCallback(nullptr),
+	mOnUpdateImageStatsCallback(nullptr)
 {
 	buildFromFile("floater_texture_ctrl.xml");
 	mCanApplyImmediately = can_apply_immediately;
@@ -197,7 +199,7 @@ void LLFloaterTexturePicker::updateImageStats()
 		{
 			std::string formatted_dims = llformat("%d x %d", mTexturep->getFullWidth(),mTexturep->getFullHeight());
 			mResolutionLabel->setTextArg("[DIMENSIONS]", formatted_dims);
-			if (mOnUpdateImageStatsCallback)
+			if (mOnUpdateImageStatsCallback != nullptr)
 			{
 				mOnUpdateImageStatsCallback(mTexturep);
 			}
@@ -307,7 +309,7 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 
 void LLFloaterTexturePicker::onClose(bool app_quitting)
 {
-	if (mOwner && mOnFloaterCloseCallback)
+	if (mOwner && mOnFloaterCloseCallback != nullptr)
 	{
 		mOnFloaterCloseCallback();
 	}
@@ -333,6 +335,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 	childSetAction("Default",LLFloaterTexturePicker::onBtnSetToDefault,this);
 	childSetAction("None", LLFloaterTexturePicker::onBtnNone,this);
 	childSetAction("Blank", LLFloaterTexturePicker::onBtnBlank,this);
+	childSetAction("Transparent", LLFloaterTexturePicker::onBtnTransparent,this); // <alchemy/>
 
 
 	childSetCommitCallback("show_folders_check", onShowFolders, this);
@@ -375,7 +378,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 	}
 
 	mModeSelector = getChild<LLRadioGroup>("mode_selection");
-	mModeSelector->setCommitCallback(onModeSelect, this);
+	mModeSelector->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onModeSelect, this));
 	mModeSelector->setSelectedIndex(0, 0);
 
 	childSetAction("l_add_btn", LLFloaterTexturePicker::onBtnAdd, this);
@@ -383,8 +386,11 @@ BOOL LLFloaterTexturePicker::postBuild()
 	childSetAction("l_upl_btn", LLFloaterTexturePicker::onBtnUpload, this);
 
 	mLocalScrollCtrl = getChild<LLScrollListCtrl>("l_name_list");
-	mLocalScrollCtrl->setCommitCallback(onLocalScrollCommit, this);
+	mLocalScrollCtrl->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onLocalScrollCommit, this));
 	LLLocalBitmapMgr::feedScrollList(mLocalScrollCtrl);
+
+	getChild<LLLineEditor>("uuid_editor")->setCommitCallback(boost::bind(&onApplyUUID, this));
+	getChild<LLButton>("apply_uuid_btn")->setClickedCallback(boost::bind(&onApplyUUID, this));
 
 	mNoCopyTextureSelected = FALSE;
 
@@ -422,36 +428,28 @@ void LLFloaterTexturePicker::draw()
 		{
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			LLGLEnable(GL_CULL_FACE);
-			gGL.begin(LLRender::QUADS);
+			gGL.begin(LLRender::TRIANGLE_STRIP);
 			{
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
-				gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-
 				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
 				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
 				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
 				gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
-
 				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
 				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
 				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
 				gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
-				gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
-
-
 				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
 				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
 				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
 				gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
 				gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+				gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
 			}
 			gGL.end();
 		}
@@ -477,7 +475,7 @@ void LLFloaterTexturePicker::draw()
 	//BOOL allow_copy = FALSE;
 	if( mOwner ) 
 	{
-		mTexturep = NULL;
+		mTexturep = nullptr;
 		if(mImageAssetID.notNull())
 		{
 			mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID);
@@ -490,6 +488,7 @@ void LLFloaterTexturePicker::draw()
 		}
 
 		getChildView("Default")->setEnabled(mImageAssetID != mDefaultImageAssetID || mTentative);
+		getChildView("Transparent")->setEnabled(mImageAssetID != mTransparentImageAssetID || mTentative); // <alchemy/>
 		getChildView("Blank")->setEnabled(mImageAssetID != mBlankImageAssetID || mTentative);
 		getChildView("None")->setEnabled(mAllowNoTexture && (!mImageAssetID.isNull() || mTentative));
 
@@ -617,7 +616,7 @@ PermissionMask LLFloaterTexturePicker::getFilterPermMask()
 
 void LLFloaterTexturePicker::commitIfImmediateSet()
 {
-	if (!mNoCopyTextureSelected && mOnFloaterCommitCallback && mCanApply)
+	if (!mNoCopyTextureSelected && mOnFloaterCommitCallback != nullptr && mCanApply)
 	{
 		mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, LLUUID::null);
 	}
@@ -625,7 +624,7 @@ void LLFloaterTexturePicker::commitIfImmediateSet()
 
 void LLFloaterTexturePicker::commitCancel()
 {
-	if (!mNoCopyTextureSelected && mOnFloaterCommitCallback && mCanApply)
+	if (!mNoCopyTextureSelected && mOnFloaterCommitCallback != nullptr && mCanApply)
 	{
 		mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, LLUUID::null);
 	}
@@ -642,6 +641,17 @@ void LLFloaterTexturePicker::onBtnSetToDefault(void* userdata)
 	}
 	self->commitIfImmediateSet();
 }
+
+// <alchemy>
+// static
+void LLFloaterTexturePicker::onBtnTransparent(void* userdata)
+{
+	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+	self->setCanApply(true, true);
+	self->setImageID( self->getTransparentImageAssetID() );
+	self->commitIfImmediateSet();
+}
+// </alchemy>
 
 // static
 void LLFloaterTexturePicker::onBtnBlank(void* userdata)
@@ -678,7 +688,7 @@ void LLFloaterTexturePicker::onBtnCancel(void* userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
 	self->setImageID( self->mOriginalImageAssetID );
-	if (self->mOnFloaterCommitCallback)
+	if (self->mOnFloaterCommitCallback != nullptr)
 	{
 		self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CANCEL, LLUUID::null);
 	}
@@ -699,7 +709,7 @@ void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 			local_id = LLLocalBitmapMgr::getWorldID(temp_id);
 		}
 	}
-	if (self->mOnFloaterCommitCallback)
+	if (self->mOnFloaterCommitCallback != nullptr)
 	{
 		self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_SELECT, local_id);
 	}
@@ -720,6 +730,18 @@ void LLFloaterTexturePicker::onBtnPipette()
 	}
 }
 
+// static
+void LLFloaterTexturePicker::onApplyUUID(void* userdata)
+{
+	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+	LLUUID id(self->getChild<LLLineEditor>("uuid_editor")->getText());
+	if (id.notNull())
+	{
+		self->setImageID(id);
+		self->commitIfImmediateSet();
+	}
+}
+
 void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
 	if (items.size())
@@ -729,7 +751,7 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 		mNoCopyTextureSelected = FALSE;
 		if (itemp)
 		{
-			if (!mTextureSelectedCallback.empty())
+			if (mTextureSelectedCallback != nullptr)
 			{
 				mTextureSelectedCallback(itemp);
 			}
@@ -758,26 +780,27 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 	}
 }
 
-// static
-void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
+void LLFloaterTexturePicker::onModeSelect()
 {
-	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-	bool mode = (self->mModeSelector->getSelectedIndex() == 0);
+	bool mode = (mModeSelector->getSelectedIndex() == 0);
 
-	self->getChild<LLButton>("Default")->setVisible(mode);
-	self->getChild<LLButton>("Blank")->setVisible(mode);
-	self->getChild<LLButton>("None")->setVisible(mode);
-	self->getChild<LLButton>("Pipette")->setVisible(mode);
-	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(mode);
-	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(mode);
+	getChild<LLButton>("Default")->setVisible(mode);
+	getChild<LLButton>("Transparent")->setVisible(mode); // <alchemy/>
+	getChild<LLButton>("Blank")->setVisible(mode);
+	getChild<LLButton>("None")->setVisible(mode);
+	getChild<LLButton>("Pipette")->setVisible(mode);
+	getChild<LLFilterEditor>("inventory search editor")->setVisible(mode);
+	getChild<LLInventoryPanel>("inventory panel")->setVisible(mode);
+	getChild<LLLineEditor>("uuid_editor")->setVisible(mode);
+	getChild<LLButton>("apply_uuid_btn")->setVisible(mode);
 
-	/*self->getChild<LLCheckBox>("show_folders_check")->setVisible(mode);
+	/*getChild<LLCheckBox>("show_folders_check")->setVisible(mode);
 	  no idea under which conditions the above is even shown, needs testing. */
 
-	self->getChild<LLButton>("l_add_btn")->setVisible(!mode);
-	self->getChild<LLButton>("l_rem_btn")->setVisible(!mode);
-	self->getChild<LLButton>("l_upl_btn")->setVisible(!mode);
-	self->getChild<LLScrollListCtrl>("l_name_list")->setVisible(!mode);
+	getChild<LLButton>("l_add_btn")->setVisible(!mode);
+	getChild<LLButton>("l_rem_btn")->setVisible(!mode);
+	getChild<LLButton>("l_upl_btn")->setVisible(!mode);
+	getChild<LLScrollListCtrl>("l_name_list")->setVisible(!mode);
 }
 
 // static
@@ -840,31 +863,29 @@ void LLFloaterTexturePicker::onBtnUpload(void* userdata)
 
 }
 
-//static
-void LLFloaterTexturePicker::onLocalScrollCommit(LLUICtrl* ctrl, void* userdata)
+void LLFloaterTexturePicker::onLocalScrollCommit()
 {
-	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-	std::vector<LLScrollListItem*> selected_items = self->mLocalScrollCtrl->getAllSelected();
+	std::vector<LLScrollListItem*> selected_items = mLocalScrollCtrl->getAllSelected();
 	bool has_selection = !selected_items.empty();
 
-	self->getChild<LLButton>("l_rem_btn")->setEnabled(has_selection);
-	self->getChild<LLButton>("l_upl_btn")->setEnabled(has_selection && (selected_items.size() < 2));
+	getChild<LLButton>("l_rem_btn")->setEnabled(has_selection);
+	getChild<LLButton>("l_upl_btn")->setEnabled(has_selection && (selected_items.size() < 2));
 	/* since multiple-localbitmap upload is not implemented, upl button gets disabled if more than one is selected. */
 
 	if (has_selection)
 	{
-		LLUUID tracking_id = (LLUUID)self->mLocalScrollCtrl->getSelectedItemLabel(LOCAL_TRACKING_ID_COLUMN); 
+		LLUUID tracking_id = LLUUID(mLocalScrollCtrl->getSelectedItemLabel(LOCAL_TRACKING_ID_COLUMN));
 		LLUUID inworld_id = LLLocalBitmapMgr::getWorldID(tracking_id);
-		if (self->mSetImageAssetIDCallback)
+		if (mSetImageAssetIDCallback != nullptr)
 		{
-			self->mSetImageAssetIDCallback(inworld_id);
+			mSetImageAssetIDCallback(inworld_id);
 		}
 
-		if (self->childGetValue("apply_immediate_check").asBoolean())
+		if (childGetValue("apply_immediate_check").asBoolean())
 		{
-			if (self->mOnFloaterCommitCallback)
+			if (mOnFloaterCommitCallback != nullptr)
 			{
-				self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, inworld_id);
+				mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, inworld_id);
 			}
 		}
 	}
@@ -985,8 +1006,6 @@ static LLDefaultChildRegistry::Register<LLTextureCtrl> r("texture_picker");
 
 LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 :	LLUICtrl(p),
-	mDragCallback(NULL),
-	mDropCallback(NULL),
 	mOnCancelCallback(NULL),
 	mOnCloseCallback(NULL),
 	mOnSelectCallback(NULL),
@@ -1001,8 +1020,15 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mImageAssetID(p.image_id),
 	mDefaultImageAssetID(p.default_image_id),
 	mDefaultImageName(p.default_image_name),
-	mFallbackImage(p.fallback_image)
+	mFallbackImage(p.fallback_image),
+	mPreview(!p.enabled)
 {
+
+	// <alchemy>
+	// Transparent image
+	LLUUID transparentImage( gSavedSettings.getString( "UIImgTransparentUUID" ) );
+	setTransparentImageAssetID( transparentImage );
+	// </alchemy>
 
 	// Default of defaults is white image for diff tex
 	//
@@ -1117,8 +1143,9 @@ void LLTextureCtrl::setEnabled( BOOL enabled )
 	}
 
 	mCaption->setEnabled( enabled );
-
-	LLView::setEnabled( enabled );
+	
+	LLView::setEnabled(enabled || getValue().asUUID().notNull());
+	mPreview = !enabled;
 }
 
 void LLTextureCtrl::setValid(BOOL valid )
@@ -1165,6 +1192,7 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 			this,
 			getImageAssetID(),
 			getDefaultImageAssetID(),
+			getTransparentImageAssetID(),
 			getBlankImageAssetID(),
 			getTentative(),
 			getAllowNoTexture(),
@@ -1179,11 +1207,11 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 		LLFloaterTexturePicker* texture_floaterp = dynamic_cast<LLFloaterTexturePicker*>(floaterp);
 		if (texture_floaterp)
 		{
-			if (mOnTextureSelectedCallback)
+			if (mOnTextureSelectedCallback != nullptr)
 			{
 				texture_floaterp->setTextureSelectedCallback(mOnTextureSelectedCallback);
 			}
-			if (mOnCloseCallback)
+			if (!mOnCloseCallback.empty())
 			{
 				texture_floaterp->setOnFloaterCloseCallback(boost::bind(&LLTextureCtrl::onFloaterClose, this));
 			}
@@ -1208,7 +1236,7 @@ void LLTextureCtrl::closeDependentFloater()
 	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 	if( floaterp )
 	{
-		floaterp->setOwner(NULL);
+		floaterp->setOwner(nullptr);
 		floaterp->closeFloater();
 	}
 }
@@ -1240,11 +1268,18 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	if (!handled && mBorder->parentPointInView(x, y))
 	{
-		showPicker(FALSE);
-		//grab textures first...
-		LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
-		//...then start full inventory fetch.
-		LLInventoryModelBackgroundFetch::instance().start();
+		if (mPreview)
+		{
+			LLFloaterReg::showInstance("zoom_texture", LLSD(getValue()), TRUE);
+		}
+		else
+		{
+			showPicker(FALSE);
+			//grab textures first...
+			LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
+			//...then start full inventory fetch.
+			LLInventoryModelBackgroundFetch::instance().start();
+		}
 		handled = TRUE;
 	}
 
@@ -1257,11 +1292,11 @@ void LLTextureCtrl::onFloaterClose()
 
 	if (floaterp)
 	{
-		if (mOnCloseCallback)
+		if (!mOnCloseCallback.empty())
 		{
 			mOnCloseCallback(this,LLSD());
 		}
-		floaterp->setOwner(NULL);
+		floaterp->setOwner(nullptr);
 	}
 
 	mFloaterHandle.markDead();
@@ -1298,11 +1333,11 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 			LL_DEBUGS() << "mImageAssetID: " << mImageAssetID << LL_ENDL;
 			}
 
-			if (op == TEXTURE_SELECT && mOnSelectCallback)
+			if (op == TEXTURE_SELECT && !mOnSelectCallback.empty())
 			{
 				mOnSelectCallback( this, LLSD() );
 			}
-			else if (op == TEXTURE_CANCEL && mOnCancelCallback)
+			else if (op == TEXTURE_CANCEL && !mOnCancelCallback.empty())
 			{
 				mOnCancelCallback( this, LLSD() );
 			}
@@ -1370,7 +1405,7 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	LLInventoryItem* item = (LLInventoryItem*)cargo_data; 
 	bool is_mesh = cargo_type == DAD_MESH;
 
-	if (getEnabled() &&
+	if (getEnabled() && !mPreview &&
 		((cargo_type == DAD_TEXTURE) || is_mesh) &&
 		 allowDrop(item))
 	{
@@ -1407,7 +1442,7 @@ void LLTextureCtrl::draw()
 
 	if (!mValid)
 	{
-		mTexturep = NULL;
+		mTexturep = nullptr;
 	}
 	else if (!mImageAssetID.isNull())
 	{
@@ -1420,7 +1455,7 @@ void LLTextureCtrl::draw()
 	}
 	else//mImageAssetID == LLUUID::null
 	{
-		mTexturep = NULL;
+		mTexturep = nullptr;
 	}
 	
 	// Border
@@ -1482,8 +1517,7 @@ void LLTextureCtrl::draw()
 		}
 
 		// Optionally show more detailed information.
-		static LLCachedControl<bool> debug_avatar_rez_time(gSavedSettings, "DebugAvatarRezTime");
-		if(debug_avatar_rez_time)
+		if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 		{
 			LLFontGL* font = LLFontGL::getFontSansSerif();
 			std::string tdesc;
@@ -1526,7 +1560,7 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 	PermissionMask filter_perm_mask = mImmediateFilterPermMask;
 	if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
 	{
-		if(mDragCallback)
+		if(mDragCallback != nullptr)
 		{
 			return mDragCallback(this, item);
 		}
@@ -1544,7 +1578,7 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 BOOL LLTextureCtrl::doDrop(LLInventoryItem* item)
 {
 	// call the callback if it exists.
-	if(mDropCallback)
+	if(mDropCallback != nullptr)
 	{
 		// if it returns TRUE, we return TRUE, and therefore the
 		// commit is called above.
@@ -1569,7 +1603,9 @@ BOOL LLTextureCtrl::handleUnicodeCharHere(llwchar uni_char)
 
 void LLTextureCtrl::setValue( const LLSD& value )
 {
-	setImageAssetID(value.asUUID());
+	LLUUID uuid = value.asUUID();
+	setImageAssetID(uuid);
+	LLView::setEnabled( (!mPreview || uuid.notNull()) );
 }
 
 LLSD LLTextureCtrl::getValue() const

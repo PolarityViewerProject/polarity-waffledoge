@@ -1,161 +1,154 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="120"
+ height="190"
  layout="topleft"
  name="Environment Editor Floater"
+ help_topic="environment_editor_floater"
  save_rect="true"
- title="Environment Settings"
- background_color="FloaterDefaultBackgroundColor"
- width="600">
+ title="ENVIRONMENT SETTINGS"
+ width="367">
+
+<check_box
+     height="15"
+     initial_value="true"
+     label="Use region settings"
+     layout="topleft"
+     left="5"
+     name="region_settings_checkbox"
+     top="28"
+     width="256" />
  <panel
- height="70"
- layout="topleft"
- left="10"
- name="user_environment_settings"
- top="24"
- width="580">
+  height="105"
+  layout="topleft"
+  left="5"
+  name="user_environment_settings"
+  top_pad="0"
+  width="370">
 
- <!-- Sky/Day Cycle Settings -->
+ <!-- Water Setting -->
  <text
- name="sky_dayc_settings_title"
- follows="top|left"
- height="16"
- layout="topleft"
- left="5"
- top="0"
- width="250">
- 		Sky / Day Cycle
- </text>
- <text
- name="fixed_sky_label"
- invisibility_control="UseDayCycle"
- follows="top|left"
- height="16"
- layout="topleft"
- left="5"
- top="24"
- width="100">
- 		Fixed Sky
- </text>
- <text
- name="day_cycle_label"
- visibility_control="UseDayCycle"
- follows="top|left"
- height="16"
- layout="topleft"
- left="5"
- top="24"
- width="100">
- 		Day Cycle
- </text>
- <combo_box
+  name="water_settings_title"
   follows="top|left"
-  left_pad="2"
-  invisibility_control="UseDayCycle"
-  name="sky_settings_preset_combo"
-  top_delta="-5"
-  width="150">
-	<combo_box.item
-	 label="-Select a preset-"
-	 name="item0"/>
- </combo_box>
- <combo_box
-  follows="top|left"
-  visibility_control="UseDayCycle"
-  name="dayc_settings_preset_combo"
-  top_delta="0"
-  width="150">
-	<combo_box.item
-	 label="-Select a preset-"
-	 name="item0"/>
- </combo_box>
- <check_box
+  height="16"
   layout="topleft"
-  control_name="UseDayCycle"
-  left="0"
-  follows="top|left"
-  label="Use Day Cycle instead of fixed Sky"
-  name="sky_dayc_settings_check"
-  top="12"
-  height="50"
-  width="100"/>
-	<text
- name="water_settings_title"
- follows="top|left"
- height="16"
- layout="topleft"
- left="305"
- top="0"
- width="250">
- 		Water Preset
- </text>
-	<text
- name="water_label"
- follows="top|left"
- height="16"
- layout="topleft"
- left="306"
- top="24"
- width="100">
- 		Water
- </text>
- <combo_box
-  follows="top|left"
-  left_pad="2"
-  name="water_settings_preset_combo"
-  top_delta="-5"
-  width="150">
-	<combo_box.item
-	 label="-Select a preset-"
-	 name="item0"/>
- </combo_box>
- </panel>
+  left="4"
+  top="5"
+  width="148">
+  		Water Setting
+  </text>
+  <combo_box
+   follows="top|left"
+   left_pad="0"
+   name="water_settings_preset_combo"
+   top_delta="-5"
+   width="200">
+      <combo_box.item
+       label="-Select a preset-"
+       name="item0"/>
+  </combo_box>
+ 
 
- <button
-  follows="left|bottom"
-  control_name="UseEnvironmentFromRegion"
-  height="23"
-  is_toggle="true"
-  label="Region Windlight"
-  tool_tip="Switch between Regio-light or custom Sky/Water/Day-cycles"
+ <!-- Sky/Day Cycle Settings -->  
+  <radio_group
+   layout="topleft"
+   left="0"
+   name="sky_dayc_settings_radio_group"
+   top_pad="5"
+   height="50"
+   width="150">
+  	<radio_item
+  	 layout="topleft"
+  	 label="Fixed sky"
+  	 name="my_sky_settings"/>
+  	<radio_item
+  	 layout="topleft"
+  	 label="Day cycle"
+  	 name="my_dayc_settings"
+  	 top_pad="15"/>  	
+  </radio_group>
+  <combo_box
+   follows="top|left"
+   left_pad="2"
+   name="sky_settings_preset_combo"
+   top_delta="-4"
+   width="200">
+      <combo_box.item
+       label="-Select a preset-"
+       name="item0"/>
+  </combo_box>
+  <combo_box
+   follows="top|left"
+   name="dayc_settings_preset_combo"
+   top_delta="24"
+   width="200">
+      <combo_box.item
+       label="-Select a preset-"
+       name="item0"/>
+  </combo_box>
+ <text
+  name="cloud_settings_title"
+  follows="top|left"
+  height="16"
   layout="topleft"
-  left="10"
-  name="estate_btn"
-  top="90"
-  width="165"/>
- <button
-  follows="left|bottom"
-  height="23"
-  label="Advanced Sky"
+  left="4"
+  top_pad="3"
+  width="148">
+  		Cloud Setting
+  </text>
+  <combo_box
+   follows="top|left"
+   control_name="AlchemyWLCloudTexture"
+   left_pad="0"
+   name="cloud_settings_preset_combo"
+   top_delta="-2"
+   width="200">
+      <combo_box.item
+       label="Altocumulus"
+       name="altocumulus_cloud"
+	   value="Altocumulus.tga"/>
+      <combo_box.item
+       label="Cumulo-Nimbus"
+       name="cumulonimbus_cloud"
+	   value="Cumulo-Nimbus.tga"/>
+      <combo_box.item
+       label="Default"
+       name="default_cloud"
+	   value="Default.tga"/>
+      <combo_box.item
+       label="Layered"
+       name="layered_cloud"
+	   value="Layered.tga"/>
+  </combo_box>
+ <text
+  follows="top|left|right"
+  font="SansSerifItalic"
+  height="15"
   layout="topleft"
-  left_pad="3"
-  name="sky_btn"
-  top="90"
-  width="160" >
- <button.commit_callback
-	function="World.EnvPreset"
-	parameter="edit_sky" />
- </button>
- <button
-  follows="left|bottom"
-  height="23"
-  label="Advanced Water"
-  layout="topleft"
-  left_pad="3"
-  name="water_btn"
-  top="90"
-  width="160" >
- <button.commit_callback
-	function="World.EnvPreset"
-	parameter="edit_water" />
- </button>
- <button
-  follows="left|bottom"
-  height="23"
-  label="Cancel"
-  layout="topleft"
-  left_pad="3"
-  name="cancel_btn"
-  width="87" />
+  left="3"
+  name="note"
+  top_pad="3"
+  width="360"
+  wrap="true">
+  Note: Your custom settings will not be visible to other users.
+ </text>
+  </panel>
+
+  <button
+   follows="left|top"
+   height="23"
+   label="OK"
+   layout="topleft"
+   right="-119"
+   name="ok_btn"
+   top_pad="15"
+   width="100" />
+  <button
+   follows="left|top"
+   height="23"
+   label="Cancel"
+   layout="topleft"
+   left_pad="10"
+   name="cancel_btn"
+   width="100" />	
 </floater>

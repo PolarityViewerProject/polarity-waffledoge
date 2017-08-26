@@ -30,8 +30,6 @@
 
 #include "llconfirmationmanager.h"
 
-#include "lluictrlfactory.h"
-
 // viewer includes
 #include "llnotificationsutil.h"
 #include "llstring.h"

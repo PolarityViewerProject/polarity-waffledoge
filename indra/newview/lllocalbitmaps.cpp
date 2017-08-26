@@ -118,6 +118,7 @@ LLLocalBitmap::LLLocalBitmap(std::string filename)
 	{
 		LL_WARNS() << "File of no valid extension given, local bitmap creation aborted." << "\n"
 			    << "Filename: " << mFilename << LL_ENDL;
+		mExtension = ET_IMG_UNKNOWN;
 		return; // no valid extension.
 	}
 
@@ -130,7 +131,7 @@ LLLocalBitmap::LLLocalBitmap(std::string filename)
 LLLocalBitmap::~LLLocalBitmap()
 {
 	// replace IDs with defaults, if set to do so.
-	if(LL_LOCAL_REPLACE_ON_DEL && mValid && gAgentAvatarp) // fix for STORM-1837
+	if(LL_LOCAL_REPLACE_ON_DEL && mValid && isAgentAvatarValid()) // fix for STORM-1837
 	{
 		replaceIDs(mWorldID, IMG_DEFAULT);
 		LLLocalBitmapMgr::doRebake();
@@ -223,7 +224,7 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 
 						// remove old_id from gimagelist
 						LLViewerFetchedTexture* image = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
-						if (image != NULL)
+						if (image != nullptr)
 						{
 							gTextureList.deleteImage(image);
 							image->unref();
@@ -531,12 +532,6 @@ void LLLocalBitmap::updateUserSculpts(LLUUID old_id, LLUUID new_id)
 
 void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableType::EType type)
 {
-	// <FS:Ansariel> FIRE-15787: Crash fix
-	if (!isAgentAvatarValid())
-	{
-		return;
-	}
-	// </FS:Ansariel>
 	U32 count = gAgentWearables.getWearableCount(type);
 	for(U32 wearable_iter = 0; wearable_iter < count; wearable_iter++)
 	{
@@ -562,7 +557,7 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 						if (gAgentWearables.getWearableIndex(wearable,index))
 						{
 							gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), FALSE, index);
-							gAgentAvatarp->wearableUpdated(type);
+							gAgentAvatarp->wearableUpdated(type, FALSE);
 							/* telling the manager to rebake once update cycle is fully done */
 							LLLocalBitmapMgr::setNeedsRebake();
 						}
@@ -886,7 +881,7 @@ bool LLLocalBitmapMgr::addUnit()
 				LLNotificationsUtil::add("LocalBitmapsVerifyFail", notif_args);
 
 				delete unit;
-				unit = NULL;
+				unit = nullptr;
 			}
 
 			filename = picker.getNextFile();
@@ -949,7 +944,7 @@ void LLLocalBitmapMgr::delUnit(LLUUID tracking_id)
 			LLLocalBitmap* unit = *del_iter;
 			sBitmapList.remove(unit);
 			delete unit;
-			unit = NULL;
+			unit = nullptr;
 		}
 	}
 }

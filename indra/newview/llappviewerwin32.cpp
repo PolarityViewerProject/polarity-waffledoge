@@ -29,24 +29,27 @@
 #include "llviewerprecompiledheaders.h"
 
 #ifdef INCLUDE_VLD
+#define VLD_FORCE_ENABLE 1
 #include "vld.h"
 #endif
 #include "llwin32headers.h"
 
-#include "llwindowwin32.h" // *FIX: for setting gIconResource.
+#include "llwindow.h" // *FIX: for setting gIconResource.
 
 #include "llappviewerwin32.h"
 
 #include "llgl.h"
-#include "res/resource.h" // *FIX: for setting gIconResource.
+//#include "res/resource.h" // *FIX: for setting gIconResource.
 
 #include <fcntl.h>		//_O_APPEND
 #include <io.h>			//_open_osfhandle()
-#include <WERAPI.H>		// for WerAddExcludedApplication()
 #include <process.h>	// _spawnl()
 #include <tchar.h>		// For TCHAR support
+#include <Werapi.h>
+#include <VersionHelpers.h>
 
 #include "llviewercontrol.h"
+#include "lldxhardware.h"
 
 #ifdef USE_NVAPI
 #include "nvapi/nvapi.h"
@@ -64,19 +67,10 @@
 #include "llcommandlineparser.h"
 #include "lltrans.h"
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-#include "llwindebug.h"
-#endif
-
-#include "stringize.h"
-
 #include <exception>
-
-#include "pvconstants.h"
-
 namespace
 {
-    void (*gOldTerminateHandler)() = NULL;
+    void (*gOldTerminateHandler)() = nullptr;
 }
 
 static void exceptionTerminateHandler()
@@ -85,7 +79,7 @@ static void exceptionTerminateHandler()
 	if (gOldTerminateHandler) std::set_terminate(gOldTerminateHandler);
 	// treat this like a regular viewer crash, with nice stacktrace etc.
     long *null_ptr;
-    null_ptr = 0;
+    null_ptr = nullptr;
     *null_ptr = 0xDEADBEEF; //Force an exception that will trigger breakpad.
 	//LLAppViewer::handleViewerCrash();
 	// we've probably been killed-off before now, but...
@@ -99,7 +93,7 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
 	return 0;
 }
 
-const std::string LLAppViewerWin32::sWindowClass = APP_NAME;
+const std::string LLAppViewerWin32::sWindowClass = "Polarity";
 
 // Create app mutex creates a unique global windows object. 
 // If the object can be created it returns true, otherwise
@@ -112,10 +106,9 @@ const std::string LLAppViewerWin32::sWindowClass = APP_NAME;
 bool create_app_mutex()
 {
 	bool result = true;
-	static const std::string app_name_str = APP_NAME;
-	LPCWSTR unique_mutex_name = ll_convert_string_to_wide(app_name_str + "AppMutex",0);
+	LPCWSTR unique_mutex_name = L"SecondLifeAppMutex";
 	HANDLE hMutex;
-	hMutex = CreateMutex(NULL, TRUE, unique_mutex_name); 
+	hMutex = CreateMutex(nullptr, TRUE, unique_mutex_name); 
 	if(GetLastError() == ERROR_ALREADY_EXISTS) 
 	{     
 		result = false;
@@ -254,9 +247,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 #endif
 #endif
 	
-	// *FIX: global
-	gIconResource = MAKEINTRESOURCE(IDI_LL_ICON);
-
 	LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(lpCmdLine);
 	
 	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
@@ -277,7 +267,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		LL_WARNS() << "Application init failed." << LL_ENDL;
 		return -1;
 	}
-	
+
 #ifdef USE_NVAPI
 	NvAPI_Status status;
     
@@ -355,7 +345,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 
 	}
 	delete viewer_app_ptr;
-	viewer_app_ptr = NULL;
+	viewer_app_ptr = nullptr;
 
 	//start updater
 	if(LLAppViewer::sUpdaterInfo)
@@ -363,9 +353,9 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		_spawnl(_P_NOWAIT, LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str(), LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str(), LLAppViewer::sUpdaterInfo->mParams.str().c_str(), NULL);
 
 		delete LLAppViewer::sUpdaterInfo ;
-		LLAppViewer::sUpdaterInfo = NULL ;
+		LLAppViewer::sUpdaterInfo = nullptr ;
 	}
-
+	
 #ifdef USE_NVAPI
 	// (NVAPI) (6) We clean up. This is analogous to doing a free()
 	if (hSession)
@@ -433,9 +423,9 @@ static bool create_console()
 	freopen("CONOUT$", "w", stdout);
 	freopen("CONOUT$", "w", stderr);
 
-	setvbuf( stdin, NULL, _IONBF, 0 );
-	setvbuf( stdout, NULL, _IONBF, 0 );
-	setvbuf( stderr, NULL, _IONBF, 0 );
+	setvbuf( stdin, nullptr, _IONBF, 0 );
+	setvbuf( stdout, nullptr, _IONBF, 0 );
+	setvbuf( stderr, nullptr, _IONBF, 0 );
 
     return isConsoleAllocated;
 }
@@ -461,10 +451,6 @@ bool LLAppViewerWin32::init()
 	// LL_INFOS() << "Turning off Windows error reporting." << LL_ENDL;
 	disableWinErrorReporting();
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	LLWinDebug::instance().init();
-#endif
-
 #if LL_WINDOWS
 #if LL_SEND_CRASH_REPORTS
 
@@ -484,9 +470,7 @@ bool LLAppViewerWin32::cleanup()
 {
 	bool result = LLAppViewer::cleanup();
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	LLWinDebug::instance().cleanup();
-#endif
+	gDXHardware.cleanup();
 
 	if (mIsConsoleAllocated)
 	{
@@ -521,6 +505,74 @@ void write_debug_dx(const std::string& str)
 	write_debug_dx(str.c_str());
 }
 
+bool LLAppViewerWin32::initHardwareTest()
+{
+	//
+	// Do driver verification and initialization based on DirectX
+	// hardware polling and driver versions
+	//
+	if (FALSE == gSavedSettings.getBOOL("NoHardwareProbe"))
+	{
+		// per DEV-11631 - disable hardware probing for everything
+		// but vram.
+		BOOL vram_only = TRUE;
+
+		LLSplashScreen::update(LLTrans::getString("StartupDetectingHardware"));
+
+		LL_DEBUGS("AppInit") << "Attempting to poll DirectX for hardware info" << LL_ENDL;
+		gDXHardware.setWriteDebugFunc(write_debug_dx);
+		BOOL probe_ok = gDXHardware.getInfo(vram_only);
+
+		if (!probe_ok
+			&& gWarningSettings.getBOOL("AboutDirectX9"))
+		{
+			LL_WARNS("AppInit") << "DirectX probe failed, alerting user." << LL_ENDL;
+
+			// Warn them that runnin without DirectX 9 will
+			// not allow us to tell them about driver issues
+			std::ostringstream msg;
+			msg << LLTrans::getString ("MBNoDirectX");
+			S32 button = OSMessageBox(
+				msg.str(),
+				LLTrans::getString("MBWarning"),
+				OSMB_YESNO);
+			if (OSBTN_NO== button)
+			{
+				LL_INFOS("AppInit") << "User quitting after failed DirectX 9 detection" << LL_ENDL;
+				LLWeb::loadURLExternal("http://secondlife.com/support/", false);
+				return false;
+			}
+			gWarningSettings.setBOOL("AboutDirectX9", FALSE);
+		}
+		LL_DEBUGS("AppInit") << "Done polling DirectX for hardware info" << LL_ENDL;
+
+		// Only probe once after installation
+		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
+
+		// Disable so debugger can work
+		std::string splash_msg;
+		LLStringUtil::format_map_t args;
+		args["[APP_NAME]"] = LLAppViewer::instance()->getSecondLifeTitle();
+		splash_msg = LLTrans::getString("StartupLoading", args);
+
+		LLSplashScreen::update(splash_msg);
+	}
+
+	if (!restoreErrorTrap())
+	{
+		LL_WARNS("AppInit") << " Someone took over my exception handler (post hardware probe)!" << LL_ENDL;
+	}
+
+	if (gGLManager.mVRAM == 0)
+	{
+		gGLManager.mVRAM = gDXHardware.getVRAM();
+	}
+
+	LL_INFOS("AppInit") << "Detected VRAM: " << gGLManager.mVRAM << LL_ENDL;
+
+	return true;
+}
+
 bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
 {
 	if (!clp.parseCommandLineString(mCmdLine))
@@ -529,7 +581,7 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
 	}
 
 	// Find the system language.
-	FL_Locale *locale = NULL;
+	FL_Locale *locale = nullptr;
 	FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
 	if (success != 0)
 	{
@@ -553,7 +605,6 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
 bool LLAppViewerWin32::restoreErrorTrap()
 {	
 	return true;
-	//return LLWinDebug::checkExceptionHandler();
 }
 
 void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
@@ -589,12 +640,12 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 	LL_INFOS("CrashReport") << "Creating crash reporter process " << exe_path << " with params: " << arg_str << LL_ENDL;
     if(CreateProcess(exe_wstr.c_str(),     
                      &arg_wstr[0],                 // Application arguments
-                     0,
-                     0,
+                     nullptr,
+                     nullptr,
                      FALSE,
                      CREATE_DEFAULT_ERROR_MODE,
-                     0,
-                     0,                              // Working directory
+                     nullptr,
+                     nullptr,                              // Working directory
                      &startInfo,
                      &processInfo) == FALSE)
       // Could not start application -> call 'GetLastError()'
@@ -608,14 +659,12 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
 {
 	wchar_t window_class[256]; /* Flawfinder: ignore */   // Assume max length < 255 chars.
-	static const std::string app_name_str = APP_NAME;
-	static const char* app_name_cstr = app_name_str.c_str();
-	mbstowcs(window_class, app_name_cstr, 255);
+	mbstowcs(window_class, sWindowClass.c_str(), 255);
 	window_class[255] = 0;
 	// Use the class instead of the window name.
-	HWND other_window = FindWindow(window_class, NULL);
+	HWND other_window = FindWindow(window_class, nullptr);
 
-	if (other_window != NULL)
+	if (other_window != nullptr)
 	{
 		LL_DEBUGS() << "Found other window with the name '" << getWindowTitle() << "'" << LL_ENDL;
 		COPYDATASTRUCT cds;
@@ -642,12 +691,12 @@ std::string LLAppViewerWin32::generateSerialNumber()
 	DWORD flags = 0;
 	BOOL success = GetVolumeInformation(
 			TEXT("C:\\"),
-			NULL,		// volume name buffer
+			nullptr,		// volume name buffer
 			0,			// volume name buffer size
 			&serial,	// volume serial
-			NULL,		// max component length
+			nullptr,		// max component length
 			&flags,		// file system flags
-			NULL,		// file system name buffer
+			nullptr,		// file system name buffer
 			0);			// file system name buffer size
 	if (success)
 	{

@@ -38,9 +38,9 @@
 LLQueuedThread::LLQueuedThread(const std::string& name, bool threaded, bool should_pause) :
 	LLThread(name),
 	mThreaded(threaded),
+    mStarted(false),
 	mIdleThread(true),
-	mNextHandle(0),
-	mStarted(FALSE)
+    mNextHandle(0)
 {
 	if (mThreaded)
 	{
@@ -178,7 +178,7 @@ S32 LLQueuedThread::getPending()
 // MAIN thread
 void LLQueuedThread::waitOnPending()
 {
-	while(1)
+	while(true)
 	{
 		update(0);
 
@@ -291,7 +291,7 @@ LLQueuedThread::QueuedRequest* LLQueuedThread::getRequest(handle_t handle)
 {
 	if (handle == nullHandle())
 	{
-		return 0;
+		return nullptr;
 	}
 	lockData();
 	QueuedRequest* res = (QueuedRequest*)mRequestHash.find(handle);
@@ -407,9 +407,9 @@ S32 LLQueuedThread::processNextRequest()
 	// Get next request from pool
 	lockData();
 	
-	while(1)
+	while(true)
 	{
-		req = NULL;
+		req = nullptr;
 		if (mRequestQueue.empty())
 		{
 			break;
@@ -497,7 +497,7 @@ void LLQueuedThread::run()
 	startThread();
 	mStarted = true;
 	
-	while (1)
+	while (true)
 	{
 		// this will block on the condition until runCondition() returns true, the thread is unpaused, or the thread leaves the RUNNING state.
 		checkPause();

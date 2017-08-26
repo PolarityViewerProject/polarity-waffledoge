@@ -1482,9 +1482,7 @@ LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(const std::string&
 	LLPointer<LLCertificate> result = new LLBasicCertificate(pem_cert);
 	return result;
 }
-		
 
-		
 // instiate a certificate from an openssl X509 structure
 LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(X509* openssl_cert)
 {
@@ -1550,102 +1548,130 @@ void LLSecAPIBasicHandler::setProtectedData(const std::string& data_type,
 
 //
 // Create a credential object from an identifier and authenticator.  credentials are
-// per credential name (was: grid).
-LLPointer<LLCredential> LLSecAPIBasicHandler::createCredential(const std::string& credName,
+// per grid.
+LLPointer<LLCredential> LLSecAPIBasicHandler::createCredential(const std::string& grid,
 															   const LLSD& identifier, 
 															   const LLSD& authenticator)
 {
-	LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(credName);
+	LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(grid);
 	result->setCredentialData(identifier, authenticator);
 	return result;
 }
 
-// Load a credential from the credential store, given the credential name
-LLPointer<LLCredential> LLSecAPIBasicHandler::loadCredential(const std::string& credName)
+// Load a credential from the credential store, given the grid
+LLPointer<LLCredential> LLSecAPIBasicHandler::loadCredential(const std::string& grid, const std::string& user_id)
 {
-	LLSD credential = getProtectedData("credential", credName);
-	LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(credName);
-	if(credential.isMap() && 
-	   credential.has("identifier"))
+	const LLSD sdCredentials = getProtectedData("credentials", grid);
+	LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(grid);
+	if (sdCredentials.isArray())
 	{
-
-		LLSD identifier = credential["identifier"];
-		LLSD authenticator;
-		if (credential.has("authenticator"))
+		for (LLSD::array_const_iterator itCred = sdCredentials.beginArray(); itCred != sdCredentials.endArray(); ++itCred)
 		{
-			authenticator = credential["authenticator"];
-		}
-		result->setCredentialData(identifier, authenticator);
-	}
-	else
-	{
-		// credential was not in protected storage, so pull the credential
-		// from the legacy store.
-		std::string first_name = gSavedSettings.getString("FirstName");
-		std::string last_name = gSavedSettings.getString("LastName");
-		
-		if (!first_name.empty() && !last_name.empty())
-		{
-			LLSD identifier = LLSD::emptyMap();
-			LLSD authenticator;
-			identifier["type"] = "agent";
-			identifier["first_name"] = first_name;
-			identifier["last_name"] = last_name;
-			
-			std::string legacy_password = _legacyLoadPassword();
-			if (legacy_password.length() > 0)
+			const LLSD& sdCredential = *itCred;
+			if ( (sdCredential.isMap()) && (sdCredential.has("identifier")) )
 			{
-				authenticator = LLSD::emptyMap();
-				authenticator["type"] = "hash";
-				authenticator["algorithm"] = "md5";
-				authenticator["secret"] = legacy_password;
+				const LLSD& sdIdentifier = sdCredential["identifier"];
+				if ( (user_id.empty()) || (LLSecAPIBasicCredential::userIDFromIdentifier(sdIdentifier) == user_id) )
+				{
+					LLSD sdAuthenticator;
+					if (sdCredential.has("authenticator"))
+						sdAuthenticator = sdCredential["authenticator"];
+					result->setCredentialData(sdIdentifier, sdAuthenticator);
+					break;
+				}
 			}
-			result->setCredentialData(identifier, authenticator);
-		}		
+		}
 	}
 	return result;
+}
+
+LLPointer<LLCredential> LLSecAPIBasicHandler::loadCredential(const std::string& grid, const LLSD& identifier)
+{
+	return loadCredential(grid, LLSecAPIBasicCredential::userIDFromIdentifier(identifier));
 }
 
 // Save the credential to the credential store.  Save the authenticator also if requested.
 // That feature is used to implement the 'remember password' functionality.
 void LLSecAPIBasicHandler::saveCredential(LLPointer<LLCredential> cred, bool save_authenticator)
 {
-	LLSD credential = LLSD::emptyMap();
-	credential["identifier"] = cred->getIdentifier(); 
-	if (save_authenticator) 
+	LLSD sdCredentials = getProtectedData("credentials", cred->getGrid());
+	if (!sdCredentials.isArray())
 	{
-		credential["authenticator"] = cred->getAuthenticator();
+		sdCredentials = LLSD::emptyArray();
 	}
-	LL_DEBUGS("SECAPI") << "Saving Credential " << cred->getCredentialName() << ":" << cred->userID() << " " << save_authenticator << LL_ENDL;
-	setProtectedData("credential", cred->getCredentialName(), credential);
-	//*TODO: If we're saving Agni credentials, should we write the
-	// credentials to the legacy password.dat/etc?
+
+	// Try and update the existing credential first if one exists
+	bool fFound = false;
+	for (LLSD::array_iterator itCred = sdCredentials.beginArray(); itCred != sdCredentials.endArray(); ++itCred)
+	{
+		LLSD& sdCredential = *itCred;
+		if ( (sdCredential.has("identifier")) && (LLSecAPIBasicCredential::userIDFromIdentifier(sdCredential["identifier"]) == cred->userID()) )
+		{
+			fFound = true;
+			sdCredential = cred->asLLSD(save_authenticator);
+			break;
+		}
+	}
+
+	// No existing stored credential found, add a new one
+	if (!fFound)
+	{
+		sdCredentials.append(cred->asLLSD(save_authenticator));
+	}
+
+	LL_DEBUGS("SECAPI") << "Saving Credential " << cred->getGrid() << ":" << cred->userID() << " " << save_authenticator << LL_ENDL;
+	setProtectedData("credentials", cred->getGrid(), sdCredentials);
 	_writeProtectedData();
 }
 
 // Remove a credential from the credential store.
-void LLSecAPIBasicHandler::deleteCredential(LLPointer<LLCredential> cred)
+void LLSecAPIBasicHandler::deleteCredential(const std::string& grid, const LLSD& identifier)
 {
-	LLSD undefVal;
-	deleteProtectedData("credential", cred->getCredentialName());
-	cred->setCredentialData(undefVal, undefVal);
+	const std::string strUserId = LLSecAPIBasicCredential::userIDFromIdentifier(identifier);
+
+	LLSD sdCredentials = getProtectedData("credentials", grid);
+	if (sdCredentials.isArray())
+	{
+		for (LLSD::array_const_iterator itCred = sdCredentials.beginArray(); itCred != sdCredentials.endArray(); ++itCred)
+		{
+			const LLSD& sdCredential = *itCred;
+			if ( (sdCredential.has("identifier")) && (LLSecAPIBasicCredential::userIDFromIdentifier(sdCredential["identifier"]) == strUserId) )
+			{
+				sdCredentials.erase(itCred - sdCredentials.beginArray());
+				break;
+			}
+		}
+
+		if (sdCredentials.size() > 0)
+			setProtectedData("credentials", grid, sdCredentials);
+		else
+			deleteProtectedData("credentials", grid);
+	}
 	_writeProtectedData();
 }
 
-// List saved logins
-std::vector<std::string> LLSecAPIBasicHandler::listCredentials()
+void LLSecAPIBasicHandler::deleteCredential(LLPointer<LLCredential> cred)
 {
-	if (mProtectedDataMap.has("credential") && mProtectedDataMap["credential"].isMap())
+	deleteCredential(cred->getGrid(), cred->getIdentifier());
+	cred->setCredentialData(LLSD(), LLSD());
+}
+
+bool LLSecAPIBasicHandler::getCredentialIdentifierList(const std::string& grid, std::vector<LLSD>& identifiers)
+{
+	identifiers.clear();
+
+	const LLSD sdCredentials = getProtectedData("credentials", grid);
+	if (sdCredentials.isArray())
 	{
-		std::vector<std::string> logins(mProtectedDataMap["credential"].size());
-		int i = 0;
-		for (LLSD::map_const_iterator it = mProtectedDataMap["credential"].beginMap(); it !=  mProtectedDataMap["credential"].endMap(); ++it)
+		for (LLSD::array_const_iterator itCred = sdCredentials.beginArray(); itCred != sdCredentials.endArray(); ++itCred)
 		{
-			logins[i++] = it->first;
+			const LLSD& sdCredential = *itCred;
+			if ( (sdCredential.isMap()) && (sdCredential.has("identifier")) )
+				identifiers.push_back(sdCredential["identifier"]);
 		}
-		return logins;
 	}
-	else return std::vector<std::string>();
+
+	return !identifiers.empty();
 }
 
 // load the legacy hash for agni, and decrypt it given the 
@@ -1673,28 +1699,17 @@ std::string LLSecAPIBasicHandler::_legacyLoadPassword()
 	LLXORCipher cipher(unique_id, sizeof(unique_id));
 	cipher.decrypt(&buffer[0], buffer.size());
 	
-	return std::string((const char*)&buffer[0], buffer.size());
+	return std::string(reinterpret_cast<const char*>(&buffer[0]), buffer.size());
 }
 
-
-// return an identifier for the user
 std::string LLSecAPIBasicCredential::userID() const
 {
-	if (!mIdentifier.isMap())
-	{
-		return mCredentialName + "(null)";
-	}
-	else if ((std::string)mIdentifier["type"] == "agent")
-	{
-		return  (std::string)mIdentifier["first_name"] + "_" + (std::string)mIdentifier["last_name"];
-	}
-	else if ((std::string)mIdentifier["type"] == "account")
-	{
-		return (std::string)mIdentifier["account_name"];
-	}
+	return userIDFromIdentifier(mIdentifier);
+}
 
-	return "unknown";
-
+std::string LLSecAPIBasicCredential::username() const
+{
+	return usernameFromIdentifier(mIdentifier);
 }
 
 // return a printable user identifier
@@ -1702,20 +1717,19 @@ std::string LLSecAPIBasicCredential::asString() const
 {
 	if (!mIdentifier.isMap())
 	{
-		return mCredentialName + ":(null)";
+		return mGrid + ":(null)";
 	}
-	else if ((std::string)mIdentifier["type"] == "agent")
+	if (mIdentifier["type"].asString() == "agent")
 	{
-		return mCredentialName + ":" + (std::string)mIdentifier["first_name"] + " " + (std::string)mIdentifier["last_name"];
+		return mGrid + ":" + mIdentifier["first_name"].asString() + " " + mIdentifier["last_name"].asString();
 	}
-	else if ((std::string)mIdentifier["type"] == "account")
+	if (mIdentifier["type"].asString() == "account")
 	{
-		return mCredentialName + ":" + (std::string)mIdentifier["account_name"];
+		return mGrid + ":" + mIdentifier["account_name"].asString();
 	}
 
-	return mCredentialName + ":(unknown type)";
+	return mGrid + ":(unknown type)";
 }
-
 
 bool valueCompareLLSD(const LLSD& lhs, const LLSD& rhs)
 {

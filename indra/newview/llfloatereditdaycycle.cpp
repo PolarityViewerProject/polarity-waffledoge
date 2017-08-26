@@ -47,22 +47,20 @@
 #include "llenvmanager.h"
 #include "llregioninfomodel.h"
 #include "llviewerregion.h"
-#include "llviewercontrol.h" // for gSavedSettings
 #include "llwlparammanager.h"
 
 const F32 LLFloaterEditDayCycle::sHoursPerDay = 24.0f;
 
 LLFloaterEditDayCycle::LLFloaterEditDayCycle(const LLSD &key)
 :	LLFloater(key)
-,	mDayCycleNameEditor(NULL)
-,	mDayCyclesCombo(NULL)
-,	mTimeSlider(NULL)
-,	mKeysSlider(NULL)
-,	mSkyPresetsCombo(NULL)
-,	mTimeCtrl(NULL)
-,	mMakeDefaultCheckBox(NULL)
-,	mSaveButton(NULL)
-,  mDeleteButton(NULL)
+,	mDayCycleNameEditor(nullptr)
+,	mDayCyclesCombo(nullptr)
+,	mTimeSlider(nullptr)
+,	mKeysSlider(nullptr)
+,	mSkyPresetsCombo(nullptr)
+,	mTimeCtrl(nullptr)
+,	mMakeDefaultCheckBox(nullptr)
+,	mSaveButton(nullptr)
 {
 }
 
@@ -77,7 +75,6 @@ BOOL LLFloaterEditDayCycle::postBuild()
 	mSkyPresetsCombo = getChild<LLComboBox>("WLSkyPresets");
 	mTimeCtrl = getChild<LLTimeCtrl>("time");
 	mSaveButton = getChild<LLButton>("save");
-	mDeleteButton = getChild<LLButton>("delete");
 	mMakeDefaultCheckBox = getChild<LLCheckBoxCtrl>("make_default_cb");
 
 	initCallbacks();
@@ -115,7 +112,15 @@ void LLFloaterEditDayCycle::onOpen(const LLSD& key)
 }
 
 // virtual
+void LLFloaterEditDayCycle::onClose(bool app_quitting)
+{
+	if (!app_quitting) // there's no point to change environment if we're quitting
+	{
+		LLEnvManagerNew::instance().usePrefs(); // revert changes made to current day cycle
+	}
+}
 
+// virtual
 void LLFloaterEditDayCycle::draw()
 {
 	syncTimeSlider();
@@ -124,7 +129,7 @@ void LLFloaterEditDayCycle::draw()
 
 void LLFloaterEditDayCycle::initCallbacks(void)
 {
-	mDayCycleNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleNameEdited, this), NULL);
+	mDayCycleNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleNameEdited, this), nullptr);
 	mDayCyclesCombo->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleSelected, this));
 	mDayCyclesCombo->setTextEntryCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleNameEdited, this));
 	mTimeSlider->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onTimeSliderMoved, this));
@@ -138,7 +143,6 @@ void LLFloaterEditDayCycle::initCallbacks(void)
 	mSaveButton->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onBtnSave, this));
 	mSaveButton->setRightMouseDownCallback(boost::bind(&LLFloaterEditDayCycle::dumpTrack, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onBtnCancel, this));
-	mDeleteButton->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onDeletePreset, this));
 
 	// Connect to env manager events.
 	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
@@ -732,6 +736,7 @@ void LLFloaterEditDayCycle::onBtnSave()
 	if (selected_day.scope == LLEnvKey::SCOPE_REGION)
 	{
 		saveRegionDayCycle();
+		closeFloater();
 		return;
 	}
 
@@ -764,7 +769,6 @@ void LLFloaterEditDayCycle::onBtnSave()
 
 void LLFloaterEditDayCycle::onBtnCancel()
 {
-	LLEnvManagerNew::instance().usePrefs(); // revert changes made to current day cycle
 	closeFloater();
 }
 
@@ -797,6 +801,7 @@ void LLFloaterEditDayCycle::onSaveConfirmed()
 		LLEnvManagerNew::instance().setUseDayCycle(name);
 	}
 
+	closeFloater();
 }
 
 void LLFloaterEditDayCycle::onDayCycleListChange()
@@ -819,9 +824,4 @@ void LLFloaterEditDayCycle::onSkyPresetListChange()
 std::string LLFloaterEditDayCycle::getRegionName()
 {
 	return gAgent.getRegion() ? gAgent.getRegion()->getName() : LLTrans::getString("Unknown");
-}
-void LLFloaterEditDayCycle::onDeletePreset()
-{
-	LLWLParamKey selected_day = getSelectedDayCycle();
-	LLDayCycleManager::instance().deletePreset(selected_day.name);
 }

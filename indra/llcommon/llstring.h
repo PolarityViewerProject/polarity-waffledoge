@@ -35,11 +35,8 @@
 #include <vector>
 #include <map>
 #include "llformat.h"
-// [RLVa:KB] - Checked: RLVa-2.1.0
-#include <list>
-// [/RLVa:KB]
 
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 #include <wctype.h>
 #include <wchar.h>
 #endif
@@ -47,16 +44,10 @@
 #include <string.h>
 #include <boost/scoped_ptr.hpp>
 
-#if LL_SOLARIS
-// stricmp and strnicmp do not exist on Solaris:
-#define stricmp strcasecmp
-#define strnicmp strncasecmp
-#endif
-
 const char LL_UNKNOWN_CHAR = '?';
 class LLSD;
 
-#if LL_DARWIN || LL_LINUX || LL_SOLARIS
+#if LL_DARWIN || LL_LINUX
 // Template specialization of char_traits for U16s. Only necessary on Mac and Linux (exists on Windows already)
 #include <cstring>
 
@@ -213,7 +204,7 @@ public:
 	// currently in daylight savings time?
 	static bool getPacificDaylightTime(void) { return sPacificDaylightTime;}
 
-	static std::string getDatetimeCode (std::string key);
+	static std::string getDatetimeCode (const std::string& key);
 };
 
 /**
@@ -300,7 +291,7 @@ public:
 	
 	static bool isValidIndex(const string_type& string, size_type i)
 	{
-		return !string.empty() && (0 <= i) && (i <= string.size());
+		return !string.empty() && (i <= string.size());
 	}
 
 	static bool contains(const string_type& string, T c, size_type i=0)
@@ -310,6 +301,7 @@ public:
 
 	static void	trimHead(string_type& string);
 	static void	trimTail(string_type& string);
+	static void trimTail(string_type& string, const string_type& tokens);
 	static void	trim(string_type& string)	{ trimHead(string); trimTail(string); }
 	static void truncate(string_type& string, size_type count);
 
@@ -339,6 +331,7 @@ public:
 
 	static void	addCRLF(string_type& string);
 	static void	removeCRLF(string_type& string);
+	static void removeWindowsCR(string_type& string);
 
 	static void	replaceTabsWithSpaces( string_type& string, size_type spaces_per_tab );
 	static void	replaceNonstandardASCII( string_type& string, T replacement );
@@ -416,8 +409,6 @@ public:
 	
 	static bool		isPartOfWord(T c) { return (c == (T)'_') || LLStringOps::isAlnum(c); }
 
-	// Check for substring match without modifying the source string.
-	static bool		findSubString(const std::string& str, const std::string& substr);
 
 #ifdef _DEBUG	
 	LL_COMMON_API static void		testHarness();
@@ -555,7 +546,7 @@ LL_COMMON_API S32 utf16str_wstring_length(const llutf16string &utf16str, S32 len
 LL_COMMON_API S32 wstring_utf16_length(const LLWString & wstr, S32 woffset, S32 wlen);
 
 // Length in wstring (i.e., llwchar count) of a part of a wstring specified by utf16 length (i.e., utf16 units.)
-LL_COMMON_API S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, S32 woffset, S32 utf16_length, BOOL *unaligned = NULL);
+LL_COMMON_API S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, S32 woffset, S32 utf16_length, BOOL *unaligned = nullptr);
 
 /**
  * @brief Properly truncate a utf8 string to a maximum byte count.
@@ -568,11 +559,6 @@ LL_COMMON_API S32 wstring_wstring_length_from_utf16_length(const LLWString & wst
  * @return Returns a valid utf8 string with byte count <= max_len.
  */
 LL_COMMON_API std::string utf8str_truncate(const std::string& utf8str, const S32 max_len);
-
-// [RLVa:KB] - Checked: RLVa-2.1.0
-LL_COMMON_API std::string utf8str_substr(const std::string& utf8str, const S32 index, const S32 max_len);
-LL_COMMON_API void utf8str_split(std::list<std::string>& split_list, const std::string& utf8str, size_t maxlen, char split_token);
-// [/RLVa:KB]
 
 LL_COMMON_API std::string utf8str_trim(const std::string& utf8str);
 
@@ -833,8 +819,9 @@ public:
 	}
 
 	/// This implementation uses the answer cached by setiter().
-	virtual bool escaped() const { return mIsEsc; }
-	virtual T next()
+	bool escaped() const override { return mIsEsc; }
+
+	T next() override
 	{
 		// If we're looking at the escape character of an escape sequence,
 		// skip that character. This is the one time we can modify 'mIter'
@@ -850,21 +837,21 @@ public:
 		return result;
 	}
 
-	virtual bool is(T ch) const
+	bool is(T ch) const override
 	{
 		// Like base-class is(), except that an escaped character matches
 		// nothing.
 		return (! done()) && (! mIsEsc) && *mIter == ch;
 	}
 
-	virtual bool oneof(const string_type& delims) const
+	bool oneof(const string_type& delims) const override
 	{
 		// Like base-class oneof(), except that an escaped character matches
 		// nothing.
 		return (! done()) && (! mIsEsc) && LLStringUtilBase<T>::contains(delims, *mIter);
 	}
 
-	virtual bool collect_until(string_type& into, const_iterator from, T delim)
+	bool collect_until(string_type& into, const_iterator from, T delim) override
 	{
 		// Deal with escapes in the characters we collect; that is, an escaped
 		// character must become just that character without the preceding
@@ -1178,7 +1165,7 @@ BOOL LLStringUtilBase<T>::precedesDict( const string_type& a, const string_type&
 {
 	if( a.size() && b.size() )
 	{
-		return (LLStringUtilBase<T>::compareDict(a.c_str(), b.c_str()) < 0);
+		return (LLStringUtilBase<T>::compareDict(a, b) < 0);
 	}
 	else
 	{
@@ -1233,11 +1220,27 @@ void LLStringUtilBase<T>::trimHead(string_type& string)
 template<class T> 
 void LLStringUtilBase<T>::trimTail(string_type& string)
 {			
-	if( string.size() )
+	if(!string.empty())
 	{
 		size_type len = string.length();
 		size_type i = len;
 		while( i > 0 && LLStringOps::isSpace( string[i-1] ) )
+		{
+			i--;
+		}
+
+		string.erase( i, len - i );
+	}
+}
+
+template<class T>
+void LLStringUtilBase<T>::trimTail(string_type& string, const string_type& tokens)
+{
+	if(!string.empty())
+	{
+		size_type len = string.length();
+		size_type i = len;
+		while( i > 0 && (tokens.find_first_of(string[i-1]) != string_type::npos) )
 		{
 			i--;
 		}
@@ -1252,6 +1255,9 @@ void LLStringUtilBase<T>::trimTail(string_type& string)
 template<class T>
 void LLStringUtilBase<T>::addCRLF(string_type& string)
 {
+	if (string.empty())
+		return;
+
 	const T LF = 10;
 	const T CR = 13;
 
@@ -1294,6 +1300,9 @@ void LLStringUtilBase<T>::addCRLF(string_type& string)
 template<class T> 
 void LLStringUtilBase<T>::removeCRLF(string_type& string)
 {
+	if (string.empty())
+		return;
+
 	const T CR = 13;
 
 	size_type cr_count = 0;
@@ -1313,6 +1322,31 @@ void LLStringUtilBase<T>::removeCRLF(string_type& string)
 
 //static
 template<class T> 
+void LLStringUtilBase<T>::removeWindowsCR(string_type& string)
+{
+	if (string.empty())
+		return;
+
+    const T LF = 10;
+    const T CR = 13;
+
+    size_type cr_count = 0;
+    size_type len = string.size();
+    size_type i;
+    for( i = 0; i < len - cr_count - 1; i++ )
+    {
+        if( string[i+cr_count] == CR && string[i+cr_count+1] == LF)
+        {
+            cr_count++;
+        }
+
+        string[i] = string[i+cr_count];
+    }
+    string.erase(i, cr_count);
+}
+
+//static
+template<class T>
 void LLStringUtilBase<T>::replaceChar( string_type& string, T target, T replacement )
 {
 	size_type found_pos = 0;

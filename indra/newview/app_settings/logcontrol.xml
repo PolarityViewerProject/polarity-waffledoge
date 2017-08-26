@@ -5,49 +5,7 @@
 		<key>print-location</key>   <boolean>false</boolean>
 		<key>settings</key>
 			<array>
-				<!-- sample entry for changing settings on specific items -->
-				<map>
-					<key>level</key><string>INFO</string>
-					<key>functions</key>
-						<array>
-						</array>
-					<key>classes</key>
-						<array>
-						</array>
-					<key>files</key>
-						<array>
-						</array>
-					<key>tags</key>
-						<array>
-							<!-- <string>AppInit</string> -->
-							<!-- <string>Capabilities</string> -->
-							<!-- <string>SystemInfo</string> -->
-							<!-- <string>TextureCache</string> -->
-							<!-- <string>AppCache</string> -->
-							<!-- <string>Window</string> -->
-							<!-- <string>RenderInit</string> -->
-							<!-- <string>MediaAuth</string> -->
-						</array>
-				</map>
-				<!-- Suppress anything lower than WARNING for some very verbose components -->
-				
-				<map>
-					<key>level</key><string>WARN</string>
-					<key>functions</key>
-						<array>
-						</array>
-					<key>classes</key>
-						<array>
-						</array>
-					<key>files</key>
-						<array>
-						</array>
-					<key>tags</key>
-						<array>
-							<string>Settings</string>
-						</array>
-				</map>
-				<!-- Suppress anything lower than ERROR for some very verbose components -->
+				<!-- Suppress anything but ERROR for some very verbose components -->
 				<map>
 					<key>level</key><string>ERROR</string>
 					<key>functions</key>
@@ -61,9 +19,43 @@
 						</array>
 					<key>tags</key>
 						<array>
-							<string>PluginPoll</string>
-							<string>ShaderLoading</string>
-							<string>Texture</string>
+						</array>
+				</map>
+				<map>
+					<key>level</key><string>INFO</string>
+					<key>functions</key>
+						<array>
+						</array>
+					<key>classes</key>
+						<array>
+						</array>
+					<key>files</key>
+						<array>
+						</array>
+					<key>tags</key>
+						<array>
+						</array>
+				</map>
+				<map>
+					<key>level</key><string>DEBUG</string>
+					<key>functions</key>
+						<array>
+						</array>
+					<key>classes</key>
+						<array>
+						</array>
+					<key>files</key>
+						<array>
+						</array>
+					<key>tags</key>
+						<array>
+						<!-- sample entry for debugging specific items	
+						     <string>Avatar</string>
+						     <string>Inventory</string>
+						     <string>SceneLoadTiming</string>
+						     <string>Avatar</string>
+						     <string>Voice</string>		
+						-->
 						</array>
 				</map>
       </array>

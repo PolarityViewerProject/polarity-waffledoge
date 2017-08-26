@@ -45,7 +45,7 @@
 LLStdStringTable LLXmlTree::sAttributeKeys(1024);
 
 LLXmlTree::LLXmlTree()
-	: mRoot( NULL ),
+	: mRoot(nullptr ),
 	  mNodeNames(512)
 {
 }
@@ -58,7 +58,7 @@ LLXmlTree::~LLXmlTree()
 void LLXmlTree::cleanup()
 {
 	delete mRoot;
-	mRoot = NULL;
+	mRoot = nullptr;
 	mNodeNames.cleanup();
 }
 
@@ -66,7 +66,7 @@ void LLXmlTree::cleanup()
 BOOL LLXmlTree::parseFile(const std::string &path, BOOL keep_contents)
 {
 	delete mRoot;
-	mRoot = NULL;
+	mRoot = nullptr;
 
 	LLXmlTreeParser parser(this);
 	BOOL success = parser.parseFile( path, &mRoot, keep_contents );
@@ -157,7 +157,7 @@ LLXmlTreeNode*	LLXmlTreeNode::getFirstChild()
 LLXmlTreeNode*	LLXmlTreeNode::getNextChild()
 {
 	if (mChildListIter == mChildList.end())
-		return 0;
+		return nullptr;
 	else
 		return *mChildListIter++;
 }
@@ -173,7 +173,7 @@ LLXmlTreeNode* LLXmlTreeNode::getChildByName(const std::string& name)
 LLXmlTreeNode* LLXmlTreeNode::getNextNamedChild()
 {
 	if (mChildMapIter == mChildMapEndIter)
-		return NULL;
+		return nullptr;
 	else
 		return (mChildMapIter++)->second;
 }
@@ -307,12 +307,6 @@ BOOL LLXmlTreeNode::getFastAttributeString(LLStdStringHandle canonical_name, std
 	return TRUE;
 }
 
-// <Black Dragon:NiranV> Vector4
-BOOL LLXmlTreeNode::getFastAttributeVector4(LLStdStringHandle canonical_name, LLVector4& value)
-{
-	const std::string *s = getAttribute(canonical_name);
-	return s ? LLVector4::parseVector4(*s, &value) : FALSE;
-}
 
 //////////////////////////////////////////////////////////////
 
@@ -418,13 +412,6 @@ BOOL LLXmlTreeNode::getAttributeString(const std::string& name, std::string& val
 	return getFastAttributeString(canonical_name, value);
 }
 
-// <Black Dragon:NiranV> Vector4
-BOOL LLXmlTreeNode::getAttributeVector4(const std::string& name, LLVector4& value)
-{
-	LLStdStringHandle canonical_name = LLXmlTree::sAttributeKeys.addString(name);
-	return getFastAttributeVector4(canonical_name, value);
-}
-
 /*
   The following xml <message> nodes will all return the string from getTextContents():
   "The quick brown fox\n  Jumps over the lazy dog"
@@ -467,14 +454,14 @@ std::string LLXmlTreeNode::getTextContents()
 		{
 			// Case 2: node has quoted text
 			S32 num_lines = 0;
-			while(1)
+			while(true)
 			{
 				// mContents[n] == '"'
 				++n;
 				std::string::size_type t = n;
 				std::string::size_type m = 0;
 				// fix-up escaped characters
-				while(1)
+				while(true)
 				{
 					m = mContents.find_first_of("\\\"", t); // find first \ or "
 					if ((m == std::string::npos) || (mContents[m] == '\"'))
@@ -517,8 +504,8 @@ std::string LLXmlTreeNode::getTextContents()
 
 LLXmlTreeParser::LLXmlTreeParser(LLXmlTree* tree) 
 	: mTree(tree),
-	  mRoot( NULL ),
-	  mCurrent( NULL ),
+	  mRoot(nullptr ),
+	  mCurrent(nullptr ),
 	  mDump( FALSE ),
 	  mKeepContents(FALSE)
 {
@@ -538,13 +525,13 @@ BOOL LLXmlTreeParser::parseFile(const std::string &path, LLXmlTreeNode** root, B
 	BOOL success = LLXmlParser::parseFile(path);
 
 	*root = mRoot;
-	mRoot = NULL;
+	mRoot = nullptr;
 
 	if( success )
 	{
 		llassert( !mCurrent );
 	}
-	mCurrent = NULL;
+	mCurrent = nullptr;
 	
 	return success;
 }

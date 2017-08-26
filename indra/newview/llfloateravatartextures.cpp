@@ -36,7 +36,6 @@
 #include "llagentwearables.h"
 #include "llviewerwearable.h"
 #include "lltexturectrl.h"
-#include "lluictrlfactory.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatarself.h"
 #include "lllocaltextureobject.h"
@@ -47,6 +46,10 @@ LLFloaterAvatarTextures::LLFloaterAvatarTextures(const LLSD& id)
   : LLFloater(id),
 	mID(id.asUUID())
 {
+	for (U32 i = 0; i < TEX_NUM_INDICES; i++)
+	{
+		mTextures[i] = nullptr;
+	}
 }
 
 LLFloaterAvatarTextures::~LLFloaterAvatarTextures()
@@ -127,7 +130,7 @@ static LLVOAvatar* find_avatar(const LLUUID& id)
 	}
 	else
 	{
-		return NULL;
+		return nullptr;
 	}
 }
 

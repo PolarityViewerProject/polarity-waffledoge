@@ -27,9 +27,7 @@
 #ifndef LL_UNITTYPE_H
 #define LL_UNITTYPE_H
 
-#if !LL_WINDOWS
 #include "stdtypes.h"
-#endif
 #include "llpreprocessor.h"
 #include "llerror.h"
 
@@ -420,7 +418,7 @@ LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, T1> in, LLUnit<S2, T2>& out)
 {
 	S2 divisor(1);
 
-	LL_STATIC_ASSERT((LLIsSameType<T1, T2>::value 
+	static_assert((LLIsSameType<T1, T2>::value
 						|| !LLIsSameType<T1, typename T1::base_unit_t>::value 
 						|| !LLIsSameType<T2, typename T2::base_unit_t>::value), 
 						"conversion requires compatible units");
@@ -541,14 +539,14 @@ LL_FORCE_INLINE LLUnit<typename LLResultTypeSubtract<STORAGE_TYPE1, STORAGE_TYPE
 }
 
 template<typename STORAGE_TYPE, typename UNITS, typename UNITLESS>
-LLUnit<STORAGE_TYPE, UNITS> operator - (LLUnit<STORAGE_TYPE, UNITS> first, UNITLESS second) //-V524
+LLUnit<STORAGE_TYPE, UNITS> operator - (LLUnit<STORAGE_TYPE, UNITS> first, UNITLESS second)
 {
 	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "operator - requires compatible unit types");
 	return LLUnit<STORAGE_TYPE, UNITS>(0);
 }
 
 template<typename STORAGE_TYPE, typename UNITS, typename UNITLESS>
-LLUnit<STORAGE_TYPE, UNITS> operator - (UNITLESS first, LLUnit<STORAGE_TYPE, UNITS> second) //-V524
+LLUnit<STORAGE_TYPE, UNITS> operator - (UNITLESS first, LLUnit<STORAGE_TYPE, UNITS> second)
 {
 	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "operator - requires compatible unit types");
 	return LLUnit<STORAGE_TYPE, UNITS>(0);

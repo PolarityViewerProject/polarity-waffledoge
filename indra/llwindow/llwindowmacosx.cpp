@@ -45,7 +45,12 @@
 #include <CoreServices/CoreServices.h>
 
 extern BOOL gDebugWindowProc;
+extern BOOL gUseMultGL;
 
+// culled from winuser.h
+//const S32	WHEEL_DELTA = 120;     /* Value for rolling one detent */
+// On the Mac, the scroll wheel reports a delta of 1 for each detent.
+// There's also acceleration for faster scrolling, based on a slider in the system preferences.
 const S32	BITS_PER_PIXEL = 32;
 const S32	MAX_NUM_RESOLUTIONS = 32;
 
@@ -57,8 +62,6 @@ namespace
 // LLWindowMacOSX
 //
 
-BOOL LLWindowMacOSX::sUseMultGL = FALSE;
-
 // Cross-platform bits:
 
 BOOL check_for_card(const char* RENDERER, const char* bad_card)
@@ -66,17 +69,17 @@ BOOL check_for_card(const char* RENDERER, const char* bad_card)
 	if (!strnicmp(RENDERER, bad_card, strlen(bad_card)))
 	{
 		std::string buffer = llformat(
-			"Your video card appears to be a %s, which Second Life does not support.\n"
+			"Your video card appears to be a %s, which Polarity does not support.\n"
 			"\n"
-			"Second Life requires a video card with 32 Mb of memory or more, as well as\n"
+			"Polarity requires a video card with 32 Mb of memory or more, as well as\n"
 			"multitexture support.  We explicitly support nVidia GeForce 2 or better, \n"
-			"and ATI Radeon 8500 or better.\n"
+			"and ATI Radeon 8500 or better... A LOT better. lol\n"
 			"\n"
 			"If you own a supported card and continue to receive this message, try \n"
 			"updating to the latest video card drivers. Otherwise look in the\n"
 			"secondlife.com support section or e-mail technical support\n"
 			"\n"
-			"You can try to run Second Life, but it will probably crash or run\n"
+			"You can try to run Polarity, but it will probably crash or run\n"
 			"very slowly.  Try anyway?",
 			bad_card);
 		S32 button = OSMessageBox(buffer.c_str(), "Unsupported video card", OSMB_YESNO);
@@ -110,11 +113,11 @@ static LLWindowMacOSX *gWindowImplementation = NULL;
 LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 							   const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
 							   S32 height, U32 flags,
-							   BOOL fullscreen, BOOL clearBg,
-							   EVSyncSetting vsync_setting, BOOL use_gl,
+							   U32 window_mode, BOOL clearBg,
+							   U32 vsync_setting, BOOL use_gl,
 							   BOOL ignore_pixel_depth,
 							   U32 fsaa_samples)
-	: LLWindow(NULL, fullscreen, flags)
+	: LLWindow(NULL, window_mode, flags)
 {
 	// *HACK: During window construction we get lots of OS events for window
 	// reshape, activate, etc. that the viewer isn't ready to handle.
@@ -165,7 +168,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 	// Stash an object pointer for OSMessageBox()
 	gWindowImplementation = this;
 	// Create the GL context and set it up for windowed or fullscreen, as appropriate.
-	if(createContext(x, y, width, height, 32, fullscreen, vsync_setting))
+	if(createContext(x, y, width, height, 32, window_mode, vsync_setting))
 	{
 		if(mWindow != NULL)
 		{
@@ -175,10 +178,10 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 		if (!gGLManager.initGL())
 		{
 			setupFailure(
-				"Second Life is unable to run because your video card drivers\n"
+				"Polarity is unable to run because your video card drivers\n"
 				"are out of date or unsupported. Please make sure you have\n"
 				"the latest video card drivers installed.\n"
-				"If you continue to receive this message, contact customer service.",
+				"If you continue to receive this message, contact support.",
 				"Error",
 				OSMB_OK);
 			return;
@@ -337,24 +340,11 @@ void callMouseMoved(float *pos, MASK mask)
 	LLCoordGL		outCoords;
 	outCoords.mX = ll_round(pos[0]);
 	outCoords.mY = ll_round(pos[1]);
-	float deltas[2];
+	double deltas[2];
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
 	outCoords.mY += deltas[1];
 	gWindowImplementation->getCallbacks()->handleMouseMove(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
-	//gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, 0);
-}
-
-void callMouseDragged(float *pos, MASK mask)
-{
-    LLCoordGL		outCoords;
-    outCoords.mX = ll_round(pos[0]);
-    outCoords.mY = ll_round(pos[1]);
-    float deltas[2];
-    gWindowImplementation->getMouseDeltas(deltas);
-    outCoords.mX += deltas[0];
-    outCoords.mY += deltas[1];
-    gWindowImplementation->getCallbacks()->handleMouseDragged(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
 }
 
 void callScrollMoved(float delta)
@@ -371,7 +361,9 @@ void callWindowFocus()
 {
    if ( gWindowImplementation && gWindowImplementation->getCallbacks() )
 	{
-		gWindowImplementation->getCallbacks()->handleFocus (gWindowImplementation);
+		gWindowImplementation->getCallbacks()->handleFocus(gWindowImplementation);
+		// Reset badge count
+		updateBadge(0);
 	}
 	else
 	{
@@ -402,7 +394,7 @@ void callWindowUnhide()
 	}
 }
 
-void callDeltaUpdate(float *delta, MASK mask)
+void callDeltaUpdate(double *delta, MASK mask)
 {
 	gWindowImplementation->updateMouseDeltas(delta);
 }
@@ -412,7 +404,7 @@ void callMiddleMouseDown(float *pos, MASK mask)
 	LLCoordGL		outCoords;
 	outCoords.mX = ll_round(pos[0]);
 	outCoords.mY = ll_round(pos[1]);
-	float deltas[2];
+	double deltas[2];
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
 	outCoords.mY += deltas[1];
@@ -424,7 +416,7 @@ void callMiddleMouseUp(float *pos, MASK mask)
 	LLCoordGL outCoords;
 	outCoords.mX = ll_round(pos[0]);
 	outCoords.mY = ll_round(pos[1]);
-	float deltas[2];
+	double deltas[2];
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
 	outCoords.mY += deltas[1];
@@ -512,7 +504,7 @@ void resetPreedit()
 
 // For reasons of convenience, handle IME updates here.
 // This largely mirrors the old implementation, only sans the carbon parameters.
-void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, attributedStringInfo segments)
+void setMarkedText(unsigned short *unitext, unsigned int *replacementRange, long text_len, attributedStringInfo segments)
 {
 	if (gWindowImplementation->getPreeditor())
 	{
@@ -546,7 +538,8 @@ void getPreeditLocation(float *location, unsigned int length)
 		
 		preeditor->getPreeditLocation(length, &coord, &rect, NULL);
 		
-		float c[4] = {coord.mX, coord.mY, 0, 0};
+		float c[4] = {static_cast<float>(coord.mX),
+					  static_cast<float>(coord.mY), 0, 0};
 		
 		convertRectToScreen(gWindowImplementation->getWindow(), c);
 		
@@ -555,7 +548,7 @@ void getPreeditLocation(float *location, unsigned int length)
 	}
 }
 
-void LLWindowMacOSX::updateMouseDeltas(float* deltas)
+void LLWindowMacOSX::updateMouseDeltas(double* deltas)
 {
 	if (mCursorDecoupled)
 	{
@@ -574,17 +567,15 @@ void LLWindowMacOSX::updateMouseDeltas(float* deltas)
 	}
 }
 
-void LLWindowMacOSX::getMouseDeltas(float* delta)
+void LLWindowMacOSX::getMouseDeltas(double* delta)
 {
 	delta[0] = mCursorLastEventDeltaX;
 	delta[1] = mCursorLastEventDeltaY;
 }
 
-BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL disable_vsync)
+BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits, U32 window_mode, U32 vsync_setting)
 {
-	BOOL			glNeedsInit = FALSE;
-
-	mFullscreen = fullscreen;
+	mWindowMode = window_mode;
 	
 	if (mWindow == NULL)
 	{
@@ -613,15 +604,13 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		break;
 	}
 	}
+
 	if(mContext == NULL)
 	{
 		// Our OpenGL view is already defined within SecondLife.xib.
 		// Get the view instead.
 		mGLView = createOpenGLView(mWindow, mFSAASamples, vsync_enabled);
 		mContext = getCGLContextObj(mGLView);
-		
-		// Since we just created the context, it needs to be set up.
-		glNeedsInit = TRUE;
 		
 		gGLManager.mVRAM = getVramSize(mGLView);
 	}
@@ -635,7 +624,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	{
 		
 		
-		U32 err = CGLSetCurrentContext(mContext);
+		CGLError err = CGLSetCurrentContext(mContext);
 		if (err != kCGLNoError)
 		{
 			setupFailure("Can't activate GL rendering context", "Error", OSMB_OK);
@@ -643,11 +632,10 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		}
 	}
 
-	
 	CGLSetParameter(mContext, kCGLCPSwapInterval, &frames_per_swap);
 
 	//enable multi-threaded OpenGL
-	if (sUseMultGL)
+	if (gUseMultGL)
 	{
 		CGLError cgl_err;
 		CGLContextObj ctx = CGLGetCurrentContext();
@@ -671,7 +659,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 // We only support OS X 10.7's fullscreen app mode which is literally a full screen window that fills a virtual desktop.
 // This makes this method obsolete.
-BOOL LLWindowMacOSX::switchContext(BOOL fullscreen, const LLCoordScreen &size, EVSyncSetting vsync_setting, const LLCoordScreen * const posp)
+BOOL LLWindowMacOSX::switchContext(U32 window_mode, const LLCoordScreen &size, U32 vsync_setting, const LLCoordScreen * const posp)
 {
 	return FALSE;
 }
@@ -700,17 +688,17 @@ void LLWindowMacOSX::destroyContext()
 		mPixelFormat = NULL;
 	}
 
-	// Clean up the GL context
-	if(mContext != NULL)
-	{
-		CGLDestroyContext(mContext);
-	}
-	
 	// Destroy our LLOpenGLView
 	if(mGLView != NULL)
 	{
 		removeGLView(mGLView);
 		mGLView = NULL;
+	}
+	
+	// Clean up the GL context
+	if(mContext != NULL)
+	{
+		CGLDestroyContext(mContext);
 	}
 	
 	// Close the window
@@ -779,7 +767,7 @@ void LLWindowMacOSX::close()
 
 BOOL LLWindowMacOSX::isValid()
 {
-	if(mFullscreen)
+	if (mWindowMode != E_WINDOW_WINDOWED)
 	{
 		return(TRUE);
 	}
@@ -791,10 +779,11 @@ BOOL LLWindowMacOSX::getVisible()
 {
 	BOOL result = FALSE;
 
-	if(mFullscreen)
+	if (mWindowMode != E_WINDOW_WINDOWED)
 	{
 		result = TRUE;
-	}if (mWindow)
+	}
+	if (mWindow)
 	{
 			result = TRUE;
 	}
@@ -823,7 +812,7 @@ BOOL LLWindowMacOSX::maximize()
 
 BOOL LLWindowMacOSX::getFullscreen()
 {
-	return mFullscreen;
+	return mWindowMode != E_WINDOW_WINDOWED;
 }
 
 void LLWindowMacOSX::gatherInput()
@@ -836,7 +825,7 @@ BOOL LLWindowMacOSX::getPosition(LLCoordScreen *position)
 	float rect[4];
 	S32 err = -1;
 
-	if(mFullscreen)
+	if (mWindowMode != E_WINDOW_WINDOWED)
 	{
 		position->mX = 0;
 		position->mY = 0;
@@ -862,7 +851,7 @@ BOOL LLWindowMacOSX::getSize(LLCoordScreen *size)
 	float rect[4];
 	S32 err = -1;
 
-	if(mFullscreen)
+	if (mWindowMode != E_WINDOW_WINDOWED)
 	{
 		size->mX = mFullscreenWidth;
 		size->mY = mFullscreenHeight;
@@ -870,7 +859,7 @@ BOOL LLWindowMacOSX::getSize(LLCoordScreen *size)
 	}
 	else if(mWindow)
 	{
-		getContentViewBounds(mWindow, rect);
+		getScaledContentViewBounds(mWindow, mGLView, rect);
 
 		size->mX = rect[2];
 		size->mY = rect[3];
@@ -888,7 +877,7 @@ BOOL LLWindowMacOSX::getSize(LLCoordWindow *size)
 	float rect[4];
 	S32 err = -1;
 	
-	if(mFullscreen)
+	if (mWindowMode != E_WINDOW_WINDOWED)
 	{
 		size->mX = mFullscreenWidth;
 		size->mY = mFullscreenHeight;
@@ -896,7 +885,7 @@ BOOL LLWindowMacOSX::getSize(LLCoordWindow *size)
 	}
 	else if(mWindow)
 	{
-		getContentViewBounds(mWindow, rect);
+		getScaledContentViewBounds(mWindow, mGLView, rect);
 		
 		size->mX = rect[2];
 		size->mY = rect[3];
@@ -909,18 +898,19 @@ BOOL LLWindowMacOSX::getSize(LLCoordWindow *size)
 	return (err == noErr);
 }
 
-BOOL LLWindowMacOSX::setPosition(const LLCoordScreen position)
+BOOL LLWindowMacOSX::setPosition(LLCoordScreen position)
 {
 	if(mWindow)
 	{
-		float pos[2] = {position.mX, position.mY};
+		float pos[2] = {static_cast<float>(position.mX),
+						static_cast<float>(position.mY)};
 		setWindowPos(mWindow, pos);
 	}
 
 	return TRUE;
 }
 
-BOOL LLWindowMacOSX::setSizeImpl(const LLCoordScreen size)
+BOOL LLWindowMacOSX::setSizeImpl(LLCoordScreen size)
 {
 	if(mWindow)
 	{
@@ -933,7 +923,7 @@ BOOL LLWindowMacOSX::setSizeImpl(const LLCoordScreen size)
 	return FALSE;
 }
 
-BOOL LLWindowMacOSX::setSizeImpl(const LLCoordWindow size)
+BOOL LLWindowMacOSX::setSizeImpl(LLCoordWindow size)
 {
 	if (mWindow)
 	{
@@ -1079,7 +1069,7 @@ void LLWindowMacOSX::setMouseClipping( BOOL b )
 	adjustCursorDecouple();
 }
 
-BOOL LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
+BOOL LLWindowMacOSX::setCursorPosition(LLCoordWindow position)
 {
 	BOOL result = FALSE;
 	LLCoordScreen screen_pos;
@@ -1096,11 +1086,13 @@ BOOL LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
 	newPosition.x = screen_pos.mX;
 	newPosition.y = screen_pos.mY;
 
-	CGSetLocalEventsSuppressionInterval(0.0);
+	CGEventSourceRef src = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
+	CGEventSourceSetLocalEventsSuppressionInterval(src, 0.0);
 	if(CGWarpMouseCursorPosition(newPosition) == noErr)
 	{
 		result = TRUE;
 	}
+	CFRelease(src);
 
 	// Under certain circumstances, this will trigger us to decouple the cursor.
 	adjustCursorDecouple(true);
@@ -1137,9 +1129,9 @@ BOOL LLWindowMacOSX::getCursorPosition(LLCoordWindow *position)
 		cursor_point[0] += mCursorLastEventDeltaX;
 		cursor_point[1] += mCursorLastEventDeltaY;
 	}
-
-	position->mX = cursor_point[0];
-	position->mY = cursor_point[1];
+    float scale = getScaleFactor();
+	position->mX = cursor_point[0] * scale;
+	position->mY = cursor_point[1] * scale;
 
 	return TRUE;
 }
@@ -1174,7 +1166,7 @@ void LLWindowMacOSX::adjustCursorDecouple(bool warpingMouse)
 
 F32 LLWindowMacOSX::getNativeAspectRatio()
 {
-	if (mFullscreen)
+	if (mWindowMode != E_WINDOW_WINDOWED)
 	{
 		return (F32)mFullscreenWidth / (F32)mFullscreenHeight;
 	}
@@ -1248,6 +1240,10 @@ BOOL LLWindowMacOSX::copyTextToClipboard(const LLWString &s)
 	return result;
 }
 
+void LLWindowMacOSX::setWindowTitle(const std::string& title)
+{
+	setTitle(title);
+}
 
 // protected
 BOOL LLWindowMacOSX::resetDisplayResolution()
@@ -1261,7 +1257,7 @@ LLWindow::LLWindowResolution* LLWindowMacOSX::getSupportedResolutions(S32 &num_r
 {
 	if (!mSupportedResolutions)
 	{
-		CFArrayRef modes = CGDisplayAvailableModes(mDisplay);
+		CFArrayRef modes = CGDisplayCopyAllDisplayModes(mDisplay, NULL);
 
 		if(modes != NULL)
 		{
@@ -1300,6 +1296,7 @@ LLWindow::LLWindowResolution* LLWindowMacOSX::getSupportedResolutions(S32 &num_r
 					}
 				}
 			}
+			CFRelease(modes);
 		}
 	}
 
@@ -1326,14 +1323,14 @@ BOOL LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordWindow* to)
 	if(mWindow)
 	{
 		float mouse_point[2];
-
+        float scale_factor = getScaleFactor();
 		mouse_point[0] = from.mX;
 		mouse_point[1] = from.mY;
 		
 		convertScreenToWindow(mWindow, mouse_point);
 
-		to->mX = mouse_point[0];
-		to->mY = mouse_point[1];
+		to->mX = mouse_point[0] * scale_factor;
+		to->mY = mouse_point[1] * scale_factor;
 
 		return TRUE;
 	}
@@ -1345,9 +1342,9 @@ BOOL LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordScreen *to)
 	if(mWindow)
 	{
 		float mouse_point[2];
-
-		mouse_point[0] = from.mX;
-		mouse_point[1] = from.mY;
+        float scale_factor = getScaleFactor();
+		mouse_point[0] = from.mX / scale_factor;
+		mouse_point[1] = from.mY / scale_factor;
 		convertWindowToScreen(mWindow, mouse_point);
 
 		to->mX = mouse_point[0];
@@ -1473,11 +1470,6 @@ void LLWindowMacOSX::updateCursor()
 	
     if(mCurrentCursor == mNextCursor)
     {
-        if(mCursorHidden && mHideCursorPermanent && isCGCursorVisible())
-        {
-            hideNSCursor();            
-            adjustCursorDecouple();
-        }
         return;
     }
 
@@ -1669,10 +1661,46 @@ void LLWindowMacOSX::hideCursorUntilMouseMove()
 	}
 }
 
-void LLWindowMacOSX::setTitle(const std::string& title)
+
+
+//
+// LLSplashScreenMacOSX
+//
+LLSplashScreenMacOSX::LLSplashScreenMacOSX()
 {
-	setTitleCocoa(mWindow, title);
+	mWindow = NULL;
 }
+
+LLSplashScreenMacOSX::~LLSplashScreenMacOSX()
+{
+}
+
+void LLSplashScreenMacOSX::showImpl()
+{
+	// This code _could_ be used to display a spash screen...
+}
+
+void LLSplashScreenMacOSX::updateImpl(const std::string& mesg)
+{
+#if 0
+	if(mWindow != NULL)
+	{
+		CFStringRef string = NULL;
+
+		string = CFStringCreateWithCString(NULL, mesg.c_str(), kCFStringEncodingUTF8);
+	}
+#endif
+}
+
+
+void LLSplashScreenMacOSX::hideImpl()
+{
+	if(mWindow != NULL)
+	{
+		mWindow = NULL;
+	}
+}
+
 S32 OSMessageBoxMacOSX(const std::string& text, const std::string& caption, U32 type)
 {
 	return showAlert(text, caption, type);
@@ -1868,6 +1896,17 @@ MASK LLWindowMacOSX::modifiersToMask(S16 modifiers)
 	if(modifiers & (MAC_CMD_KEY | MAC_CTRL_KEY)) { mask |= MASK_CONTROL; }
 	if(modifiers & MAC_ALT_KEY) { mask |= MASK_ALT; }
 	return mask;
+}
+
+//[CR:Retina]
+F32 LLWindowMacOSX::getScaleFactor()
+{
+	return ::getScaleFactor(mGLView);
+}
+
+void LLWindowMacOSX::updateUnreadCount(S32 num_conversations)
+{
+	updateBadge(num_conversations);
 }
 
 #if LL_OS_DRAGDROP_ENABLED

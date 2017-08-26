@@ -33,8 +33,6 @@
 
 #include <algorithm>
 
-#include "llstl.h"
-#include "llboost.h"
 //#include "indra_constants.h"
 
 #include "llavatarnamecache.h"
@@ -67,8 +65,8 @@ static LLDefaultChildRegistry::Register<LLScrollListCtrl> r("scroll_list");
 struct SortScrollListItem
 {
 	SortScrollListItem(const std::vector<std::pair<S32, BOOL> >& sort_orders,const LLScrollListCtrl::sort_signal_t*	sort_signal)
-	:	mSortOrders(sort_orders)
-	,   mSortSignal(sort_signal)
+	:	mSortSignal(sort_signal)
+	,   mSortOrders(sort_orders)
 	{}
 
 	bool operator()(const LLScrollListItem* i1, const LLScrollListItem* i2)
@@ -125,20 +123,20 @@ LLScrollListCtrl::Contents::Contents()
 
 LLScrollListCtrl::Params::Params()
 :	multi_select("multi_select", false),
+	commit_on_keyboard_movement("commit_on_keyboard_movement", true),
+	mouse_wheel_opaque("mouse_wheel_opaque", false),
+	remove_callback("remove_callback"),
 	has_border("draw_border"),
 	draw_heading("draw_heading"),
+	draw_stripes("draw_stripes"),
+	background_visible("background_visible"),
+	scroll_bar_bg_visible("scroll_bar_bg_visible"),
+	column_padding("column_padding"),
+	page_lines("page_lines", 0),
+	heading_height("heading_height"),
 	search_column("search_column", 0),
 	sort_column("sort_column", -1),
 	sort_ascending("sort_ascending", true),
-	persist_sort_order("persist_sort_order", false),	// <FS:Ansariel> Persists sort order of scroll lists
-	primary_sort_only("primary_sort_only", false),		// <FS:Ansariel> Option to only sort by one column
-	mouse_wheel_opaque("mouse_wheel_opaque", false),
-	commit_on_keyboard_movement("commit_on_keyboard_movement", true),
-	heading_height("heading_height"),
-	page_lines("page_lines", 0),
-	background_visible("background_visible"),
-	draw_stripes("draw_stripes"),
-	column_padding("column_padding"),
 	fg_unselected_color("fg_unselected_color"),
 	fg_selected_color("fg_selected_color"),
 	bg_selected_color("bg_selected_color"),
@@ -148,9 +146,8 @@ LLScrollListCtrl::Params::Params()
 	bg_stripe_color("bg_stripe_color"),
 	hovered_color("hovered_color"),
 	highlighted_color("highlighted_color"),
-	contents(""),
-	scroll_bar_bg_visible("scroll_bar_bg_visible"),
-	scroll_bar_bg_color("scroll_bar_bg_color"), 
+	scroll_bar_bg_color("scroll_bar_bg_color"),
+	contents(""), 
 	border("border")
 {}
 
@@ -158,36 +155,23 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 :	LLUICtrl(p),
 	mLineHeight(0),
 	mScrollLines(0),
-	mMouseWheelOpaque(p.mouse_wheel_opaque),
 	mPageLines(p.page_lines),
+	mHeadingHeight(p.heading_height),
 	mMaxSelectable(0),
+	mAllowMultipleSelection(p.multi_select),
 	mAllowKeyboardMovement(true),
 	mCommitOnKeyboardMovement(p.commit_on_keyboard_movement),
 	mCommitOnSelectionChange(false),
 	mSelectionChanged(false),
+	mItemRemoved(false),
 	mNeedsScroll(false),
-	mCanSelect(true),
-	mColumnsDirty(false),
-	mMaxItemCount(INT_MAX), 
-	mBorderThickness( 2 ),
-	mOnDoubleClickCallback( NULL ),
-	mOnMaximumSelectCallback( NULL ),
-	mOnSortChangedCallback( NULL ),
-	mHighlightedItem(-1),
-	mBorder(NULL),
-	mSortCallback(NULL),
-	mPopupMenu(NULL),
-	mCommentTextView(NULL),
-	mNumDynamicWidthColumns(0),
-	mTotalStaticColumnWidth(0),
-	mTotalColumnPadding(0),
-	mSorted(false),
-	mDirty(false),
-	mOriginalSelection(-1),
-	mLastSelected(NULL),
-	mHeadingHeight(p.heading_height),
-	mAllowMultipleSelection(p.multi_select),
+	mMouseWheelOpaque(p.mouse_wheel_opaque),
+	mCanSelect(true), 
 	mDisplayColumnHeaders(p.draw_heading),
+	mColumnsDirty(false),
+	mLastSelected(NULL),
+	mMaxItemCount(INT_MAX),
+	mColumnPadding(p.column_padding),
 	mBackgroundVisible(p.background_visible),
 	mDrawStripes(p.draw_stripes),
 	mBgWriteableColor(p.bg_writeable_color()),
@@ -197,19 +181,26 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mFgSelectedColor(p.fg_selected_color()),
 	mFgUnselectedColor(p.fg_unselected_color()),
 	mFgDisabledColor(p.fg_disable_color()),
-	mHighlightedColor(p.highlighted_color()),
 	mHoveredColor(p.hovered_color()),
+	mHighlightedColor(p.highlighted_color()),
+	mBorderThickness( 2 ),
+	mOnDoubleClickCallback( NULL ),
+	mOnMaximumSelectCallback( NULL ),
+	mOnSortChangedCallback( NULL ),
+	mRemoveSignal( NULL ),
+	mHighlightedItem(-1),
+	mBorder(NULL),
+	mPopupMenuHandle(),
+	mCommentText(NULL),
 	mSearchColumn(p.search_column),
-	mColumnPadding(p.column_padding),
-	// <FS:Ansariel> Fix for FS-specific people list (radar)
-	//mContextMenuType(MENU_NONE)
+	mNumDynamicWidthColumns(0),
+	mTotalStaticColumnWidth(0),
+	mTotalColumnPadding(0),
+	mSorted(false),
+	mDirty(false),
+	mOriginalSelection(-1),
 	mContextMenuType(MENU_NONE),
-	mFilterColumn(-1),
-	mIsFiltered(false),
-	mPersistSortOrder(p.persist_sort_order),
-	mPersistedSortOrderLoaded(false),
-	mPersistedSortOrderControl(""),
-	mPrimarySortOnly(p.primary_sort_only)
+	mSortCallback(NULL)
 {
 	mItemListRect.setOriginAndSize(
 		mBorderThickness,
@@ -261,44 +252,23 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 		mBorder->reshape(getRect().getWidth(), getRect().getHeight());
 	}
 
-	// <FS:Ansariel> addRow() will call updateLayout() that tries to access the the comment
-	//               textbox. So create it first before adding rows!
-	LLTextBox::Params text_p;
-	text_p.name("comment_text");
-	text_p.border_visible(false);
-	text_p.rect(mItemListRect);
-	text_p.follows.flags(FOLLOWS_ALL);
-	// word wrap was added accroding to the EXT-6841
-	text_p.wrap(true);
-	// set up label text color for empty lists in a way it's always readable -Zi
-	text_p.text_color = mFgUnselectedColor;
-	// show scroll bar when applicable -Sei
-	text_p.allow_scroll(true);
-	text_p.track_end(true);
-	addChild(LLUICtrlFactory::create<LLTextBox>(text_p));
-	// </FS:Ansariel>
-	// <FS:Ansariel> Can only set sort column after we created the actual columns
-	//if (p.sort_column >= 0)
-	//{
-	//	sortByColumnIndex(p.sort_column, p.sort_ascending);
-	//}
-	// </FS:Ansariel>
+	if (p.sort_column >= 0)
+	{
+		sortByColumnIndex(p.sort_column, p.sort_ascending);
+	}
+
+	if (p.remove_callback.isProvided())
+	{
+		setRemoveCallback(initCommitCallback(p.remove_callback));
+	}
 	
 	for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator row_it = p.contents.columns.begin();
 		row_it != p.contents.columns.end();
 		++row_it)
 	{
 		addColumn(*row_it);
-		// <FS:Ansariel> Get list of the column init params so we can re-add them
-		mColumnInitParams.push_back(*row_it);
 	}
 
-	// <FS:Ansariel> Can only set sort column after we created the actual columns
-	if (p.sort_column >= 0)
-	{
-		sortByColumnIndex(p.sort_column, p.sort_ascending);
-	}
-	// </FS:Ansariel>
 	for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = p.contents.rows.begin();
 		row_it != p.contents.rows.end();
 		++row_it)
@@ -306,18 +276,22 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 		addRow(*row_it);
 	}
 
-	// <FS:Ansariel> Moved up
-	//LLTextBox::Params text_p;
-	//text_p.name("comment_text");
-	//text_p.border_visible(false);
-	//text_p.rect(mItemListRect);
-	//text_p.follows.flags(FOLLOWS_ALL);
-	//// word wrap was added accroding to the EXT-6841
-	//text_p.wrap(true);
-	//// set up label text color for empty lists in a way it's always readable -Zi
-	//text_p.text_color = mFgUnselectedColor;
-	//addChild(LLUICtrlFactory::create<LLTextBox>(text_p));
-	// </FS:Ansariel>
+	LLTextBox::Params text_p;
+	text_p.name("comment_text");
+	text_p.border_visible(false);
+	text_p.rect(mItemListRect);
+	text_p.follows.flags(FOLLOWS_ALL);
+	// word wrap was added accroding to the EXT-6841
+	text_p.wrap(true);
+	addChild(LLUICtrlFactory::create<LLTextBox>(text_p));
+}
+
+boost::signals2::connection LLScrollListCtrl::setRemoveCallback(const commit_signal_t::slot_type& cb)
+{
+	if (!mRemoveSignal) mRemoveSignal = new commit_signal_t();
+	claimMem(mRemoveSignal);
+	
+	return mRemoveSignal->connect(cb);
 }
 
 S32 LLScrollListCtrl::getSearchColumn()
@@ -356,30 +330,19 @@ bool LLScrollListCtrl::preProcessChildNode(LLXMLNodePtr child)
 
 LLScrollListCtrl::~LLScrollListCtrl()
 {
-	// <FS:Ansariel> Persists sort order of scroll lists
-	if (mPersistSortOrder && !mPersistedSortOrderControl.empty())
-	{
-		LLSD sort_order;
-		for (std::vector<sort_column_t>::iterator it = mSortColumns.begin(); it != mSortColumns.end(); ++it)
-		{
-			sort_column_t& col = *it;
-			S32 sort_val = col.first + 1;
-			if (!col.second)
-			{
-				sort_val *= -1;
-			}
-			sort_order.append(LLSD(sort_val));
-		}
-		LLControlVariable* sort_order_setting = LLUI::sSettingGroups["config"]->declareLLSD(mPersistedSortOrderControl, LLSD(), "Column sort order for control " + mPersistedSortOrderControl);
-		sort_order_setting->setValue(sort_order);
-	}
-	// </FS:Ansariel>
 	delete mSortCallback;
+	delete mRemoveSignal;
 
 	std::for_each(mItemList.begin(), mItemList.end(), DeletePointer());
 	mItemList.clear();
 	std::for_each(mColumns.begin(), mColumns.end(), DeletePairedPointer());
 	mColumns.clear();
+	auto menu = mPopupMenuHandle.get();
+	if (menu)
+	{
+		menu->die();
+		mPopupMenuHandle.markDead();
+	}
 }
 
 
@@ -399,26 +362,6 @@ S32 LLScrollListCtrl::isEmpty() const
 
 S32 LLScrollListCtrl::getItemCount() const
 {
-	// <FS:Ansariel> Fix for FS-specific people list (radar)
-	if (mIsFiltered)
-	{
-		S32 count(0);
-		item_list::const_iterator iter;
-		for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
-		{
-			LLScrollListItem* item  = *iter;
-			std::string filterColumnValue = item->getColumn(mFilterColumn)->getValue().asString();
-			std::transform(filterColumnValue.begin(), filterColumnValue.end(), filterColumnValue.begin(), ::tolower);
-			if (filterColumnValue.find(mFilterString) == std::string::npos)
-			{
-				continue;
-			}
-			count++;
-		}
-		return count;
-	}
-	// </FS:Ansariel> Fix for FS-specific people list (radar)
-
 	return mItemList.size();
 }
 
@@ -495,12 +438,6 @@ S32 LLScrollListCtrl::getFirstSelectedIndex() const
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item  = *iter;
-		// <FS:Ansariel> Fix for FS-specific people list (radar)
-		if (isFiltered(item))
-		{
-			continue;
-		}
-		// </FS:Ansariel> Fix for FS-specific people list (radar)
 		if (item->getSelected())
 		{
 			return CurSelectedIndex;
@@ -578,12 +515,12 @@ void LLScrollListCtrl::updateLayout()
 		getRect().getWidth() - 2 * mBorderThickness,
 		getRect().getHeight() - (2 * mBorderThickness ) - heading_size );
 
-	if (mCommentTextView == NULL)
+	if (mCommentText == NULL)
 	{
-		mCommentTextView = getChildView("comment_text");
+		mCommentText = getChild<LLTextBox>("comment_text");
 	}
 
-	mCommentTextView->setShape(mItemListRect);
+	mCommentText->setShape(mItemListRect);
 
 	// how many lines of content in a single "page"
 	S32 page_lines =  getLinesPerPage();
@@ -829,9 +766,7 @@ void LLScrollListCtrl::updateColumns(bool force_update)
 	}
 
 	// expand last column header we encountered to full list width
-	// <FS:KC> Fixed last column on LLScrollListCtrl expanding on control resize when column width should be fixed or dynamic
-	//if (last_header)
-	if (last_header && last_header->canResize())
+	if (last_header)
 	{
 		S32 new_width = llmax(0, mItemListRect.mRight - last_header->getRect().mLeft);
 		last_header->reshape(new_width, last_header->getRect().getHeight());
@@ -942,13 +877,6 @@ BOOL LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
 			continue ;
 		}
 		
-		// <FS:Ansariel> Fix for FS-specific people list (radar)
-		if (isFiltered(itemp))
-		{
-			continue;
-		}
-		// </FS:Ansariel> Fix for FS-specific people list (radar)
-
 		if( index >= first_index && index <= last_index )
 		{
 			if( itemp->getEnabled() )
@@ -1121,12 +1049,6 @@ S32 LLScrollListCtrl::getItemIndex( LLScrollListItem* target_item ) const
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem *itemp = *iter;
-		// <FS:Ansariel> Fix for FS-specific people list (radar)
-		if (isFiltered(itemp))
-		{
-			continue;
-		}
-		// </FS:Ansariel> Fix for FS-specific people list (radar)
 		if (target_item == itemp)
 		{
 			return index;
@@ -1264,16 +1186,9 @@ void LLScrollListCtrl::deselectAllItems(BOOL no_commit_on_change)
 
 void LLScrollListCtrl::setCommentText(const std::string& comment_text)
 {
-	getChild<LLTextBox>("comment_text")->setValue(comment_text);
+	mCommentText->setValue(comment_text);
 }
 
-// <FS:Ansariel> Allow appending of comment text
-void LLScrollListCtrl::addCommentText(const std::string& comment_text)
-{
-	LLTextBox *ctrl = getChild<LLTextBox>("comment_text");
-	ctrl->appendText(comment_text, !ctrl->getText().empty()); // don't prepend newline if empty (Sei)
-}
-// </FS:Ansariel> Allow appending of comment text
 LLScrollListItem* LLScrollListCtrl::addSeparator(EAddPosition pos)
 {
 	LLScrollListItem::Params separator_params;
@@ -1348,12 +1263,6 @@ BOOL LLScrollListCtrl::selectItemByPrefix(const std::string& target, BOOL case_s
 // Selects first enabled item that has a name where the name's first part matched the target string.
 // Returns false if item not found.
 BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sensitive)
-// <FS:Ansariel> Allow selection by substring match
-{
-	return selectItemByStringMatch(target, true, case_sensitive);
-}
-BOOL LLScrollListCtrl::selectItemByStringMatch(const LLWString& target, bool prefix_match, BOOL case_sensitive)
-// </FS:Ansariel>
 {
 	BOOL found = FALSE;
 
@@ -1390,6 +1299,11 @@ BOOL LLScrollListCtrl::selectItemByStringMatch(const LLWString& target, bool pre
 		{
 			LLScrollListItem* item = *iter;
 
+			if (!item)
+			{
+				continue;
+			}
+
 			// Only select enabled items with matching names
 			LLScrollListCell* cellp = item->getColumn(getSearchColumn());
 			if (!cellp)
@@ -1405,18 +1319,7 @@ BOOL LLScrollListCtrl::selectItemByStringMatch(const LLWString& target, bool pre
 			LLWString trimmed_label = item_label;
 			LLWStringUtil::trim(trimmed_label);
 			
-			// <FS:Ansariel> Allow selection by substring match
-			//BOOL select = item->getEnabled() && trimmed_label.compare(0, target_trimmed.size(), target_trimmed) == 0;
-			BOOL select;
-			if (prefix_match)
-			{
-				select = item->getEnabled() && trimmed_label.compare(0, target_trimmed.size(), target_trimmed) == 0;
-			}
-			else
-			{
-				select = item->getEnabled() && trimmed_label.find(target_trimmed) != std::string::npos;
-			}
-			// </FS:Ansariel>
+			BOOL select = item->getEnabled() && trimmed_label.compare(0, target_trimmed.size(), target_trimmed) == 0;
 
 			if (select)
 			{
@@ -1437,17 +1340,6 @@ BOOL LLScrollListCtrl::selectItemByStringMatch(const LLWString& target, bool pre
 
 	return found;
 }
-// <FS:Ansariel> Allow selection by substring match
-BOOL LLScrollListCtrl::selectItemBySubstring(const std::string& target, BOOL case_sensitive)
-{
-	return selectItemBySubstring(utf8str_to_wstring(target), case_sensitive);
-}
-// Returns false if item not found.
-BOOL LLScrollListCtrl::selectItemBySubstring(const LLWString& target, BOOL case_sensitive)
-{
-	return selectItemByStringMatch(target, false, case_sensitive);
-}
-// </FS:Ansariel>
 
 const std::string LLScrollListCtrl::getSelectedItemLabel(S32 column) const
 {
@@ -1565,15 +1457,13 @@ void LLScrollListCtrl::drawItems()
 	S32 y = mItemListRect.mTop - mLineHeight;
 
 	// allow for partial line at bottom
-	// <FS:KC> Show partial bottom lines on LLScrollListCtrl when list is >1 page long
-	//S32 num_page_lines = getLinesPerPage();
-	S32 num_page_lines = getLinesPerPage() + 1;
+	S32 num_page_lines = getLinesPerPage();
 
 	LLRect item_rect;
 
 	LLGLSUIDefault gls_ui;
 	
-	F32 alpha = getCurrentTransparency(); // Don't rely on the current getDrawContext().mAlpha value -Zi
+	F32 alpha = getDrawContext().mAlpha;
 
 	{
 		LLLocalClipRect clip(mItemListRect);
@@ -1586,44 +1476,17 @@ void LLScrollListCtrl::drawItems()
 		static LLUICachedControl<F32> type_ahead_timeout ("TypeAheadTimeout", 0);
 		highlight_color.mV[VALPHA] = clamp_rescale(mSearchTimer.getElapsedTimeF32(), type_ahead_timeout * 0.7f, type_ahead_timeout(), 0.4f, 0.f);
 
-		// <FS:Ansariel> Fix for FS-specific people list (radar)
-		//S32 first_line = mScrollLines;
-		//S32 last_line = llmin((S32)mItemList.size() - 1, mScrollLines + getLinesPerPage());
-		S32 first_line;
-		S32 last_line;
-		if (mIsFiltered)
-		{
-			first_line = 0;
-			last_line = (S32)mItemList.size() - 1;
-		}
-		else
-		{
-			first_line = mScrollLines;
-			last_line = llmin((S32)mItemList.size() - 1, mScrollLines + getLinesPerPage());
-		}
-		S32 line = first_line;
-		// </FS:Ansariel> Fix for FS-specific people list (radar)
+		S32 first_line = mScrollLines;
+		S32 last_line = llmin((S32)mItemList.size() - 1, mScrollLines + getLinesPerPage());
 
 		if (first_line >= mItemList.size())
 		{
 			return;
 		}
-		//item_list::iterator iter;
-		// <FS:Ansariel> Fix for FS-specific people list (radar)
-		//for (S32 line = first_line; line <= last_line; line++)
-		//{
-		//	LLScrollListItem* item = mItemList[line];
-		for (S32 itline = first_line; itline <= last_line; itline++)
+		for (S32 line = first_line; line <= last_line; line++)
 		{
-			LLScrollListItem* item = mItemList[itline];
+			LLScrollListItem* item = mItemList[line];
 			
-			// <FS:Ansariel> Fix for FS-specific people list (radar)
-			if (isFiltered(item))
-			{
-				continue;
-			}
-		// </FS:Ansariel> Fix for FS-specific people list (radar)
-
 			item_rect.setOriginAndSize( 
 				x, 
 				cur_y, 
@@ -1669,8 +1532,7 @@ void LLScrollListCtrl::drawItems()
 				}
 				else 
 				{
-					// Why no stripes in single columns? This should be decided by the skin. -Zi
-					if (mDrawStripes && (line % 2 == 0)) // && (max_columns > 1))
+					if (mDrawStripes && (line % 2 == 0) && (max_columns > 1))
 					{
 						bg_color = mBgStripeColor.get();
 					}
@@ -1682,12 +1544,16 @@ void LLScrollListCtrl::drawItems()
 				}
 
 				item->draw(item_rect, fg_color % alpha, bg_color% alpha, highlight_color % alpha, mColumnPadding);
+				
+				if (item->getUserRemovable())
+				{
+					if (mRemoveIcon.isNull())
+						mRemoveIcon = LLUI::getUIImage("Icon_Close_Foreground");
+					mRemoveIcon->draw(item_rect.mRight - mRemoveIcon->getWidth() - 5, item_rect.mTop - 2 - mLineHeight);
+				}
 
 				cur_y -= mLineHeight;
 			}
-			// <FS:Ansariel> Fix for FS-specific people list (radar)
-			line++;
-			// </FS:Ansariel> Fix for FS-specific people list (radar)
 		}
 	}
 }
@@ -1696,16 +1562,6 @@ void LLScrollListCtrl::drawItems()
 void LLScrollListCtrl::draw()
 {
 	LLLocalClipRect clip(getLocalRect());
-	// <FS:Ansariel> Persists sort order of scroll lists
-	// This is ugly to do it in draw(), but we don't have the parent
-	// floater in the ctor or postBuild yet (we need it to have a unique
-	// control setting name)
-	if (mPersistSortOrder && !mPersistedSortOrderLoaded)
-	{
-		loadPersistedSortOrder();
-		mPersistedSortOrderLoaded = true;
-	}
-	// </FS:Ansariel>
 
 	// if user specifies sort, make sure it is maintained
 	updateSort();
@@ -1726,10 +1582,7 @@ void LLScrollListCtrl::draw()
 
 	updateColumns();
 
-	if (mCommentTextView)
-	{
-		mCommentTextView->setVisible(mItemList.empty());
-	}
+	mCommentText->setVisible(mItemList.empty());
 
 	drawItems();
 
@@ -1750,12 +1603,6 @@ void LLScrollListCtrl::setEnabled(BOOL enabled)
 
 BOOL LLScrollListCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	// <FS> FIRE-10172: Let the LLTextbox handle the mouse scroll if it's visible
-	if (mCommentTextView && mCommentTextView->getVisible())
-	{
-		return mCommentTextView->handleScrollWheel(x, y, clicks);
-	}
-	// </FS>
 	BOOL handled = FALSE;
 	// Pretend the mouse is over the scrollbar
 	handled = mScrollbar->handleScrollWheel( 0, 0, clicks );
@@ -1863,12 +1710,6 @@ BOOL LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
 							break;
 						}
 						LLScrollListItem *item = *itor;
-						// <FS:Ansariel> Fix for FS-specific people list (radar)
-						if (isFiltered(item))
-						{
-							continue;
-						}
-						// </FS:Ansariel> Fix for FS-specific people list (radar)
                         if (item == hit_item || item == lastSelected)
 						{
 							selectItem(item, FALSE);
@@ -1957,7 +1798,7 @@ BOOL LLScrollListCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {	
-	if (hasMouseCapture())
+	if (!mItemRemoved && hasMouseCapture())
 	{
 		// release mouse capture immediately so 
 		// scroll to show selected logic will work
@@ -1970,7 +1811,7 @@ BOOL LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 	}
 
 	// always commit when mouse operation is completed inside list
-	if (mItemListRect.pointInRect(x,y))
+	if (!mItemRemoved && mItemListRect.pointInRect(x,y))
 	{
 		mDirty = mDirty || mSelectionChanged;
 		mSelectionChanged = false;
@@ -1998,20 +1839,42 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 			registrar.add("Url.ShowProfile", boost::bind(&LLScrollListCtrl::showProfile, id, is_group));
 			registrar.add("Url.SendIM", boost::bind(&LLScrollListCtrl::sendIM, id));
 			registrar.add("Url.AddFriend", boost::bind(&LLScrollListCtrl::addFriend, id));
+			registrar.add("Url.RemoveFriend", boost::bind(&LLScrollListCtrl::removeFriend, id));
 			registrar.add("Url.Execute", boost::bind(&LLScrollListCtrl::showNameDetails, id, is_group));
 			registrar.add("Url.CopyLabel", boost::bind(&LLScrollListCtrl::copyNameToClipboard, id, is_group));
 			registrar.add("Url.CopyUrl", boost::bind(&LLScrollListCtrl::copySLURLToClipboard, id, is_group));
 
 			// create the context menu from the XUI file and display it
-			std::string menu_name = is_group ? "menu_url_group.xml" : "menu_url_agent.xml";
-			delete mPopupMenu;
-			llassert(LLMenuGL::sMenuContainer != NULL);
-			mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
-				menu_name, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
-			if (mPopupMenu)
+			std::string menu_name;
+			switch(mContextMenuType)
 			{
-				mPopupMenu->show(x, y);
-				LLMenuGL::showPopup(this, mPopupMenu, x, y);
+			case MENU_GROUP:
+				menu_name = "menu_url_group.xml";
+				break;
+			case MENU_AVATAR:
+				menu_name = "menu_url_agent.xml";
+				break;
+			case MENU_AVATAR_MINI:
+				menu_name = "menu_url_agent_mini.xml";
+				break;
+			default:
+				LL_WARNS() << "Invalid context menu type!" << LL_ENDL;
+				return LLUICtrl::handleRightMouseDown(x, y, mask);
+			}
+			auto menu = mPopupMenuHandle.get();
+			if (menu)
+			{
+				menu->die();
+				mPopupMenuHandle.markDead();
+			}
+			llassert(LLMenuGL::sMenuContainer != NULL);
+			menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+				menu_name, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
+			if (menu)
+			{
+				mPopupMenuHandle = menu->getHandle();
+				menu->show(x, y);
+				LLMenuGL::showPopup(this, menu, x, y);
 				return TRUE;
 			}
 		}
@@ -2020,7 +1883,7 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
-void LLScrollListCtrl::showProfile(std::string id, bool is_group)
+void LLScrollListCtrl::showProfile(const std::string& id, bool is_group)
 {
 	// show the resident's profile or the group profile
 	std::string sltype = is_group ? "group" : "agent";
@@ -2028,21 +1891,27 @@ void LLScrollListCtrl::showProfile(std::string id, bool is_group)
 	LLUrlAction::showProfile(slurl);
 }
 
-void LLScrollListCtrl::sendIM(std::string id)
+void LLScrollListCtrl::sendIM(const std::string& id)
 {
 	// send im to the resident
 	std::string slurl = "secondlife:///app/agent/" + id + "/about";
 	LLUrlAction::sendIM(slurl);
 }
 
-void LLScrollListCtrl::addFriend(std::string id)
+void LLScrollListCtrl::addFriend(const std::string& id)
 {
 	// add resident to friends list
 	std::string slurl = "secondlife:///app/agent/" + id + "/about";
 	LLUrlAction::addFriend(slurl);
 }
 
-void LLScrollListCtrl::showNameDetails(std::string id, bool is_group)
+void LLScrollListCtrl::removeFriend(std::string id)
+{
+	std::string slurl = "secondlife:///app/agent/" + id + "/about";
+	LLUrlAction::removeFriend(slurl);
+}
+
+void LLScrollListCtrl::showNameDetails(const std::string& id, bool is_group)
 {
 	// open the resident's details or the group details
 	std::string sltype = is_group ? "group" : "agent";
@@ -2050,7 +1919,7 @@ void LLScrollListCtrl::showNameDetails(std::string id, bool is_group)
 	LLUrlAction::clickAction(slurl, true);
 }
 
-void LLScrollListCtrl::copyNameToClipboard(std::string id, bool is_group)
+void LLScrollListCtrl::copyNameToClipboard(const std::string& id, bool is_group)
 {
 	// copy the name of the avatar or group to the clipboard
 	std::string name;
@@ -2067,7 +1936,7 @@ void LLScrollListCtrl::copyNameToClipboard(std::string id, bool is_group)
 	LLUrlAction::copyURLToClipboard(name);
 }
 
-void LLScrollListCtrl::copySLURLToClipboard(std::string id, bool is_group)
+void LLScrollListCtrl::copySLURLToClipboard(const std::string& id, bool is_group)
 {
 	// copy a SLURL for the avatar or group to the clipboard
 	std::string sltype = is_group ? "group" : "agent";
@@ -2103,6 +1972,30 @@ BOOL LLScrollListCtrl::handleClick(S32 x, S32 y, MASK mask)
 	LLScrollListItem* hit_item = hitItem(x, y);
 	if (!hit_item) return FALSE;
 
+	// Check if the user hit the user-remove area
+	if (hit_item->getUserRemovable())
+	{
+		S32 dX = mItemListRect.mRight - x - 5;
+		if ( (mRemoveIcon) && (dX >= 0) && (dX <= mRemoveIcon->getWidth()) )
+		{
+			if (mRemoveSignal)
+			{
+				(*mRemoveSignal)(this, getValue());
+				item_list::iterator it = std::find(mItemList.begin(), mItemList.end(), hit_item);
+				if (mItemList.end() != it)
+					mItemList.erase(it);
+				if (hit_item == mLastSelected)
+					mLastSelected = NULL;
+				delete hit_item;
+				
+				dirtyColumns();
+			}
+			
+			mItemRemoved = true;
+			return TRUE;
+		}
+	}
+	
 	// get appropriate cell from that row
 	S32 column_index = getColumnIndexFromOffset(x);
 	LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
@@ -2127,7 +2020,7 @@ BOOL LLScrollListCtrl::handleClick(S32 x, S32 y, MASK mask)
 			for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); iter++)
 			{
 				LLScrollListItem* item = *iter;
-				if (item->getSelected())
+				if (item && item->getSelected())
 				{
 					LLScrollListCell* cellp = item->getColumn(column_index);
 					cellp->setValue(item_value);
@@ -2166,22 +2059,13 @@ LLScrollListItem* LLScrollListCtrl::hitItem( S32 x, S32 y )
 		mLineHeight );
 
 	// allow for partial line at bottom
-	// <FS:KC> Show partial bottom lines on LLScrollListCtrl when list is >1 page long
-	//S32 num_page_lines = getLinesPerPage();
-	S32 num_page_lines = getLinesPerPage() + 1;
+	S32 num_page_lines = getLinesPerPage();
 
 	S32 line = 0;
 	item_list::iterator iter;
 	for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item  = *iter;
-		// <FS:Ansariel> Fix for FS-specific people list (radar)
-		if (isFiltered(item))
-		{
-			continue;
-		}
-		// </FS:Ansariel> Fix for FS-specific people list (radar)
-
 		if( mScrollLines <= line && line < mScrollLines + num_page_lines )
 		{
 			if( item->getEnabled() && item_rect.pointInRect( x, y ) )
@@ -2611,12 +2495,6 @@ BOOL LLScrollListCtrl::setSort(S32 column_idx, BOOL ascending)
 	
 	setNeedsSort();
 
-	// <FS:Ansariel> Option to only sort by one column
-	if (mPrimarySortOnly)
-	{
-		clearSortOrder();
-	}
-	// </FS:Ansariel>
 	if (mSortColumns.empty())
 	{
 		mSortColumns.push_back(new_sort_column);
@@ -2942,54 +2820,6 @@ void LLScrollListCtrl::addColumn(const LLScrollListColumn::Params& column_params
 	dirtyColumns();
 }
 
-// <FS:Techwolf Lupindo> area search
-// area search support for deleting a column
-LLScrollListColumn::Params LLScrollListCtrl::delColumn(std::string name)
-{
-	std::vector<LLScrollListColumn::Params> column_params;
-	LLScrollListColumn::Params params;
-
-	// save params for each column
-	ordered_columns_t::iterator column_itor;
-	for (column_itor = mColumnsIndexed.begin(); column_itor != mColumnsIndexed.end(); ++column_itor)
-	{
-		LLScrollListColumn* column = (*column_itor);
-		params.header.label = column->mLabel;
-		params.name = column->mName;
-		params.width.dynamic_width = column->mDynamicWidth;
-		params.width.relative_width = column->mRelWidth;
-		params.width.pixel_width = column->getWidth();
-		params.halign = column->mFontAlignment;
-
-		LLScrollColumnHeader *header = column->mHeader;
-		if (header)
-		{
-			params.tool_tip = header->getToolTip();
-		}
-	
-		column_params.push_back(params);
-	}
-
-	clearColumns();
-
-	// restore colums except named column.
-	for (std::vector<LLScrollListColumn::Params>::iterator iter = column_params.begin(); iter != column_params.end(); ++iter)
-	{
-		std::string i_name = iter->name;
-		if (i_name != name)
-		{
-			addColumn((*iter));
-		}
-		else
-		{
-			params = (*iter);
-		}
-	}
-
-	return params;
-}
-// </FS:Techwolf Lupindo> area search
-
 // static
 void LLScrollListCtrl::onClickColumn(void *userdata)
 {
@@ -3059,8 +2889,6 @@ void LLScrollListCtrl::clearColumns()
 	mSortColumns.clear();
 	mTotalStaticColumnWidth = 0;
 	mTotalColumnPadding = 0;
-	// <FS:Ansariel> Reset number of dynamic columns, too
-	mNumDynamicWidthColumns = 0;
 }
 
 void LLScrollListCtrl::setColumnLabel(const std::string& column, const std::string& label)
@@ -3339,48 +3167,14 @@ void LLScrollListCtrl::onFocusLost()
 	LLUICtrl::onFocusLost();
 }
 
-// <FS:Ansariel> Fix for FS-specific people list (radar)
-void LLScrollListCtrl::setFilterString(const std::string& str)
+void LLScrollListIcon::setClickCallback(BOOL (*callback)(void*), void* user_data)
 {
-	mFilterString = str;
-	std::transform(mFilterString.begin(), mFilterString.end(), mFilterString.begin(), ::tolower);
-	mIsFiltered = (mFilterColumn > -1 && !mFilterString.empty());
+	mCallback = callback;
+	mUserData = user_data;
 }
 
-bool LLScrollListCtrl::isFiltered(const LLScrollListItem* item) const
+BOOL LLScrollListIcon::handleClick()
 {
-	if (mIsFiltered)
-	{
-		std::string filterColumnValue = item->getColumn(mFilterColumn)->getValue().asString();
-		std::transform(filterColumnValue.begin(), filterColumnValue.end(), filterColumnValue.begin(), ::tolower);
-		if (filterColumnValue.find(mFilterString) == std::string::npos)
-		{
-			return true;
-		}
-	}
-	return false;
+	if(mCallback) return mCallback(mUserData);
+	return FALSE;
 }
-// </FS:Ansariel> Fix for FS-specific people list (radar)
-
-// <FS:Ansariel> Persists sort order of scroll lists
-void LLScrollListCtrl::loadPersistedSortOrder()
-{
-	LLFloater* root_floater = getParentByType<LLFloater>();
-	if (root_floater)
-	{
-		mPersistedSortOrderControl = root_floater->getName() + "_" + getName() + "_sortorder";
-		if (LLUI::sSettingGroups["config"]->controlExists(mPersistedSortOrderControl))
-		{
-			clearSortOrder();
-			LLSD sort_order = LLUI::sSettingGroups["config"]->getLLSD(mPersistedSortOrderControl);
-			for (LLSD::array_iterator it = sort_order.beginArray(); it != sort_order.endArray(); ++it)
-			{
-				S32 sort_val = (*it).asInteger();
-				BOOL ascending = sort_val > 0;
-				sort_val = llabs(sort_val) - 1;
-				setSort(sort_val, ascending);
-			}
-		}
-	}
-}
-// </FS:Ansariel>

@@ -37,6 +37,7 @@ class LLFolderView;
 class LLFolderBridge;
 class LLViewerInventoryCategory;
 class LLInventoryCallback;
+class LLAvatarName;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLViewerInventoryItem
@@ -156,7 +157,7 @@ public:
 	PermissionMask getPermissionMask() const;
 
 	// callback
-	void onCallingCardNameLookup(const LLUUID& id, const std::string& name, bool is_group);
+	void onCallingCardNameLookup(const LLUUID& id, const LLAvatarName& name);
 
 	// If this is a broken link, try to fix it and any other identical link.
 	BOOL regenerateLink();
@@ -250,10 +251,7 @@ public:
 
 class LLViewerJointAttachment;
 
-// [SL:KB] - Patch: Appearance-DnDWear | Checked: 2010-09-28 (Catznip-3.4)
-void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp, bool replace);
-// [/SL:KB]
-//void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp);
+void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp);
 
 void activate_gesture_cb(const LLUUID& inv_item);
 
@@ -273,9 +271,9 @@ private:
 	LLUUID mTargetLandmarkId;
 };
 
-typedef boost::function<void(const LLUUID&)> inventory_func_type;
-typedef boost::function<void(const LLSD&)> llsd_func_type;
-typedef boost::function<void()> nullary_func_type;
+typedef std::function<void(const LLUUID&)> inventory_func_type;
+typedef std::function<void(const LLSD&)> llsd_func_type;
+typedef std::function<void()> nullary_func_type;
 
 void no_op_inventory_func(const LLUUID&); // A do-nothing inventory_func
 void no_op_llsd_func(const LLSD&); // likewise for LLSD
@@ -389,9 +387,9 @@ void update_inventory_item(
 	LLPointer<LLInventoryCallback> cb);
 
 void update_inventory_category(
-    const LLUUID& cat_id,
-    const LLSD& updates,
-    LLPointer<LLInventoryCallback> cb);
+	const LLUUID& cat_id,
+	const LLSD& updates,
+	LLPointer<LLInventoryCallback> cb);
 
 void remove_inventory_items(
 	LLInventoryObject::object_list_t& items,

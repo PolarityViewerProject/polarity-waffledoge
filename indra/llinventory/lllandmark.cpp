@@ -129,7 +129,7 @@ LLLandmark* LLLandmark::constructFromString(const char *buffer)
 		{
 			goto error;
 		}
-		cur += chars_read;
+		//cur += chars_read;
 		// LL_INFOS() << "Landmark read: " << pos << LL_ENDL;
 		
 		return new LLLandmark(pos);
@@ -149,7 +149,7 @@ LLLandmark* LLLandmark::constructFromString(const char *buffer)
 		cur += chars_read;
 		count = sscanf(cur, "local_pos %f %f %f\n%n", pos.mV+VX, pos.mV+VY, pos.mV+VZ, &chars_read);
 		if(count != 3) goto error;
-		cur += chars_read;
+		//cur += chars_read;
 		LLLandmark* lm = new LLLandmark;
 		lm->mRegionID.set(region_id_str);
 		lm->mRegionPos = pos;
@@ -158,7 +158,7 @@ LLLandmark* LLLandmark::constructFromString(const char *buffer)
 
  error:
 	LL_INFOS() << "Bad Landmark Asset: bad _DATA_ block." << LL_ENDL;
-	return NULL;
+	return nullptr;
 }
 
 

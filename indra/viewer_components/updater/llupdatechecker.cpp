@@ -46,7 +46,7 @@ class LLUpdateChecker::CheckError:
 {
 public:
 	CheckError(const char * message):
-		runtime_error(message)
+		std::runtime_error(message)
 	{
 		; // No op.
 	}
@@ -55,31 +55,21 @@ public:
 
 // LLUpdateChecker
 //-----------------------------------------------------------------------------
-LLUpdateChecker::LLUpdateChecker(Client & client):
-	mImplementation(new Implementation(client))
+LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client):
+	mImplementation(new LLUpdateChecker::Implementation(client))
 {
 	; // No op.
 }
 
-void LLUpdateChecker::checkVersion(const std::string & urlBase, 
-								   const std::string & channel,
-								   const std::string & version,
-								   const std::string & platform,
-								   const std::string & platform_version,
-								   const bool&         willing_to_test,
-								   const unsigned char       uniqueid[MD5HEX_STR_SIZE],
-								   const std::string & auth_token
-
-) const
+void LLUpdateChecker::checkVersion(std::string const & urlBase, 
+								   std::string const & channel,
+								   std::string const & version,
+								   std::string const & platform,
+								   std::string const & platform_version,
+								   unsigned char       uniqueid[MD5HEX_STR_SIZE],
+								   bool                willing_to_test)
 {
-	mImplementation->checkVersion(urlBase,
-								  channel,
-								  version,
-								  platform,
-								  platform_version,
-								  willing_to_test,
-								  uniqueid,
-								  auth_token);
+	mImplementation->checkVersion(urlBase, channel, version, platform, platform_version, uniqueid, willing_to_test);
 }
 
 
@@ -88,9 +78,9 @@ void LLUpdateChecker::checkVersion(const std::string & urlBase,
 const char * LLUpdateChecker::Implementation::sProtocolVersion = "v1.1";
 
 
-LLUpdateChecker::Implementation::Implementation(Client & client):
+LLUpdateChecker::Implementation::Implementation(LLUpdateChecker::Client & client):
 	mProtocol(sProtocolVersion),
-	mClient(client),
+    mClient(client),
 	mInProgress(false),
 	mWillingToTest(false)
 {
@@ -104,15 +94,13 @@ LLUpdateChecker::Implementation::~Implementation()
 }
 
 
-void LLUpdateChecker::Implementation::checkVersion(const std::string & urlBase, 
-												   const std::string & channel,
-												   const std::string & version,
-												   const std::string & platform,
-												   const std::string & platform_version,
-												   const bool &        willing_to_test,
-												   const unsigned char       uniqueid[MD5HEX_STR_SIZE],
-												   const std::string & auth_token
-												  )
+void LLUpdateChecker::Implementation::checkVersion(std::string const & urlBase, 
+												   std::string const & channel,
+												   std::string const & version,
+												   std::string const & platform,
+												   std::string const & platform_version,
+												   unsigned char       uniqueid[MD5HEX_STR_SIZE],
+												   bool                willing_to_test)
 {
 	if (!mInProgress)
 	{
@@ -125,19 +113,10 @@ void LLUpdateChecker::Implementation::checkVersion(const std::string & urlBase,
 		mPlatformVersion = platform_version;
 		memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
 		mWillingToTest   = willing_to_test;
-		mAuthToken       = auth_token;
 	
 		mProtocol = sProtocolVersion;
 
-		std::string checkUrl = buildUrl(urlBase,
-										channel,
-										version,
-										platform,
-										platform_version,
-										willing_to_test,
-										uniqueid,
-										auth_token
-										);
+		std::string checkUrl = buildUrl(urlBase, channel, version, platform, platform_version, uniqueid, willing_to_test);
 		LL_INFOS("UpdaterService") << "checking for updates at " << checkUrl << LL_ENDL;
 
         LLCoros::instance().launch("LLUpdateChecker::Implementation::checkVersionCoro",
@@ -191,15 +170,13 @@ void LLUpdateChecker::Implementation::checkVersionCoro(std::string url)
     mClient.response(result);
 }
 
-std::string LLUpdateChecker::Implementation::buildUrl(const std::string & urlBase, 
-													  const std::string & channel,
-													  const std::string & version,
-													  const std::string & platform,
-													  const std::string & platform_version,
-													  const bool &        willing_to_test,
-													  const unsigned char       uniqueid[MD5HEX_STR_SIZE],
-													  const std::string & auth_token
-													  )
+std::string LLUpdateChecker::Implementation::buildUrl(std::string const & urlBase, 
+													  std::string const & channel,
+													  std::string const & version,
+													  std::string const & platform,
+													  std::string const & platform_version,
+													  unsigned char       uniqueid[MD5HEX_STR_SIZE],
+													  bool                willing_to_test)
 {
 	LLSD path;
 	path.append(mProtocol);
@@ -209,11 +186,5 @@ std::string LLUpdateChecker::Implementation::buildUrl(const std::string & urlBas
 	path.append(platform_version);
 	path.append(willing_to_test ? "testok" : "testno");
 	path.append((char*)uniqueid);
-	// terrible, terrible hack because buildHTTP is escaping our parameters
-	auto partial_url = LLURI::buildHTTP(urlBase, path).asString();
-	if (auth_token != "")
-	{
-		partial_url += "/?token=" + auth_token;
-	}
-	return partial_url;
+	return LLURI::buildHTTP(urlBase, path).asString();
 }

@@ -42,7 +42,6 @@ class LLIconCtrl;
 class LLAvatarListItem : public LLPanel, public LLFriendObserver
 {
 public:
-	LOG_CLASS(LLAvatarListItem);
 	struct Params : public LLInitParam::Block<Params, LLPanel::Params>
 	{
 		Optional<LLStyle::Params>	default_style,
@@ -50,8 +49,7 @@ public:
 									voice_call_joined_style,
 									voice_call_left_style,
 									online_style,
-									offline_style,
-									color_style;
+									offline_style;
 
 		Optional<S32>				name_right_pad;
 
@@ -59,6 +57,7 @@ public:
 	};
 
 	typedef enum e_item_state_type {
+		IS_DEFAULT,
 		IS_VOICE_INVITED,
 		IS_VOICE_JOINED,
 		IS_VOICE_LEFT,
@@ -78,46 +77,46 @@ public:
 	LLAvatarListItem(bool not_from_ui_factory = true);
 	virtual ~LLAvatarListItem();
 
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 
 	/**
 	 * Processes notification from speaker indicator to update children when indicator's visibility is changed.
 	 */
-    virtual void handleVisibilityChange ( BOOL new_visibility );
-	virtual S32	notifyParent(const LLSD& info);
-	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
-	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
-	virtual void setValue(const LLSD& value);
-	virtual void changed(U32 mask); // from LLFriendObserver
+	void onVisibilityChange ( BOOL new_visibility ) override; // <alchemy/>
+	S32	notifyParent(const LLSD& info) override;
+	void onMouseLeave(S32 x, S32 y, MASK mask) override;
+	void onMouseEnter(S32 x, S32 y, MASK mask) override;
+	void setValue(const LLSD& value) override;
+	void changed(U32 mask) override; // from LLFriendObserver
 
-	void setOnline(bool online, bool show_friend_color = true);
+	void setOnline(bool online);
 	void updateAvatarName(); // re-query the name cache
 	void setAvatarName(const std::string& name);
 	void setAvatarToolTip(const std::string& tooltip);
 	void setHighlight(const std::string& highlight);
-	void setState(EItemState item_style, bool show_friend_color_b = true);
+	void setState(EItemState item_style);
 	void setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes = false, bool is_resident = true);
 	void setLastInteractionTime(U32 secs_since);
+	void setDistance(F32 distance);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
 	void setShowProfileBtn(bool show);
 	void setShowInfoBtn(bool show);
 	void showSpeakingIndicator(bool show);
 	void setShowPermissions(bool show) { mShowPermissions = show; };
+	void showDistance(bool show);
 	void showLastInteractionTime(bool show);
 	void setAvatarIconVisible(bool visible);
 	void setShowCompleteName(bool show) { mShowCompleteName = show;};
-// [RLVa:KB] - Checked: RLVa-1.2.0
-	void setRlvCheckShowNames(bool fRlvCheckShowNames) { mRlvCheckShowNames = fRlvCheckShowNames; }
-// [/RLVa:KB]
 	
 	const LLUUID& getAvatarId() const;
 	std::string getAvatarName() const;
 	std::string getAvatarToolTip() const;
+	static std::string formatAvatarName(const LLAvatarName& av_name); // <alchemy/>
 
 	void onInfoBtnClick();
 	void onProfileBtnClick();
 
-	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask) override;
 
 protected:
 	/**
@@ -135,6 +134,13 @@ protected:
 	LLIconCtrl* mIconPermissionEditMine;
 	/// Indicator for permission to edit their objects.
 	LLIconCtrl* mIconPermissionEditTheirs;
+	
+	/// Indicator for permission to show their position on the map.
+	LLIconCtrl* mIconPermissionMapTheirs;
+	/// Indicator for permission to see their online status.
+	LLIconCtrl* mIconPermissionOnlineTheirs;
+
+	LLIconCtrl* mIconHovered;
 
 private:
 
@@ -159,7 +165,10 @@ private:
 		ALIC_PERMISSION_MAP,
 		ALIC_PERMISSION_EDIT_MINE,
 		ALIC_PERMISSION_EDIT_THEIRS,
+		ALIC_PERMISSION_MAP_THEIRS,
+		ALIC_PERMISSION_ONLINE_THEIRS,
 		ALIC_INTERACTION_TIME,
+		ALIC_DISTANCE,
 		ALIC_NAME,
 		ALIC_ICON,
 		ALIC_COUNT,
@@ -201,6 +210,7 @@ private:
 	LLView* getItemChildView(EAvatarListItemChildIndex child_index);
 
 	LLTextBox* mAvatarName;
+	LLTextBox* mDistance;
 	LLTextBox* mLastInteractionTime;
 	LLStyle::Params mAvatarNameStyle;
 	
@@ -214,9 +224,6 @@ private:
 	//Speaker indicator and avatar name coords are translated accordingly
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;
-// [RLVa:KB] - Checked: RLVa-1.2.0
-	bool mRlvCheckShowNames;
-// [/RLVa:KB]
 
 	/// indicates whether to show icons representing permissions granted
 	bool mShowPermissions;
@@ -241,6 +248,7 @@ private:
 	 * @see initChildrenWidths()
 	 */
 	static S32 sChildrenWidths[ALIC_COUNT];
+
 };
 
 #endif //LL_LLAVATARLISTITEM_H

@@ -40,7 +40,6 @@
 #include "llnotificationsutil.h"
 #include "llslurl.h"
 #include "llvoiceclient.h"
-#include "lluictrlfactory.h"
 #include "llupdaterservice.h"
 #include "llviewertexteditor.h"
 #include "llviewercontrol.h"
@@ -65,8 +64,9 @@
 #include "llsdutil_math.h"
 #include "lleventapi.h"
 #include "llcorehttputil.h"
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
+
+#if LL_WINDOWS
+#include "lldxhardware.h"
 #endif
 
 extern LLMemoryInfo gSysMemory;
@@ -84,7 +84,7 @@ private:
 	virtual ~LLFloaterAbout();
 
 public:
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild() override;
 
 	/// Obtain the data used to fill out the contents string. This is
 	/// separated so that we can programmatically access the same info.
@@ -97,7 +97,7 @@ public:
 	static void setUpdateListener();
 
 private:
-	void setSupportText(const std::string& server_release_notes_url);
+	void setSupportText();
 
 	// notifications for user requested checks
 	static void showCheckUpdateNotification(S32 state);
@@ -109,10 +109,9 @@ private:
 	static const std::string sCheckUpdateListenerName;
 	
     static void startFetchServerReleaseNotes();
-    static void fetchServerReleaseNotesCoro(const std::string& cap_url);
+    static void fetchServerReleaseNotesCoro(const std::string url);
     static void handleServerReleaseNotes(LLSD results);
 };
-
 
 // Default constructor
 LLFloaterAbout::LLFloaterAbout(const LLSD& key) 
@@ -135,9 +134,6 @@ BOOL LLFloaterAbout::postBuild()
 	LLViewerTextEditor *contrib_names_widget = 
 		getChild<LLViewerTextEditor>("contrib_names", true);
 
-	LLViewerTextEditor *special_thanks_names_widget = 
-		getChild<LLViewerTextEditor>("special_thanks_names", true);
-
 	LLViewerTextEditor *licenses_widget = 
 		getChild<LLViewerTextEditor>("licenses_editor", true);
 
@@ -152,13 +148,13 @@ BOOL LLFloaterAbout::postBuild()
 	if (gAgent.getRegion())
 	{
 		// start fetching server release notes URL
-		setSupportText(LLTrans::getString("RetrievingData"));
+		setSupportText();
         startFetchServerReleaseNotes();
 	}
 	else // not logged in
 	{
 		LL_DEBUGS("ViewerInfo") << "cannot display region info when not connected" << LL_ENDL;
-		setSupportText(LLTrans::getString("NotConnected"));
+		setSupportText();
 	}
 
 	support_widget->blockUndo();
@@ -179,52 +175,11 @@ BOOL LLFloaterAbout::postBuild()
 	}
 	else
 	{
-		// Visual Studio debug mode workaround
-		contributors_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings", "contributors.txt");
-		contrib_file.open(contributors_path.c_str());		/* Flawfinder: ignore */
-		if (contrib_file.is_open())
-		{
-			std::getline(contrib_file, contributors); // all names are on a single line
-			contrib_file.close();
-		}
-		else
-		{
-			LL_WARNS("AboutInit") << "Could not read special thanks file at " << contributors_path << LL_ENDL;
-		}
+		LL_WARNS("AboutInit") << "Could not read contributors file at " << contributors_path << LL_ENDL;
 	}
 	contrib_names_widget->setText(contributors);
 	contrib_names_widget->setEnabled(FALSE);
 	contrib_names_widget->startOfDoc();
-
-
-	// Get the names of special thanks, extracted from .../doc/polarity_credits.txt by viewer_manifest.py at build time
-	std::string special_thanks_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"polarity_credits.txt");
-	llifstream special_thanks_file;
-	std::string special_thanks;
-	special_thanks_file.open(special_thanks_path.c_str());		/* Flawfinder: ignore */
-	if (special_thanks_file.is_open())
-	{
-		std::getline(special_thanks_file, special_thanks); // all names are on a single line
-		special_thanks_file.close();
-	}
-	else
-	{
-		// Visual Studio debug mode workaround
-		special_thanks_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings","polarity_credits.txt");
-		special_thanks_file.open(special_thanks_path.c_str());		/* Flawfinder: ignore */
-		if (special_thanks_file.is_open())
-		{
-			std::getline(special_thanks_file, special_thanks); // all names are on a single line
-			special_thanks_file.close();
-		}
-		else
-		{
-			LL_WARNS("AboutInit") << "Could not read special thanks file at " << special_thanks_path << LL_ENDL;
-		}
-	}
-	special_thanks_names_widget->setText(special_thanks);
-	special_thanks_names_widget->setEnabled(FALSE);
-	special_thanks_names_widget->startOfDoc();
 
     // Get the Versions and Copyrights, created at build time
 	std::string licenses_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"packages-info.txt");
@@ -275,17 +230,18 @@ void LLFloaterAbout::startFetchServerReleaseNotes()
 }
 
 /*static*/
-void LLFloaterAbout::fetchServerReleaseNotesCoro(const std::string& cap_url)
+void LLFloaterAbout::fetchServerReleaseNotesCoro(const std::string url)
 {
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("fetchServerReleaseNotesCoro", LLCore::HttpRequest::DEFAULT_POLICY_ID));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
+    httpOpts->setRetries(0);
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->getAndSuspend(httpRequest, cap_url, httpOpts);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -324,7 +280,7 @@ void LLFloaterAbout::handleServerReleaseNotes(LLSD results)
     LLFloaterAbout* floater_about = LLFloaterReg::findTypedInstance<LLFloaterAbout>("sl_about");
     if (floater_about)
     {
-        floater_about->setSupportText(location);
+        floater_about->setSupportText();
     }
 }
 
@@ -367,7 +323,7 @@ void LLFloaterAbout::onClickUpdateCheck()
 	setUpdateListener();
 }
 
-void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
+void LLFloaterAbout::setSupportText()
 {
 #if LL_WINDOWS
 	getWindow()->incBusyCount();
@@ -378,13 +334,12 @@ void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
 	getWindow()->setCursor(UI_CURSOR_ARROW);
 #endif
 
-	LLViewerTextEditor *support_widget =
-		getChild<LLViewerTextEditor>("support_editor", true);
 
-	LLUIColor about_color = LLUIColorTable::instance().getColor("TextFgReadOnlyColor");
-	support_widget->clear();
-	support_widget->appendText(LLAppViewer::instance()->getViewerInfoString(),
-							   FALSE, LLStyle::Params() .color(about_color));
+
+	LLViewerTextEditor *support_widget = getChild<LLViewerTextEditor>("support_editor", true);
+	static LLUIColor about_color = LLUIColorTable::instance().getColor("TextFgReadOnlyColor");
+	support_widget->setText(LLAppViewer::instance()->getViewerInfoString(),
+							   LLStyle::Params().color(about_color));
 }
 
 ///----------------------------------------------------------------------------
@@ -398,17 +353,6 @@ void LLFloaterAbout::showCheckUpdateNotification(S32 state)
 	switch (state)
 	{
 	case LLUpdaterService::UP_TO_DATE:
-#if INTERNAL_BUILD
-#ifdef PVDATA_SYSTEM
-		if (gPVOldAPI->getToken() == "")
-		{
-			LLSD arguments;
-			arguments["MESSAGE"] = LLTrans::getString("MissingTesterToken");
-			LLNotificationsUtil::add("GenericNotifyTip", arguments);
-		}
-		else
-#endif
-#endif
 		LLNotificationsUtil::add("UpdateViewerUpToDate");
 		break;
 	case LLUpdaterService::DOWNLOADING:
@@ -446,11 +390,7 @@ void LLFloaterAbout::setUpdateListener()
 	LLUpdaterService update_service;
 	S32 service_state = update_service.getState();
 	// Note: Do not set state listener before forceCheck() since it set's new state
-	if (update_service.forceCheck(gSavedSettings.getBOOL("UpdaterWillingToTest")
-#ifdef PVDATA_SYSTEM
-	,gPVOldAPI->getToken()
-#endif
-	) || service_state == LLUpdaterService::CHECKING_FOR_UPDATE)
+	if (update_service.forceCheck() || service_state == LLUpdaterService::CHECKING_FOR_UPDATE)
 	{
 		LLEventPump& mainloop(LLEventPumps::instance().obtain("mainlooprepeater"));
 		if (mainloop.getListener(sCheckUpdateListenerName) == LLBoundListener()) // dummy listener

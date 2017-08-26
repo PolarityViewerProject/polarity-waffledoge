@@ -34,7 +34,9 @@
 #include "llviewerinventory.h"
 
 LLOutfitObserver::LLOutfitObserver() :
-	mCOFLastVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
+	mCOFLastVersion(LLViewerInventoryCategory::VERSION_UNKNOWN),
+	mBaseOutfitLastVersion(LLViewerInventoryCategory::VERSION_UNKNOWN),
+	mLastOutfitDirtiness(false)
 {
 	mItemNameHash.finalize();
 	gInventory.addObserver(this);

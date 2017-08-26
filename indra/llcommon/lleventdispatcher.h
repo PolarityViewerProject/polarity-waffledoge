@@ -47,18 +47,17 @@
 // namespace) that a global 'nil' macro breaks badly.
 #if defined(nil)
 // Capture the value of the macro 'nil', hoping int is an appropriate type.
-static const int nil_(nil);
+static const auto nil_(nil);
 // Now forget the macro.
 #undef nil
 // Finally, reintroduce 'nil' as a properly-scoped alias for the previously-
 // defined const 'nil_'. Make it static since otherwise it produces duplicate-
 // symbol link errors later.
-static const int& nil(nil_);
+static const auto& nil(nil_);
 #endif
 
 #include <string>
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/function_types/is_nonmember_callable_builtin.hpp>
@@ -180,7 +179,7 @@ public:
      * instantiate, instead of directly storing an instance pointer, accept a
      * nullary callable returning a pointer/reference to the desired class
      * instance. If you already have an instance in hand,
-     * boost::lambda::var(instance) or boost::lambda::constant(instance_ptr)
+     * [&] { return instance; } 
      * produce suitable callables.
      *
      * When calling this name, pass an LLSD::Array. Each entry in turn will be
@@ -227,7 +226,7 @@ public:
      * instantiate, instead of directly storing an instance pointer, accept a
      * nullary callable returning a pointer/reference to the desired class
      * instance. If you already have an instance in hand,
-     * boost::lambda::var(instance) or boost::lambda::constant(instance_ptr)
+     * [&] { return instance; }
      * produce suitable callables.
      *
      * Pass an LLSD::Array of parameter names, and optionally another
@@ -424,7 +423,7 @@ struct LLEventDispatcher::invoker
         // Instead of grabbing the first item from argsrc and making an
         // LLSDParam of it, call getter() and pass that as the instance param.
         invoker<Function, next_iter_type, To>::apply
-        ( func, argsrc, boost::fusion::push_back(boost::fusion::nil(), boost::ref(getter())));
+        ( func, argsrc, boost::fusion::push_back(boost::fusion::nil(), std::ref(getter())));
     }
 };
 

@@ -57,12 +57,13 @@ const U8  OVERLAY_IMG_COMPONENTS = 4;
 LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_width_meters)
 :	mRegion( region ),
 	mParcelGridsPerEdge( S32( region_width_meters / PARCEL_GRID_STEP_METERS ) ),
+	mRegionSize(S32(region_width_meters)),
 	mDirty( FALSE ),
 	mTimeSinceLastUpdate(),
 	mOverlayTextureIdx(-1),
 	mVertexCount(0),
-	mVertexArray(NULL),
-	mColorArray(NULL)
+	mVertexArray(nullptr),
+	mColorArray(nullptr)
 //	mTexCoordArray(NULL),
 {
 	// Create a texture to hold color information.
@@ -100,19 +101,19 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 LLViewerParcelOverlay::~LLViewerParcelOverlay()
 {
 	delete[] mOwnership;
-	mOwnership = NULL;
+	mOwnership = nullptr;
 
 	delete[] mVertexArray;
-	mVertexArray = NULL;
+	mVertexArray = nullptr;
 
 	delete[] mColorArray;
-	mColorArray = NULL;
+	mColorArray = nullptr;
 
 // JC No textures.
 //	delete mTexCoordArray;
 //	mTexCoordArray = NULL;
 
-	mImageRaw = NULL;
+	mImageRaw = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -411,7 +412,8 @@ void LLViewerParcelOverlay::uncompressLandOverlay(S32 chunk, U8 *packed_overlay)
 {
 	// Unpack the message data into the ownership array
 	S32	size	= mParcelGridsPerEdge * mParcelGridsPerEdge;
-	S32 chunk_size = size / PARCEL_OVERLAY_CHUNKS;
+	S32 mParcelOverLayChunks = mRegionSize * mRegionSize / (128 * 128);
+	S32 chunk_size = size / mParcelOverLayChunks;
 
 	memcpy(mOwnership + chunk*chunk_size, packed_overlay, chunk_size);		/*Flawfinder: ignore*/
 
@@ -422,8 +424,8 @@ void LLViewerParcelOverlay::uncompressLandOverlay(S32 chunk, U8 *packed_overlay)
 
 void LLViewerParcelOverlay::updatePropertyLines()
 {
-	static LLCachedControl<bool> showPropertyLines(gSavedSettings, "ShowPropertyLines");
-	if (!showPropertyLines)
+	static LLCachedControl<bool> show_prop_lines(gSavedSettings, "ShowPropertyLines");
+	if (!show_prop_lines)
 		return;
 	
 	S32 row, col;
@@ -611,9 +613,9 @@ void LLViewerParcelOverlay::updatePropertyLines()
 	{
 		// ...need new arrays
 		delete[] mVertexArray;
-		mVertexArray = NULL;
+		mVertexArray = nullptr;
 		delete[] mColorArray;
-		mColorArray = NULL;
+		mColorArray = nullptr;
 
 		mVertexCount = new_vertex_count;
 
@@ -862,8 +864,8 @@ void LLViewerParcelOverlay::idleUpdate(bool force_update)
 
 S32 LLViewerParcelOverlay::renderPropertyLines	() 
 {
-	static LLCachedControl<bool> showPropertyLines(gSavedSettings, "ShowPropertyLines");
-	if (!showPropertyLines)
+	static LLCachedControl<bool> show_prop_lines(gSavedSettings, "ShowPropertyLines");
+	if (!show_prop_lines)
 	{
 		return 0;
 	}

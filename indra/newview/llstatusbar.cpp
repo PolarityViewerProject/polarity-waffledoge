@@ -37,12 +37,15 @@
 #include "llfirstuse.h"
 #include "llviewercontrol.h"
 #include "llbuycurrencyhtml.h"
+#include "llpanelaopulldown.h"
 #include "llpanelnearbymedia.h"
-#include "ospanelquicksettingspulldown.h"
+#include "alpanelquicksettingspulldown.h"
 #include "llpanelvolumepulldown.h"
-#include "llhints.h"
+#include "llpanelavcomplexitypulldown.h"
+#include "llfloaterscriptdebug.h"
+#include "llhudicon.h"
+#include "llkeyboard.h"
 #include "llmenugl.h"
-// ReSharper disable once CppUnusedIncludeDirective
 #include "llrootview.h"
 #include "llsd.h"
 #include "lltextbox.h"
@@ -52,30 +55,26 @@
 #include "llframetimer.h"
 #include "llvoavatarself.h"
 #include "llresmgr.h"
+#include "llworld.h"
 #include "llstatgraph.h"
+#include "llviewerjoystick.h"
 #include "llviewermedia.h"
 #include "llviewermenu.h"	// for gMenuBarView
 #include "llviewerthrottle.h"
-#include "lluictrlfactory.h"
+
 #include "llappviewer.h"
-#include "llweb.h"
 
 // library includes
+#include "llfloaterreg.h"
 #include "llrect.h"
-#include "llerror.h"
 #include "llstring.h"
 #include "message.h"
 
-// system includes
-#include "llwindowwin32.h" // for refresh rate and such
-#include "llfloaterreg.h"
-
-#include "pvfpsmeter.h"
 
 //
 // Globals
 //
-LLStatusBar *gStatusBar = NULL;
+LLStatusBar *gStatusBar = nullptr;
 S32 STATUS_BAR_HEIGHT = 26;
 extern S32 MENU_BAR_HEIGHT;
 
@@ -87,23 +86,27 @@ const LLColor4 SIM_WARN_COLOR(1.f, 1.f, 0.f, 1.f);
 const LLColor4 SIM_FULL_COLOR(1.f, 0.f, 0.f, 1.f);
 const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons should flash after a change.
 
-static void onClickVolume(void* data);
-
 LLStatusBar::LLStatusBar(const LLRect& rect)
 :	LLPanel(),
 	mTextTime(nullptr),
-	mStatusBarFPSCounter(nullptr), // <polarity> FPS Counter in the status bar
+	mTextFPS(nullptr),
 	mSGBandwidth(nullptr),
 	mSGPacketLoss(nullptr),
-	mBandwidthButton(NULL), // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-	mBtnStats(nullptr),
+	mPanelPopupHolder(nullptr),
 	mBtnQuickSettings(nullptr),
+	mBtnAO(nullptr),
 	mBtnVolume(nullptr),
 	mBoxBalance(nullptr),
+	mBtnBuyL(nullptr),
+	mAvComplexity(nullptr),
+	mPanelFlycam(nullptr),
 	mBalance(0),
 	mHealth(100),
 	mSquareMetersCredit(0),
 	mSquareMetersCommitted(0)
+,	mImgAvComplex(nullptr)
+,	mImgAvComplexWarn(nullptr)
+,	mImgAvComplexHeavy(nullptr)
 {
 	LLView::setRect(rect);
 	
@@ -112,7 +115,10 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 
 	mBalanceTimer = new LLFrameTimer();
 	mHealthTimer = new LLFrameTimer();
-	gSavedSettings.getControl("ShowNetStats")->getSignal()->connect(boost::bind(&LLStatusBar::updateNetstatVisibility, this, _2));
+
+	mImgAvComplex = LLUI::getUIImage("50_Ton_Weight");
+	mImgAvComplexWarn = LLUI::getUIImage("50_Ton_Weight_Warn");
+	mImgAvComplexHeavy = LLUI::getUIImage("50_Ton_Weight_Heavy");
 
 	buildFromFile("panel_status_bar.xml");
 }
@@ -120,10 +126,10 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 LLStatusBar::~LLStatusBar()
 {
 	delete mBalanceTimer;
-	mBalanceTimer = NULL;
+	mBalanceTimer = nullptr;
 
 	delete mHealthTimer;
-	mHealthTimer = NULL;
+	mHealthTimer = nullptr;
 
 	// LLView destructor cleans up children
 }
@@ -149,56 +155,48 @@ BOOL LLStatusBar::postBuild()
 {
 	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
 
+	mPanelPopupHolder = gViewerWindow->getRootView()->getChildView("popup_holder");
+
 	mTextTime = getChild<LLTextBox>("TimeText" );
 	
-	// <polarity> FPS Meter in status bar. Inspired by NiranV Dean's initial implementation in Black Dragon
-	mStatusBarFPSCounter = getChild<LLTextBox>("FPS_count");
+	mTextFPS = getChild<LLTextBox>("FPSText");
 
-	const std::string buy_currency_url = "https://secondlife.com/my/lindex/buy.php";
-	getChild<LLUICtrl>("buyL")->setCommitCallback(boost::bind(&LLWeb::loadURLExternal, buy_currency_url, true));
+	mBtnBuyL = getChild<LLButton>("buyL");
+	mBtnBuyL->setCommitCallback(boost::bind(&LLStatusBar::onClickBuyCurrency, this));
 
-	getChild<LLUICtrl>("goShop")->setCommitCallback(boost::bind(&LLWeb::loadURL, gSavedSettings.getString("MarketplaceURL"), LLStringUtil::null, LLStringUtil::null));
+    //getChild<LLUICtrl>("goShop")->setCommitCallback(boost::bind(&LLWeb::loadURL, gSavedSettings.getString("MarketplaceURL"), LLStringUtil::null, LLStringUtil::null));
 
 	mBoxBalance = getChild<LLTextBox>("balance");
 	mBoxBalance->setClickedCallback( &LLStatusBar::onClickBalance, this );
 	
-	mBtnStats = getChildView("stat_btn");
-
 	mBtnQuickSettings = getChild<LLButton>("quick_settings_btn");
 	mBtnQuickSettings->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterQuickSettings, this));
 
+	mBtnAO = getChild<LLButton>("ao_btn");
+	mBtnAO->setClickedCallback(&LLStatusBar::onClickAOBtn, this);
+	mBtnAO->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterAO, this));
+	mBtnAO->setToggleState(gSavedPerAccountSettings.getBOOL("UseAO")); // shunt it into correct state - ALCH-368
+
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
-	mBtnVolume->setClickedCallback( onClickVolume, this );
+	mBtnVolume->setClickedCallback(&LLStatusBar::onClickVolume, this );
 	mBtnVolume->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterVolume, this));
 
 	mMediaToggle = getChild<LLButton>("media_toggle_btn");
 	mMediaToggle->setClickedCallback( &LLStatusBar::onClickMediaToggle, this );
 	mMediaToggle->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterNearbyMedia, this));
+	
+	mAvComplexity = getChild<LLIconCtrl>("av_complexity");
+	mAvComplexity->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterAvatarComplexity, this));
 
-	LLHints::registerHintTarget("linden_balance", getChild<LLView>("balance_bg")->getHandle());
+	mPanelFlycam = getChild<LLUICtrl>("flycam_lp");
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
+	gSavedPerAccountSettings.getControl("UseAO")->getCommitSignal()->connect(boost::bind(&LLStatusBar::onAOStateChanged, this));
 
 	// Adding Net Stat Graph
 	S32 x = getRect().getWidth() - 2;
 	S32 y = 0;
 	LLRect r;
-	
-	// <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-	r.set( x-((SIM_STAT_WIDTH*2)+2), y+MENU_BAR_HEIGHT-1, x, y+1);
-	LLButton::Params BandwidthButton;
-	BandwidthButton.name(std::string("BandwidthGraphButton"));
-	BandwidthButton.label("");
-	BandwidthButton.rect(r);
-	BandwidthButton.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
-	BandwidthButton.click_callback.function(boost::bind(&LLStatusBar::onBandwidthGraphButtonClicked, this));
-	mBandwidthButton = LLUICtrlFactory::create<LLButton>(BandwidthButton);
-	addChild(mBandwidthButton);
-	LLColor4 BandwidthButtonOpacity;
-	BandwidthButtonOpacity.setAlpha(0);
-	mBandwidthButton->setColor(BandwidthButtonOpacity);
-	// </FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-	
 	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
 	LLStatGraph::Params sgp;
 	sgp.name("BandwidthGraph");
@@ -227,7 +225,7 @@ BOOL LLStatusBar::postBuild()
 	pgp.precision(1);
 	pgp.per_sec(false);
 	LLStatGraph::Thresholds thresholds;
-	thresholds.threshold.add(LLStatGraph::ThresholdParams().value(0.1f).color(LLColor4::green))
+	thresholds.threshold.add(LLStatGraph::ThresholdParams().value(0.1).color(LLColor4::green))
 						.add(LLStatGraph::ThresholdParams().value(0.25f).color(LLColor4::yellow))
 						.add(LLStatGraph::ThresholdParams().value(0.6f).color(LLColor4::red));
 
@@ -236,28 +234,30 @@ BOOL LLStatusBar::postBuild()
 	mSGPacketLoss = LLUICtrlFactory::create<LLStatGraph>(pgp);
 	addChild(mSGPacketLoss);
 
-	mPanelQuickSettingsPulldown = new OSPanelQuickSettingsPulldown();
+	mPanelQuickSettingsPulldown = new ALPanelQuickSettingsPulldown();
 	addChild(mPanelQuickSettingsPulldown);
 	mPanelQuickSettingsPulldown->setFollows(FOLLOWS_TOP | FOLLOWS_RIGHT);
 	mPanelQuickSettingsPulldown->setVisible(FALSE);
+
+	mPanelAOPulldown = new LLPanelAOPulldown();
+	addChild(mPanelAOPulldown);
+	mPanelAOPulldown->setFollows(FOLLOWS_TOP | FOLLOWS_RIGHT);
+	mPanelAOPulldown->setVisible(FALSE);
 
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
 	addChild(mPanelVolumePulldown);
 	mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelVolumePulldown->setVisible(FALSE);
 
+	mPanelAvatarComplexityPulldown = new LLPanelAvatarComplexityPulldown();
+	addChild(mPanelAvatarComplexityPulldown);
+	mPanelAvatarComplexityPulldown->setFollows(FOLLOWS_TOP | FOLLOWS_RIGHT);
+	mPanelAvatarComplexityPulldown->setVisible(FALSE);
+
 	mPanelNearByMedia = new LLPanelNearByMedia();
 	addChild(mPanelNearByMedia);
 	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelNearByMedia->setVisible(FALSE);
-
-	mScriptOut = getChildView("scriptout");
-
-	static LLCachedControl<bool> show_net_stats(gSavedSettings, "ShowNetStats", false);
-	if (!show_net_stats)
-	{
-		updateNetstatVisibility(LLSD(FALSE));
-	}
 
 	return TRUE;
 }
@@ -266,9 +266,9 @@ BOOL LLStatusBar::postBuild()
 void LLStatusBar::refresh()
 {
 	static LLCachedControl<bool> show_net_stats(gSavedSettings, "ShowNetStats", false);
-	bool net_stats_visible = show_net_stats;
+	static LLCachedControl<bool> show_fps(gSavedSettings, "ShowStatusBarFPS", true);
 
-	if (net_stats_visible)
+	if (show_net_stats)
 	{
 		// Adding Net Stat Meter back in
 		F32 bwtotal = gViewerThrottle.getMaxBandwidth() / 1000.f;
@@ -278,7 +278,40 @@ void LLStatusBar::refresh()
 		//mSGBandwidth->setThreshold(1, bwtotal);
 		//mSGBandwidth->setThreshold(2, bwtotal);
 	}
+	
+	if (show_fps && mFPSUpdateTimer.getElapsedTimeF32() > 0.25f)
+	{
+		mFPSUpdateTimer.reset();
+		F32 fps = (F32)LLTrace::get_frame_recording().getLastRecording().getPerSec(LLStatViewer::FPS);
+		mTextFPS->setValue(llformat("%.1f", fps));
+	}
 
+	// update clock every second
+	if(mClockUpdateTimer.getElapsedTimeF32() > 1.f) // <alchemy/>
+	{
+		mClockUpdateTimer.reset();
+
+		time_t utc_time = time_corrected();
+
+		// <alchemy> Allow user to control whether the clock shows seconds or not.
+		static LLCachedControl<bool> want_precise_clock(gSavedSettings, "AlchemyPreciseClock", true);
+
+		// Show seconds if so desired
+		
+		std::string timeStr = getString(want_precise_clock() ? "timePrecise" : "time");
+		// </alchemy>
+		LLSD substitution;
+		substitution["datetime"] = static_cast<S32>(utc_time);
+		LLStringUtil::format (timeStr, substitution);
+		mTextTime->setText(timeStr);
+
+		// set the tooltip to have the date
+		std::string dtStr = getString("timeTooltip");
+		LLStringUtil::format (dtStr, substitution);
+		mTextTime->setToolTip (dtStr);
+	}
+
+	LLRect r;
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
 
 	// reshape menu bar to its content's width
@@ -287,13 +320,19 @@ void LLStatusBar::refresh()
 		gMenuBarView->reshape(MENU_RIGHT, gMenuBarView->getRect().getHeight());
 	}
 
+	mSGBandwidth->setVisible(show_net_stats);
+	mSGPacketLoss->setVisible(show_net_stats);
+	mPanelFlycam->setVisible(LLViewerJoystick::instance().getOverrideCamera());
+
 	// update the master volume button state
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
 	mBtnVolume->setToggleState(mute_audio);
 	
 	// Disable media toggle if there's no media, parcel media, and no parcel audio
 	// (or if media is disabled)
-	bool button_enabled = (gSavedSettings.getBOOL("AudioStreamingMusic")||gSavedSettings.getBOOL("AudioStreamingMedia")) && 
+	static LLCachedControl<bool> audio_streaming_enabled(gSavedSettings, "AudioStreamingMusic");
+	static LLCachedControl<bool> media_streaming_enabled(gSavedSettings, "AudioStreamingMedia");
+	bool button_enabled = (audio_streaming_enabled || media_streaming_enabled) &&
 						  (LLViewerMedia::hasInWorldMedia() || LLViewerMedia::hasParcelMedia() || LLViewerMedia::hasParcelAudio());
 	mMediaToggle->setEnabled(button_enabled);
 	// Note the "sense" of the toggle is opposite whether media is playing or not
@@ -301,64 +340,19 @@ void LLStatusBar::refresh()
 							  LLViewerMedia::isParcelMediaPlaying() ||
 							  LLViewerMedia::isParcelAudioPlaying());
 	mMediaToggle->setValue(!any_media_playing);
-
-	if (mClockUpdateTimer.getElapsedTimeF32() >= 0.25f)
-	{
-		mClockUpdateTimer.reset();
-		// Get current UTC time, adjusted for the user's clock being off.
-		time_t utc_time;
-		utc_time = time_corrected();
-		std::string timeStr;
-		// <polarity> PLVR-4 24-hour clock mode
-		static LLCachedControl<bool> show_seconds(gSavedSettings, "PVUI_ClockShowSeconds", true);
-		static LLCachedControl<bool> use_24h_clock(gSavedSettings, "PVUI_ClockUse24hFormat", false);
-
-		if (use_24h_clock && show_seconds)
-		{
-			const static auto time24Precise = getString("time24Precise");
-			timeStr = time24Precise;
-		}
-		else if (use_24h_clock && !show_seconds)
-		{
-			const static auto time24 = getString("time24");
-			timeStr = time24;
-		}
-		else if (!use_24h_clock && show_seconds)
-		{
-			const static auto timePrecise = getString("timePrecise");
-			timeStr = timePrecise;
-		}
-		else
-		{
-			const static auto time = getString("time");
-			timeStr = time;
-		}
-		// </polarity>
-		LLSD substitution;
-		substitution["datetime"] = static_cast<S32>(utc_time);
-		LLStringUtil::format(timeStr, substitution);
-		mTextTime->setText(timeStr);
-			// set the tooltip to have the date
-			std::string dtStr = getString("timeTooltip");
-			LLStringUtil::format(dtStr, substitution);
-			mTextTime->setToolTip(dtStr);
-	}
-	if (mStatusBarFPSCounter && mStatusBarFPSCounter->getVisible())
-	{
-		mStatusBarFPSCounter->setValue(PVFPSMeter::getValueWithRefreshRate());
-		mStatusBarFPSCounter->setColor(PVFPSMeter::getColor());
-	}
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)
 {
 	mTextTime->setVisible(visible);
-	static LLCachedControl<bool> show_balance(gSavedSettings, "PVUI_ShowCurrencyBalanceInStatusBar");
-	getChild<LLUICtrl>("balance_bg")->setVisible(visible && show_balance);
 	mBoxBalance->setVisible(visible);
+	mBtnBuyL->setVisible(visible);
 	mBtnQuickSettings->setVisible(visible);
+	mBtnAO->setVisible(visible);
 	mBtnVolume->setVisible(visible);
 	mMediaToggle->setVisible(visible);
+	mAvComplexity->setVisible(visible);
+	mTextFPS->setVisible(visible);
 	mSGBandwidth->setVisible(visible);
 	mSGPacketLoss->setVisible(visible);
 	setBackgroundVisible(visible);
@@ -388,27 +382,9 @@ void LLStatusBar::setBalance(S32 balance)
 	std::string label_str = getString("buycurrencylabel", string_args);
 	mBoxBalance->setValue(label_str);
 
-	// Resize the L$ balance background to be wide enough for your balance plus the buy button
+	if (mBalance && (fabs((F32)(mBalance - balance)) > gSavedSettings.getF32("UISndMoneyChangeThreshold")))
 	{
-		const S32 HPAD = 24;
-		LLRect balance_rect = mBoxBalance->getTextBoundingRect();
-		LLRect buy_rect = getChildView("buyL")->getRect();
-		LLRect shop_rect = getChildView("goShop")->getRect();
-		LLView* balance_bg_view = getChildView("balance_bg");
-		LLRect balance_bg_rect = balance_bg_view->getRect();
-		balance_bg_rect.mLeft = balance_bg_rect.mRight - (buy_rect.getWidth() + shop_rect.getWidth() + balance_rect.getWidth() + HPAD);
-		balance_bg_view->setShape(balance_bg_rect);
-	}
-	static LLCachedControl<S32> notification_threshold_send(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdSend");
-	static LLCachedControl<S32> notification_threshold_recv(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdReceive");
-	if (mBalance)
-	{
-		auto difference = fabs((F32)(mBalance - balance));
-		// This assumes that the platform doesn't allow you to send negative currency amounts
-		if (mBalance > balance && difference >= notification_threshold_send)
-			make_ui_sound("UISndMoneyChangeDown");
-		else if (mBalance < balance && difference >= notification_threshold_recv)
-			make_ui_sound("UISndMoneyChangeUp");
+		make_ui_sound(mBalance > balance ? "UISndMoneyChangeDown" : "UISndMoneyChangeUp");
 	}
 
 	if( balance != mBalance )
@@ -461,12 +437,16 @@ void LLStatusBar::setHealth(S32 health)
 	mHealth = health;
 }
 
-// <polarity> PLVR-7 Hide currency balance in snapshots
-void LLStatusBar::showBalance(bool show)
+void LLStatusBar::setAvComplexity(S32 complexity, F32 muted_pct)
 {
-	mBoxBalance->setVisible(show);
+	if (muted_pct >= 10.f)
+		mAvComplexity->setImage(mImgAvComplexWarn);
+	else if (muted_pct >= 75.f)
+		mAvComplexity->setImage(mImgAvComplexHeavy);
+	else
+		mAvComplexity->setImage(mImgAvComplex);
+	mPanelAvatarComplexityPulldown->setAvComplexity(complexity, muted_pct);
 }
-// </polarity>
 
 S32 LLStatusBar::getBalance() const
 {
@@ -508,7 +488,7 @@ S32 LLStatusBar::getSquareMetersLeft() const
 	return mSquareMetersCredit - mSquareMetersCommitted;
 }
 
-void LLStatusBar::onClickBuyCurrency()
+void LLStatusBar::onClickBuyCurrency() const
 {
 	// open a currency floater - actual one open depends on 
 	// value specified in settings.xml
@@ -518,7 +498,6 @@ void LLStatusBar::onClickBuyCurrency()
 
 void LLStatusBar::onMouseEnterQuickSettings()
 {
-	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
 	LLRect qs_rect = mPanelQuickSettingsPulldown->getRect();
 	LLRect qs_btn_rect = mBtnQuickSettings->getRect();
 	qs_rect.setLeftTopAndSize(qs_btn_rect.mLeft -
@@ -527,7 +506,7 @@ void LLStatusBar::onMouseEnterQuickSettings()
 		qs_rect.getWidth(),
 		qs_rect.getHeight());
 	// force onscreen
-	qs_rect.translate(popup_holder->getRect().getWidth() - qs_rect.mRight, 0);
+	qs_rect.translate(mPanelPopupHolder->getRect().getWidth() - qs_rect.mRight, 0);
 
 	// show the master volume pull-down
 	mPanelQuickSettingsPulldown->setShape(qs_rect);
@@ -536,14 +515,37 @@ void LLStatusBar::onMouseEnterQuickSettings()
 
 	mPanelNearByMedia->setVisible(FALSE);
 	mPanelVolumePulldown->setVisible(FALSE);
+	mPanelAOPulldown->setVisible(FALSE);
+	mPanelAvatarComplexityPulldown->setVisible(FALSE);
 	mPanelQuickSettingsPulldown->setVisible(TRUE);
+}
+
+void LLStatusBar::onMouseEnterAO()
+{
+	LLRect qs_rect = mPanelAOPulldown->getRect();
+	LLRect qs_btn_rect = mBtnAO->getRect();
+	qs_rect.setLeftTopAndSize(qs_btn_rect.mLeft -
+							  (qs_rect.getWidth() - qs_btn_rect.getWidth()) / 2,
+							  qs_btn_rect.mBottom,
+							  qs_rect.getWidth(),
+							  qs_rect.getHeight());
+	// force onscreen
+	qs_rect.translate(mPanelPopupHolder->getRect().getWidth() - qs_rect.mRight, 0);
+	
+	mPanelAOPulldown->setShape(qs_rect);
+	LLUI::clearPopups();
+	LLUI::addPopup(mPanelAOPulldown);
+	
+	mPanelNearByMedia->setVisible(FALSE);
+	mPanelVolumePulldown->setVisible(FALSE);
+	mPanelQuickSettingsPulldown->setVisible(FALSE);
+	mPanelAOPulldown->setVisible(TRUE);
+	mPanelAvatarComplexityPulldown->setVisible(FALSE);
 }
 
 void LLStatusBar::onMouseEnterVolume()
 {
-	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
-	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
-	LLRect vol_btn_rect = volbtn->getRect();
+	LLRect vol_btn_rect = mBtnVolume->getRect();
 	LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
 	volume_pulldown_rect.setLeftTopAndSize(vol_btn_rect.mLeft -
 	     (volume_pulldown_rect.getWidth() - vol_btn_rect.getWidth()),
@@ -551,7 +553,7 @@ void LLStatusBar::onMouseEnterVolume()
 			       volume_pulldown_rect.getWidth(),
 			       volume_pulldown_rect.getHeight());
 
-	volume_pulldown_rect.translate(popup_holder->getRect().getWidth() - volume_pulldown_rect.mRight, 0);
+	volume_pulldown_rect.translate(mPanelPopupHolder->getRect().getWidth() - volume_pulldown_rect.mRight, 0);
 	mPanelVolumePulldown->setShape(volume_pulldown_rect);
 
 
@@ -560,22 +562,22 @@ void LLStatusBar::onMouseEnterVolume()
 	LLUI::addPopup(mPanelVolumePulldown);
 	mPanelNearByMedia->setVisible(FALSE);
 	mPanelQuickSettingsPulldown->setVisible(FALSE);
+	mPanelAOPulldown->setVisible(FALSE);
+	mPanelAvatarComplexityPulldown->setVisible(FALSE);
 	mPanelVolumePulldown->setVisible(TRUE);
 }
 
-void LLStatusBar::onMouseEnterNearbyMedia() const
+void LLStatusBar::onMouseEnterNearbyMedia()
 {
-	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
 	LLRect nearby_media_rect = mPanelNearByMedia->getRect();
-	LLButton* nearby_media_btn =  getChild<LLButton>( "media_toggle_btn" );
-	LLRect nearby_media_btn_rect = nearby_media_btn->getRect();
+	LLRect nearby_media_btn_rect = mMediaToggle->getRect();
 	nearby_media_rect.setLeftTopAndSize(nearby_media_btn_rect.mLeft - 
 										(nearby_media_rect.getWidth() - nearby_media_btn_rect.getWidth())/2,
 										nearby_media_btn_rect.mBottom,
 										nearby_media_rect.getWidth(),
 										nearby_media_rect.getHeight());
 	// force onscreen
-	nearby_media_rect.translate(popup_holder->getRect().getWidth() - nearby_media_rect.mRight, 0);
+	nearby_media_rect.translate(mPanelPopupHolder->getRect().getWidth() - nearby_media_rect.mRight, 0);
 	
 	// show the master volume pull-down
 	mPanelNearByMedia->setShape(nearby_media_rect);
@@ -584,11 +586,42 @@ void LLStatusBar::onMouseEnterNearbyMedia() const
 
 	mPanelQuickSettingsPulldown->setVisible(FALSE);
 	mPanelVolumePulldown->setVisible(FALSE);
+	mPanelAOPulldown->setVisible(FALSE);
+	mPanelAvatarComplexityPulldown->setVisible(FALSE);
 	mPanelNearByMedia->setVisible(TRUE);
 }
 
+void LLStatusBar::onMouseEnterAvatarComplexity()
+{
+	LLRect complexity_rect = mPanelAvatarComplexityPulldown->getRect();
+	LLRect complexity_btn_rect = mAvComplexity->getRect();
+	complexity_rect.setLeftTopAndSize(complexity_btn_rect.mLeft -
+		(complexity_rect.getWidth() - complexity_btn_rect.getWidth()) / 2,
+		complexity_btn_rect.mBottom,
+		complexity_rect.getWidth(),
+		complexity_rect.getHeight());
+	// force onscreen
+	complexity_rect.translate(mPanelPopupHolder->getRect().getWidth() - complexity_rect.mRight, 0);
 
-static void onClickVolume(void* data)
+	mPanelAvatarComplexityPulldown->setShape(complexity_rect);
+	LLUI::clearPopups();
+	LLUI::addPopup(mPanelAvatarComplexityPulldown);
+
+	mPanelQuickSettingsPulldown->setVisible(FALSE);
+	mPanelVolumePulldown->setVisible(FALSE);
+	mPanelAOPulldown->setVisible(FALSE);
+	mPanelAvatarComplexityPulldown->setVisible(TRUE);
+	mPanelNearByMedia->setVisible(FALSE);
+}
+
+// static
+void LLStatusBar::onClickAOBtn(void* data)
+{
+	gSavedPerAccountSettings.set("UseAO", !gSavedPerAccountSettings.getBOOL("UseAO"));
+}
+
+// static
+void LLStatusBar::onClickVolume(void* data)
 {
 	// toggle the master mute setting
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
@@ -606,27 +639,15 @@ void LLStatusBar::onClickBalance(void* )
 //static 
 void LLStatusBar::onClickMediaToggle(void* data)
 {
-	LLStatusBar *status_bar = (LLStatusBar*)data;
+	LLStatusBar *status_bar = static_cast<LLStatusBar*>(data);
 	// "Selected" means it was showing the "play" icon (so media was playing), and now it shows "pause", so turn off media
 	bool pause = status_bar->mMediaToggle->getValue();
 	LLViewerMedia::setAllMediaPaused(pause);
 }
 
-void LLStatusBar::updateNetstatVisibility(const LLSD& data)
+void LLStatusBar::onAOStateChanged()
 {
-	const S32 NETSTAT_WIDTH = (SIM_STAT_WIDTH + 2) * 2;
-	BOOL showNetStat = data.asBoolean();
-	//S32 translateFactor = (showNetStat ? -1 : 1);
-
-	mSGBandwidth->setVisible(showNetStat);
-	mSGPacketLoss->setVisible(showNetStat);
-	mBandwidthButton->setVisible(showNetStat); // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-
-	//rect.translate(NETSTAT_WIDTH * translateFactor, 0);
-
-	//rect = mBalancePanel->getRect();
-	//rect.translate(NETSTAT_WIDTH * translateFactor, 0);
-	//mBalancePanel->setRect(rect);
+	mBtnAO->setToggleState(gSavedPerAccountSettings.getBOOL("UseAO"));
 }
 
 BOOL can_afford_transaction(S32 cost)
@@ -639,20 +660,6 @@ void LLStatusBar::onVolumeChanged(const LLSD& newvalue)
 	refresh();
 }
 
-// <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-void LLStatusBar::onBandwidthGraphButtonClicked()
-{
-	if (gSavedSettings.getBOOL("PVUI_UseStatsInsteadOfLagMeter"))
-	{
-		LLFloaterReg::toggleInstance("stats");
-	}
-	else
-	{
-		LLFloaterReg::toggleInstance("lagmeter");
-	}
-}
-// </FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-
 // Implements secondlife:///app/balance/request to request a L$ balance
 // update via UDP message system. JC
 class LLBalanceHandler : public LLCommandHandler
@@ -660,7 +667,7 @@ class LLBalanceHandler : public LLCommandHandler
 public:
 	// Requires "trusted" browser/URL source
 	LLBalanceHandler() : LLCommandHandler("balance", UNTRUSTED_BLOCK) { }
-	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
+	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web) override
 	{
 		if (tokens.size() == 1
 			&& tokens[0].asString() == "request")

@@ -42,18 +42,18 @@ static LLDefaultChildRegistry::Register<LLContainerView> r1("container_view");
 
 #include "llpanel.h"
 #include "llstatview.h"
-#include "pvloadinganim.h"
+//#include "pvloadinganim.h"
 static ContainerViewRegistry::Register<LLStatView> r2("stat_view");
 static ContainerViewRegistry::Register<LLPanel> r3("panel", &LLPanel::fromXML);
-static ContainerViewRegistry::Register<PVLoadingAnim> r4("loading_anim");
+//static ContainerViewRegistry::Register<PVLoadingAnim> r4("loading_anim");
 
 LLContainerView::LLContainerView(const LLContainerView::Params& p)
 :	LLView(p),
 	mShowLabel(p.show_label),
-	mLabel(p.label),
-	mDisplayChildren(p.display_children)
+	mDisplayChildren(p.display_children),
+	mLabel(p.label)
 {
-	mScrollContainer = NULL;
+	mScrollContainer = nullptr;
 }
 
 LLContainerView::~LLContainerView()
@@ -88,7 +88,7 @@ BOOL LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 	if (mDisplayChildren)
 	{
-		handled = (LLView::childrenHandleMouseDown(x, y, mask) != NULL);
+		handled = (LLView::childrenHandleMouseDown(x, y, mask) != nullptr);
 	}
 	if (!handled)
 	{
@@ -107,7 +107,7 @@ BOOL LLContainerView::handleMouseUp(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 	if (mDisplayChildren)
 	{
-		handled = (LLView::childrenHandleMouseUp(x, y, mask) != NULL);
+		handled = (LLView::childrenHandleMouseUp(x, y, mask) != nullptr);
 	}
 	return handled;
 }

@@ -33,4 +33,3 @@
 
 LLUUID gAgentID;
 LLUUID gAgentSessionID;
-std::string gAgentUsername;

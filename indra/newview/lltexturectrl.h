@@ -50,8 +50,8 @@ class LLInventoryItem;
 class LLViewerFetchedTexture;
 
 // used for setting drag & drop callbacks.
-typedef boost::function<BOOL (LLUICtrl*, LLInventoryItem*)> drag_n_drop_callback;
-typedef boost::function<void (LLInventoryItem*)> texture_selected_callback;
+typedef std::function<BOOL (LLUICtrl*, LLInventoryItem*)> drag_n_drop_callback;
+typedef std::function<void (LLInventoryItem*)> texture_selected_callback;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -111,26 +111,26 @@ public:
 
 	// LLView interface
 
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
+	BOOL	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 						BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
 						EAcceptance *accept,
-						std::string& tooltip_msg);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
+						std::string& tooltip_msg) override;
+	BOOL	handleHover(S32 x, S32 y, MASK mask) override;
+	BOOL	handleUnicodeCharHere(llwchar uni_char) override;
 
-	virtual void	draw();
-	virtual void	setVisible( BOOL visible );
-	virtual void	setEnabled( BOOL enabled );
+	void	draw() override;
+	void	setVisible( BOOL visible ) override;
+	void	setEnabled( BOOL enabled ) override;
 
 	void			setValid(BOOL valid);
 
 	// LLUICtrl interface
-	virtual void	clear();
+	void	clear() override;
 
 	// Takes a UUID, wraps get/setImageAssetID
-	virtual void	setValue(const LLSD& value);
-	virtual LLSD	getValue() const;
+	void	setValue(const LLSD& value) override;
+	LLSD	getValue() const override;
 
 	// LLTextureCtrl interface
 	void			showPicker(BOOL take_focus);
@@ -156,6 +156,11 @@ public:
 
 	void			setBlankImageAssetID( const LLUUID& id )	{ mBlankImageAssetID = id; }
 	const LLUUID&	getBlankImageAssetID() const { return mBlankImageAssetID; }
+
+	// <alchemy>
+	void			setTransparentImageAssetID( const LLUUID& id )	{ mTransparentImageAssetID = id; }
+	const LLUUID&	getTransparentImageAssetID() const { return mTransparentImageAssetID; }
+	// </alchemy>
 
 	void			setCaption(const std::string& caption);
 	void			setCanApplyImmediately(BOOL b);
@@ -215,6 +220,7 @@ private:
 	LLUUID					 	mImageAssetID;
 	LLUUID					 	mDefaultImageAssetID;
 	LLUUID					 	mBlankImageAssetID;
+	LLUUID					 	mTransparentImageAssetID; // <alchemy/>
 	LLUIImagePtr				mFallbackImage;
 	std::string					mDefaultImageName;
 	LLHandle<LLFloater>			mFloaterHandle;
@@ -233,14 +239,15 @@ private:
 	BOOL					 	mShowLoadingPlaceholder;
 	std::string				 	mLoadingPlaceholderString;
 	S32						 	mLabelWidth;
+	BOOL						mPreview;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLFloaterTexturePicker
-typedef boost::function<void(LLTextureCtrl::ETexturePickOp op, LLUUID id)> floater_commit_callback;
-typedef boost::function<void()> floater_close_callback;
-typedef boost::function<void(const LLUUID& asset_id)> set_image_asset_id_callback;
-typedef boost::function<void(LLPointer<LLViewerTexture> texture)> set_on_update_image_stats_callback;
+typedef std::function<void(LLTextureCtrl::ETexturePickOp op, LLUUID id)> floater_commit_callback;
+typedef std::function<void()> floater_close_callback;
+typedef std::function<void(const LLUUID& asset_id)> set_image_asset_id_callback;
+typedef std::function<void(LLPointer<LLViewerTexture> texture)> set_on_update_image_stats_callback;
 
 class LLFloaterTexturePicker : public LLFloater
 {
@@ -249,6 +256,7 @@ public:
 		LLView* owner,
 		LLUUID image_asset_id,
 		LLUUID default_image_asset_id,
+		LLUUID transparent_image_asset_id,
 		LLUUID blank_image_asset_id,
 		BOOL tentative,
 		BOOL allow_no_texture,
@@ -266,13 +274,13 @@ public:
 	/*virtual*/ BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 		BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
 		EAcceptance *accept,
-		std::string& tooltip_msg);
-	/*virtual*/ void	draw();
-	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
+		std::string& tooltip_msg) override;
+	/*virtual*/ void	draw() override;
+	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask) override;
 
 	// LLFloater overrides
-	/*virtual*/ BOOL    postBuild();
-	/*virtual*/ void	onClose(bool app_settings);
+	/*virtual*/ BOOL    postBuild() override;
+	/*virtual*/ void	onClose(bool app_settings) override;
 
 	// New functions
 	void setImageID(const LLUUID& image_asset_id, bool set_selection = true);
@@ -301,6 +309,7 @@ public:
 	void setSetImageAssetIDCallback(const set_image_asset_id_callback& cb) { mSetImageAssetIDCallback = cb; }
 	void setOnUpdateImageStatsCallback(const set_on_update_image_stats_callback& cb) { mOnUpdateImageStatsCallback = cb; }
 	const LLUUID& getDefaultImageAssetID() { return mDefaultImageAssetID; }
+	const LLUUID& getTransparentImageAssetID() { return mTransparentImageAssetID; }
 	const LLUUID& getBlankImageAssetID() { return mBlankImageAssetID; }
 
 	static void		onBtnSetToDefault(void* userdata);
@@ -308,19 +317,21 @@ public:
 	static void		onBtnCancel(void* userdata);
 	void			onBtnPipette();
 	//static void		onBtnRevert( void* userdata );
+	static void		onBtnTransparent(void* userdata);
 	static void		onBtnBlank(void* userdata);
 	static void		onBtnNone(void* userdata);
 	static void		onBtnClear(void* userdata);
+	static void		onApplyUUID(void* userdata);
 	void			onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	static void		onShowFolders(LLUICtrl* ctrl, void* userdata);
 	static void		onApplyImmediateCheck(LLUICtrl* ctrl, void* userdata);
 	void			onTextureSelect(const LLTextureEntry& te);
 
-	static void		onModeSelect(LLUICtrl* ctrl, void *userdata);
+	void			onModeSelect();
 	static void		onBtnAdd(void* userdata);
 	static void		onBtnRemove(void* userdata);
 	static void		onBtnUpload(void* userdata);
-	static void		onLocalScrollCommit(LLUICtrl* ctrl, void* userdata);
+	void			onLocalScrollCommit();
 
 	void 			setLocalTextureEnabled(BOOL enabled);
 
@@ -331,6 +342,7 @@ protected:
 	LLUUID				mImageAssetID; // Currently selected texture
 	LLUIImagePtr		mFallbackImage; // What to show if currently selected texture is null.
 	LLUUID				mDefaultImageAssetID;
+	LLUUID				mTransparentImageAssetID;
 	LLUUID				mBlankImageAssetID;
 	BOOL				mTentative;
 	BOOL				mAllowNoTexture;

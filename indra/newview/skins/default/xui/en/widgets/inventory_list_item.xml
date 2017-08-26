@@ -10,14 +10,12 @@
   width="380">
   <!-- DEFAULT style for inventory list item -->
   <default_style
-   font="SansSerif"
-   font.size="Small"
+   font="SansSerifSmall"
    font.style="NORMAL" />
 
   <!-- style for inventory list item WORN on avatar -->
   <worn_style
-   font="SansSerif"
-   font.size="Small"
+   font="SansSerifSmall"
    font.style="BOLD"
    color="EmphasisColor" />
   <item_icon
@@ -37,6 +35,7 @@
     parse_urls="false"
     use_ellipses="true"
     name="item_name"
+    text_color="white"
     top="4"
     value="..."
     width="359" />

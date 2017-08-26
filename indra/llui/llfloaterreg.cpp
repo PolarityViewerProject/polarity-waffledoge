@@ -47,10 +47,6 @@ std::set<std::string> LLFloaterReg::sAlwaysShowableList;
 
 static LLFloaterRegListener sFloaterRegListener;
 
-// [RLVa:KB] - Checked: 2010-02-28 (RLVa-1.4.0a) | Modified: RLVa-1.2.0a
-LLFloaterReg::validate_signal_t LLFloaterReg::mValidateSignal;
-// [/RLVa:KB]
-
 //*******************************************************
 
 //static
@@ -82,14 +78,14 @@ LLFloater* LLFloaterReg::getLastFloaterInGroup(const std::string& name)
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 LLFloater* LLFloaterReg::getLastFloaterCascading()
 {
 	LLRect candidate_rect;
 	candidate_rect.mTop = 100000;
-	LLFloater* candidate_floater = NULL;
+	LLFloater* candidate_floater = nullptr;
 
 	std::map<std::string,std::string>::const_iterator it = sGroupMap.begin(), it_end = sGroupMap.end();
 	for( ; it != it_end; ++it)
@@ -121,7 +117,7 @@ LLFloater* LLFloaterReg::getLastFloaterCascading()
 //static
 LLFloater* LLFloaterReg::findInstance(const std::string& name, const LLSD& key)
 {
-	LLFloater* res = NULL;
+	LLFloater* res = nullptr;
 	const std::string& groupname = sGroupMap[name];
 	if (!groupname.empty())
 	{
@@ -158,13 +154,13 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 				if (!res)
 				{
 					LL_WARNS() << "Failed to build floater type: '" << name << "'." << LL_ENDL;
-					return NULL;
+					return nullptr;
 				}
 				bool success = res->buildFromFile(xui_file);
 				if (!success)
 				{
 					LL_WARNS() << "Failed to build floater type: '" << name << "'." << LL_ENDL;
-					return NULL;
+					return nullptr;
 				}
 
 				// Note: key should eventually be a non optional LLFloater arg; for now, set mKey to be safe
@@ -194,7 +190,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 //static
 LLFloater* LLFloaterReg::removeInstance(const std::string& name, const LLSD& key)
 {
-	LLFloater* res = NULL;
+	LLFloater* res = nullptr;
 	const std::string& groupname = sGroupMap[name];
 	if (!groupname.empty())
 	{
@@ -246,24 +242,13 @@ LLFloaterReg::const_instance_list_t& LLFloaterReg::getFloaterList(const std::str
 
 // Visibility Management
 
-// [RLVa:KB] - Checked: 2012-02-07 (RLVa-1.4.5) | Added: RLVa-1.4.5
-//static
-bool LLFloaterReg::canShowInstance(const std::string& name, const LLSD& key)
-{
-	return mValidateSignal(name, key);
-}
-// [/RLVa:KB]
-
 //static
 LLFloater* LLFloaterReg::showInstance(const std::string& name, const LLSD& key, BOOL focus) 
 {
-//	if( sBlockShowFloaters
-//			// see EXT-7090
-//			&& sAlwaysShowableList.find(name) == sAlwaysShowableList.end())
-// [RLVa:KB] - Checked: 2010-02-28 (RLVa-1.4.0a) | Modified: RLVa-1.2.0a
-	if ( (sBlockShowFloaters && sAlwaysShowableList.find(name) == sAlwaysShowableList.end()) || (!mValidateSignal(name, key)) )
-// [/RLVa:KB]
-		return 0;//
+	if( sBlockShowFloaters
+			// see EXT-7090
+			&& sAlwaysShowableList.find(name) == sAlwaysShowableList.end())
+		return nullptr;//
 	LLFloater* instance = getInstance(name, key); 
 	if (instance) 
 	{
@@ -283,7 +268,7 @@ bool LLFloaterReg::hideInstance(const std::string& name, const LLSD& key)
 	{
 		instance->closeHostedFloater();
 	}
-	return (instance != NULL);
+	return (instance != nullptr);
 }
 
 //static
@@ -496,11 +481,6 @@ void LLFloaterReg::toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& 
 		return;
 	}
 	
-// [RLVa:XL] - Checked: 2017-07-10 (RLVa-2.1.0) - Fix RLV Locks for floaters using TIOBTF
-	if ( (sBlockShowFloaters && sAlwaysShowableList.find(name) == sAlwaysShowableList.end()) || (!mValidateSignal(name, key)) )
-		return;
-// [/RLVa:XL]
-
 	// If hosted, we need to take that into account
 	LLFloater* host = instance->getHost();
 	

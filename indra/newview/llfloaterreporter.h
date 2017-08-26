@@ -44,9 +44,9 @@ class LLMeanCollisionData;
 struct LLResourceData;
 
 // these flags are used to label info requests to the server
-//const U32 BUG_REPORT_REQUEST 		= 0x01 << 0; // DEPRECATED
-const U32 COMPLAINT_REPORT_REQUEST 	= 0x01 << 1;
-const U32 OBJECT_PAY_REQUEST		= 0x01 << 2;
+//constexpr U32 BUG_REPORT_REQUEST 		= 0x01 << 0; // DEPRECATED
+constexpr U32 COMPLAINT_REPORT_REQUEST 	= 0x01 << 1;
+constexpr U32 OBJECT_PAY_REQUEST		= 0x01 << 2;
 
 
 // ************************************************************
@@ -80,10 +80,10 @@ class LLFloaterReporter
 public:
 	LLFloaterReporter(const LLSD& key);
 	/*virtual*/ ~LLFloaterReporter();
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
-	virtual void draw();
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void onOpen(const LLSD& key) override;
+	/*virtual*/ void onClose(bool app_quitting) override;
+	void draw() override;
 	
 	void setReportType(EReportType type) { mReportType = type; }
 	
@@ -100,8 +100,8 @@ public:
 	void onClickSelectAbuser ();
 	static void closePickTool	(void *userdata);
 	static void uploadDoneCallback(const LLUUID &uuid, void* user_data, S32 result, LLExtStat ext_status);
-	static void addDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
-	static void setDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
+	static void addDescription(const std::string& description, LLMeanCollisionData *mcd = nullptr);
+	static void setDescription(const std::string& description, LLMeanCollisionData *mcd = nullptr);
 
 	void setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id);
 

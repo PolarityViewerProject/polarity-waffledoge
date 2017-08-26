@@ -39,7 +39,7 @@ class LLDockableFloater : public LLFloater
 {
 	static const U32 UNDOCK_LEAP_HEIGHT = 12;
 
-	static void init(LLDockableFloater* thiz);
+	void init();
 public:
 	LOG_CLASS(LLDockableFloater);
 	LLDockableFloater(LLDockControl* dockControl, const LLSD& key,
@@ -80,21 +80,21 @@ public:
 	 *  If descendant class overrides postBuild() in order to perform specific
 	 *  construction then it must still invoke its superclass' implementation.
 	 */
-	/* virtula */BOOL postBuild();
-	/* virtual */void setDocked(bool docked, bool pop_on_undock = true);
-	/* virtual */void draw();
+	/* virtula */BOOL postBuild() override;
+	/* virtual */void setDocked(bool docked, bool pop_on_undock = true) override;
+	/* virtual */void draw() override;
 
 	/**
 	 *  If descendant class overrides setVisible() then it must still invoke its
 	 *  superclass' implementation.
 	 */
-	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void setVisible(BOOL visible) override;
 
 	/**
 	 *  If descendant class overrides setMinimized() then it must still invoke its
 	 *  superclass' implementation.
 	 */
-	/*virtual*/ void setMinimized(BOOL minimize);
+	/*virtual*/ void setMinimized(BOOL minimize) override;
 
 	LLView * getDockWidget();
 
@@ -128,7 +128,7 @@ protected:
 
 	// Checks if docking should be forced.
 	// It may be useful e.g. if floater created in mouselook mode (see EXT-5609)
-	boost::function<BOOL ()> mIsDockedStateForcedCallback;
+	std::function<BOOL ()> mIsDockedStateForcedCallback;
 
 private:
 	std::unique_ptr<LLDockControl> mDockControl;

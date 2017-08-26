@@ -28,7 +28,6 @@
 #define LL_LLRECENTPEOPLE_H
 
 #include "llevent.h"
-#include "llsingleton.h"
 #include "lluuid.h"
 
 class LLDate;
@@ -46,7 +45,8 @@ class LLDate;
  */
 class LLRecentPeople: public LLSingleton<LLRecentPeople>, public LLOldEvents::LLSimpleListener
 {
-	LLSINGLETON_EMPTY_CTOR(LLRecentPeople);
+	LLSINGLETON(LLRecentPeople);
+	~LLRecentPeople();
 	LOG_CLASS(LLRecentPeople);
 public:
 	typedef boost::signals2::signal<void ()> signal_t;
@@ -63,7 +63,7 @@ public:
 	 *
 	 * @return false if the avatar is in the list already, true otherwise
 	 */
-	bool add(const LLUUID& id, const LLSD& userdata = LLSD().with("date", LLDate::now()));
+	bool add(const LLUUID& id, LLSD& userdata = LLSD().with("date", LLDate::now()));
 
 	/**
 	 * @param id avatar to search.
@@ -110,7 +110,22 @@ public:
 	/**
 	 * LLSimpleListener interface.
 	 */
-	/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata) override;
+	
+	/**
+	 * Saves recent people to file
+	 */
+	bool save() const;
+	
+	/**
+	 * Loads recent people from file
+	 */
+	bool load();
+	
+	/**
+	 * Clears recent people history
+	 */
+	void clearHistory();
 
 private:
 
@@ -119,6 +134,8 @@ private:
 	typedef std::map<LLUUID, LLSD> recent_people_t;
 	recent_people_t		mPeople;
 	signal_t			mChangedSignal;
+	
+	std::string			mFilename;
 };
 
 #endif // LL_LLRECENTPEOPLE_H

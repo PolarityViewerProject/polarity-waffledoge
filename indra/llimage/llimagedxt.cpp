@@ -273,7 +273,7 @@ bool LLImageDXT::decode(LLImageRaw* raw_image, F32 time)
 	
 	S32 width = getWidth(), height = getHeight();
 	S32 ncomponents = getComponents();
-	U8* data = NULL;
+	U8* data = nullptr;
 	if (mDiscardLevel >= 0)
 	{
 		data = getData() + getMipOffset(mDiscardLevel);
@@ -334,7 +334,7 @@ bool LLImageDXT::encodeDXT(const LLImageRaw* raw_image, F32 time, bool explicit_
 		break;
 	  default:
 		LL_ERRS() << "LLImageDXT::encode: Unhandled channel number: " << ncomponents << LL_ENDL;
-		return 0;
+		return false;
 	}
 
 	S32 width = raw_image->getWidth();
@@ -373,7 +373,7 @@ bool LLImageDXT::encodeDXT(const LLImageRaw* raw_image, F32 time, bool explicit_
 	header->maxwidth = width;
 	header->maxheight = height;
 
-	U8* prev_mipdata = 0;
+	U8* prev_mipdata = nullptr;
 	w = width, h = height;
 	for (S32 mip=0; mip<nmips; mip++)
 	{
@@ -432,7 +432,7 @@ bool LLImageDXT::convertToDXR()
 	S32 nmips = calcNumMips(width,height);
 	S32 total_bytes = getDataSize();
 	U8* olddata = getData();
-	U8* newdata = (U8*) ll_aligned_malloc_16(total_bytes);
+	U8* newdata = (U8*)ll_aligned_malloc_16(total_bytes);
 	if (!newdata)
 	{
 		LL_ERRS() << "Out of memory in LLImageDXT::convertToDXR()" << LL_ENDL;

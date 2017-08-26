@@ -30,39 +30,40 @@
 #include "llpanel.h"
 #include "lltimer.h"
 #include "llvoiceclient.h"
+#include <unordered_map>
 
 class LLOfferInfo;
 
-const F32 UPDATE_MEMBERS_SECONDS_PER_FRAME = 0.005; // 5ms
+const F32 UPDATE_MEMBERS_SECONDS_PER_FRAME = 0.005f; // 5ms // <alchemy/>
 
 // Forward declares
 class LLPanelGroupTab;
 class LLTabContainer;
 class LLAgent;
+class LLAccordionCtrl;
 
 
 class LLPanelGroup : public LLPanel,
 					 public LLGroupMgrObserver,
 					 public LLVoiceClientStatusObserver
 {
+	friend class LLGroupActions;
+
 public:
 	LLPanelGroup();
 	virtual ~LLPanelGroup();
-
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 
 	void setGroupID(const LLUUID& group_id);
-
-	void draw();
-
-	void onOpen(const LLSD& key);
+	void draw() override;
+	void onOpen(const LLSD& key) override;
 
 	// Group manager observer trigger.
-	virtual void changed(LLGroupChange gc);
+	void changed(LLGroupChange gc) override;
 
 	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
 	// button when voice is available
-	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+	void onChange(EStatusType status, const std::string &channelURI, bool proximal) override;
 
 	void showNotice(const std::string& subject,
 					const std::string& message,
@@ -77,7 +78,7 @@ public:
 	void callGroup();
 	void chatGroup();
 
-	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
 
 	static void refreshCreatedGroup(const LLUUID& group_id);
 
@@ -94,20 +95,16 @@ protected:
 
 	void onBtnCreate();
 	void onBackBtnClick();
-	void onBtnJoin();
+	void onBtnJoin() const;
 	void onBtnCancel();
+	void onBtnApply();
 
-	static void onBtnApply(void*);
-	static void onBtnRefresh(void*);
-	static void onBtnGroupCallClicked(void*);
-	static void onBtnGroupChatClicked(void*);
-
-	void reposButton(const std::string& name);
+	void reposButton(LLButton* button);
 	void reposButtons();
 	
+	bool apply(LLPanelGroupTab* tab);
 
-protected:
-	bool	apply(LLPanelGroupTab* tab);
+	void refreshNotices();
 
 	LLTimer mRefreshTimer;
 
@@ -118,9 +115,22 @@ protected:
 
 	std::vector<LLPanelGroupTab* > mTabs;
 
-	LLButton*		mButtonJoin;
-	LLUICtrl*		mJoinText;
+	LLAccordionCtrl*	mAccordianGroup;
+	LLButton*			mButtonApply;
+	LLButton*			mButtonCall;
+	LLButton*			mButtonChat;
+	LLButton*			mButtonCreate;
+	LLButton*			mButtonJoin;
+	LLButton*			mButtonRefresh;
+	LLUICtrl*			mJoinText;
+	
+private:
+	void copyData(const LLSD& userdata);
+	void closeParentFloater();
 };
+
+using panel_multimap_t = std::unordered_multimap< LLUUID, LLPanelGroup* >;
+static panel_multimap_t sGroupPanelInstances;
 
 class LLPanelGroupTab : public LLPanel
 {
@@ -152,7 +162,7 @@ public:
 	virtual void update(LLGroupChange gc) { }
 
 	// This just connects the help button callback.
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 
 	virtual BOOL isVisibleByAgent(LLAgent* agentp);
 

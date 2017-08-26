@@ -67,7 +67,7 @@ F32 SHINE_OPACITY = 0.3f;
 F32 FALL_TIME = 0.6f;
 S32 BORDER_WIDTH = 6;
 
-const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
+const S32 MAX_TEXTURE_SIZE = 1024 ; //max upload texture size 512 * 512 // <alchemy/>
 
 std::set<LLSnapshotLivePreview*> LLSnapshotLivePreview::sList;
 
@@ -100,12 +100,12 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
     mAllowFullScreenPreview(TRUE),
     mViewContainer(NULL)
 {
-	setSnapshotQuality(mSnapshotQuality); // <polarity>
+	setSnapshotQuality(gSavedSettings.getS32("SnapshotQuality"));
 	mSnapshotDelayTimer.setTimerExpirySec(0.0f);
 	mSnapshotDelayTimer.start();
 	// 	gIdleCallbacks.addFunction( &LLSnapshotLivePreview::onIdle, (void*)this );
 	sList.insert(this);
-	setFollowsAll();
+	setFollows(FOLLOWS_ALL);
 	mWidth[0] = gViewerWindow->getWindowWidthRaw();
 	mWidth[1] = gViewerWindow->getWindowWidthRaw();
 	mHeight[0] = gViewerWindow->getWindowHeightRaw();
@@ -113,7 +113,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mImageScaled[0] = FALSE;
 	mImageScaled[1] = FALSE;
 
-	mMaxImageSize = gGLManager.mGLMaxTextureSize;
+	mMaxImageSize = MAX_SNAPSHOT_IMAGE_SIZE ;
 	mKeepAspectRatio = gSavedSettings.getBOOL("KeepAspectForSnapshot") ;
 	mThumbnailUpdateLock = FALSE ;
 	mThumbnailUpToDate   = FALSE ;
@@ -135,7 +135,7 @@ LLSnapshotLivePreview::~LLSnapshotLivePreview()
 
 void LLSnapshotLivePreview::setMaxImageSize(S32 size) 
 {
-    mMaxImageSize = llmin(size, gGLManager.mGLMaxTextureSize);
+    mMaxImageSize = llmin(size,(S32)(MAX_SNAPSHOT_IMAGE_SIZE));
 }
 
 LLViewerTexture* LLSnapshotLivePreview::getCurrentImage()
@@ -220,7 +220,7 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 // Return true if the quality has been changed, false otherwise
 bool LLSnapshotLivePreview::setSnapshotQuality(S32 quality, bool set_by_user)
 {
-	llclamp(quality, 0, 100);
+	quality = llclamp(quality, 0, 100);
 	if (quality != mSnapshotQuality)
 	{
 		mSnapshotQuality = quality;
@@ -238,11 +238,11 @@ void LLSnapshotLivePreview::drawPreviewRect(S32 offset_x, S32 offset_y)
 {
 	F32 line_width ; 
 	glGetFloatv(GL_LINE_WIDTH, &line_width) ;
-	glLineWidth(2.0f * line_width) ;
+	gGL.setLineWidth(2.0f * line_width) ;
 	LLColor4 color(0.0f, 0.0f, 0.0f, 1.0f) ;
 	gl_rect_2d( mPreviewRect.mLeft + offset_x, mPreviewRect.mTop + offset_y,
 		mPreviewRect.mRight + offset_x, mPreviewRect.mBottom + offset_y, color, FALSE ) ;
-	glLineWidth(line_width) ;
+	gGL.setLineWidth(line_width) ;
 
 	//draw four alpha rectangles to cover areas outside of the snapshot image
 	if(!mKeepAspectRatio)
@@ -296,13 +296,19 @@ void LLSnapshotLivePreview::draw()
 		gGL.pushMatrix();
 		{
 			gGL.translatef((F32)rect.mLeft, (F32)rect.mBottom, 0.f);
-			gGL.begin(LLRender::QUADS);
+			gGL.begin(LLRender::TRIANGLES);
 			{
+				gGL.texCoord2f(0.f, uv_height);
+				gGL.vertex2i(0, rect.getHeight() );
+				
+				gGL.texCoord2f(0.f, 0.f);
+				gGL.vertex2i(0, 0);
+				
 				gGL.texCoord2f(uv_width, uv_height);
 				gGL.vertex2i(rect.getWidth(), rect.getHeight() );
 
-				gGL.texCoord2f(0.f, uv_height);
-				gGL.vertex2i(0, rect.getHeight() );
+				gGL.texCoord2f(uv_width, uv_height);
+				gGL.vertex2i(rect.getWidth(), rect.getHeight() );
 
 				gGL.texCoord2f(0.f, 0.f);
 				gGL.vertex2i(0, 0);
@@ -357,18 +363,18 @@ void LLSnapshotLivePreview::draw()
 				S32 y2 = gViewerWindow->getWindowHeightScaled();
 
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-				gGL.begin(LLRender::QUADS);
+				gGL.begin(LLRender::TRIANGLE_STRIP);
 				{
 					gGL.color4f(1.f, 1.f, 1.f, 0.f);
-					gGL.vertex2i(x1, y1);
 					gGL.vertex2i(x1 + gViewerWindow->getWindowWidthScaled(), y2);
+					gGL.vertex2i(x1, y1);
 					gGL.color4f(1.f, 1.f, 1.f, SHINE_OPACITY);
 					gGL.vertex2i(x2 + gViewerWindow->getWindowWidthScaled(), y2);
 					gGL.vertex2i(x2, y1);
 
 					gGL.color4f(1.f, 1.f, 1.f, SHINE_OPACITY);
-					gGL.vertex2i(x2, y1);
 					gGL.vertex2i(x2 + gViewerWindow->getWindowWidthScaled(), y2);
+					gGL.vertex2i(x2, y1);
 					gGL.color4f(1.f, 1.f, 1.f, 0.f);
 					gGL.vertex2i(x3 + gViewerWindow->getWindowWidthScaled(), y2);
 					gGL.vertex2i(x3, y1);
@@ -389,27 +395,18 @@ void LLSnapshotLivePreview::draw()
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4f(1.f, 1.f, 1.f, 1.f);
 		const LLRect& outline_rect = getImageRect();
-		gGL.begin(LLRender::QUADS);
+		gGL.begin(LLRender::TRIANGLE_STRIP);
 		{
 			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
+			gGL.vertex2i(outline_rect.mLeft, outline_rect.mTop);
 			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
 			gGL.vertex2i(outline_rect.mRight, outline_rect.mTop);
-			gGL.vertex2i(outline_rect.mLeft, outline_rect.mTop);
-
-			gGL.vertex2i(outline_rect.mLeft, outline_rect.mBottom);
-			gGL.vertex2i(outline_rect.mRight, outline_rect.mBottom);
 			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
+			gGL.vertex2i(outline_rect.mRight, outline_rect.mBottom);
 			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
-
-			gGL.vertex2i(outline_rect.mLeft, outline_rect.mTop);
 			gGL.vertex2i(outline_rect.mLeft, outline_rect.mBottom);
-			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
 			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
-
-			gGL.vertex2i(outline_rect.mRight, outline_rect.mBottom);
-			gGL.vertex2i(outline_rect.mRight, outline_rect.mTop);
-			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
-			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
+			gGL.vertex2i(outline_rect.mLeft, outline_rect.mTop);
 		}
 		gGL.end();
 	}
@@ -436,7 +433,7 @@ void LLSnapshotLivePreview::draw()
 				LLRect& rect = mImageRect[old_image_index];
 				gGL.translatef((F32)rect.mLeft, (F32)rect.mBottom - ll_round(getRect().getHeight() * 2.f * (fall_interp * fall_interp)), 0.f);
 				gGL.rotatef(-45.f * fall_interp, 0.f, 0.f, 1.f);
-				gGL.begin(LLRender::QUADS);
+				gGL.begin(LLRender::TRIANGLE_STRIP);
 				{
 					gGL.texCoord2f(uv_width, uv_height);
 					gGL.vertex2i(rect.getWidth(), rect.getHeight() );
@@ -444,11 +441,11 @@ void LLSnapshotLivePreview::draw()
 					gGL.texCoord2f(0.f, uv_height);
 					gGL.vertex2i(0, rect.getHeight() );
 
-					gGL.texCoord2f(0.f, 0.f);
-					gGL.vertex2i(0, 0);
-
 					gGL.texCoord2f(uv_width, 0.f);
 					gGL.vertex2i(rect.getWidth(), 0);
+
+					gGL.texCoord2f(0.f, 0.f);
+					gGL.vertex2i(0, 0);
 				}
 				gGL.end();
 			}
@@ -698,17 +695,15 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	// If we're in freeze-frame and/or auto update mode and camera has moved, update snapshot.
 	LLVector3 new_camera_pos = LLViewerCamera::getInstance()->getOrigin();
 	LLQuaternion new_camera_rot = LLViewerCamera::getInstance()->getQuaternion();
-	static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
-	static LLCachedControl<bool> auto_snapsnot(gSavedSettings, "AutoSnapshot", false);
 	if (previewp->mForceUpdateSnapshot ||
-		(((auto_snapsnot && LLView::isAvailable(previewp->mViewContainer)) ||
-		(freeze_time && previewp->mAllowFullScreenPreview)) &&
+		(((gSavedSettings.getBOOL("AutoSnapshot") && LLView::isAvailable(previewp->mViewContainer)) ||
+		(gSavedSettings.getBOOL("FreezeTime") && previewp->mAllowFullScreenPreview)) &&
 		(new_camera_pos != previewp->mCameraPos || dot(new_camera_rot, previewp->mCameraRot) < 0.995f)))
 	{
 		previewp->mCameraPos = new_camera_pos;
 		previewp->mCameraRot = new_camera_rot;
 		// request a new snapshot whenever the camera moves, with a time delay
-		BOOL new_snapshot = freeze_time || previewp->mForceUpdateSnapshot;
+		BOOL new_snapshot = gSavedSettings.getBOOL("AutoSnapshot") || previewp->mForceUpdateSnapshot;
 		LL_DEBUGS() << "camera moved, updating thumbnail" << LL_ENDL;
 		previewp->updateSnapshot(
 			new_snapshot, // whether a new snapshot is needed or merely invalidate the existing one
@@ -740,16 +735,16 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
         previewp->setImageScaled(FALSE);
 
         // grab the raw image
-		static LLCachedControl<bool> render_ui(gSavedSettings, "RenderUIInSnapshot");
         if (gViewerWindow->rawSnapshot(
                 previewp->mPreviewImage,
                 previewp->getWidth(),
                 previewp->getHeight(),
                 previewp->mKeepAspectRatio,//gSavedSettings.getBOOL("KeepAspectForSnapshot"),
                 previewp->getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE,
-                previewp->mAllowRenderUI && render_ui,
+                previewp->mAllowRenderUI && gSavedSettings.getBOOL("RenderUIInSnapshot"),
                 FALSE,
-                previewp->mSnapshotBufferType))
+                previewp->mSnapshotBufferType,
+                previewp->getMaxImageSize()))
         {
             // Invalidate/delete any existing encoded image
             previewp->mPreviewImageEncoded = NULL;
@@ -757,6 +752,12 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             previewp->mFormattedImage = NULL;
             // Update the data size
             previewp->estimateDataSize();
+
+            // Full size preview is set: get the decoded image result and save it for animation
+            if (gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview)
+            {
+                previewp->prepareFreezeFrame();
+            }
 
             // The snapshot is updated now...
             previewp->mSnapshotUpToDate = TRUE;
@@ -766,6 +767,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             previewp->generateThumbnailImage(TRUE) ;
         }
         previewp->getWindow()->decBusyCount();
+        previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
         previewp->mSnapshotActive = FALSE;
         LL_DEBUGS() << "done creating snapshot" << LL_ENDL;
     }
@@ -782,6 +784,47 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
     }
 
 	return TRUE;
+}
+
+void LLSnapshotLivePreview::prepareFreezeFrame()
+{
+    // Get the decoded version of the formatted image
+    getEncodedImage();
+
+    // We need to scale that a bit for display...
+    LLPointer<LLImageRaw> scaled = new LLImageRaw(
+        mPreviewImageEncoded->getData(),
+        mPreviewImageEncoded->getWidth(),
+        mPreviewImageEncoded->getHeight(),
+        mPreviewImageEncoded->getComponents());
+
+    if (!scaled->isBufferInvalid())
+    {
+        // leave original image dimensions, just scale up texture buffer
+        if (mPreviewImageEncoded->getWidth() > 1024 || mPreviewImageEncoded->getHeight() > 1024)
+        {
+            // go ahead and shrink image to appropriate power of 2 for display
+            scaled->biasedScaleToPowerOfTwo(1024);
+            setImageScaled(TRUE);
+        }
+        else
+        {
+            // expand image but keep original image data intact
+            scaled->expandToPowerOfTwo(1024, FALSE);
+        }
+
+        mViewerImage[mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
+        LLPointer<LLViewerTexture> curr_preview_image = mViewerImage[mCurImageIndex];
+        gGL.getTexUnit(0)->bind(curr_preview_image);
+        curr_preview_image->setFilteringOption(getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
+        curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
+
+
+        if (gSavedSettings.getBOOL("UseFreezeFrame") && mAllowFullScreenPreview)
+        {
+            mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
+        }
+    }
 }
 
 S32 LLSnapshotLivePreview::getEncodedImageWidth() const
@@ -1019,41 +1062,18 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 	mDataSize = 0;
 }
 
-// <FS:Ansariel> Threaded filepickers
-//BOOL LLSnapshotLivePreview::saveLocal()
-//{
-//    // Update mFormattedImage if necessary
-//    getFormattedImage();
-//    
-//    // Save the formatted image
-//	BOOL success = gViewerWindow->saveImageNumbered(mFormattedImage);
-//
-//	if(success)
-//	{
-//		gViewerWindow->playSnapshotAnimAndSound();
-//	}
-//	return success;
-//}
-
-void LLSnapshotLivePreview::saveLocal(boost::function<void(bool)> callback)
+BOOL LLSnapshotLivePreview::saveLocal()
 {
-	// Update mFormattedImage if necessary
-	getFormattedImage();
+    // Update mFormattedImage if necessary
+    getFormattedImage();
+    
+    // Save the formatted image
+	BOOL success = gViewerWindow->saveImageNumbered(mFormattedImage);
 
-	// Save the formatted image
-	gViewerWindow->saveImageNumbered(mFormattedImage, false, boost::bind(&LLSnapshotLivePreview::saveLocalCallback, this, _1, callback));
-}
-
-void LLSnapshotLivePreview::saveLocalCallback(bool success, boost::function<void(bool)> callback)
-{
 	if(success)
 	{
 		gViewerWindow->playSnapshotAnimAndSound();
 	}
-
-	if (callback)
-	{
-		callback(success);
-	}
+	return success;
 }
-// </FS:Ansariel>
+

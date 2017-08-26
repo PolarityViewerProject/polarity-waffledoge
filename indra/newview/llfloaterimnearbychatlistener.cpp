@@ -34,14 +34,13 @@
 #include "llfloaterimnearbychat.h"
 
 #include "llagent.h"
-#include "llchat.h"
-#include "llviewercontrol.h"
+#include "llchatutilities.h"
 
 
 LLFloaterIMNearbyChatListener::LLFloaterIMNearbyChatListener(LLFloaterIMNearbyChat & chatbar)
   : LLEventAPI("LLChatBar",
-               "LLChatBar listener to (e.g.) sendChat, etc."),
-	mChatbar(chatbar)
+               "LLChatBar listener to (e.g.) sendChat, etc.")
+//	mChatbar(chatbar)
 {
     add("sendChat",
         "Send chat to the simulator:\n"
@@ -97,6 +96,7 @@ void LLFloaterIMNearbyChatListener::sendChat(LLSD const & chat_data) const
 	}
 
 	// Send it as if it was typed in
-	mChatbar.sendChatFromViewer(chat_to_send, type_o_chat, ((BOOL)(channel == 0)) && gSavedSettings.getBOOL("PlayChatAnim"));
+	LLChatUtilities::sendChatFromViewer(chat_to_send, type_o_chat,
+								channel == 0 && gSavedSettings.getBool("PlayChatAnim"));
 }
 

@@ -43,8 +43,6 @@
 #include "llviewerregion.h"
 #include "llface.h"
 #include "llrender.h"
-
-//BD - Changable Cloud Noise Texture
 #include "llviewercontrol.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -60,7 +58,39 @@ static LLGLSLShader* star_shader = NULL;
 LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 	LLDrawPool(POOL_WL_SKY)
 {
-	loadCloudNoise();
+	std::string cloudNoiseFilename(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/clouds", gSavedSettings.getString("AlchemyWLCloudTexture")));
+	if (!gDirUtilp->fileExists(cloudNoiseFilename))
+	{
+		cloudNoiseFilename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/clouds", "Default.tga");
+	}
+	LL_INFOS() << "loading WindLight cloud noise from " << cloudNoiseFilename << LL_ENDL;
+
+	LLPointer<LLImageFormatted> cloudNoiseFile(LLImageFormatted::createFromExtension(cloudNoiseFilename));
+
+	if(cloudNoiseFile.isNull()) {
+		LL_ERRS() << "Error: Failed to load cloud noise image " << cloudNoiseFilename << LL_ENDL;
+	}
+
+	if(cloudNoiseFile->load(cloudNoiseFilename))
+	{
+		sCloudNoiseRawImage = new LLImageRaw();
+
+		if(cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f))
+		{
+			//debug use			
+			LL_DEBUGS() << "cloud noise raw image width: " << sCloudNoiseRawImage->getWidth() << " : height: " << sCloudNoiseRawImage->getHeight() << " : components: " << 
+				(S32)sCloudNoiseRawImage->getComponents() << " : data size: " << sCloudNoiseRawImage->getDataSize() << LL_ENDL ;
+			llassert_always(sCloudNoiseRawImage->getData()) ;
+
+			sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+		}
+		else
+		{
+			sCloudNoiseRawImage = NULL ;
+		}
+	}
+
+	LLWLParamManager::getInstance()->propagateParameters();
 }
 
 LLDrawPoolWLSky::~LLDrawPoolWLSky()
@@ -147,6 +177,7 @@ void LLDrawPoolWLSky::renderSkyHaze(F32 camHeightLocal) const
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
 	{
 		LLGLDisable blend(GL_BLEND);
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 		sky_shader->bind();
 
@@ -161,18 +192,11 @@ void LLDrawPoolWLSky::renderStars(void) const
 {
 	// *NOTE: we divide by two here and GL_ALPHA_SCALE by two below to avoid
 	// clamping and allow the star_alpha param to brighten the stars.
-
 	bool error;
 	LLColor4 star_alpha(LLColor4::black);
 	star_alpha.mV[3] = LLWLParamManager::getInstance()->mCurParams.getFloat("star_brightness", error) / 2.f;
-	// If star_brightness is not set, exit
-	if(error)
-	{
-		LL_WARNS() << "star_brightness missing in mCurParams" << LL_ENDL;
-		return;
-	}
-
-	if (star_alpha.mV[3] <= 0.f)
+	llassert_always(!error);
+	if(star_alpha.mV[3] <= 0)
 		return;
 
 	LLGLSPipelineSkyBox gls_sky;
@@ -186,9 +210,9 @@ void LLDrawPoolWLSky::renderStars(void) const
 	
 	gPipeline.disableLights();
 	
+
 	gGL.pushMatrix();
 	gGL.rotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
-
 	gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex());
 
 	if (gPipeline.canUseVertexShaders())
@@ -207,7 +231,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 
 	gGL.popMatrix();
 
-	if (!LLGLSLShader::sNoFixedFunction)
+	if (!gPipeline.canUseVertexShaders())
 	{
 		// and disable the combiner states
 		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
@@ -237,7 +261,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 	LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor(), gSky.mVOSkyp->getMoon().getDirection().mV[2]);
 	if (color.mV[VW] <= 0.f)
 		return;
-
+	
 	color.mV[VW] = llclamp(color.mV[VW]*color.mV[VW]*4.f,0.f,1.f);
 
 	LLGLSPipelineSkyBox gls_skybox;
@@ -266,7 +290,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		// since LLImageGL::bind detects that it's a noop, and optimizes it out.
 		gGL.getTexUnit(0)->bind(face->getTexture());
 		
-		if (LLGLSLShader::sNoFixedFunction)
+		if (gPipeline.canUseVertexShaders())
 		{
 			// Okay, so the moon isn't a star, but it's close enough.
 			static LLStaticHashedString sCustomAlpha("custom_alpha");
@@ -282,7 +306,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		face->getVertexBuffer()->setBuffer(LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK);
 		face->getVertexBuffer()->draw(LLRender::TRIANGLES, face->getVertexBuffer()->getNumIndices(), 0);
 		
-		if (!LLGLSLShader::sNoFixedFunction)
+		if (!gPipeline.canUseVertexShaders())
 		{
 			gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 		}
@@ -347,7 +371,6 @@ void LLDrawPoolWLSky::render(S32 pass)
 
 	const F32 camHeightLocal = LLWLParamManager::getInstance()->getDomeOffset() * LLWLParamManager::getInstance()->getDomeRadius();
 
-	LLGLDisable stencil(GL_STENCIL_TEST);
 	LLGLSNoFog disableFog;
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	LLGLDisable clip(GL_CLIP_PLANE0);
@@ -361,9 +384,8 @@ void LLDrawPoolWLSky::render(S32 pass)
 
 		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
-		if (LLGLSLShader::sNoFixedFunction)
+		if(gPipeline.canUseVertexShaders())
 			star_shader->bind();
-
 		// *NOTE: have to bind a texture here since register combiners blending in
 		// renderStars() requires something to be bound and we might as well only
 		// bind the moon's texture once.		
@@ -372,9 +394,9 @@ void LLDrawPoolWLSky::render(S32 pass)
 		renderHeavenlyBodies();
 
 		renderStars();
-
-		if (LLGLSLShader::sNoFixedFunction)
-			star_shader->unbind();
+		
+		if(gPipeline.canUseVertexShaders())
+			star_shader->unbind(); 
 
 	gGL.popMatrix();
 
@@ -415,41 +437,5 @@ void LLDrawPoolWLSky::restoreGL()
 	{
 		sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
 	}
-}
-
-//BD - Changable Cloud Noise Texture
-//static
-void LLDrawPoolWLSky::loadCloudNoise()
-{
-	const std::string cloudNoiseFilename(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", gSavedSettings.getString("CloudNoiseImageName")));
-	LL_INFOS() << "loading WindLight cloud noise from " << cloudNoiseFilename << LL_ENDL;
-
-	LLPointer<LLImageFormatted> cloudNoiseFile(LLImageFormatted::createFromExtension(cloudNoiseFilename));
-
-	if (cloudNoiseFile.isNull()) 
-	{
-		LL_WARNS() << "Failed to load cloud noise image " << cloudNoiseFilename << LL_ENDL;
-	}
-
-	if (cloudNoiseFile->load(cloudNoiseFilename))
-	{
-		sCloudNoiseRawImage = new LLImageRaw();
-
-		if (cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f))
-		{
-			//debug use			
-			LL_DEBUGS() << "cloud noise raw image width: " << sCloudNoiseRawImage->getWidth() << " : height: " << sCloudNoiseRawImage->getHeight() << " : components: " <<
-				(S32)sCloudNoiseRawImage->getComponents() << " : data size: " << sCloudNoiseRawImage->getDataSize() << LL_ENDL;
-			llassert_always(sCloudNoiseRawImage->getData());
-
-			sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
-		}
-		else
-		{
-			sCloudNoiseRawImage = NULL;
-		}
-	}
-
-	LLWLParamManager::getInstance()->propagateParameters();
 }
 

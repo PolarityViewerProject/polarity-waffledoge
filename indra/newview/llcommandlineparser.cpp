@@ -33,7 +33,6 @@
 #include <boost/program_options.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include "llsdserialize.h"
 #include "llerror.h"
@@ -59,14 +58,14 @@ namespace
     // List of command-line switches that can't map-to settings variables.
     // Going forward, we want every new command-line switch to map-to some
     // settings variable. This list is used to validate that.
-    const std::set<std::string> unmapped_options = boost::assign::list_of
-        ("help")
-        ("set")
-        ("setdefault")
-        ("settings")
-        ("sessionsettings")
-        ("usersessionsettings")
-    ;
+	const std::set<std::string> unmapped_options{
+        LLStringExplicit("help"),
+        LLStringExplicit("set"),
+        LLStringExplicit("setdefault"),
+        LLStringExplicit("settings"),
+        LLStringExplicit("sessionsettings"),
+        LLStringExplicit("usersessionsettings")
+	};
 
     po::options_description gOptionsDesc;
     po::positional_options_description gPositionalOptions;
@@ -99,7 +98,7 @@ class LLCLPValue : public po::value_semantic_codecvt_helper<char>
     unsigned mMinTokens;
     unsigned mMaxTokens;
     bool mIsComposing;
-    typedef boost::function1<void, const LLCommandLineParser::token_vector_t&> notify_callback_t;
+    typedef std::function<void (const LLCommandLineParser::token_vector_t&)> notify_callback_t;
     notify_callback_t mNotifyCallback;
     bool mLastOption;
 
@@ -139,40 +138,40 @@ public:
     }
 
     // Overrides to support the value_semantic interface.
-    virtual std::string name() const 
+	std::string name() const override
     { 
         const std::string arg("arg");
         const std::string args("args");
         return (max_tokens() > 1) ? args : arg; 
     }
 
-    virtual unsigned min_tokens() const
+	unsigned min_tokens() const override
     {
         return mMinTokens;
     }
 
-    virtual unsigned max_tokens() const 
+	unsigned max_tokens() const override
     {
         return mMaxTokens;
     }
 
-    virtual bool is_composing() const 
+	bool is_composing() const override
     {
         return mIsComposing;
     }
 
 	// Needed for boost 1.42
-	virtual bool is_required() const
+	bool is_required() const override
 	{
 		return false; // All our command line options are optional.
 	}
 
-    virtual bool apply_default(boost::any& value_store) const
+	bool apply_default(boost::any& value_store) const override
     {
         return false; // No defaults.
     }
 
-    virtual void notify(const boost::any& value_store) const
+	void notify(const boost::any& value_store) const override
     {
         const LLCommandLineParser::token_vector_t* value =
             boost::any_cast<const LLCommandLineParser::token_vector_t>(&value_store);
@@ -182,14 +181,14 @@ public:
         }
     }
 
-    virtual bool adjacent_tokens_only() const
-    {
-        return false;
-    }
+	bool adjacent_tokens_only() const override
+	{
+		return false;
+	}
 
 protected:
     void xparse(boost::any& value_store,
-         const std::vector<std::string>& new_tokens) const
+         const std::vector<std::string>& new_tokens) const override
     {
         if(gPastLastOption)
         {
@@ -229,7 +228,7 @@ protected:
 // LLCommandLineParser defintions
 //----------------------------------------------------------------------------
 void LLCommandLineParser::addOptionDesc(const std::string& option_name, 
-                                        boost::function1<void, const token_vector_t&> notify_callback,
+                                        std::function<void (const token_vector_t&)> notify_callback,
                                         unsigned int token_count,
                                         const std::string& description,
                                         const std::string& short_name,
@@ -258,7 +257,7 @@ void LLCommandLineParser::addOptionDesc(const std::string& option_name,
                                     value_desc, 
                                     description.c_str()));
 
-    if(!notify_callback.empty())
+    if(notify_callback != nullptr)
     {
         value_desc->setNotifyCallback(notify_callback);
     }
@@ -507,7 +506,7 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
     // compound types
     // ?...
 
-    if(NULL != ctrl)
+    if(nullptr != ctrl)
     {
         switch(ctrl->type())
         {
@@ -661,7 +660,7 @@ void LLControlGroupCLP::configure(const std::string& config_filename, LLControlG
                 last_option = option_params["last_option"].asBoolean();
             }
 
-            boost::function1<void, const token_vector_t&> callback;
+            std::function<void (const token_vector_t&)> callback;
             if (! option_params.has("map-to"))
             {
                 // If this option isn't mapped to a settings variable, is it
@@ -692,7 +691,7 @@ void LLControlGroupCLP::configure(const std::string& config_filename, LLControlG
                            << " which does not exist" << LL_ENDL;
                 }
 
-                callback = boost::bind(setControlValueCB, _1, long_name, ctrl);
+                callback = std::bind(setControlValueCB, std::placeholders::_1, long_name, ctrl);
             }
 
             this->addOptionDesc(

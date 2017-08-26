@@ -132,24 +132,6 @@ void LLHUDObject::cleanupHUDObjects()
 }
 
 // static
-void LLHUDObject::markViewerEffectsDead()
-{
-	for (LLPointer<LLHUDObject> hud_objp : sHUDObjects)
-	{
-		U8 type = hud_objp->getType();
-		if (hud_objp->isVisible() &&
-			((type & LL_HUD_EFFECT_LOOKAT)
-				|| (type & LL_HUD_EFFECT_POINTAT)
-				|| (type & LL_HUD_EFFECT_POINT)
-				|| (type & LL_HUD_EFFECT_BEAM)
-				|| (type & LL_HUD_EFFECT_SPIRAL)))
-		{
-			hud_objp->markDead();
-		}
-	}
-}
-
-// static
 LLHUDObject *LLHUDObject::addHUDObject(const U8 type)
 {
 	LLHUDObject *hud_objectp = NULL;
@@ -341,3 +323,19 @@ void LLHUDObject::sortObjects()
 {
 	sHUDObjects.sort(hud_object_further_away());	
 }
+// <Alchemy>
+// static
+void LLHUDObject::markViewerEffectsDead()
+{
+	for (LLPointer<LLHUDObject> hud_objp : sHUDObjects)
+	{
+		U8 type = hud_objp->getType();
+		if (hud_objp->isVisible() && (type & LL_HUD_EFFECT_LOOKAT ||
+			type & LL_HUD_EFFECT_POINTAT || type & LL_HUD_EFFECT_POINT ||
+			type & LL_HUD_EFFECT_BEAM || type & LL_HUD_EFFECT_SPIRAL))
+		{
+			hud_objp->markDead();
+		}
+	}
+}
+// </Alchemy>

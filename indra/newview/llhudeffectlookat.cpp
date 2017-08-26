@@ -35,17 +35,21 @@
 #include "message.h"
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llavatarnamecache.h"
-#include "llhudrender.h"
 #include "llvoavatar.h"
-#include "llvoavatarself.h"
 #include "lldrawable.h"
 #include "llviewerobjectlist.h"
 #include "llrendersphere.h"
 #include "llselectmgr.h"
 #include "llglheaders.h"
 #include "llxmltree.h"
+
+// <alchemy>
+#include "llavatarnamecache.h"
+#include "llhudrender.h"
 #include "llviewercontrol.h"
+// </alchemy>
+
+//BOOL LLHUDEffectLookAt::sDebugLookAt = FALSE; // <alchemy/>
 
 // packet layout
 const S32 SOURCE_AVATAR = 0;
@@ -242,8 +246,10 @@ static BOOL loadAttentions()
 LLHUDEffectLookAt::LLHUDEffectLookAt(const U8 type) : 
 	LLHUDEffect(type), 
 	mKillTime(0.f),
+// <alchemy>
 	mLastSendTime(0.f),
-	mDebugLookAt(LLCachedControl<bool> (gSavedSettings, "PVPrivacy_LookAtShow", false))
+	mDebugLookAt(gSavedSettings, "AlchemyLookAtShow", false)
+// </alchemy>
 {
 	clearLookAtTarget();
 	// parse the default sets
@@ -268,19 +274,7 @@ void LLHUDEffectLookAt::packData(LLMessageSystem *mesgsys)
 	LLHUDEffect::packData(mesgsys);
 
 	// Pack the type-specific data.  Uses a fun packed binary format.  Whee!
-	U8 packed_data[PKT_SIZE];
-	memset(packed_data, 0, PKT_SIZE);
-
-	ELookAtType target_type = mTargetType;
-	LLViewerObject* objectp = mTargetObject;
-	LLVector3d pos = mTargetOffsetGlobal;
-	static LLCachedControl<bool> is_lookat_private(gSavedSettings, "PVPrivacy_LookAtBroadcastDisabled", false);
-	if (is_lookat_private && gAgent.getID() == mSourceObject->getID())
-	{
-		target_type = LOOKAT_TARGET_NONE;
-		objectp = gAgentAvatarp;
-		pos.clearVec();
-	}
+	U8 packed_data[PKT_SIZE] = {0};
 
 	if (mSourceObject)
 	{
@@ -293,18 +287,18 @@ void LLHUDEffectLookAt::packData(LLMessageSystem *mesgsys)
 
 	// pack both target object and position
 	// position interpreted as offset if target object is non-null
-	if (objectp)
+	if (mTargetObject)
 	{
-		htonmemcpy(&(packed_data[TARGET_OBJECT]), objectp->mID.mData, MVT_LLUUID, 16);
+		htonmemcpy(&(packed_data[TARGET_OBJECT]), mTargetObject->mID.mData, MVT_LLUUID, 16);
 	}
 	else
 	{
 		htonmemcpy(&(packed_data[TARGET_OBJECT]), LLUUID::null.mData, MVT_LLUUID, 16);
 	}
 
-	htonmemcpy(&(packed_data[TARGET_POS]), pos.mdV, MVT_LLVector3d, 24);
+	htonmemcpy(&(packed_data[TARGET_POS]), mTargetOffsetGlobal.mdV, MVT_LLVector3d, 24);
 
-	U8 lookAtTypePacked = (U8)target_type;
+	U8 lookAtTypePacked = (U8)mTargetType;
 	
 	htonmemcpy(&(packed_data[LOOKAT_TYPE]), &lookAtTypePacked, MVT_U8, 1);
 
@@ -374,8 +368,17 @@ void LLHUDEffectLookAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 
 	U8 lookAtTypeUnpacked = 0;
 	htonmemcpy(&lookAtTypeUnpacked, &(packed_data[LOOKAT_TYPE]), MVT_U8, 1);
-	mTargetType = (ELookAtType)lookAtTypeUnpacked;
-
+	// <alchemy>
+	if ((U8)LOOKAT_NUM_TARGETS > lookAtTypeUnpacked)
+	{
+		mTargetType = (ELookAtType)lookAtTypeUnpacked;
+	}
+	else
+	{ 
+		mTargetType = LOOKAT_TARGET_NONE;
+		LL_DEBUGS("HUDEffect") << "Invalid target type: " << lookAtTypeUnpacked << LL_ENDL;
+	}
+	// </alchemy>
 	if (mTargetType == LOOKAT_TARGET_NONE)
 	{
 		clearLookAtTarget();
@@ -396,7 +399,7 @@ void LLHUDEffectLookAt::setTargetObjectAndOffset(LLViewerObject *objp, LLVector3
 //-----------------------------------------------------------------------------
 void LLHUDEffectLookAt::setTargetPosGlobal(const LLVector3d &target_pos_global)
 {
-	mTargetObject = NULL;
+	mTargetObject = nullptr;
 	mTargetOffsetGlobal = target_pos_global;
 }
 
@@ -468,7 +471,7 @@ BOOL LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
 //-----------------------------------------------------------------------------
 void LLHUDEffectLookAt::clearLookAtTarget()
 {
-	mTargetObject = NULL;
+	mTargetObject = nullptr;
 	mTargetOffsetGlobal.clearVec();
 	mTargetType = LOOKAT_TARGET_NONE;
 	if (mSourceObject.notNull())
@@ -487,7 +490,7 @@ void LLHUDEffectLookAt::markDead()
 		((LLVOAvatar*)(LLViewerObject*)mSourceObject)->removeAnimationData("LookAtPoint");
 	}
 
-	mSourceObject = NULL;
+	mSourceObject = nullptr;
 	clearLookAtTarget();
 	LLHUDEffect::markDead();
 }
@@ -506,17 +509,18 @@ void LLHUDEffectLookAt::setSourceObject(LLViewerObject* objectp)
 //-----------------------------------------------------------------------------
 void LLHUDEffectLookAt::render()
 {
+	// <alchemy>
 	if (mDebugLookAt && mSourceObject.notNull())
 	{
-		LLVOAvatar* avatarp = static_cast<LLVOAvatar*>(mSourceObject.get());
-		static LLCachedControl<bool> lookat_hide_self(gSavedSettings, "PVPrivacy_LookAtHideSelf", false);
-		static LLCachedControl<bool> lookat_local_disabled(gSavedSettings, "PVPrivacy_LookAtDontSend", false);
-		if (!avatarp || ((lookat_local_disabled || lookat_hide_self) && avatarp->isSelf()))
+		static LLCachedControl<bool> isOwnHidden(gSavedSettings, "AlchemyLookAtHideSelf", true);
+		static LLCachedControl<bool> isPrivate(gSavedSettings, "AlchemyLookAtPrivate", false);
+
+		if ((isOwnHidden || isPrivate) && static_cast<LLVOAvatar*>(mSourceObject.get())->isSelf())
 			return;
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		LLVector3 target = mTargetPos + avatarp->mHeadp->getWorldPosition();
+		LLVector3 target = mTargetPos + ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->mHeadp->getWorldPosition();
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.pushMatrix();
 		gGL.translatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
@@ -534,78 +538,60 @@ void LLHUDEffectLookAt::render()
 			gGL.vertex3f(0.f, 0.f, -1.f);
 			gGL.vertex3f(0.f, 0.f, 1.f);
 
-			static LLCachedControl<bool> lookat_render_lines(gSavedSettings, "PVPrivacy_LookAtLines", false);
-			if (lookat_render_lines)
+			static LLCachedControl<bool> lookAtLines(gSavedSettings, "AlchemyLookAtLines", false);
+			if(lookAtLines)
 			{
-				const std::string target_name = (*mAttentions)[mTargetType].mName;
-				if (target_name != "None"
-					&& target_name != "Idle"
-					&& target_name != "AutoListen")
+				const std::string targname = (*mAttentions)[mTargetType].mName;
+				if(targname != "None" && targname != "Idle" && targname != "AutoListen")
 				{
 					LLVector3 dist = (mSourceObject->getWorldPosition() - mTargetPos) * 10;
 					gGL.vertex3f(0.f, 0.f, 0.f);
 					gGL.vertex3f(dist.mV[VX], dist.mV[VY], dist.mV[VZ] + 0.5f);
 				}
 			}
-		} gGL.end();
+		}
+		gGL.end();
 		gGL.popMatrix();
 
-		static LLCachedControl<U32> lookat_render_names(gSavedSettings, "PVPrivacy_LookAtNames", 0);
-		if (lookat_render_names > 0)
+		static LLCachedControl<U32> lookAtNames(gSavedSettings, "AlchemyLookAtNames", 0);
+		if(lookAtNames > 0)
 		{
 			std::string text;
 			LLAvatarName av_name;
-			LLAvatarNameCache::get(avatarp->getID(), &av_name);
-			switch (lookat_render_names)
+			LLAvatarNameCache::get(static_cast<LLVOAvatar*>(mSourceObject.get())->getID(), &av_name);
+			switch (lookAtNames)
 			{
-			case 1: // Display Name (user.name)
-				text = av_name.getCompleteName();
-				break;
-			case 2: // Display Name
-				text = av_name.getDisplayName();
-				break;
-			case 3: // First Last
-				text = av_name.getUserName();
-				break;
-			default: //user.name
-				text = av_name.getAccountName();
-				break;
+				case 1: // Display Name (user.name)
+					text = av_name.getCompleteName();
+					break;
+				case 2: // Display Name
+					text = av_name.getDisplayName();
+					break;
+				case 3: // First Last
+					text = av_name.getUserName();
+					break;
+				default: //user.name
+					text = av_name.getAccountName();
+					break;
 			}
 
 			const LLFontGL* fontp = LLFontGL::getFontSansSerif();
 			gGL.pushMatrix();
-			static LLCachedControl<bool> lookat_names_bold(gSavedSettings, "PVPrivacy_LookAtBoldNames", false);
-			if(lookat_names_bold)
-			{
-				hud_render_utf8text(
-					text,
-					target + LLVector3(0.f, 0.f, 0.15f),
-					*fontp,
-					LLFontGL::BOLD,
-					LLFontGL::DROP_SHADOW,
-					-0.5f * fontp->getWidthF32(text),
-					0.0f,
-					(*mAttentions)[mTargetType].mColor,
-					FALSE
-				);
-			}
-			else
-			{
-				hud_render_utf8text(
-					text,
-					target + LLVector3(0.f, 0.f, 0.15f),
-					*fontp,
-					LLFontGL::NORMAL,
-					LLFontGL::DROP_SHADOW,
-					-0.5f * fontp->getWidthF32(text),
-					0.0f,
-					(*mAttentions)[mTargetType].mColor,
-					FALSE
-				);
-			}
+			hud_render_utf8text(
+				text, 
+				target + LLVector3(0.f, 0.f, 0.15f),
+				*fontp,
+				LLFontGL::NORMAL, 
+				LLFontGL::DROP_SHADOW,
+				-0.5f * fontp->getWidthF32(text), 
+				0.0f,
+				(*mAttentions)[mTargetType].mColor, 
+				FALSE
+			);
 			gGL.popMatrix();
 		}
 	}
+	// </alchemy>
 }
 
 //-----------------------------------------------------------------------------
@@ -656,6 +642,11 @@ void LLHUDEffectLookAt::update()
 				((LLVOAvatar*)(LLViewerObject*)mSourceObject)->startMotion(ANIM_AGENT_HEAD_ROT);
 			}
 		}
+	}
+
+	if (mDebugLookAt) // <alchemy/>
+	{
+		// ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->addDebugText((*mAttentions)[mTargetType].mName); // <alchemy/>
 	}
 }
 

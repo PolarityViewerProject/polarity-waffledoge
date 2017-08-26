@@ -114,8 +114,7 @@
              width="290" />
             <text
              follows="left|top|right"
-             font="SansSerif"
-             font.size="Large"
+             font="SansSerifLarge"
              height="14"
              layout="topleft"
              left="10"

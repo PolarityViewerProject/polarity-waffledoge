@@ -34,8 +34,12 @@
 #pragma comment(lib, "IPHLPAPI.lib")
 #include <iphlpapi.h>
 #endif
-#include "lluuid.h"
 
+#include "lldefs.h"
+#include "llerror.h"
+
+#include "lluuid.h"
+#include "llerror.h"
 #include "llrand.h"
 #include "llmd5.h"
 #include "llstring.h"
@@ -46,7 +50,7 @@ const LLUUID LLUUID::null;
 const LLTransactionID LLTransactionID::tnull;
 
 // static 
-LLMutex * LLUUID::mMutex = NULL;
+LLMutex * LLUUID::mMutex = nullptr;
 
 static const U8 nullUUID[UUID_BYTES] = {}; // <alchemy/>
 
@@ -222,11 +226,11 @@ BOOL LLUUID::set(const std::string& in_string, BOOL emit)
 		return TRUE;
 	}
 
-	if (in_string.length() != UUID_STR_LENGTH)
+	if (in_string.length() != (UUID_STR_LENGTH - 1))		/* Flawfinder: ignore */
 	{
 		// I'm a moron.  First implementation didn't have the right UUID format.
 		// Shouldn't see any of these any more
-		if (in_string.length() == UUID_WRONG_FORMAT)
+		if (in_string.length() == (UUID_STR_LENGTH - 2))	/* Flawfinder: ignore */
 		{
 			if(emit)
 			{
@@ -318,10 +322,10 @@ BOOL LLUUID::set(const std::string& in_string, BOOL emit)
 BOOL LLUUID::validate(const std::string& in_string)
 {
 	BOOL broken_format = FALSE;
-	if (in_string.length() != UUID_STR_LENGTH)
+	if (in_string.length() != (UUID_STR_LENGTH - 1))		/* Flawfinder: ignore */
 	{
 		// I'm a moron.  First implementation didn't have the right UUID format.
-		if (in_string.length() == UUID_WRONG_FORMAT)
+		if (in_string.length() == (UUID_STR_LENGTH - 2))		/* Flawfinder: ignore */
 		{
 			broken_format = TRUE;
 		}
@@ -423,8 +427,8 @@ std::ostream& operator<<(std::ostream& s, const LLUUID &uuid)
 std::istream& operator>>(std::istream &s, LLUUID &uuid)
 {
 	U32 i;
-	char uuid_str[UUID_STR_SIZE];
-	for (i = 0; i < UUID_STR_LENGTH; i++)
+	char uuid_str[UUID_STR_LENGTH];		/* Flawfinder: ignore */
+	for (i = 0; i < UUID_STR_LENGTH-1; i++)
 	{
 		s >> uuid_str[i];
 	}
@@ -474,8 +478,8 @@ S32	LLUUID::getNodeID(unsigned char	*node_id)
 	GetAdaptersAddresses(
 		AF_INET,
 		flags,
-		NULL,
-		NULL,
+		nullptr,
+		nullptr,
 		&outBufLen);
 
 	constexpr U32 MAX_TRIES = 3U;
@@ -488,7 +492,7 @@ S32	LLUUID::getNodeID(unsigned char	*node_id)
 		}
 
 		dwRetVal =
-			GetAdaptersAddresses(family, flags, NULL, pAddresses, &outBufLen);
+			GetAdaptersAddresses(family, flags, nullptr, pAddresses, &outBufLen);
 
 		if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
 			free(pAddresses);
@@ -628,9 +632,7 @@ S32 LLUUID::getNodeID(unsigned char *node_id)
 #define HAVE_NETINET_IN_H
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
-#if LL_SOLARIS
-#include <sys/sockio.h>
-#elif !LL_DARWIN
+#if LL_LINUX
 #include <linux/sockios.h>
 #endif
 #endif
@@ -771,7 +773,7 @@ void LLUUID::getCurrentTime(uuid_time_t *timestamp)
 
    uuid_time_t time_now = {0,0};
 
-   while (1) {
+   while (true) {
       getSystemTime(&time_now);
 
       // if clock reading changed since last UUID generated
@@ -919,12 +921,14 @@ U32 LLUUID::getRandomSeed()
    md5_seed.finalize();
    md5_seed.raw_digest(seed);
    
-   return(*(U32 *)seed);
+   U32 out;
+   memcpy(&out, seed, sizeof(out));
+   return out;
 }
 
 BOOL LLUUID::parseUUID(const std::string& buf, LLUUID* value)
 {
-	if( buf.empty() || value == NULL)
+	if( buf.empty() || value == nullptr)
 	{
 		return FALSE;
 	}

@@ -68,16 +68,16 @@ bool LLCrossParcelFunctor::apply(LLViewerObject* obj)
 
 LLFloaterObjectWeights::LLFloaterObjectWeights(const LLSD& key)
 :	LLFloater(key),
-	mSelectedObjects(NULL),
-	mSelectedPrims(NULL),
-	mSelectedDownloadWeight(NULL),
-	mSelectedPhysicsWeight(NULL),
-	mSelectedServerWeight(NULL),
-	mSelectedDisplayWeight(NULL),
-	mSelectedOnLand(NULL),
-	mRezzedOnLand(NULL),
-	mRemainingCapacity(NULL),
-	mTotalCapacity(NULL)
+	mSelectedObjects(nullptr),
+	mSelectedPrims(nullptr),
+	mSelectedDownloadWeight(nullptr),
+	mSelectedPhysicsWeight(nullptr),
+	mSelectedServerWeight(nullptr),
+	mSelectedDisplayWeight(nullptr),
+	mSelectedOnLand(nullptr),
+	mRezzedOnLand(nullptr),
+	mRemainingCapacity(nullptr),
+	mTotalCapacity(nullptr)
 {
 }
 
@@ -230,10 +230,10 @@ void LLFloaterObjectWeights::generateTransactionID()
 
 void LLFloaterObjectWeights::toggleWeightsLoadingIndicators(bool visible)
 {
-	childSetVisible("download_loading_indicator", visible);
-	childSetVisible("physics_loading_indicator", visible);
-	childSetVisible("server_loading_indicator", visible);
-	childSetVisible("display_loading_indicator", visible);
+	getChild<LLView>("download_loading_indicator")->setVisible(visible);
+	getChild<LLView>("physics_loading_indicator")->setVisible(visible);
+	getChild<LLView>("server_loading_indicator")->setVisible(visible);
+	getChild<LLView>("display_loading_indicator")->setVisible(visible);
 
 	mSelectedDownloadWeight->setVisible(!visible);
 	mSelectedPhysicsWeight->setVisible(!visible);
@@ -243,10 +243,10 @@ void LLFloaterObjectWeights::toggleWeightsLoadingIndicators(bool visible)
 
 void LLFloaterObjectWeights::toggleLandImpactsLoadingIndicators(bool visible)
 {
-	childSetVisible("selected_loading_indicator", visible);
-	childSetVisible("rezzed_on_land_loading_indicator", visible);
-	childSetVisible("remaining_capacity_loading_indicator", visible);
-	childSetVisible("total_capacity_loading_indicator", visible);
+	getChild<LLView>("selected_loading_indicator")->setVisible(visible);
+	getChild<LLView>("rezzed_on_land_loading_indicator")->setVisible(visible);
+	getChild<LLView>("remaining_capacity_loading_indicator")->setVisible(visible);
+	getChild<LLView>("total_capacity_loading_indicator")->setVisible(visible);
 
 	mSelectedOnLand->setVisible(!visible);
 	mRezzedOnLand->setVisible(!visible);

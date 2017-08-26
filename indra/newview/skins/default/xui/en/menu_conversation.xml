@@ -39,43 +39,6 @@
         <on_click function="Avatar.DoToSelected" parameter="view_profile"/>
         <on_enable function="Avatar.EnableItem" parameter="can_view_profile"/>
     </menu_item_call>
-    <context_menu
-      label="Copy Data..."
-      layout="topleft"
-      name="copy_info">
-      <menu_item_call
-        label="SLURL"
-        name="Copy SLURL">
-        <on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_slurl">
-        </on_click>
-      </menu_item_call>
-      <menu_item_call
-        label="Display name"
-        name="Copy Display Name">
-        <on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_displayname">
-        </on_click>
-      </menu_item_call>
-      <menu_item_call
-        label="Username"
-        name="Copy Name">
-        <on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_name">
-        </on_click>
-      </menu_item_call>
-      <menu_item_call
-        label="Key"
-        name="Copy Key">
-        <on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_key">
-        </on_click>
-      </menu_item_call>
-    </context_menu>
     <menu_item_call
      label="IM"
      layout="topleft"
@@ -186,6 +149,13 @@
      <on_enable  function="Avatar.EnableItem" parameter="can_block" />
     </menu_item_check>
     <menu_item_call
+     label="Report Abuse"
+     layout="topleft"
+     name="ReportAbuse">
+     <on_click function="Avatar.DoToSelected" parameter="report" />
+     <on_enable  function="Avatar.EnableItem" parameter="can_report" />
+    </menu_item_call>
+    <menu_item_call
      label="Group Profile"
      layout="topleft"
      name="group_profile">
@@ -206,6 +176,51 @@
         <on_click function="Group.DoToSelected" parameter="leave_group"/>
         <on_enable function="Avatar.EnableItem" parameter="can_leave_group" />
     </menu_item_call>
+    <menu_item_separator name="separator_utilities" />
+    <menu
+     label="Tools"
+     name="avatar_tools_menu">
+     <menu_item_call
+      label="Copy Name"
+      layout="topleft"
+      name="avatar_copy_name">
+       <on_click function="Avatar.DoToSelected" parameter="copy_name" />
+     </menu_item_call>
+     <menu_item_call
+      label="Copy SLURL"
+      layout="topleft"
+      name="avatar_copy_slurl">
+       <on_click function="Avatar.DoToSelected" parameter="copy_slurl" />
+     </menu_item_call>
+     <menu_item_call
+      label="Copy Key"
+      layout="topleft"
+      name="avatar_copy_uuid">
+       <on_click function="Avatar.DoToSelected" parameter="copy_uuid" />
+     </menu_item_call>
+    </menu>
+    <menu
+     label="Tools"
+     name="group_tools_menu">
+     <menu_item_call
+      label="Copy Name"
+      layout="topleft"
+      name="group_copy_name">
+       <on_click function="Group.DoToSelected" parameter="copy_name" />
+     </menu_item_call>
+     <menu_item_call
+      label="Copy SLURL"
+      layout="topleft"
+      name="group_copy_slurl">
+       <on_click function="Group.DoToSelected" parameter="copy_slurl" />
+     </menu_item_call>
+     <menu_item_call
+      label="Copy Key"
+      layout="topleft"
+      name="group_copy_uuid">
+       <on_click function="Group.DoToSelected" parameter="copy_uuid" />
+     </menu_item_call>
+    </menu>
 	<menu_item_separator layout="topleft" name="Moderator Options Separator"/>
 	<context_menu
 	 label="Moderator Options"

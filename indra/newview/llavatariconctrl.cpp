@@ -35,7 +35,6 @@
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llavataractions.h"
 #include "llmenugl.h"
-#include "lluictrlfactory.h"
 #include "llagentdata.h"
 #include "llfloaterimsession.h"
 #include "llviewertexture.h"
@@ -82,7 +81,7 @@ void LLAvatarIconIDCache::load	()
 		return;
 	
 	// add each line in the file to the list
-	int uuid_len = UUID_STR_LENGTH; // <polarity>
+	int uuid_len = UUID_STR_LENGTH-1;
 	std::string line;
 	while (std::getline(file, line)) 
 	{
@@ -136,9 +135,9 @@ LLUUID*	LLAvatarIconIDCache::get		(const LLUUID& avatar_id)
 {
 	std::map<LLUUID,LLAvatarIconIDCacheItem>::iterator it = mCache.find(avatar_id);
 	if(it==mCache.end())
-		return 0;
+		return nullptr;
 	if(it->second.expired())
-		return 0;
+		return nullptr;
 	return &it->second.icon_id;
 }
 
@@ -163,8 +162,8 @@ LLAvatarIconCtrl::Params::Params()
 	symbol_size("symbol_size", 1),
 	symbol_pos("symbol_pos", LLAvatarIconCtrlEnums::BOTTOM_RIGHT)
 {
-	changeDefault(min_width, 32);
-	changeDefault(min_height, 32);
+	changeDefault(min_width, DEFAULT_ICON_SIZE);
+	changeDefault(min_height, DEFAULT_ICON_SIZE);
 }
 
 
@@ -175,11 +174,12 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	mFullName(),
 	mDrawTooltip(p.draw_tooltip),
 	mDefaultIconName(p.default_icon_name),
-	mAvatarNameCacheConnection(),
 	mSymbolHpad(p.symbol_hpad),
 	mSymbolVpad(p.symbol_vpad),
 	mSymbolSize(p.symbol_size),
-	mSymbolPos(p.symbol_pos)
+	mSymbolPos(p.symbol_pos),
+	mAvatarNameCacheConnection(),
+	mUseDefaultImage(gSavedSettings, "AlchemyUseDefaultAvatarIcon", false)
 {
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
 
@@ -189,16 +189,10 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
     mMaxHeight = llmax((S32)p.min_height, rect.getHeight());
     mMaxWidth = llmax((S32)p.min_width, rect.getWidth());
 
-	static LLCachedControl<bool> load_av_icons(gSavedSettings, "PVUI_LoadAvatarIcons", false);
-	if (!load_av_icons)
-	{
-		LLIconCtrl::setValue(IMG_TRANSPARENT);
-		return;
-	}
 	if (p.avatar_id.isProvided())
 	{
 		LLSD value(p.avatar_id);
-		LLIconCtrl::setValue(value);
+		setValue(value);
 	}
 	else
 	{
@@ -223,49 +217,41 @@ LLAvatarIconCtrl::~LLAvatarIconCtrl()
 //virtual
 void LLAvatarIconCtrl::setValue(const LLSD& value)
 {
-	static LLCachedControl<bool> load_av_icons(gSavedSettings, "PVUI_LoadAvatarIcons", false);
-	if (!load_av_icons)
+	if (value.isUUID())
 	{
-		LLIconCtrl::setValue(IMG_TRANSPARENT);
+		LLAvatarPropertiesProcessor* app =
+			LLAvatarPropertiesProcessor::getInstance();
+		if (mAvatarId.notNull())
+		{
+			app->removeObserver(mAvatarId, this);
+		}
+
+		if (mAvatarId != value.asUUID())
+		{
+			mAvatarId = value.asUUID();
+
+			// *BUG: This will return stale icons if a user changes their
+			// profile picture. However, otherwise we send too many upstream
+			// AvatarPropertiesRequest messages.
+
+			// to get fresh avatar icon use
+			// LLAvatarIconIDCache::getInstance()->remove(avatar_id);
+
+			// Check if cache already contains image_id for that avatar
+			if (!updateFromCache())
+			{
+				// *TODO: Consider getting avatar icon/badge directly from 
+				// People API, rather than sending AvatarPropertyRequest
+				// messages.  People API already hits the user table.
+				LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
+				app->addObserver(mAvatarId, this);
+				app->sendAvatarPropertiesRequest(mAvatarId);
+			}
+		}
 	}
 	else
 	{
-		if (value.isUUID())
-		{
-			LLAvatarPropertiesProcessor* app =
-				LLAvatarPropertiesProcessor::getInstance();
-			if (mAvatarId.notNull())
-			{
-				app->removeObserver(mAvatarId, this);
-			}
-
-			if (mAvatarId != value.asUUID())
-			{
-				mAvatarId = value.asUUID();
-
-				// *BUG: This will return stale icons if a user changes their
-				// profile picture. However, otherwise we send too many upstream
-				// AvatarPropertiesRequest messages.
-
-				// to get fresh avatar icon use
-				// LLAvatarIconIDCache::getInstance()->remove(avatar_id);
-
-				// Check if cache already contains image_id for that avatar
-				if (!updateFromCache())
-				{
-					// *TODO: Consider getting avatar icon/badge directly from 
-					// People API, rather than sending AvatarPropertyRequest
-					// messages.  People API already hits the user table.
-					LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
-					app->addObserver(mAvatarId, this);
-					app->sendAvatarPropertiesRequest(mAvatarId);
-				}
-			}
-		}
-		else
-		{
-			LLIconCtrl::setValue(value);
-		}
+		LLIconCtrl::setValue(value);
 	}
 
 	fetchAvatarName();
@@ -285,13 +271,6 @@ void LLAvatarIconCtrl::fetchAvatarName()
 
 bool LLAvatarIconCtrl::updateFromCache()
 {
-	static LLCachedControl<bool> load_av_icons(gSavedSettings, "PVUI_LoadAvatarIcons", false);
-	if (!load_av_icons)
-	{
-		LLIconCtrl::setValue(IMG_TRANSPARENT);
-		return true;
-	}
-
 	LLUUID* icon_id_ptr = LLAvatarIconIDCache::getInstance()->get(mAvatarId);
 	if(!icon_id_ptr)
 		return false;
@@ -299,7 +278,7 @@ bool LLAvatarIconCtrl::updateFromCache()
 	const LLUUID& icon_id = *icon_id_ptr;
 
 	// Update the avatar
-	if (icon_id.notNull())
+	if (icon_id.notNull() && !mUseDefaultImage)
 	{
 		LLIconCtrl::setValue(icon_id);
 	}
@@ -351,13 +330,3 @@ void LLAvatarIconCtrl::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarN
 		}
 	}
 }
-
-// [SL:KB] - Checked: 2010-11-01 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-BOOL LLAvatarIconCtrl::handleToolTip(S32 x, S32 y, MASK mask)
-{
-	// Don't show our tooltip if we were asked not to
-	if (!mDrawTooltip)
-		return FALSE;
-	return LLIconCtrl::handleToolTip(x, y, mask);
-}
-// [/SL:KB]

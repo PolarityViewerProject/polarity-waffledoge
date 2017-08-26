@@ -108,7 +108,7 @@ function fail {
     # add boilerplate
     errorbox "An error occurred while updating Polarity:
 $*
-Please download the latest viewer from https://www.polarityviewer.org"
+Please download the latest viewer from www.polarityviewer.org."
     exit 1
 }
 
@@ -217,4 +217,4 @@ rm -f "$tarball"
 
 # Launch the updated viewer. Restore original stderr from file descriptor 3,
 # though -- otherwise updater.log gets cluttered with the viewer log!
-"$INSTALL_DIR/secondlife" 2>&3- &
+"$INSTALL_DIR/alchemy" 2>&3- &

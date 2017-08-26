@@ -9,11 +9,11 @@
  name="floater_about"
  help_topic="floater_about"
  save_rect="true"
- title="Media Browser"
+ title="MEDIA BROWSER"
  width="820">
     <floater.string
      name="home_page_url">
-        http://www.secondlife.com
+        https://www.alchemyviewer.org/
     </floater.string>
     <floater.string
      name="support_page_url">

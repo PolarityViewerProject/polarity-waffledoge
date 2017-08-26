@@ -63,8 +63,6 @@ static LLPanelInjector<LLFacebookFriendsPanel> t_panel_friends("llfacebookfriend
 
 const std::string DEFAULT_CHECKIN_LOCATION_URL = "http://maps.secondlife.com/";
 const std::string DEFAULT_CHECKIN_ICON_URL = "http://map.secondlife.com.s3.amazonaws.com/map_placeholder.png";
-const std::string DEFAULT_CHECKIN_QUERY_PARAMETERS = "?sourceid=slshare_checkin&utm_source=facebook&utm_medium=checkin&utm_campaign=slshare";
-const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=facebook&utm_medium=photo&utm_campaign=slshare";
 
 const S32 MAX_QUALITY = 100;         // Max quality value for jpeg images
 const S32 MIN_QUALITY = 0;           // Min quality value for jpeg images
@@ -80,7 +78,7 @@ std::string get_map_url()
     }
     int x_pos = center_agent[0] / 256.0;
     int y_pos = center_agent[1] / 256.0;
-    std::string map_url = gSavedSettings.getString("CurrentMapServerURL") + llformat("map-1-%d-%d-objects.jpg", x_pos, y_pos);
+    std::string map_url = regionp->getMapServerURL().append(llformat("map-1-%d-%d-objects.jpg", x_pos, y_pos));
     return map_url;
 }
 
@@ -97,14 +95,14 @@ S32 compute_jpeg_quality(S32 width, S32 height)
 ///////////////////////////
 
 LLFacebookStatusPanel::LLFacebookStatusPanel() :
-    mMessageTextEditor(NULL),
-    mPostButton(NULL),
-    mCancelButton(NULL),
-    mAccountCaptionLabel(NULL),
-    mAccountNameLabel(NULL),
-    mPanelButtons(NULL),
-    mConnectButton(NULL),
-    mDisconnectButton(NULL)
+    mAccountCaptionLabel(nullptr),
+    mAccountNameLabel(nullptr),
+    mPanelButtons(nullptr),
+    mConnectButton(nullptr),
+    mDisconnectButton(nullptr),
+    mMessageTextEditor(nullptr),
+    mPostButton(nullptr),
+    mCancelButton(nullptr)
 {
     mCommitCallbackRegistrar.add("SocialSharing.Connect", boost::bind(&LLFacebookStatusPanel::onConnect, this));
     mCommitCallbackRegistrar.add("SocialSharing.Disconnect", boost::bind(&LLFacebookStatusPanel::onDisconnect, this));
@@ -326,15 +324,17 @@ void LLFacebookStatusPanel::clearAndClose()
 ///////////////////////////
 
 LLFacebookPhotoPanel::LLFacebookPhotoPanel() :
-    mResolutionComboBox(NULL),
-    mRefreshBtn(NULL),
-    mBtnPreview(NULL),
-    mWorkingLabel(NULL),
-    mThumbnailPlaceholder(NULL),
-    mCaptionTextBox(NULL),
-    mPostButton(NULL),
-    mBigPreviewFloater(NULL),
-    mQuality(MAX_QUALITY)
+mResolutionComboBox(nullptr),
+mFilterComboBox(nullptr),
+mRefreshBtn(nullptr),
+mWorkingLabel(nullptr),
+mThumbnailPlaceholder(nullptr),
+mCaptionTextBox(nullptr),
+mPostButton(nullptr),
+mCancelButton(nullptr),
+mBtnPreview(nullptr),
+mBigPreviewFloater(nullptr),
+mQuality(MAX_QUALITY)
 {
     mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLFacebookPhotoPanel::onSend, this));
     mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLFacebookPhotoPanel::onClickNewSnapshot, this));
@@ -491,7 +491,7 @@ void LLFacebookPhotoPanel::onVisibilityChange(BOOL visible)
 
             previewp->setContainer(this);
             previewp->setSnapshotType(LLSnapshotModel::SNAPSHOT_WEB);
-            previewp->setSnapshotFormat(LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
+            previewp->setSnapshotFormat(LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
             previewp->setSnapshotQuality(mQuality, false);
             previewp->setThumbnailSubsampled(TRUE);     // We want the preview to reflect the *saved* image
             previewp->setAllowRenderUI(FALSE);          // We do not want the rendered UI in our snapshots
@@ -712,6 +712,13 @@ LLUICtrl* LLFacebookPhotoPanel::getRefreshBtn()
 
 LLFacebookCheckinPanel::LLFacebookCheckinPanel() :
     mMapUrl(""),
+	mPostButton(nullptr),
+	mCancelButton(nullptr),
+	mMessageTextEditor(nullptr),
+	mMapLoadingIndicator(nullptr),
+	mMapPlaceholder(nullptr),
+	mMapDefault(nullptr),
+	mMapCheckBox(nullptr),
     mReloadingMapTexture(false)
 {
     mCommitCallbackRegistrar.add("SocialSharing.SendCheckin", boost::bind(&LLFacebookCheckinPanel::onSend, this));
@@ -819,9 +826,6 @@ void LLFacebookCheckinPanel::sendCheckin()
         slurl_string = DEFAULT_CHECKIN_LOCATION_URL;
     }
 
-    // Add query parameters so Google Analytics can track incoming clicks!
-    slurl_string += DEFAULT_CHECKIN_QUERY_PARAMETERS;
-
     // Get the region name
     std::string region_name("");
     LLViewerRegion *regionp = gAgent.getRegion();
@@ -861,9 +865,9 @@ void LLFacebookCheckinPanel::clearAndClose()
 ///////////////////////////
 
 LLFacebookFriendsPanel::LLFacebookFriendsPanel() :
-    mFriendsStatusCaption(NULL),
-    mSecondLifeFriends(NULL),
-    mSuggestedFriends(NULL)
+    mFriendsStatusCaption(nullptr),
+    mSecondLifeFriends(nullptr),
+    mSuggestedFriends(nullptr)
 {
 }
 
@@ -1024,10 +1028,10 @@ bool LLFacebookFriendsPanel::onConnectedToFacebook(const LLSD& data)
 ////////////////////////
 
 LLFloaterFacebook::LLFloaterFacebook(const LLSD& key) : LLFloater(key),
-    mFacebookPhotoPanel(NULL),
-    mStatusErrorText(NULL),
-    mStatusLoadingText(NULL),
-    mStatusLoadingIndicator(NULL)
+    mFacebookPhotoPanel(nullptr),
+    mStatusErrorText(nullptr),
+    mStatusLoadingText(nullptr),
+    mStatusLoadingIndicator(nullptr)
 {
     mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterFacebook::onCancel, this));
 }

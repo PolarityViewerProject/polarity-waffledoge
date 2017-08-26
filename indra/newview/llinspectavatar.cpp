@@ -50,11 +50,6 @@
 #include "lltooltip.h"	// positionViewNearMouse()
 #include "lltrans.h"
 
-// <polarity>
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif // for getPreferredName()
-// </polarity>
 class LLFetchAvatarData;
 
 
@@ -75,16 +70,16 @@ public:
 	LLInspectAvatar(const LLSD& avatar_id);
 	virtual ~LLInspectAvatar();
 
-	/*virtual*/ BOOL postBuild(void);
+	/*virtual*/ BOOL postBuild(void) override;
 	
 	// Because floater is single instance, need to re-parse data on each spawn
 	// (for example, inspector about same avatar but in different position)
-	/*virtual*/ void onOpen(const LLSD& avatar_id);
+	/*virtual*/ void onOpen(const LLSD& avatar_id) override;
 
 	// Update view based on information from avatar properties processor
 	void processAvatarData(LLAvatarData* data);
-	
-	virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::GLOBAL; }
+
+	LLTransientFloaterMgr::ETransientGroup getGroup() override { return LLTransientFloaterMgr::GLOBAL; }
 
 private:
 	// Make network requests for all the data to display in this view.
@@ -142,7 +137,7 @@ public:
 		removeObserver(mAvatarID, this);
 	}
 	
-	void processProperties(void* data, EAvatarProcessorType type)
+	void processProperties(void* data, EAvatarProcessorType type) override
 	{
 		// route the data to the inspector
 		if (data
@@ -162,7 +157,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 :	LLInspect( LLSD() ),	// single_instance, doesn't really need key
 	mAvatarID(),			// set in onOpen()  *Note: we used to show partner's name but we dont anymore --angela 3rd Dec* 
 	mAvatarName(),
-	mPropertiesRequest(NULL),
+	mPropertiesRequest(nullptr),
 	mAvatarNameCacheConnection()
 {
 	// can't make the properties request until the widgets are constructed
@@ -181,7 +176,7 @@ LLInspectAvatar::~LLInspectAvatar()
 	// clean up any pending requests so they don't call back into a deleted
 	// view
 	delete mPropertiesRequest;
-	mPropertiesRequest = NULL;
+	mPropertiesRequest = nullptr;
 
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
@@ -251,9 +246,6 @@ void LLInspectAvatar::requestUpdate()
 	getChild<LLUICtrl>("user_slid")->setValue("");
 	getChild<LLUICtrl>("user_subtitle")->setValue("");
 	getChild<LLUICtrl>("user_details")->setValue("");
-	// <polarity> Show the agent's role
-	getChild<LLUICtrl>("agent_role")->setValue(""); 
-	getChild<LLUICtrl>("agent_role")->setColor(LLColor4::white);
 	
 	// Make a new request for properties
 	delete mPropertiesRequest;
@@ -300,7 +292,7 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 
 	// Delete the request object as it has been satisfied
 	delete mPropertiesRequest;
-	mPropertiesRequest = NULL;
+	mPropertiesRequest = nullptr;
 }
 
 void LLInspectAvatar::updateVolumeSlider()
@@ -400,21 +392,7 @@ void LLInspectAvatar::onAvatarNameCache(
 			getChild<LLUICtrl>("user_name")->setVisible( true );
 
 		}
-#ifdef PVDATA_SYSTEM
-		// <polarity> Show agent's role
-		LLUICtrl* agent_role = getChild<LLUICtrl>("agent_role");
-		auto pv_agent = PVAgent::find(mAvatarID);
-		if (pv_agent)
-		{
-			std::vector<std::string> agent_role_text = pv_agent->getTitleHumanReadable(false);
-			const static std::string flags_string = LLTrans::getString("Flags") + ":";
-			agent_role->setValue(agent_role_text.at(1));
-			agent_role->setToolTip(flags_string + agent_role_text.at(0)); // raw flag as tooltip
-			agent_role_text.clear();
-			agent_role->setColor(PVAgent::getColor(mAvatarID, LLColor4::white, false));
-		}
-		// </polarity>
-#endif
+
 	}
 }
 

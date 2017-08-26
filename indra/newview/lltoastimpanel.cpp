@@ -38,16 +38,19 @@
 #include "llnotifications.h"
 #include "llinstantmessage.h"
 #include "lltooltip.h"
+#include "lltextbox.h"
+#include "llavatariconctrl.h"
 
 #include "llviewerchat.h"
-#include <boost/algorithm/string/predicate.hpp> // <polarity/>
+
+#include <boost/algorithm/string/predicate.hpp> // <alchemy/>
 
 const S32 LLToastIMPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 6;
 
 //--------------------------------------------------------------------------
 LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notification),
-								mAvatarIcon(NULL), mAvatarName(NULL),
-								mTime(NULL), mMessage(NULL), mGroupIcon(NULL)
+								mAvatarIcon(nullptr), mGroupIcon(nullptr),
+								mAvatarName(nullptr), mTime(nullptr), mMessage(nullptr)
 {
 	buildFromFile( "panel_instant_message.xml");
 
@@ -78,7 +81,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	
 	//Handle IRC styled /me messages.
 	std::string prefix = p.message.substr(0, 4);
-	if (boost::iequals(prefix, "/me ") || boost::iequals(prefix, "/me'")) // <polarity/>
+	if (boost::iequals(prefix, "/me ") || boost::iequals(prefix, "/me'")) // <alchemy/>
 	{
 		//style_params.font.style = "UNDERLINE";
 		mMessage->clear();

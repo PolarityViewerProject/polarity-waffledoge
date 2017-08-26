@@ -28,7 +28,8 @@
 #define LL_UPLOADDIALOG_H
 
 #include "llpanel.h"
-#include "lltextbox.h"
+
+class LLTextBox;
 			
 class LLUploadDialog : public LLPanel
 {
@@ -37,7 +38,7 @@ public:
 	static LLUploadDialog*	modalUploadDialog(const std::string& msg);		// Message to display
 	static void				modalUploadFinished();		// Message to display
 
-	static bool				modalUploadIsFinished() { return (sDialog == NULL); }
+	static bool				modalUploadIsFinished() { return (sDialog == nullptr); }
 
 	void setMessage( const std::string& msg );
 

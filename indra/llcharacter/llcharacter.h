@@ -36,6 +36,10 @@
 #include "llstringtable.h"
 #include "llpointer.h"
 #include "llrefcount.h"
+#if !USE_LL_APPEARANCE_CODE
+#include "llsortedvector.h"
+#include <boost/unordered_map.hpp>
+#endif
 
 class LLPolyMesh;
 
@@ -169,13 +173,13 @@ public:
 	virtual void deactivateAllMotions();
 
 	// dumps information for debugging
-	virtual void dumpCharacter( LLJoint *joint = NULL );
+	virtual void dumpCharacter( LLJoint *joint = nullptr );
 
 	virtual F32 getPreferredPelvisHeight() { return mPreferredPelvisHeight; }
 
 	virtual LLVector3 getVolumePos(S32 joint_index, LLVector3& volume_offset) { return LLVector3::zero; }
 	
-	virtual LLJoint* findCollisionVolume(U32 volume_id) { return NULL; }
+	virtual LLJoint* findCollisionVolume(U32 volume_id) { return nullptr; }
 
 	virtual S32 getCollisionVolumeID(std::string &name) { return -1; }
 
@@ -188,9 +192,10 @@ public:
 	void addVisualParam(LLVisualParam *param);
 	void addSharedVisualParam(LLVisualParam *param);
 
-	virtual BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight);
-	virtual BOOL setVisualParamWeight(const char* param_name, F32 weight);
-	virtual BOOL setVisualParamWeight(S32 index, F32 weight);
+	virtual BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight, BOOL upload_bake = FALSE );
+	virtual BOOL setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake = FALSE );
+	virtual BOOL setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake = FALSE );
+
 
 	// get visual param weight by param or name
 	F32 getVisualParamWeight(LLVisualParam *distortion);
@@ -203,22 +208,36 @@ public:
 	// visual parameter accessors
 	LLVisualParam*	getFirstVisualParam()
 	{
+#if USE_LL_APPEARANCE_CODE
 		mCurIterator = mVisualParamIndexMap.begin();
+#else
+		mCurIterator = mVisualParamSortedVector.begin();
+#endif
 		return getNextVisualParam();
 	}
 	LLVisualParam*	getNextVisualParam()
 	{
+#if USE_LL_APPEARANCE_CODE
 		if (mCurIterator == mVisualParamIndexMap.end())
-			return 0;
+#else
+		if (mCurIterator == mVisualParamSortedVector.end())
+#endif
+			return nullptr;
 		return (mCurIterator++)->second;
 	}
 
 	S32 getVisualParamCountInGroup(const EVisualParamGroup group) const
 	{
 		S32 rtn = 0;
+#if USE_LL_APPEARANCE_CODE
 		for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin();
 		     iter != mVisualParamIndexMap.end();
 		     /**/ )
+#else
+		for (visual_param_sorted_vec_t::const_iterator iter = mVisualParamSortedVector.begin();
+		     iter != mVisualParamSortedVector.end();
+		     /* */ )
+#endif
 		{
 			if ((iter++)->second->getGroup() == group)
 			{
@@ -233,6 +252,7 @@ public:
 		visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.find(id);
 		return (iter == mVisualParamIndexMap.end()) ? 0 : iter->second;
 	}
+#if USE_LL_APPEARANCE_CODE
 	S32 getVisualParamID(LLVisualParam *id)
 	{
 		visual_param_index_map_t::iterator iter;
@@ -243,6 +263,7 @@ public:
 		}
 		return 0;
 	}
+#endif
 	S32				getVisualParamCount() const { return (S32)mVisualParamIndexMap.size(); }
 	LLVisualParam*	getVisualParam(const char *name);
 
@@ -275,6 +296,7 @@ protected:
 	LLAnimPauseRequest	mPauseRequest;
 
 private:
+#if USE_LL_APPEARANCE_CODE
 	// visual parameter stuff
 	typedef std::map<S32, LLVisualParam *> 		visual_param_index_map_t;
 	typedef std::map<char *, LLVisualParam *> 	visual_param_name_map_t;
@@ -282,7 +304,18 @@ private:
 	visual_param_index_map_t::iterator 			mCurIterator;
 	visual_param_index_map_t 					mVisualParamIndexMap;
 	visual_param_name_map_t  					mVisualParamNameMap;
+#else
+	// visual parameter stuff
+	//typedef std::map<S32, LLVisualParam *> 		visual_param_index_map_t;
+	typedef boost::unordered_map<S32, LLVisualParam *> 		visual_param_index_map_t;	//Hash map for fast lookup.
+	typedef LLSortedVector<S32,LLVisualParam *>				visual_param_sorted_vec_t;	//Contiguous sorted array.
+	typedef std::map<char *, LLVisualParam *> 				visual_param_name_map_t;	
 
+	visual_param_sorted_vec_t::iterator 			mCurIterator;
+	visual_param_sorted_vec_t						mVisualParamSortedVector;
+	visual_param_index_map_t 						mVisualParamIndexMap;
+	visual_param_name_map_t  						mVisualParamNameMap;
+#endif
 	static LLStringTable sVisualParamNames;	
 
 	LLVector3 mHoverOffset;

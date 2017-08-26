@@ -32,7 +32,7 @@ import Tkinter, tkMessageBox
 
 TITLE = "Polarity Viewer Updater"
 # Magic bundle identifier used by all Polarity viewer bundles
-BUNDLE_IDENTIFIER = "com.secondlife.indra.viewer"
+BUNDLE_IDENTIFIER = "org.alchemyviewer.viewer"
 # Magic OS directory name that causes Cocoa viewer to crash on OS X 10.7.5
 # (see MAINT-3331)
 STATE_DIR = os.path.join(
@@ -91,7 +91,7 @@ def fail(message):
     tkMessageBox.showerror(TITLE,
 """An error occurred while updating Polarity:
 %s
-Please download the latest viewer from www.secondlife.com.""" % message,
+Please download the latest viewer from www.alchemyviewer.org.""" % message,
                            icon=tkMessageBox.WARNING)
     sys.exit(1)
 
@@ -174,7 +174,7 @@ def main(dmgfile, markerfile, markertext):
     try:
         # Starting with the Cocoafied viewer, we'll find viewer logs in
         # ~/Library/Application Support/$CFBundleIdentifier/logs rather than in
-        # ~/Library/Application Support/SecondLife/logs as before. This could be
+        # ~/Library/Application Support/Polarity/logs as before. This could be
         # obnoxious -- but we Happen To Know that markerfile is a path specified
         # within the viewer's logs directory. Use that.
         logsdir = os.path.dirname(markerfile)

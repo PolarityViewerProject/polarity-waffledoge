@@ -51,7 +51,7 @@ class LLGestureMgr : public LLSingleton<LLGestureMgr>, public LLInventoryFetchIt
 	~LLGestureMgr();
 public:
 
-	typedef boost::function<void (LLMultiGesture* loaded_gesture)> gesture_loaded_callback_t;
+	typedef std::function<void (LLMultiGesture* loaded_gesture)> gesture_loaded_callback_t;
 	// Maps inventory item_id to gesture
 	typedef std::map<LLUUID, LLMultiGesture*> item_map_t;
 	typedef std::map<LLUUID, gesture_loaded_callback_t> callback_map_t;
@@ -120,7 +120,7 @@ public:
 	BOOL triggerGesture(KEY key, MASK mask);
 
 	// Trigger all gestures referenced as substrings in this string
-	BOOL triggerAndReviseString(const std::string &str, std::string *revised_string = NULL);
+	BOOL triggerAndReviseString(const std::string &str, std::string *revised_string = nullptr);
 
 	// Does some gesture have this key bound?
 	BOOL isKeyBound(KEY key, MASK mask);
@@ -132,7 +132,7 @@ public:
 	void notifyObservers();
 
 	// Overriding so we can update active gesture names and notify observers 
-	void changed(U32 mask); 
+	void changed(U32 mask) override; 
 
 	BOOL matchPrefix(const std::string& in_str, std::string* out_str);
 
@@ -147,7 +147,7 @@ protected:
 	void runStep(LLMultiGesture* gesture, LLGestureStep* step);
 
 	// LLInventoryCompletionObserver trigger
-	void done();
+	void done() override;
 
 	// Used by loadGesture
 	static void onLoadComplete(LLVFS *vfs,

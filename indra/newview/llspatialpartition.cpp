@@ -53,6 +53,7 @@
 #include "llvoavatar.h"
 #include "llvolumemgr.h"
 #include "llviewershadermgr.h"
+#include "llfloaterreg.h" // <alchemy/>
 
 static LLTrace::BlockTimerStatHandle FTM_FRUSTUM_CULL("Frustum Culling");
 static LLTrace::BlockTimerStatHandle FTM_CULL_REBOUND("Cull Rebound Partition");
@@ -564,7 +565,7 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 		return;
 	}
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	if (hasState(LLSpatialGroup::OBJECT_DIRTY))
 	{
 		LL_ERRS() << "Spatial group dirty on distance update." << LL_ENDL;
@@ -1556,12 +1557,12 @@ void renderOctree(LLSpatialGroup* group)
 
 			gGL.diffuseColor4f(1,0,0,group->mBuilt);
 			gGL.flush();
-			glLineWidth(5.f);
+			gGL.setLineWidth(5.f);
 
 			const LLVector4a* bounds = group->getObjectBounds();
 			drawBoxOutline(bounds[0], bounds[1]);
 			gGL.flush();
-			glLineWidth(1.f);
+			gGL.setLineWidth(1.f);
 			gGL.flush();
 			for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 			{
@@ -1698,10 +1699,10 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 		pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX, false);
 		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glLineWidth(4.f);
+		gGL.setLineWidth(4.f);
 		gGL.diffuseColor4f(0.f, 0.5f, 0.f, 1.f);
 		pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX, false);
-		glLineWidth(1.f);
+		gGL.setLineWidth(1.f);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		bool selected = false;
@@ -2055,12 +2056,12 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 	if (vobj && vobj->onActiveList())
 	{
 		gGL.flush();
-		glLineWidth(llmax(4.f*sinf(gFrameTimeSeconds*2.f)+1.f, 1.f));
-		//glLineWidth(4.f*(sinf(gFrameTimeSeconds*2.f)*0.25f+0.75f));
+		gGL.setLineWidth(llmax(4.f*sinf(gFrameTimeSeconds*2.f)+1.f, 1.f));
+		//gGL.setLineWidth(4.f*(sinf(gFrameTimeSeconds*2.f)*0.25f+0.75f));
 		stop_glerror();
 		drawBoxOutline(pos,size);
 		gGL.flush();
-		glLineWidth(1.f);
+		gGL.setLineWidth(1.f);
 	}
 	else
 	{
@@ -2174,10 +2175,10 @@ void render_hull(LLModel::PhysicsMesh& mesh, const LLColor4& color, const LLColo
 	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glPolygonOffset(3.f, 3.f);
-	glLineWidth(3.f);
+	gGL.setLineWidth(3.f);
 	gGL.diffuseColor4fv(line_color.mV);
 	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions, mesh.mNormals);
-	glLineWidth(1.f);
+	gGL.setLineWidth(1.f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
@@ -2323,7 +2324,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 					index_offset += face.mNumVertices;
 				}
 
-				if (!pos.empty() && !index.empty() && LLConvexDecomposition::getInstance() ) // ND: FIRE-3427
+				if (!pos.empty() && !index.empty())
 				{
 					LLCDMeshData mesh;
 					mesh.mIndexBase = &index[0];
@@ -2380,10 +2381,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				}
 			}
 
-			// <FS:Ansariel> Crash fix due to invalid calls to drawElements by Drake Arconis
-			//if (phys_volume->mHullPoints)
 			if (phys_volume->mHullPoints && phys_volume->mHullIndices && phys_volume->mNumHullPoints > 0 && phys_volume->mNumHullIndices > 0)
-			// </FS:Ansariel>
 			{
 				//render hull
 			
@@ -2671,7 +2669,7 @@ void renderBatchSize(LLDrawInfo* params)
 {
 	LLGLEnable offset(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(-1.f, 1.f);
-	gGL.diffuseColor4ubv((GLubyte*) &(params->mDebugColor));
+	gGL.diffuseColor4ubv((U8*)params->mDebugColor.mV);
 	pushVerts(params, LLVertexBuffer::MAP_VERTEX);
 }
 
@@ -2907,7 +2905,7 @@ public:
 			if (i == 1)
 			{
 				gGL.flush();
-				glLineWidth(3.f);
+				gGL.setLineWidth(3.f);
 			}
 
 			gGL.begin(LLRender::TRIANGLES);
@@ -2926,7 +2924,7 @@ public:
 			if (i == 1)
 			{
 				gGL.flush();
-				glLineWidth(1.f);
+				gGL.setLineWidth(1.f);
 			}
 		}
 	}
@@ -3517,11 +3515,11 @@ void LLSpatialPartition::renderPhysicsShapes()
 
 	gGL.flush();
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	glLineWidth(3.f);
+	gGL.setLineWidth(3.f);
 	LLOctreeRenderPhysicsShapes render_physics(camera);
 	render_physics.traverse(mOctree);
 	gGL.flush();
-	glLineWidth(1.f);
+	gGL.setLineWidth(1.f);
 }
 
 void LLSpatialPartition::renderDebug()
@@ -3741,8 +3739,7 @@ public:
 				if (vobj->isAvatar())
 				{
 					LLVOAvatar* avatar = (LLVOAvatar*) vobj;
-					//BD - Allow selecting other rigged mesh on other avatars.
-					if ((mPickRigged) || (LLFloater::isVisible(gFloaterTools)))
+					if ((mPickRigged) || ((avatar->isSelf()) && (LLFloater::isVisible(gFloaterTools))))
 					{
 						LLViewerObject* hit = avatar->lineSegmentIntersectRiggedAttachments(mStart, mEnd, -1, mPickTransparent, mPickRigged, mFaceHit, &intersection, mTexCoord, mNormal, mTangent);
 						if (hit)
@@ -3828,7 +3825,7 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 {
 	mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
 	
-	mDebugColor = (rand() << 16) + rand();
+	mDebugColor = LLColor4U(ll_rand(255), ll_rand(255), ll_rand(255), 255U);
 }
 
 LLDrawInfo::~LLDrawInfo()	

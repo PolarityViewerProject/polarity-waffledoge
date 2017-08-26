@@ -34,6 +34,7 @@
 #include "llagentdata.h"
 #include "llnotifications.h"
 #include "lltoastimpanel.h"
+#include "llviewercontrol.h"
 #include "llviewerwindow.h"
 
 using namespace LLNotificationsUI;

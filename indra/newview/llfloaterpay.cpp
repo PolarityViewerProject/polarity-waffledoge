@@ -41,11 +41,10 @@
 #include "llresmgr.h"
 #include "lltextbox.h"
 #include "lllineeditor.h"
-#include "llmutelist.h"
 #include "llnotificationsutil.h"
+#include "llmutelist.h"
 #include "llfloaterreporter.h"
 #include "llslurl.h"
-#include "llstatusbar.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
@@ -53,7 +52,6 @@
 #include "llbutton.h"
 #include "llselectmgr.h"
 #include "lltransactiontypes.h"
-#include "lluictrlfactory.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -85,8 +83,8 @@ class LLFloaterPay : public LLFloater
 public:
 	LLFloaterPay(const LLSD& key);
 	virtual ~LLFloaterPay();
-	/*virtual*/	BOOL	postBuild();
-	/*virtual*/ void onClose(bool app_quitting);
+	/*virtual*/	BOOL	postBuild() override;
+	/*virtual*/ void onClose(bool app_quitting) override;
 	
 	void setCallback(money_callback callback) { mCallback = callback; }
 	
@@ -96,9 +94,6 @@ public:
 	static void payDirectly(money_callback callback,
 							const LLUUID& target_id,
 							bool is_group);
-	static bool payConfirmationCallback(const LLSD& notification,
-										const LLSD& response,
-										give_money_ptr info);
 
 private:
 	static void onCancel(void* data);
@@ -111,29 +106,29 @@ private:
 protected:
 	std::vector<give_money_ptr> mCallbackData;
 	money_callback mCallback;
-	LLTextBox* mObjectNameText;
 	LLUUID mTargetUUID;
 	BOOL mTargetIsGroup;
-	BOOL mHaveName;
 
-	LLButton* mQuickPayButton[MAX_PAY_BUTTONS];
-	give_money_ptr mQuickPayInfo[MAX_PAY_BUTTONS];
+	std::array<LLButton*, MAX_PAY_BUTTONS> mQuickPayButton;
+	std::array<give_money_ptr, MAX_PAY_BUTTONS> mQuickPayInfo;
 
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
+	
+	static S32 sLastAmount;
 };
 
 
+S32 LLFloaterPay::sLastAmount = 0;
 const S32 FASTPAY_BUTTON_WIDTH = 80;
-const S32 PAY_AMOUNT_NOTIFICATION = 200;
 
 LLFloaterPay::LLFloaterPay(const LLSD& key)
 	: LLFloater(key),
 	  mCallbackData(),
-	  mCallback(NULL),
-	  mObjectNameText(NULL),
+	  mCallback(nullptr),
 	  mTargetUUID(key.asUUID()),
 	  mTargetIsGroup(FALSE),
-	  mHaveName(FALSE)
+	  mQuickPayButton({ {nullptr,nullptr,nullptr,nullptr} }),
+	  mQuickPayInfo({ {nullptr,nullptr,nullptr,nullptr} })
 {
 }
 
@@ -143,20 +138,20 @@ LLFloaterPay::~LLFloaterPay()
     std::vector<give_money_ptr>::iterator iter;
     for (iter = mCallbackData.begin(); iter != mCallbackData.end(); ++iter)
     {
-        (*iter)->mFloater = NULL;
+        (*iter)->mFloater = nullptr;
     }
 	mCallbackData.clear();
 	// Name callbacks will be automatically disconnected since LLFloater is trackable
 	
 	// In case this floater is currently waiting for a reply.
-	gMessageSystem->setHandlerFuncFast(_PREHASH_PayPriceReply, 0, 0);
+	gMessageSystem->setHandlerFuncFast(_PREHASH_PayPriceReply, nullptr, nullptr);
 }
 
 BOOL LLFloaterPay::postBuild()
 {
 	S32 i = 0;
 	
-	give_money_ptr info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_0));
+	give_money_ptr info = boost::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_0);
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 1", boost::bind(LLFloaterPay::onGive, info));
@@ -166,7 +161,7 @@ BOOL LLFloaterPay::postBuild()
 	mQuickPayInfo[i] = info;
 	++i;
 
-	info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_1));
+	info = boost::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_1);
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 5", boost::bind(LLFloaterPay::onGive, info));
@@ -176,7 +171,7 @@ BOOL LLFloaterPay::postBuild()
 	mQuickPayInfo[i] = info;
 	++i;
 
-	info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_2));
+	info = boost::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_2);
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 10", boost::bind(LLFloaterPay::onGive, info));
@@ -186,7 +181,7 @@ BOOL LLFloaterPay::postBuild()
 	mQuickPayInfo[i] = info;
 	++i;
 
-	info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_3));
+	info = boost::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_3);
 	mCallbackData.push_back(info);
 
 	childSetAction("fastpay 20", boost::bind(LLFloaterPay::onGive, info));
@@ -197,19 +192,27 @@ BOOL LLFloaterPay::postBuild()
 	++i;
 
 
-	getChildView("amount text")->setVisible(FALSE);	
+	getChildView("amount text")->setVisible(FALSE);
+	
+	std::string last_amount;
+	if(sLastAmount > 0)
+	{
+		last_amount = llformat("%d", sLastAmount);
+	}
+
 	getChildView("amount")->setVisible(FALSE);
 
 	getChild<LLLineEditor>("amount")->setKeystrokeCallback(&LLFloaterPay::onKeystroke, this);
+	getChild<LLUICtrl>("amount")->setValue(last_amount);
 	getChild<LLLineEditor>("amount")->setPrevalidate(LLTextValidate::validateNonNegativeS32);
 
-	info = give_money_ptr(new LLGiveMoneyInfo(this, 0));
+	info = boost::make_shared<LLGiveMoneyInfo>(this, 0);
 	mCallbackData.push_back(info);
 
 	childSetAction("pay btn", boost::bind(LLFloaterPay::onGive, info));
 	setDefaultBtn("pay btn");
 	getChildView("pay btn")->setVisible(FALSE);
-	getChildView("pay btn")->setEnabled(FALSE);
+	getChildView("pay btn")->setEnabled((sLastAmount > 0));
 
 	childSetAction("cancel btn",&LLFloaterPay::onCancel,this);
 
@@ -220,7 +223,7 @@ BOOL LLFloaterPay::postBuild()
 void LLFloaterPay::onClose(bool app_quitting)
 {
 	// Deselect the objects
-	mObjectSelection = NULL;
+	mObjectSelection = nullptr;
 }
 
 // static
@@ -246,12 +249,16 @@ void LLFloaterPay::processPayPriceReply(LLMessageSystem* msg, void **userdata)
 			self->getChildView("amount")->setVisible(FALSE);
 			self->getChildView("pay btn")->setVisible(FALSE);
 			self->getChildView("amount text")->setVisible(FALSE);
+			self->getChildView("message text")->setVisible(FALSE);
+			self->getChildView("message")->setVisible(FALSE);
 		}
 		else if (PAY_PRICE_DEFAULT == price)
 		{			
 			self->getChildView("amount")->setVisible(TRUE);
 			self->getChildView("pay btn")->setVisible(TRUE);
 			self->getChildView("amount text")->setVisible(TRUE);
+			self->getChildView("message text")->setVisible(TRUE);
+			self->getChildView("message")->setVisible(TRUE);
 		}
 		else
 		{
@@ -262,6 +269,8 @@ void LLFloaterPay::processPayPriceReply(LLMessageSystem* msg, void **userdata)
 			self->getChildView("pay btn")->setVisible(TRUE);
 			self->getChildView("pay btn")->setEnabled(TRUE);
 			self->getChildView("amount text")->setVisible(TRUE);
+			self->getChildView("message text")->setVisible(TRUE);
+			self->getChildView("message")->setVisible(TRUE);
 
 			self->getChild<LLUICtrl>("amount")->setValue(llformat("%d", llabs(price)));
 		}
@@ -352,7 +361,7 @@ void LLFloaterPay::processPayPriceReply(LLMessageSystem* msg, void **userdata)
 
 		self->reshape( self->getRect().getWidth() + padding_required, self->getRect().getHeight(), FALSE );
 	}
-	msg->setHandlerFunc("PayPriceReply",NULL,NULL);
+	msg->setHandlerFunc("PayPriceReply", nullptr, nullptr);
 }
 
 // static
@@ -407,7 +416,7 @@ void LLFloaterPay::payDirectly(money_callback callback,
 		return;
 	
 	floater->setCallback(callback);
-	floater->mObjectSelection = NULL;
+	floater->mObjectSelection = nullptr;
 	
 	floater->getChildView("amount")->setVisible(TRUE);
 	floater->getChildView("pay btn")->setVisible(TRUE);
@@ -419,23 +428,6 @@ void LLFloaterPay::payDirectly(money_callback callback,
 	}
 	
 	floater->finishPayUI(target_id, is_group);
-}
-
-bool LLFloaterPay::payConfirmationCallback(const LLSD& notification, const LLSD& response, give_money_ptr info)
-{
-	if (!info.get() || !info->mFloater)
-	{
-		return false;
-	}
-
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		info->mFloater->give(info->mAmount);
-		info->mFloater->closeFloater();
-	}
-
-	return false;
 }
 
 void LLFloaterPay::finishPayUI(const LLUUID& target_id, BOOL is_group)
@@ -494,64 +486,22 @@ void LLFloaterPay::onGive(give_money_ptr info)
 
     LLFloaterPay* floater = info->mFloater;
     S32 amount = info->mAmount;
-    if (amount == 0)
-    {
-        LLUICtrl* text_field = floater->getChild<LLUICtrl>("amount");
-        if (!text_field)
-        {
-            return;
-        }
-        amount = atoi(text_field->getValue().asString().c_str());
-    }
 
-    if (amount > PAY_AMOUNT_NOTIFICATION && gStatusBar && gStatusBar->getBalance() > amount)
-    {
-        LLUUID payee_id = LLUUID::null;
-        BOOL is_group = false;
-        if (floater->mObjectSelection.notNull())
-        {
-            LLSelectNode* node = floater->mObjectSelection->getFirstRootNode();
-            if (node)
-            {
-                node->mPermissions->getOwnership(payee_id, is_group);
-            }
-            else
-            {
-                // object no longer exists
-                LLNotificationsUtil::add("PayObjectFailed");
-                floater->closeFloater();
-                return;
-            }
-        }
-        else
-        {
-            is_group = floater->mTargetIsGroup;
-            payee_id = floater->mTargetUUID;
-        }
-
-        LLSD args;
-        args["TARGET"] = LLSLURL(is_group ? "group" : "agent", payee_id, "completename").getSLURLString();
-        args["AMOUNT"] = amount;
-
-        LLNotificationsUtil::add("PayConfirmation", args, LLSD(), boost::bind(&LLFloaterPay::payConfirmationCallback, _1, _2, info));
-    }
-    else
-    {
         floater->give(amount);
         floater->closeFloater();
-    }
 }
 
 void LLFloaterPay::give(S32 amount)
 {
 	if(mCallback)
 	{
-		// if the amount is 0, that menas that we should use the
+		// if the amount is 0, that means that we should use the
 		// text field.
 		if(amount == 0)
 		{
-			amount = atoi(getChild<LLUICtrl>("amount")->getValue().asString().c_str());
+			amount = std::stoi(getChild<LLUICtrl>("amount")->getValue().asString());
 		}
+		sLastAmount = amount;
 
 		// Try to pay an object.
 		if (mObjectSelection.notNull())
@@ -572,7 +522,7 @@ void LLFloaterPay::give(S32 amount)
 					S32 tx_type = TRANS_PAY_OBJECT;
 					if(dest_object->isAvatar()) tx_type = TRANS_GIFT;
 					mCallback(mTargetUUID, region, amount, FALSE, tx_type, object_name);
-					mObjectSelection = NULL;
+					mObjectSelection = nullptr;
 
 					// request the object owner in order to check if the owner needs to be unmuted
 					LLMessageSystem* msg = gMessageSystem;
@@ -594,7 +544,7 @@ void LLFloaterPay::give(S32 amount)
 		else
 		{
 			// just transfer the L$
-			std::string paymentMessage(getChild<LLLineEditor>("payment_message")->getValue().asString());
+			const std::string& paymentMessage = getChild<LLUICtrl>("message")->getValue().asString();
 			mCallback(mTargetUUID, gAgent.getRegion(), amount, mTargetIsGroup, TRANS_GIFT, (paymentMessage.empty() ? LLStringUtil::null : paymentMessage));
 
 			// check if the payee needs to be unmuted

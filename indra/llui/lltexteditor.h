@@ -92,59 +92,63 @@ public:
 	static S32		spacesPerTab();
 
 	// mousehandler overrides
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask );
-	virtual BOOL	handleMiddleMouseDown(S32 x,S32 y,MASK mask);
+	BOOL	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL	handleHover(S32 x, S32 y, MASK mask) override;
+	BOOL	handleDoubleClick(S32 x, S32 y, MASK mask ) override;
+	BOOL	handleMiddleMouseDown(S32 x,S32 y,MASK mask) override;
 
-	virtual BOOL	handleKeyHere(KEY key, MASK mask );
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
+	BOOL	handleKeyHere(KEY key, MASK mask ) override;
+	BOOL	handleUnicodeCharHere(llwchar uni_char) override;
 
-	virtual void	onMouseCaptureLost();
+	void	onMouseCaptureLost() override;
 
 	// view overrides
-	virtual void	draw();
-	virtual void	onFocusReceived();
-	virtual void	onFocusLost();
-	virtual void	onCommit();
-	virtual void	setEnabled(BOOL enabled);
+	void	draw() override;
+	void	onFocusReceived() override;
+	void	onFocusLost() override;
+	void	onCommit() override;
+	void	setEnabled(BOOL enabled) override;
 
 	// uictrl overrides
-	virtual void	clear();
-	virtual void	setFocus( BOOL b );
-	virtual BOOL	isDirty() const;
+	void	clear() override;
+	void	setFocus( BOOL b ) override;
+	BOOL	isDirty() const override;
 
 	// LLEditMenuHandler interface
-	virtual void	undo();
-	virtual BOOL	canUndo() const;
-	virtual void	redo();
-	virtual BOOL	canRedo() const;
+	void	undo() override;
+	BOOL	canUndo() const override;
+	void	redo() override;
+	BOOL	canRedo() const override;
 
-	virtual void	cut();
-	virtual BOOL	canCut() const;
-	virtual void	copy();
-	virtual BOOL	canCopy() const;
-	virtual void	paste();
-	virtual BOOL	canPaste() const;
+	void	cut() override;
+	BOOL	canCut() const override;
+	void	copy() override;
+	BOOL	canCopy() const override;
+	void	paste() override;
+	BOOL	canPaste() const override;
 
 	virtual void	updatePrimary();
 	virtual void	copyPrimary();
 	virtual void	pastePrimary();
 	virtual BOOL	canPastePrimary() const;
 
-	virtual void	doDelete();
-	virtual BOOL	canDoDelete() const;
-	virtual void	selectAll();
-	virtual BOOL	canSelectAll()	const;
+	void	doDelete() override;
+	BOOL	canDoDelete() const override;
+	void	selectAll() override;
+	BOOL	canSelectAll()	const override;
 
 	void 			selectByCursorPosition(S32 prev_cursor_pos, S32 next_cursor_pos);
 
 	virtual bool	canLoadOrSaveToFile();
 
-	void			selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap = TRUE);
-	BOOL			replaceText(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive, BOOL wrap = TRUE);
+//	void			selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap = TRUE);
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-10-29 (Catznip-3.0.0) | Added: Catznip-2.3.0
+	void			selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap = TRUE, BOOL search_up = FALSE);
+	BOOL			replaceText(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive, BOOL wrap = TRUE, BOOL search_up = FALSE);
+// [/SL:KB]
+//	BOOL			replaceText(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive, BOOL wrap = TRUE);
 	void			replaceTextAll(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive);
 
 	// Undo/redo stack
@@ -156,11 +160,11 @@ public:
 	BOOL			allowsEmbeddedItems() const { return mAllowEmbeddedItems; }
 
 	// Autoreplace (formerly part of LLLineEditor)
-	typedef boost::function<void(S32&, S32&, LLWString&, S32&, const LLWString&)> autoreplace_callback_t;
+	typedef std::function<void(S32&, S32&, LLWString&, S32&, const LLWString&)> autoreplace_callback_t;
 	autoreplace_callback_t mAutoreplaceCallback;
 	void			setAutoreplaceCallback(autoreplace_callback_t cb) { mAutoreplaceCallback = cb; }
 
-	/*virtual*/ void	onSpellCheckPerformed();
+	/*virtual*/ void	onSpellCheckPerformed() override;
 
 	//
 	// Text manipulation
@@ -170,9 +174,9 @@ public:
 	void			insertText(const std::string &text);
 	void			insertText(LLWString &text);
 
-	void			appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo);
+	void			appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo) override;
 	// Non-undoable
-	void			setText(const LLStringExplicit &utf8str, const LLStyle::Params& input_params = LLStyle::Params());
+	void			setText(const LLStringExplicit &utf8str, const LLStyle::Params& input_params = LLStyle::Params()) override;
 
 
 	// Removes text from the end of document
@@ -244,6 +248,7 @@ protected:
 	S32				overwriteChar(S32 pos, llwchar wc);
 	void			removeChar();
 	S32 			removeChar(S32 pos);
+	void			removeWord(bool prev);
 	S32				insert(S32 pos, const LLWString &wstr, bool group_with_next_op, LLTextSegmentPtr segment);
 	S32				remove(S32 pos, S32 length, bool group_with_next_op);
 
@@ -252,15 +257,15 @@ protected:
 	BOOL			hasPreeditString() const;
 
 	// Overrides LLPreeditor
-	virtual void	resetPreedit();
-	virtual void	updatePreedit(const LLWString &preedit_string,
-						const segment_lengths_t &preedit_segment_lengths, const standouts_t &preedit_standouts, S32 caret_position);
-	virtual void	markAsPreedit(S32 position, S32 length);
-	virtual void	getPreeditRange(S32 *position, S32 *length) const;
-	virtual void	getSelectionRange(S32 *position, S32 *length) const;
-	virtual BOOL	getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const;
-	virtual S32		getPreeditFontSize() const;
-	virtual LLWString getPreeditString() const { return getWText(); }
+	void	resetPreedit() override;
+	void	updatePreedit(const LLWString &preedit_string,
+						const segment_lengths_t &preedit_segment_lengths, const standouts_t &preedit_standouts, S32 caret_position) override;
+	void	markAsPreedit(S32 position, S32 length) override;
+	void	getPreeditRange(S32 *position, S32 *length) const override;
+	void	getSelectionRange(S32 *position, S32 *length) const override;
+	BOOL	getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const override;
+	S32		getPreeditFontSize() const override;
+	LLWString getPreeditString() const override { return getWText(); }
 	//
 	// Protected data
 	//
@@ -328,7 +333,7 @@ private:
 	keystroke_signal_t mKeystrokeSignal;
 	LLTextValidate::validate_func_t mPrevalidateFunc;
 
-	LLContextMenu* mContextMenu;
+	LLHandle<LLContextMenu> mContextMenuHandle;
 }; // end class LLTextEditor
 
 // Build time optimization, generate once in .cpp file

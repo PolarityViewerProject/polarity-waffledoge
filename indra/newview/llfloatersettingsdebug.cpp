@@ -29,134 +29,50 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfloatersettingsdebug.h"
 #include "llfloater.h"
-//#include "llfirstuse.h"
+#include "llcombobox.h"
 #include "llspinctrl.h"
 #include "llcolorswatch.h"
 #include "llviewercontrol.h"
 #include "lltexteditor.h"
-#include "lllineeditor.h"
-#include "llnotificationsutil.h"
-#include "llradiogroup.h"
-#include "llscrolllistctrl.h"
-#include "llstring.h"
-#include "llwindow.h"
-#include "sanitycheck.h"
-#include "llsearcheditor.h" // for search box
-#include "lltrans.h"
+
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key) 
-// Polarity> Ensure the debug list is populated when opening through the toolbar button
-//: LLFloater(key)
-// TODO: Add a dropdown for this in the floater
-:  LLFloater(key.asString().empty() ? LLSD("all") : key)
+:	LLFloater(key.asString().empty() ? LLSD("all") : key) // <alchemy/> - So apparantly just opening this doesn't pass in a key *yes bb yes*
+,	mComboSettings(nullptr)
+,	mValSpinner1(nullptr)
+,	mValSpinner2(nullptr)
+,	mValSpinner3(nullptr)
+,	mValSpinner4(nullptr)
+,	mValColor(nullptr)
+,	mValBool(nullptr)
+,	mValText(nullptr)
+,	mComment(nullptr)
 {
-	mCommitCallbackRegistrar.add("SettingSelect",  boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this));
+	mCommitCallbackRegistrar.add("SettingSelect",	boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this,_1));
 	mCommitCallbackRegistrar.add("CommitSettings",	boost::bind(&LLFloaterSettingsDebug::onCommitSettings, this));
 	mCommitCallbackRegistrar.add("ClickDefault",	boost::bind(&LLFloaterSettingsDebug::onClickDefault, this));
-	mCommitCallbackRegistrar.add("UpdateFilter",	boost::bind(&LLFloaterSettingsDebug::onUpdateFilter, this));
-	mCommitCallbackRegistrar.add("ClickCopy",	 boost::bind(&LLFloaterSettingsDebug::onCopyToClipboard, this));
-	mCommitCallbackRegistrar.add("ClickSanityIcon", boost::bind(&LLFloaterSettingsDebug::onSanityCheck, this));
-
-	// make sure that the first filter update succeeds
-	mOldSearchTerm = std::string("---");
-	// proper initialisation
-	mCurrentControlVariable = NULL;
-	mOldControlVariable = NULL;
 }
 
 LLFloaterSettingsDebug::~LLFloaterSettingsDebug()
-{
-	if (mOldControlVariable)
-	{
-		mOldControlVariable->getCommitSignal()->disconnect(boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this));
-	}
-}
+{}
 
-void LLFloaterSettingsDebug::onUpdateFilter()
-{
-	std::string searchTerm = mSearchSettingsInput->getValue();
-	// make sure not to reselect the first item in the list on focus restore
-	if (searchTerm == mOldSearchTerm)
-	{
-		return;
-	}
-	mOldSearchTerm = searchTerm;
-	mSettingsScrollList->deleteAllItems();
-	settings_map_t::iterator it;
-	for (it = mSettingsMap.begin(); it != mSettingsMap.end(); ++it)
-	{
-		bool addItem = false;
-		if (searchTerm.empty())
-		{
-			addItem = true;
-		}
-		else
-		{
-			std::string itemValue = it->second->getName();
-			std::string itemComment = it->second->getComment();
-			LLStringUtil::toLower(searchTerm);
-			LLStringUtil::toLower(itemValue);
-			if (itemValue.find(searchTerm, 0) != std::string::npos)
-			{
-				addItem = true;
-			}
-			else	// performance: broken out to save toLower calls on comments
-			{
-				LLStringUtil::toLower(itemComment);
-				if (itemComment.find(searchTerm, 0) != std::string::npos)
-				{
-					addItem = true;
-				}
-			}
-		}
-		if (addItem)
-		{
-			LLSD item;
-			item["columns"][0]["value"] = it->second->getName();
-			mSettingsScrollList->addElement(item, ADD_BOTTOM, it->second);
-		}
-	}
-	// if at least one match was found, highlight and select the topmost entry in the list
-	// but only if actually a search term was given
-	if (mSettingsScrollList->getItemCount() && !searchTerm.empty())
-	{
-		mSettingsScrollList->sortByColumnIndex(0, TRUE);
-		mSettingsScrollList->selectFirstItem();
-	}
-	onSettingSelect();
-}
 BOOL LLFloaterSettingsDebug::postBuild()
 {
-	mSearchSettingsInput = getChild<LLSearchEditor>("search_settings_input");
-	mSettingsScrollList = getChild<LLScrollListCtrl>("settings_scroll_list");
-	mComment = getChild<LLTextEditor>("comment_text");
-	mSpinner1 = getChild<LLSpinCtrl>("val_spinner_1");
-	mSpinner2 = getChild<LLSpinCtrl>("val_spinner_2");
-	mSpinner3 = getChild<LLSpinCtrl>("val_spinner_3");
-	mSpinner4 = getChild<LLSpinCtrl>("val_spinner_4");
-	mColorSwatch = getChild<LLColorSwatchCtrl>("val_color_swatch");
-	mValText = getChild<LLLineEditor>("val_text");
-	mBooleanCombo = getChild<LLRadioGroup>("boolean_combo");
-	mCopyButton = getChild<LLButton>("copy_btn");
-	mDefaultButton = getChild<LLButton>("default_btn");
-	mSanityButton = getChild<LLButton>("sanity_warning_btn");
+	mComboSettings = getChild<LLComboBox>("settings_combo");
 
-	mSearchSettingsInput->setFocus(TRUE); // <FS:LO> Make search textbox focused on opening
-	// tried to make this an XUI callback, but keystroke_callback doesn't
-	// seem to work as hoped, so build the callback manually :/ -Zi
-	mSearchSettingsInput->setKeystrokeCallback(boost::bind(&LLFloaterSettingsDebug::onUpdateFilter, this));
 	struct f : public LLControlGroup::ApplyFunctor
 	{
-		std::map<std::string, LLControlVariable*>* map;
-		f(settings_map_t* m) : map(m) {}
-		virtual void apply(const std::string& name, LLControlVariable* control)
+		LLComboBox* combo;
+		f(LLComboBox* c) : combo(c) {}
+
+		void apply(const std::string& name, LLControlVariable* control) override
 		{
 			if (!control->isHiddenFromSettingsEditor())
 			{
-				(*map)[name]=control;
+				combo->add(name, (void*)control);
 			}
 		}
-	} func(&mSettingsMap);
+	} func(mComboSettings);
 
 	std::string key = getKey().asString();
 	if (key == "all" || key == "base")
@@ -168,280 +84,216 @@ BOOL LLFloaterSettingsDebug::postBuild()
 		gSavedPerAccountSettings.applyToAll(&func);
 	}
 
-	onUpdateFilter();
-	mSettingsScrollList->sortByColumnIndex(0,TRUE);
-
-	if (!gSavedSettings.getBOOL("7bd9b379-962b-407f-9dd3-2d5ce9eba39a"))
-	{
-		LLSD args;
-		args["MESSAGE"] = LLTrans::getString("DebugSettingsWarning");
-		LLNotificationsUtil::add("SystemMessageTip", args);
-		gSavedSettings.setBOOL("7bd9b379-962b-407f-9dd3-2d5ce9eba39a", TRUE);
-	}
-
+	mComboSettings->sortByName();
+	mComboSettings->updateSelection();
+	mComment = getChild<LLTextEditor>("comment_text");
+	mValSpinner1 = getChild<LLSpinCtrl>("val_spinner_1");
+	mValSpinner2 = getChild<LLSpinCtrl>("val_spinner_2");
+	mValSpinner3 = getChild<LLSpinCtrl>("val_spinner_3");
+	mValSpinner4 = getChild<LLSpinCtrl>("val_spinner_4");
+	mValColor = getChild<LLColorSwatchCtrl>("val_color_swatch");
+	mValBool = getChild<LLUICtrl>("boolean_combo");
+	mValText = getChild<LLUICtrl>("val_text");
 	return TRUE;
 }
 
-LLControlVariable* LLFloaterSettingsDebug::getControlVariable() const
-{
-	LLControlVariable* controlp = nullptr;
-	LLScrollListItem* item = mSettingsScrollList->getFirstSelected();
-	if (item)
-	{
-		controlp = static_cast<LLControlVariable*>(item->getUserdata());
-	}
-	return controlp;
-}
-void LLFloaterSettingsDebug::onSettingSelect()
-{
-	mCurrentControlVariable = getControlVariable();
-	if (mOldControlVariable != mCurrentControlVariable)
-	{
-		// unbind change control signal from previously selected control
-		if (mOldControlVariable)
-		{
-			mOldControlVariable->getCommitSignal()->disconnect(boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this));
-		}
-		// bind change control signal, so we can see updates to the current control in realtime
-		if (mCurrentControlVariable)
-		{
-			mCurrentControlVariable->getCommitSignal()->connect(boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this));
-		}
-		mOldControlVariable = mCurrentControlVariable;
-	}
-	updateControl();
-}
 void LLFloaterSettingsDebug::draw()
 {
-	if (mCurrentControlVariable)
-	{
-		// check for changes in control visibility, like RLVa does
-		if (mCurrentControlVariable->isHiddenFromSettingsEditor() != mOldVisibility)
-		{
-			updateControl();
-		}
-	}
+	LLControlVariable* controlp = static_cast<LLControlVariable*>(mComboSettings->getCurrentUserdata());
+	updateControl(controlp);
+
 	LLFloater::draw();
 }
 
-void LLFloaterSettingsDebug::onSanityCheck() const
+//static 
+void LLFloaterSettingsDebug::onSettingSelect(LLUICtrl* ctrl)
 {
-	SanityCheck::instance().onSanity(mCurrentControlVariable);
+	LLComboBox* combo_box = (LLComboBox*)ctrl;
+	LLControlVariable* controlp = (LLControlVariable*)combo_box->getCurrentUserdata();
+
+	updateControl(controlp);
 }
 
-void LLFloaterSettingsDebug::onCommitSettings() const
+void LLFloaterSettingsDebug::onCommitSettings()
 {
-	if (!mCurrentControlVariable)
+	LLControlVariable* controlp = static_cast<LLControlVariable*>(mComboSettings->getCurrentUserdata());
+
+	if (!controlp)
+	{
 		return;
+	}
 
 	LLVector3 vector;
 	LLVector3d vectord;
-	LLVector4 vector4; // <Black Dragon:NiranV> Vector4
 	LLRect rect;
 	LLColor4 col4;
 	LLColor3 col3;
+	LLColor4U col4U;
+	LLColor4 color_with_alpha;
 
-	switch(mCurrentControlVariable->type())
+	switch(controlp->type())
 	{		
 	  case TYPE_U32:
-		mCurrentControlVariable->set(mSpinner1->getValue());
+		controlp->set(mValSpinner1->getValue());
 		break;
 	  case TYPE_S32:
-		mCurrentControlVariable->set(mSpinner1->getValue());
+		controlp->set(mValSpinner1->getValue());
 		break;
 	  case TYPE_F32:
-		mCurrentControlVariable->set(LLSD(mSpinner1->getValue().asReal()));
+		controlp->set(LLSD(mValSpinner1->getValue().asReal()));
 		break;
 	  case TYPE_BOOLEAN:
-		mCurrentControlVariable->set(mBooleanCombo->getValue());
+		controlp->set(mValBool->getValue());
 		break;
 	  case TYPE_STRING:
-		mCurrentControlVariable->set(LLSD(mValText->getValue().asString()));
+		controlp->set(LLSD(mValText->getValue().asString()));
 		break;
 	  case TYPE_VEC3:
-		vector.mV[VX] = static_cast<F32>(mSpinner1->getValue().asReal());
-		vector.mV[VY] = static_cast<F32>(mSpinner2->getValue().asReal());
-		vector.mV[VZ] = static_cast<F32>(mSpinner3->getValue().asReal());
-		mCurrentControlVariable->set(vector.getValue());
+		vector.mV[VX] = (F32)mValSpinner1->getValue().asReal();
+		vector.mV[VY] = (F32)mValSpinner2->getValue().asReal();
+		vector.mV[VZ] = (F32)mValSpinner3->getValue().asReal();
+		controlp->set(vector.getValue());
 		break;
 	  case TYPE_VEC3D:
-		vectord.mdV[VX] = mSpinner1->getValue().asReal();
-		vectord.mdV[VY] = mSpinner2->getValue().asReal();
-		vectord.mdV[VZ] = mSpinner3->getValue().asReal();
-		mCurrentControlVariable->set(vectord.getValue());
+		vectord.mdV[VX] = mValSpinner1->getValue().asReal();
+		vectord.mdV[VY] = mValSpinner2->getValue().asReal();
+		vectord.mdV[VZ] = mValSpinner3->getValue().asReal();
+		controlp->set(vectord.getValue());
 		break;
 	  case TYPE_RECT:
-		rect.mLeft = mSpinner1->getValue().asInteger();
-		rect.mRight = mSpinner2->getValue().asInteger();
-		rect.mBottom = mSpinner3->getValue().asInteger();
-		rect.mTop = mSpinner4->getValue().asInteger();
-		mCurrentControlVariable->set(rect.getValue());
+		rect.mLeft = mValSpinner1->getValue().asInteger();
+		rect.mRight = mValSpinner2->getValue().asInteger();
+		rect.mBottom = mValSpinner3->getValue().asInteger();
+		rect.mTop = mValSpinner4->getValue().asInteger();
+		controlp->set(rect.getValue());
 		break;
 	  case TYPE_COL4:
-		col3.setValue(mColorSwatch->getValue());
-		col4 = LLColor4(col3, static_cast<F32>(mSpinner4->getValue().asReal()));
-		mCurrentControlVariable->set(col4.getValue());
+		col3.setValue(mValColor->getValue());
+		col4 = LLColor4(col3, (F32)mValSpinner4->getValue().asReal());
+		controlp->set(col4.getValue());
 		break;
 	  case TYPE_COL3:
-		mCurrentControlVariable->set(mColorSwatch->getValue());
+		controlp->set(mValColor->getValue());
 		break;
-	  // <Black Dragon:NiranV> Vector4
-	  case TYPE_VEC4:
-		vector4.mV[VX] = (F32)getChild<LLUICtrl>("val_spinner_1")->getValue().asReal();
-		vector4.mV[VY] = (F32)getChild<LLUICtrl>("val_spinner_2")->getValue().asReal();
-		vector4.mV[VZ] = (F32)getChild<LLUICtrl>("val_spinner_3")->getValue().asReal();
-		vector4.mV[VW] = (F32)getChild<LLUICtrl>("val_spinner_4")->getValue().asReal();
-		mCurrentControlVariable->set(vector4.getValue());
 	  default:
 		break;
 	}
-	if (!mCurrentControlVariable->isSane())
-	{
-		onSanityCheck();
-}
 }
 
+// static
 void LLFloaterSettingsDebug::onClickDefault()
 {
-	if (mCurrentControlVariable)
+	LLControlVariable* controlp = static_cast<LLControlVariable*>(mComboSettings->getCurrentUserdata());
+
+	if (controlp)
 	{
-		mCurrentControlVariable->resetToDefault(true);
-		updateControl();
+		controlp->resetToDefault(true);
+		updateControl(controlp);
 	}
 }
 
-void LLFloaterSettingsDebug::onCopyToClipboard() const
+// we've switched controls, or doing per-frame update, so update spinners, etc.
+void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 {
-	if (mCurrentControlVariable)
-	{
-		getWindow()->copyTextToClipboard(utf8str_to_wstring(mCurrentControlVariable->getName()));
-		LLNotificationsUtil::add("ControlNameCopiedToClipboard");
-	}
-}
-
-// we've switched controls, so update spinners, etc.
-void LLFloaterSettingsDebug::updateControl()
-{
-	if (!mSpinner1 || !mSpinner2 || !mSpinner3 || !mSpinner4 || !mColorSwatch)
+	if (!mValSpinner1 || !mValSpinner2 || !mValSpinner3 || !mValSpinner4 || !mValColor)
 	{
 		LL_WARNS() << "Could not find all desired controls by name"
 			<< LL_ENDL;
 		return;
 	}
 
-	mSpinner1->setVisible(FALSE);
-	mSpinner2->setVisible(FALSE);
-	mSpinner3->setVisible(FALSE);
-	mSpinner4->setVisible(FALSE);
-	mColorSwatch->setVisible(FALSE);
+	mValSpinner1->setVisible(FALSE);
+	mValSpinner2->setVisible(FALSE);
+	mValSpinner3->setVisible(FALSE);
+	mValSpinner4->setVisible(FALSE);
+	mValColor->setVisible(FALSE);
 	mValText->setVisible( FALSE);
-	mComment->setText(LLStringUtil::null);
-	mCopyButton->setEnabled(FALSE);
-	mDefaultButton->setEnabled(FALSE);
-	mBooleanCombo->setVisible(FALSE);
-	mSanityButton->setVisible(FALSE);
-
-	if (mCurrentControlVariable)
+	if (!mComment->hasFocus()) // <alchemy/>
 	{
-// [RLVa:KB] - Checked: 2011-05-28 (RLVa-1.4.0a) | Modified: RLVa-1.4.0a
-		// If "HideFromEditor" was toggled while the floater is open then we need to manually disable access to the control
-		// NOTE: this runs per-frame so there's no need to explictly handle onCommitSettings() or onClickDefault()
-		mOldVisibility=mCurrentControlVariable->isHiddenFromSettingsEditor();
-		mSpinner1->setEnabled(!mOldVisibility);
-		mSpinner2->setEnabled(!mOldVisibility);
-		mSpinner3->setEnabled(!mOldVisibility);
-		mSpinner4->setEnabled(!mOldVisibility);
-		mColorSwatch->setEnabled(!mOldVisibility);
-		mValText->setEnabled(!mOldVisibility);
-		mBooleanCombo->setEnabled(!mOldVisibility);
-		mDefaultButton->setEnabled(!mOldVisibility);
-// [/RLVa:KB]
+		mComment->setText(LLStringUtil::null);
+	}
 
+	if (controlp)
+	{
+		eControlType type = controlp->type();
 
+		//hide combo box only for non booleans, otherwise this will result in the combo box closing every frame
+		mValBool->setVisible( type == TYPE_BOOLEAN);
 		
-		mCopyButton->setEnabled(TRUE);
-		mSanityButton->setVisible(!mCurrentControlVariable->isSane());
 
-		eControlType type=mCurrentControlVariable->type();
+		if (!mComment->hasFocus()) // <alchemy/>
+		{
+			mComment->setText(controlp->getComment());
+		}
+		mValSpinner1->setMaxValue(F32_MAX);
+		mValSpinner2->setMaxValue(F32_MAX);
+		mValSpinner3->setMaxValue(F32_MAX);
+		mValSpinner4->setMaxValue(F32_MAX);
+		mValSpinner1->setMinValue(-F32_MAX);
+		mValSpinner2->setMinValue(-F32_MAX);
+		mValSpinner3->setMinValue(-F32_MAX);
+		mValSpinner4->setMinValue(-F32_MAX);
+		if (!mValSpinner1->hasFocus())
+		{
+			mValSpinner1->setIncrement(0.1f);
+		}
+		if (!mValSpinner2->hasFocus())
+		{
+			mValSpinner2->setIncrement(0.1f);
+		}
+		if (!mValSpinner3->hasFocus())
+		{
+			mValSpinner3->setIncrement(0.1f);
+		}
+		if (!mValSpinner4->hasFocus())
+		{
+			mValSpinner4->setIncrement(0.1f);
+		}
 
-		mComment->setText(mCurrentControlVariable->getName()+std::string(": ")+mCurrentControlVariable->getComment());
-		mSpinner1->setMaxValue(F32_MAX);
-		mSpinner2->setMaxValue(F32_MAX);
-		mSpinner3->setMaxValue(F32_MAX);
-		mSpinner4->setMaxValue(F32_MAX);
-		mSpinner1->setMinValue(-F32_MAX);
-		mSpinner2->setMinValue(-F32_MAX);
-		mSpinner3->setMinValue(-F32_MAX);
-		mSpinner4->setMinValue(-F32_MAX);
-		if (!mSpinner1->hasFocus())
-		{
-			mSpinner1->setIncrement(0.1f);
-		}
-		if (!mSpinner2->hasFocus())
-		{
-			mSpinner2->setIncrement(0.1f);
-		}
-		if (!mSpinner3->hasFocus())
-		{
-			mSpinner3->setIncrement(0.1f);
-		}
-		if (!mSpinner4->hasFocus())
-		{
-			mSpinner4->setIncrement(0.1f);
-		}
-
-		LLSD sd = mCurrentControlVariable->get();
+		LLSD sd = controlp->get();
 		switch(type)
 		{
 		  case TYPE_U32:
-			mSpinner1->setVisible(TRUE);
-			mSpinner1->setLabel(std::string("value")); // Debug, don't translate
-			if (!mSpinner1->hasFocus())
+			mValSpinner1->setVisible(TRUE);
+			mValSpinner1->setLabel(LLStringExplicit("value")); // Debug, don't translate
+			if (!mValSpinner1->hasFocus())
 			{
-				mSpinner1->setValue(sd);
-				mSpinner1->setMinValue(static_cast<F32>(U32_MIN));
-				mSpinner1->setMaxValue(static_cast<F32>(U32_MAX));
-				mSpinner1->setIncrement(1.f);
-				mSpinner1->setPrecision(0);
+				mValSpinner1->setValue(sd);
+				mValSpinner1->setMinValue((F32)U32_MIN);
+				mValSpinner1->setMaxValue((F32)U32_MAX);
+				mValSpinner1->setIncrement(1.f);
+				mValSpinner1->setPrecision(0);
 			}
 			break;
 		  case TYPE_S32:
-			mSpinner1->setVisible(TRUE);
-			mSpinner1->setLabel(std::string("value")); // Debug, don't translate
-			if (!mSpinner1->hasFocus())
+			mValSpinner1->setVisible(TRUE);
+			mValSpinner1->setLabel(LLStringExplicit("value")); // Debug, don't translate
+			if (!mValSpinner1->hasFocus())
 			{
-				mSpinner1->setValue(sd);
-				mSpinner1->setMinValue(static_cast<F32>(S32_MIN));
-				mSpinner1->setMaxValue(static_cast<F32>(S32_MAX));
-				mSpinner1->setIncrement(1.f);
-				mSpinner1->setPrecision(0);
+				mValSpinner1->setValue(sd);
+				mValSpinner1->setMinValue((F32)S32_MIN);
+				mValSpinner1->setMaxValue((F32)S32_MAX);
+				mValSpinner1->setIncrement(1.f);
+				mValSpinner1->setPrecision(0);
 			}
 			break;
 		  case TYPE_F32:
-			mSpinner1->setVisible(TRUE);
-			mSpinner1->setLabel(std::string("value")); // Debug, don't translate
-			if (!mSpinner1->hasFocus())
+			mValSpinner1->setVisible(TRUE);
+			mValSpinner1->setLabel(LLStringExplicit("value")); // Debug, don't translate
+			if (!mValSpinner1->hasFocus())
 			{
-				mSpinner1->setPrecision(3);
-				mSpinner1->setValue(sd);
+				mValSpinner1->setPrecision(3);
+				mValSpinner1->setValue(sd);
 			}
 			break;
 		  case TYPE_BOOLEAN:
-			mBooleanCombo->setVisible(TRUE);
-			if (!mBooleanCombo->hasFocus())
+			if (!mValBool->hasFocus())
 			{
-				if (sd.asBoolean())
-				{
-					mBooleanCombo->setValue(LLSD("true"));
-				}
-				else
-				{
-					mBooleanCombo->setValue(LLSD(""));
-				}
+				mValBool->setValue(LLSD(sd.asBoolean() ? "true" : LLStringUtil::null));
 			}
 			break;
 		  case TYPE_STRING:
-			mValText->setVisible( TRUE);
+			mValText->setVisible(TRUE);
 			if (!mValText->hasFocus())
 			{
 				mValText->setValue(sd);
@@ -451,26 +303,26 @@ void LLFloaterSettingsDebug::updateControl()
 		  {
 			LLVector3 v;
 			v.setValue(sd);
-			mSpinner1->setVisible(TRUE);
-			mSpinner1->setLabel(std::string("X"));
-			mSpinner2->setVisible(TRUE);
-			mSpinner2->setLabel(std::string("Y"));
-			mSpinner3->setVisible(TRUE);
-			mSpinner3->setLabel(std::string("Z"));
-			if (!mSpinner1->hasFocus())
+			mValSpinner1->setVisible(TRUE);
+			mValSpinner1->setLabel(LLStringExplicit("X"));
+			mValSpinner2->setVisible(TRUE);
+			mValSpinner2->setLabel(LLStringExplicit("Y"));
+			mValSpinner3->setVisible(TRUE);
+			mValSpinner3->setLabel(LLStringExplicit("Z"));
+			if (!mValSpinner1->hasFocus())
 			{
-				mSpinner1->setPrecision(3);
-				mSpinner1->setValue(v[VX]);
+				mValSpinner1->setPrecision(3);
+				mValSpinner1->setValue(v[VX]);
 			}
-			if (!mSpinner2->hasFocus())
+			if (!mValSpinner2->hasFocus())
 			{
-				mSpinner2->setPrecision(3);
-				mSpinner2->setValue(v[VY]);
+				mValSpinner2->setPrecision(3);
+				mValSpinner2->setValue(v[VY]);
 			}
-			if (!mSpinner3->hasFocus())
+			if (!mValSpinner3->hasFocus())
 			{
-				mSpinner3->setPrecision(3);
-				mSpinner3->setValue(v[VZ]);
+				mValSpinner3->setPrecision(3);
+				mValSpinner3->setValue(v[VZ]);
 			}
 			break;
 		  }
@@ -478,26 +330,26 @@ void LLFloaterSettingsDebug::updateControl()
 		  {
 			LLVector3d v;
 			v.setValue(sd);
-			mSpinner1->setVisible(TRUE);
-			mSpinner1->setLabel(std::string("X"));
-			mSpinner2->setVisible(TRUE);
-			mSpinner2->setLabel(std::string("Y"));
-			mSpinner3->setVisible(TRUE);
-			mSpinner3->setLabel(std::string("Z"));
-			if (!mSpinner1->hasFocus())
+			mValSpinner1->setVisible(TRUE);
+			mValSpinner1->setLabel(LLStringExplicit("X"));
+			mValSpinner2->setVisible(TRUE);
+			mValSpinner2->setLabel(LLStringExplicit("Y"));
+			mValSpinner3->setVisible(TRUE);
+			mValSpinner3->setLabel(LLStringExplicit("Z"));
+			if (!mValSpinner1->hasFocus())
 			{
-				mSpinner1->setPrecision(3);
-				mSpinner1->setValue(v[VX]);
+				mValSpinner1->setPrecision(3);
+				mValSpinner1->setValue(v[VX]);
 			}
-			if (!mSpinner2->hasFocus())
+			if (!mValSpinner2->hasFocus())
 			{
-				mSpinner2->setPrecision(3);
-				mSpinner2->setValue(v[VY]);
+				mValSpinner2->setPrecision(3);
+				mValSpinner2->setValue(v[VY]);
 			}
-			if (!mSpinner3->hasFocus())
+			if (!mValSpinner3->hasFocus())
 			{
-				mSpinner3->setPrecision(3);
-				mSpinner3->setValue(v[VZ]);
+				mValSpinner3->setPrecision(3);
+				mValSpinner3->setValue(v[VZ]);
 			}
 			break;
 		  }
@@ -505,70 +357,70 @@ void LLFloaterSettingsDebug::updateControl()
 		  {
 			LLRect r;
 			r.setValue(sd);
-			mSpinner1->setVisible(TRUE);
-			mSpinner1->setLabel(std::string("Left"));
-			mSpinner2->setVisible(TRUE);
-			mSpinner2->setLabel(std::string("Right"));
-			mSpinner3->setVisible(TRUE);
-			mSpinner3->setLabel(std::string("Bottom"));
-			mSpinner4->setVisible(TRUE);
-			mSpinner4->setLabel(std::string("Top"));
-			if (!mSpinner1->hasFocus())
+			mValSpinner1->setVisible(TRUE);
+			mValSpinner1->setLabel(LLStringExplicit("Left"));
+			mValSpinner2->setVisible(TRUE);
+			mValSpinner2->setLabel(LLStringExplicit("Right"));
+			mValSpinner3->setVisible(TRUE);
+			mValSpinner3->setLabel(LLStringExplicit("Bottom"));
+			mValSpinner4->setVisible(TRUE);
+			mValSpinner4->setLabel(LLStringExplicit("Top"));
+			if (!mValSpinner1->hasFocus())
 			{
-				mSpinner1->setPrecision(0);
-				mSpinner1->setValue(r.mLeft);
+				mValSpinner1->setPrecision(0);
+				mValSpinner1->setValue(r.mLeft);
 			}
-			if (!mSpinner2->hasFocus())
+			if (!mValSpinner2->hasFocus())
 			{
-				mSpinner2->setPrecision(0);
-				mSpinner2->setValue(r.mRight);
+				mValSpinner2->setPrecision(0);
+				mValSpinner2->setValue(r.mRight);
 			}
-			if (!mSpinner3->hasFocus())
+			if (!mValSpinner3->hasFocus())
 			{
-				mSpinner3->setPrecision(0);
-				mSpinner3->setValue(r.mBottom);
+				mValSpinner3->setPrecision(0);
+				mValSpinner3->setValue(r.mBottom);
 			}
-			if (!mSpinner4->hasFocus())
+			if (!mValSpinner4->hasFocus())
 			{
-				mSpinner4->setPrecision(0);
-				mSpinner4->setValue(r.mTop);
+				mValSpinner4->setPrecision(0);
+				mValSpinner4->setValue(r.mTop);
 			}
 
-			mSpinner1->setMinValue(static_cast<F32>(S32_MIN));
-			mSpinner1->setMaxValue(static_cast<F32>(S32_MAX));
-			mSpinner1->setIncrement(1.f);
+			mValSpinner1->setMinValue((F32)S32_MIN);
+			mValSpinner1->setMaxValue((F32)S32_MAX);
+			mValSpinner1->setIncrement(1.f);
 
-			mSpinner2->setMinValue(static_cast<F32>(S32_MIN));
-			mSpinner2->setMaxValue(static_cast<F32>(S32_MAX));
-			mSpinner2->setIncrement(1.f);
+			mValSpinner2->setMinValue((F32)S32_MIN);
+			mValSpinner2->setMaxValue((F32)S32_MAX);
+			mValSpinner2->setIncrement(1.f);
 
-			mSpinner3->setMinValue(static_cast<F32>(S32_MIN));
-			mSpinner3->setMaxValue(static_cast<F32>(S32_MAX));
-			mSpinner3->setIncrement(1.f);
+			mValSpinner3->setMinValue((F32)S32_MIN);
+			mValSpinner3->setMaxValue((F32)S32_MAX);
+			mValSpinner3->setIncrement(1.f);
 
-			mSpinner4->setMinValue(static_cast<F32>(S32_MIN));
-			mSpinner4->setMaxValue(static_cast<F32>(S32_MAX));
-			mSpinner4->setIncrement(1.f);
+			mValSpinner4->setMinValue((F32)S32_MIN);
+			mValSpinner4->setMaxValue((F32)S32_MAX);
+			mValSpinner4->setIncrement(1.f);
 			break;
 		  }
 		  case TYPE_COL4:
 		  {
 			LLColor4 clr;
 			clr.setValue(sd);
-			mColorSwatch->setVisible(TRUE);
+			mValColor->setVisible(TRUE);
 			// only set if changed so color picker doesn't update
-			if(clr != LLColor4(mColorSwatch->getValue()))
+			if(clr != LLColor4(mValColor->getValue()))
 			{
-				mColorSwatch->set(LLColor4(sd), TRUE, FALSE);
+				mValColor->set(LLColor4(sd), TRUE, FALSE);
 			}
-			mSpinner4->setVisible(TRUE);
-			mSpinner4->setLabel(std::string("Alpha"));
-			if (!mSpinner4->hasFocus())
+			mValSpinner4->setVisible(TRUE);
+			mValSpinner4->setLabel(LLStringExplicit("Alpha"));
+			if (!mValSpinner4->hasFocus())
 			{
-				mSpinner4->setPrecision(3);
-				mSpinner4->setMinValue(0.0);
-				mSpinner4->setMaxValue(1.f);
-				mSpinner4->setValue(clr.mV[VALPHA]);
+				mValSpinner4->setPrecision(3);
+				mValSpinner4->setMinValue(0.0);
+				mValSpinner4->setMaxValue(1.f);
+				mValSpinner4->setValue(clr.mV[VALPHA]);
 			}
 			break;
 		  }
@@ -576,48 +428,14 @@ void LLFloaterSettingsDebug::updateControl()
 		  {
 			LLColor3 clr;
 			clr.setValue(sd);
-			mColorSwatch->setVisible(TRUE);
-			mColorSwatch->setValue(sd);
+			mValColor->setVisible(TRUE);
+			mValColor->setValue(sd);
 			break;
 		  }
-		  // <Black Dragon:NiranV> Vector4
-		  case TYPE_VEC4:
-		  {
-			  LLVector4 v;
-			  v.setValue(sd);
-			  mSpinner1->setVisible(TRUE);
-			  mSpinner1->setLabel(std::string("X"));
-			  mSpinner2->setVisible(TRUE);
-			  mSpinner2->setLabel(std::string("Y"));
-			  mSpinner3->setVisible(TRUE);
-			  mSpinner3->setLabel(std::string("Z"));
-			  mSpinner4->setVisible(TRUE);
-			  mSpinner4->setLabel(std::string("W"));
-			  if (!mSpinner1->hasFocus())
-			  {
-				  mSpinner1->setPrecision(3);
-				  mSpinner1->setValue(v[VX]);
-			  }
-			  if (!mSpinner2->hasFocus())
-			  {
-				  mSpinner2->setPrecision(3);
-				  mSpinner2->setValue(v[VY]);
-			  }
-			  if (!mSpinner3->hasFocus())
-			  {
-				  mSpinner3->setPrecision(3);
-				  mSpinner3->setValue(v[VZ]);
-			  }
-			  if (!mSpinner4->hasFocus())
-			  {
-				  mSpinner4->setPrecision(3);
-				  mSpinner4->setValue(v[VW]);
-			  }
-			  break;
-		  }
 		  default:
-			mComment->setText(std::string("unknown"));
+			mComment->setText(LLStringExplicit("unknown"));
 			break;
 		}
 	}
+
 }

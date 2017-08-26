@@ -38,10 +38,6 @@
 #include "llsnapshotlivepreview.h"
 #include "llviewercontrol.h" // gSavedSettings
 #include "llviewerwindow.h"
-#include "llnotificationsutil.h"
-
-#include "lltransutil.h" // getString
-#include "pvcommon.h" // reportToNearbyChat
 
 /**
  * The panel provides UI for saving snapshot to a local folder.
@@ -53,21 +49,18 @@ class LLPanelSnapshotLocal
 
 public:
 	LLPanelSnapshotLocal();
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void onOpen(const LLSD& key) override;
 
 private:
-	/*virtual*/ std::string getWidthSpinnerName() const		{ return "local_snapshot_width"; }
-	/*virtual*/ std::string getHeightSpinnerName() const	{ return "local_snapshot_height"; }
-	/*virtual*/ std::string getAspectRatioCBName() const	{ return "local_keep_aspect_check"; }
-	/*virtual*/ std::string getImageSizeComboName() const	{ return "local_size_combo"; }
-	/*virtual*/ std::string getImageSizePanelName() const	{ return "local_image_size_lp"; }
-	/*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const;
-	/*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType();
-	/*virtual*/ void updateControls(const LLSD& info);
-
-	// <FS:Ansariel> Threaded filepickers
-	void saveLocalCallback(bool success);
+	/*virtual*/ std::string getWidthSpinnerName() const override { return "local_snapshot_width"; }
+	/*virtual*/ std::string getHeightSpinnerName() const override { return "local_snapshot_height"; }
+	/*virtual*/ std::string getAspectRatioCBName() const override { return "local_keep_aspect_check"; }
+	/*virtual*/ std::string getImageSizeComboName() const override { return "local_size_combo"; }
+	/*virtual*/ std::string getImageSizePanelName() const override { return "local_image_size_lp"; }
+	/*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const override;
+	/*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType() override;
+	/*virtual*/ void updateControls(const LLSD& info) override;
 
 	S32 mLocalFormat;
 
@@ -80,8 +73,7 @@ static LLPanelInjector<LLPanelSnapshotLocal> panel_class("llpanelsnapshotlocal")
 
 LLPanelSnapshotLocal::LLPanelSnapshotLocal()
 {
-	static LLCachedControl<S32> snapshot_format(gSavedSettings, "SnapshotFormat");
-	mLocalFormat = snapshot_format;
+	mLocalFormat = gSavedSettings.getS32("SnapshotFormat");
 	mCommitCallbackRegistrar.add("Local.Cancel",	boost::bind(&LLPanelSnapshotLocal::cancel,		this));
 }
 
@@ -131,16 +123,17 @@ LLSnapshotModel::ESnapshotFormat LLPanelSnapshotLocal::getImageFormat() const
 // virtual
 void LLPanelSnapshotLocal::updateControls(const LLSD& info)
 {
-	mLocalFormat = gSavedSettings.getS32("SnapshotFormat");
-	getChild<LLComboBox>("local_format_combo")->selectNthItem(mLocalFormat);
-	auto quality_slider = getChild<LLUICtrl>("image_quality_slider");
-	
-	quality_slider->setValue(gSavedSettings.getS32("SnapshotQuality"));
-	// NOTE: Two memory reads are significantly faster than creating a variable (write) to read it twice later in most system configurations. - Xenhat 2016.11.25
-	getChild<LLUICtrl>("image_quality_level")->setVisible(mLocalFormat == LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
-	quality_slider->setVisible(mLocalFormat == LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
+	LLSnapshotModel::ESnapshotFormat fmt =
+		(LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
+	getChild<LLComboBox>("local_format_combo")->selectNthItem((S32) fmt);
+
+	const bool show_quality_ctrls = (fmt == LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
+	getChild<LLUICtrl>("image_quality_slider")->setVisible(show_quality_ctrls);
+	getChild<LLUICtrl>("image_quality_level")->setVisible(show_quality_ctrls);
+
+	getChild<LLUICtrl>("image_quality_slider")->setValue(gSavedSettings.getS32("SnapshotQuality"));
 	updateImageQualityLevel();
-	
+
 	const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
 	getChild<LLUICtrl>("save_btn")->setEnabled(have_snapshot);
 }
@@ -173,35 +166,15 @@ void LLPanelSnapshotLocal::onSaveFlyoutCommit(LLUICtrl* ctrl)
 	LLFloaterSnapshot* floater = LLFloaterSnapshot::getInstance();
 
 	floater->notify(LLSD().with("set-working", true));
-	// <FS:Ansariel> Threaded filepickers
-	//BOOL saved = floater->saveLocal();
-	//if (saved)
-	//{
-	//	LLFloaterSnapshot::postSave();
-	//	floater->notify(LLSD().with("set-finished", LLSD().with("ok", true).with("msg", "local")));
-	//}
-	//else
-	//{
-	//	cancel();
-	//}
-	floater->saveLocal(boost::bind(&LLPanelSnapshotLocal::saveLocalCallback, this, _1));
-	// </FS:Ansariel>
-}
-// <FS:Ansariel> Threaded filepickers
-void LLPanelSnapshotLocal::saveLocalCallback(bool success)
-{
-	LLFloaterSnapshot* floater = LLFloaterSnapshot::getInstance();
-
-	if (success)
+	BOOL saved = floater->saveLocal();
+	if (saved)
 	{
 		mSnapshotFloater->postSave();
-		//goBack(); // <polarity/>
 		floater->notify(LLSD().with("set-finished", LLSD().with("ok", true).with("msg", "local")));
 	}
 	else
 	{
-		PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("CannotSaveSnapshot"));
-		floater->notify(LLSD().with("set-ready", true));
+		floater->notify(LLSD().with("set-finished", LLSD().with("ok", false).with("msg", "local")));
 	}
 }
 

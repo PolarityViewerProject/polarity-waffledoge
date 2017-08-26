@@ -29,6 +29,14 @@
 
 #include "llnotificationhandler.h"
 
+typedef enum e_nearby_chat_output
+{
+	E_NEARBY_OUTPUT_TOAST = 0,
+	E_NEARBY_OUTPUT_BUBBLE,
+	E_NEARBY_OUTPUT_BOTH,
+	E_NEARBY_OUTPUT_NONE
+}ENearbyChatOutput;
+
 class LLEventPump;
 
 //add LLFloaterIMNearbyChatHandler to LLNotificationsUI namespace
@@ -37,14 +45,15 @@ namespace LLNotificationsUI{
 class LLFloaterIMNearbyChatHandler : public LLChatHandler
 {
 public:
+
 	LLFloaterIMNearbyChatHandler();
 	virtual ~LLFloaterIMNearbyChatHandler();
 
 
-	virtual void processChat(const LLChat& chat_msg, const LLSD &args);
+	void processChat(const LLChat& chat_msg, const LLSD &args) override;
 
 protected:
-	virtual void initChannel();
+	void initChannel() override;
 
 	static boost::scoped_ptr<LLEventPump> sChatWatcher;
 };

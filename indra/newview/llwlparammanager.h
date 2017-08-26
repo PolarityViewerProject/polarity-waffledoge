@@ -146,7 +146,12 @@ public:
 		if (len > 0)
 		{
 			name = stringVal.substr(0, len - 1);
-			scope = (EScope) atoi(stringVal.substr(len - 1, len).c_str());
+			scope = static_cast<EScope>(std::stoi(stringVal.substr(len - 1, len)));
+		}
+		else
+		{
+			LL_WARNS() << "LLWLParamKey provided with zero length name." << LL_ENDL;
+			scope = SCOPE_LOCAL;
 		}
 	}
 
@@ -238,8 +243,13 @@ public:
 	/// apply specified day cycle, setting time to noon by default
 	bool applyDayCycleParams(const LLSD& params, LLEnvKey::EScope scope, F32 time = 0.5);
 
+	/// Apply Default.xml map
+	void setDefaultDay();
+
 	/// apply specified fixed sky params
-	bool applySkyParams(const LLSD& params, bool interpolate = false);
+	bool applySkyParams(const LLSD& params);
+
+	void setDefaultSky();
 
 	// get where the light is pointing
 	inline LLVector4 getLightDir(void) const;
@@ -283,19 +293,15 @@ public:
 
 	/// @return true if the preset comes out of the box
 	bool isSystemPreset(const std::string& preset_name) const;
+	
+	/// @return true if preset exists
+	bool presetExists(const std::string& name) const;
 
 	/// @return user and system preset names as a single list
 	void getPresetNames(preset_name_list_t& region, preset_name_list_t& user, preset_name_list_t& sys) const;
 
-// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-	const std::string& findPreset(const std::string& strPresetName, LLEnvKey::EScope eScope);
-// [/RLVa:KB]
-
 	/// @return user preset names
 	void getUserPresetNames(preset_name_list_t& user) const;
-	
-	/// @return all local (user + sys) preset names
-	void getLocalPresetNames(preset_name_list_t& local) const;
 
 	/// @return keys of all known presets
 	void getPresetKeys(preset_key_list_t& keys) const;
@@ -307,7 +313,7 @@ public:
 	void addAllSkies(LLEnvKey::EScope scope, const LLSD& preset_map);
 
 	/// refresh region-scope presets
-	void refreshRegionPresets();
+	void refreshRegionPresets(const LLSD& region_sky_presets);
 
 	// returns all skies referenced by the current day cycle (in mDay), with their final names
 	// side effect: applies changes to all internal structures!  (trashes all unreferenced skies in scope, keys in day cycle rescoped to scope, etc.)
@@ -318,9 +324,6 @@ public:
 
 	/// escape string in a way different from LLURI::escape()
 	static std::string escapeString(const std::string& str);
-
-	// <FS:Ansariel> Get list of all ParamSets
-	const std::map<LLWLParamKey, LLWLParamSet>& getParamList() const { return mParamList; };
 
 	// helper variables
 	LLWLAnimator mAnimator;
@@ -385,7 +388,7 @@ private:
 	static std::string getSysDir();
 	static std::string getUserDir();
 
-	/*virtual*/ void initSingleton();
+	/*virtual*/ void initSingleton() override;
 	// list of all the parameters, listed by name
 	std::map<LLWLParamKey, LLWLParamSet> mParamList;
 

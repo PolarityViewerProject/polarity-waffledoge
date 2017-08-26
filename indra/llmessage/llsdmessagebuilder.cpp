@@ -43,7 +43,7 @@
 
 LLSDMessageBuilder::LLSDMessageBuilder() :
 	mCurrentMessage(LLSD::emptyMap()),
-	mCurrentBlock(NULL),
+	mCurrentBlock(nullptr),
 	mCurrentMessageName(""),
 	mCurrentBlockName(""),
 	mbSBuilt(FALSE),
@@ -160,12 +160,12 @@ void LLSDMessageBuilder::addF64(const char* varname, F64 v)
 	(*mCurrentBlock)[varname] = v;
 }
 
-void LLSDMessageBuilder::addIPAddr(const char* varname, U32 v)
+void LLSDMessageBuilder::addIPAddr(const char* varname, const U32 v)
 {
 	(*mCurrentBlock)[varname] = ll_sd_from_ipaddr(v);
 }
 
-void LLSDMessageBuilder::addIPPort(const char* varname, U16 v)
+void LLSDMessageBuilder::addIPPort(const char* varname, const U16 v)
 {
 	(*mCurrentBlock)[varname] = v;
 }
@@ -235,7 +235,7 @@ void LLSDMessageBuilder::copyFromMessageData(const LLMsgData& data)
 	// copy the blocks
 	// counting variables used to encode multiple block info
 	S32 block_count = 0;
-    char* block_name = NULL;
+    char* block_name = nullptr;
 
 	// loop through msg blocks to loop through variables, totalling up size
 	// data and filling the new (send) message

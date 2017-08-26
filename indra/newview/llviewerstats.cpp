@@ -62,6 +62,7 @@
 #include "llfeaturemanager.h"
 #include "llviewernetwork.h"
 #include "llmeshrepository.h" //for LLMeshRepository::sBytesReceived
+#include "llfloaterimnearbychathandler.h"
 #include "llsdserialize.h"
 #include "llcorehttputil.h"
 
@@ -146,7 +147,6 @@ LLTrace::SampleStatHandle<>	FPS_SAMPLE("fpssample"),
 							VISIBLE_AVATARS("visibleavatars", "Visible Avatars"),
 							SHADER_OBJECTS("shaderobjects", "Object Shaders"),
 							DRAW_DISTANCE("drawdistance", "Draw Distance"),
-							SHADOW_DISTANCE("shadowdistance", "Shadow Distance"),
 							PENDING_VFS_OPERATIONS("vfspendingoperations"),
 							WINDOW_WIDTH("windowwidth", "Window width"),
 							WINDOW_HEIGHT("windowheight", "Window height");
@@ -310,7 +310,7 @@ U32Bytes				gTotalWorldData,
 U32								gSimPingCount = 0;
 U32Bits				gObjectData;
 F32Milliseconds		gAvgSimPing(0.f);
-U32Bytes			gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY] = {U32Bytes(0)};
+U32Bytes			gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY];
 
 extern U32  gVisCompared;
 extern U32  gVisTested;
@@ -343,11 +343,14 @@ void update_statistics()
 
 	record(LLStatViewer::TRIANGLES_DRAWN_PER_FRAME, last_frame_recording.getSum(LLStatViewer::TRIANGLES_DRAWN));
 
-	sample(LLStatViewer::ENABLE_VBO,      (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
+	static LLCachedControl<bool> render_vbo_enable(gSavedSettings, "RenderVBOEnable");
+	static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip");
+	static LLCachedControl<U32> nearby_chat_out(gSavedSettings, "AlchemyNearbyChatOutput");
+	bool is_bubble = nearby_chat_out == E_NEARBY_OUTPUT_BUBBLE || nearby_chat_out == E_NEARBY_OUTPUT_BOTH;
+	sample(LLStatViewer::ENABLE_VBO,      (F64)render_vbo_enable);
 	sample(LLStatViewer::LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());
-	sample(LLStatViewer::DRAW_DISTANCE,   (F64)gSavedSettings.getF32("RenderFarClip"));
-	sample(LLStatViewer::SHADOW_DISTANCE,   (F64)gSavedSettings.getF32("RenderShadowFarClip"));
-	sample(LLStatViewer::CHAT_BUBBLES,    gSavedSettings.getBOOL("UseChatBubbles"));
+	sample(LLStatViewer::DRAW_DISTANCE,   (F64)render_far_clip);
+	sample(LLStatViewer::CHAT_BUBBLES,	  is_bubble);
 
 	typedef LLTrace::StatType<LLTrace::TimeBlockAccumulator>::instance_tracker_t stat_type_t;
 
@@ -607,7 +610,7 @@ void send_stats()
 
 	LLViewerStats::getInstance()->addToMessage(body);
 
-	LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
+	LL_DEBUGS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
     LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
         "Statistics posted to sim", "Failed to post statistics to sim");
 	LLViewerStats::instance().getRecording().resume();

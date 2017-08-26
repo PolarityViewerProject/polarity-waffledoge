@@ -30,10 +30,9 @@
 
 #include "llpanelgroupgeneral.h"
 
-#include "llavatarnamecache.h"
 #include "llagent.h"
+#include "lleconomy.h"
 #include "llsdparam.h"
-#include "lluictrlfactory.h"
 #include "roles_constants.h"
 
 // UI elements
@@ -41,19 +40,17 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldbstrings.h"
-#include "llavataractions.h"
 #include "llgroupactions.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
 #include "llnotificationsutil.h"
-#include "llscrolllistitem.h"
 #include "llspinctrl.h"
 #include "llslurl.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lltrans.h"
-#include "llviewerwindow.h"
+#include "llmutelist.h"
 
 static LLPanelInjector<LLPanelGroupGeneral> t_panel_group_general("panel_group_general");
 
@@ -67,19 +64,20 @@ LLPanelGroupGeneral::LLPanelGroupGeneral()
 :	LLPanelGroupTab(),
 	mChanged(FALSE),
 	mFirstUse(TRUE),
-	mGroupNameEditor(NULL),
-	mFounderName(NULL),
-	mInsignia(NULL),
-	mEditCharter(NULL),
-	mCtrlShowInGroupList(NULL),
-	mComboMature(NULL),
-	mCtrlOpenEnrollment(NULL),
-	mCtrlEnrollmentFee(NULL),
-	mSpinEnrollmentFee(NULL),
-	mCtrlReceiveNotices(NULL),
-	mCtrlListGroup(NULL),
-	mActiveTitleLabel(NULL),
-	mComboActiveTitle(NULL)
+	mGroupNameEditor(nullptr),
+	mFounderName(nullptr),
+	mInsignia(nullptr),
+	mEditCharter(nullptr),
+	mCtrlShowInGroupList(nullptr),
+	mCtrlOpenEnrollment(nullptr),
+	mCtrlEnrollmentFee(nullptr),
+	mSpinEnrollmentFee(nullptr),
+	mCtrlReceiveNotices(nullptr),
+	mCtrlListGroup(nullptr),
+	mActiveTitleLabel(nullptr),
+	mComboActiveTitle(nullptr),
+	mComboMature(nullptr),
+	mCtrlReceiveGroupChat(nullptr)
 {
 
 }
@@ -93,51 +91,34 @@ BOOL LLPanelGroupGeneral::postBuild()
 	bool recurse = true;
 
 	mEditCharter = getChild<LLTextEditor>("charter", recurse);
-	if(mEditCharter)
-	{
-		mEditCharter->setCommitCallback(onCommitAny, this);
-		mEditCharter->setFocusReceivedCallback(boost::bind(onFocusEdit, _1, this));
-		mEditCharter->setFocusChangedCallback(boost::bind(onFocusEdit, _1, this));
-	}
+	mEditCharter->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitAny, this));
+	mEditCharter->setFocusReceivedCallback(boost::bind(onFocusEdit, _1, this));
+	mEditCharter->setFocusChangedCallback(boost::bind(onFocusEdit, _1, this));
 
 	// Options
 	mCtrlShowInGroupList = getChild<LLCheckBoxCtrl>("show_in_group_list", recurse);
-	if (mCtrlShowInGroupList)
+	mCtrlShowInGroupList->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitAny, this));
+
+	mComboMature = getChild<LLComboBox>("group_mature_check", recurse);
+	mComboMature->setCurrentByIndex(0);
+	mComboMature->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitAny, this));
+	if (gAgent.isTeen())
 	{
-		mCtrlShowInGroupList->setCommitCallback(onCommitAny, this);
+		// Teens don't get to set mature flag. JC
+		mComboMature->setVisible(FALSE);
+		mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
 	}
 
-	mComboMature = getChild<LLComboBox>("group_mature_check", recurse);	
-	if(mComboMature)
-	{
-		mComboMature->setCurrentByIndex(0);
-		mComboMature->setCommitCallback(onCommitAny, this);
-		if (gAgent.isTeen())
-		{
-			// Teens don't get to set mature flag. JC
-			mComboMature->setVisible(FALSE);
-			mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
-		}
-	}
 	mCtrlOpenEnrollment = getChild<LLCheckBoxCtrl>("open_enrollement", recurse);
-	if (mCtrlOpenEnrollment)
-	{
-		mCtrlOpenEnrollment->setCommitCallback(onCommitAny, this);
-	}
+	mCtrlOpenEnrollment->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitAny, this));
 
 	mCtrlEnrollmentFee = getChild<LLCheckBoxCtrl>("check_enrollment_fee", recurse);
-	if (mCtrlEnrollmentFee)
-	{
-		mCtrlEnrollmentFee->setCommitCallback(onCommitEnrollment, this);
-	}
+	mCtrlEnrollmentFee->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitEnrollment, this));
 
 	mSpinEnrollmentFee = getChild<LLSpinCtrl>("spin_enrollment_fee", recurse);
-	if (mSpinEnrollmentFee)
-	{
-		mSpinEnrollmentFee->setCommitCallback(onCommitAny, this);
-		mSpinEnrollmentFee->setPrecision(0);
-		mSpinEnrollmentFee->resetDirty();
-	}
+	mSpinEnrollmentFee->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitAny, this));
+	mSpinEnrollmentFee->setPrecision(0);
+	mSpinEnrollmentFee->resetDirty();
 
 	BOOL accept_notices = FALSE;
 	BOOL list_in_profile = FALSE;
@@ -148,29 +129,31 @@ BOOL LLPanelGroupGeneral::postBuild()
 		list_in_profile = data.mListInProfile;
 	}
 	mCtrlReceiveNotices = getChild<LLCheckBoxCtrl>("receive_notices", recurse);
-	if (mCtrlReceiveNotices)
+	mCtrlReceiveNotices->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitUserOnly, this));
+	mCtrlReceiveNotices->set(accept_notices);
+	mCtrlReceiveNotices->setEnabled(data.mID.notNull());
+
+	mCtrlReceiveGroupChat = getChild<LLCheckBoxCtrl>("receive_chat", recurse);
+	if(mCtrlReceiveGroupChat)
 	{
-		mCtrlReceiveNotices->setCommitCallback(onCommitUserOnly, this);
-		mCtrlReceiveNotices->set(accept_notices);
-		mCtrlReceiveNotices->setEnabled(data.mID.notNull());
+		mCtrlReceiveGroupChat->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitUserOnly, this));
+		mCtrlReceiveGroupChat->setEnabled(data.mID.notNull());
+		if(data.mID.notNull())
+		{
+			mCtrlReceiveGroupChat->set(!LLMuteList::instance().isGroupMuted(data.mID));
+		}
 	}
 	
 	mCtrlListGroup = getChild<LLCheckBoxCtrl>("list_groups_in_profile", recurse);
-	if (mCtrlListGroup)
-	{
-		mCtrlListGroup->setCommitCallback(onCommitUserOnly, this);
-		mCtrlListGroup->set(list_in_profile);
-		mCtrlListGroup->setEnabled(data.mID.notNull());
-		mCtrlListGroup->resetDirty();
-	}
+	mCtrlListGroup->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitUserOnly, this));
+	mCtrlListGroup->set(list_in_profile);
+	mCtrlListGroup->setEnabled(data.mID.notNull());
+	mCtrlListGroup->resetDirty();
 
 	mActiveTitleLabel = getChild<LLTextBox>("active_title_label", recurse);
 	
 	mComboActiveTitle = getChild<LLComboBox>("active_title", recurse);
-	if (mComboActiveTitle)
-	{
-		mComboActiveTitle->setCommitCallback(onCommitAny, this);
-	}
+	mComboActiveTitle->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitAny, this));
 
 	mIncompleteMemberDataStr = getString("incomplete_member_data_str");
 
@@ -193,17 +176,12 @@ BOOL LLPanelGroupGeneral::postBuild()
 void LLPanelGroupGeneral::setupCtrls(LLPanel* panel_group)
 {
 	mInsignia = getChild<LLTextureCtrl>("insignia");
-	if (mInsignia)
-	{
-		mInsignia->setCommitCallback(onCommitAny, this);
-	}
+	mInsignia->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitAny, this));
 	mFounderName = getChild<LLTextBox>("founder_name");
 
 
 	mGroupNameEditor = panel_group->getChild<LLLineEditor>("group_name_editor");
 	mGroupNameEditor->setPrevalidate( LLTextValidate::validateASCIINoLeadingSpace );
-	
-
 }
 
 // static
@@ -214,50 +192,44 @@ void LLPanelGroupGeneral::onFocusEdit(LLFocusableElement* ctrl, void* data)
 	self->notifyObservers();
 }
 
-// static
-void LLPanelGroupGeneral::onCommitAny(LLUICtrl* ctrl, void* data)
+void LLPanelGroupGeneral::onCommitAny()
 {
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
-	self->updateChanged();
-	self->notifyObservers();
+	updateChanged();
+	notifyObservers();
 }
 
-// static
-void LLPanelGroupGeneral::onCommitUserOnly(LLUICtrl* ctrl, void* data)
+void LLPanelGroupGeneral::onCommitUserOnly()
 {
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
-	self->mChanged = TRUE;
-	self->notifyObservers();
+	mChanged = TRUE;
+	notifyObservers();
+	gAgent.fireEvent(new LLOldEvents::LLEvent(&gAgent, "new group"), ""); // *HACK: for ALCH-278
 }
 
-
-// static
-void LLPanelGroupGeneral::onCommitEnrollment(LLUICtrl* ctrl, void* data)
+void LLPanelGroupGeneral::onCommitEnrollment()
 {
-	onCommitAny(ctrl, data);
-
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
+	onCommitAny();
+	
 	// Make sure both enrollment related widgets are there.
-	if (!self->mCtrlEnrollmentFee || !self->mSpinEnrollmentFee)
+	if (!mCtrlEnrollmentFee || !mSpinEnrollmentFee)
 	{
 		return;
 	}
 
 	// Make sure the agent can change enrollment info.
-	if (!gAgent.hasPowerInGroup(self->mGroupID,GP_MEMBER_OPTIONS)
-		|| !self->mAllowEdit)
+	if (!gAgent.hasPowerInGroup(mGroupID,GP_MEMBER_OPTIONS)
+		|| !mAllowEdit)
 	{
 		return;
 	}
 
-	if (self->mCtrlEnrollmentFee->get())
+	if (mCtrlEnrollmentFee->get())
 	{
-		self->mSpinEnrollmentFee->setEnabled(TRUE);
+		mSpinEnrollmentFee->setEnabled(TRUE);
 	}
 	else
 	{
-		self->mSpinEnrollmentFee->setEnabled(FALSE);
-		self->mSpinEnrollmentFee->set(0);
+		mSpinEnrollmentFee->setEnabled(FALSE);
+		mSpinEnrollmentFee->set(0);
 	}
 }
 
@@ -340,7 +312,9 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
 				return false;
 			}
 
-			LLNotificationsUtil::add("CreateGroupCost",  LLSD(), LLSD(), boost::bind(&LLPanelGroupGeneral::createGroupCallback, this, _1, _2));
+			LLNotificationsUtil::add("CreateGroupCost",
+									 LLSD().with("COST", std::to_string(LLGlobalEconomy::getInstance()->getPriceGroupCreate())),
+									 LLSD(), boost::bind(&LLPanelGroupGeneral::createGroupCallback, this, _1, _2));
 
 			return false;
 		}
@@ -402,6 +376,18 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
 		list_in_profile = mCtrlListGroup->get();
 
 	gAgent.setUserGroupFlags(mGroupID, receive_notices, list_in_profile);
+
+	if(mCtrlReceiveGroupChat)
+	{
+		if(mCtrlReceiveGroupChat->get())
+		{
+			LLMuteList::instance().removeGroup(mGroupID);
+		}
+		else
+		{
+			LLMuteList::instance().addGroup(mGroupID);
+		}
+	}
 
 	resetDirty();
 
@@ -581,7 +567,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		mCtrlEnrollmentFee->set(gdatap->mMembershipFee > 0);
 		mCtrlEnrollmentFee->setEnabled(mAllowEdit && can_change_member_opts);
 	}
-	
+
 	if (mSpinEnrollmentFee)
 	{
 		S32 fee = gdatap->mMembershipFee;
@@ -598,7 +584,14 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 			mCtrlReceiveNotices->setEnabled(mAllowEdit);
 		}
 	}
-
+	if (mCtrlReceiveGroupChat)
+	{
+		mCtrlReceiveGroupChat->setVisible(is_member);
+		if (is_member)
+		{
+			mCtrlReceiveGroupChat->setEnabled(mAllowEdit);
+		}
+	}
 
 	if (mInsignia) mInsignia->setEnabled(mAllowEdit && can_change_ident);
 	if (mEditCharter) mEditCharter->setEnabled(mAllowEdit && can_change_ident);
@@ -628,8 +621,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 void LLPanelGroupGeneral::updateChanged()
 {
 	// List all the controls we want to check for changes...
-	LLUICtrl *check_list[] =
-	{
+	const std::array<LLUICtrl*, 14> check_list{{
 		mGroupNameEditor,
 		mFounderName,
 		mInsignia,
@@ -642,14 +634,15 @@ void LLPanelGroupGeneral::updateChanged()
 		mCtrlReceiveNotices,
 		mCtrlListGroup,
 		mActiveTitleLabel,
-		mComboActiveTitle
-	};
+		mComboActiveTitle,
+        mCtrlReceiveGroupChat
+	}};
 
 	mChanged = FALSE;
 
-	for( size_t i=0; i<LL_ARRAY_SIZE(check_list); i++ )
+	for(LLUICtrl* control : check_list)
 	{
-		if( check_list[i] && check_list[i]->isDirty() )
+		if( control != nullptr && control->isDirty() )
 		{
 			mChanged = TRUE;
 			break;
@@ -695,10 +688,14 @@ void LLPanelGroupGeneral::reset()
 
 	mInsignia->setImageAssetName(mInsignia->getDefaultImageName());
 
+    mCtrlReceiveGroupChat->set(false);
+    mCtrlReceiveGroupChat->setEnabled(false);
+    mCtrlReceiveGroupChat->setVisible(true);
+
+    
 	{
-		std::string empty_str = "";
-		mEditCharter->setText(empty_str);
-		mGroupNameEditor->setText(empty_str);
+        mEditCharter->setText(LLStringUtil::null);
+        mGroupNameEditor->setText(LLStringUtil::null);
 	}
 	
 	{
@@ -714,8 +711,7 @@ void LLPanelGroupGeneral::reset()
 void	LLPanelGroupGeneral::resetDirty()
 {
 	// List all the controls we want to check for changes...
-	LLUICtrl *check_list[] =
-	{
+	const std::array<LLUICtrl*, 14> check_list{{
 		mGroupNameEditor,
 		mFounderName,
 		mInsignia,
@@ -728,13 +724,14 @@ void	LLPanelGroupGeneral::resetDirty()
 		mCtrlReceiveNotices,
 		mCtrlListGroup,
 		mActiveTitleLabel,
-		mComboActiveTitle
-	};
+		mComboActiveTitle,
+        mCtrlReceiveGroupChat
+	}};
 
-	for( size_t i=0; i<LL_ARRAY_SIZE(check_list); i++ )
+	for(LLUICtrl* control : check_list)
 	{
-		if( check_list[i] )
-			check_list[i]->resetDirty() ;
+		if( control )
+			control->resetDirty() ;
 	}
 
 
@@ -758,6 +755,7 @@ void LLPanelGroupGeneral::setGroupID(const LLUUID& id)
 		accept_notices = data.mAcceptNotices;
 		list_in_profile = data.mListInProfile;
 	}
+
 	mCtrlReceiveNotices = getChild<LLCheckBoxCtrl>("receive_notices");
 	if (mCtrlReceiveNotices)
 	{
@@ -770,6 +768,16 @@ void LLPanelGroupGeneral::setGroupID(const LLUUID& id)
 	{
 		mCtrlListGroup->set(list_in_profile);
 		mCtrlListGroup->setEnabled(data.mID.notNull());
+	}
+
+	mCtrlReceiveGroupChat = getChild<LLCheckBoxCtrl>("receive_chat");
+	if (mCtrlReceiveGroupChat)
+	{
+		if(data.mID.notNull())
+		{
+			mCtrlReceiveGroupChat->set(!LLMuteList::instance().isGroupMuted(data.mID));
+		}
+		mCtrlReceiveGroupChat->setEnabled(data.mID.notNull());
 	}
 
 	mCtrlShowInGroupList->setEnabled(data.mID.notNull());

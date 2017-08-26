@@ -68,8 +68,8 @@ LLXferManager::~LLXferManager ()
 
 void LLXferManager::init (LLVFS *vfs)
 {
-	mSendList = NULL;
-	mReceiveList = NULL;
+	mSendList = nullptr;
+	mReceiveList = nullptr;
 
 	setMaxOutgoingXfersPerCircuit(LL_DEFAULT_MAX_SIMULTANEOUS_XFERS);
 	setMaxIncomingXfers(LL_DEFAULT_MAX_REQUEST_FIFO_XFERS);
@@ -98,7 +98,7 @@ void LLXferManager::cleanup ()
 		delete delp;
 		delp = xferp;
 	}
-	mSendList = NULL;
+	mSendList = nullptr;
 
 	delp = mReceiveList;
 	while (delp)
@@ -107,7 +107,7 @@ void LLXferManager::cleanup ()
 		delete delp;
 		delp = xferp;
 	}
-	mReceiveList = NULL;
+	mReceiveList = nullptr;
 }
 
 ///////////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ void LLXferManager::setAckThrottleBPS(const F32 bps)
 void LLXferManager::updateHostStatus()
 {
     LLXfer *xferp;
-	LLHostStatus *host_statusp = NULL;
+	LLHostStatus *host_statusp = nullptr;
 
 	for_each(mOutgoingHosts.begin(), mOutgoingHosts.end(), DeletePointer());
 	mOutgoingHosts.clear();
@@ -195,7 +195,7 @@ void LLXferManager::updateHostStatus()
 
 void LLXferManager::printHostStatus()
 {
-	LLHostStatus *host_statusp = NULL;
+	LLHostStatus *host_statusp = nullptr;
 	if (!mOutgoingHosts.empty())
 	{
 		LL_INFOS() << "Outgoing Xfers:" << LL_ENDL;
@@ -221,7 +221,7 @@ LLXfer *LLXferManager::findXfer (U64 id, LLXfer *list_head)
 			return(xferp);
 		}
 	}
-	return(NULL);
+	return(nullptr);
 }
 
 
@@ -276,7 +276,7 @@ U32 LLXferManager::numActiveListEntries(LLXfer *list_head)
 
 S32 LLXferManager::numPendingXfers(const LLHost &host)
 {
-	LLHostStatus *host_statusp = NULL;
+	LLHostStatus *host_statusp = nullptr;
 
 	for (status_list_t::iterator iter = mOutgoingHosts.begin();
 		 iter != mOutgoingHosts.end(); ++iter)
@@ -294,7 +294,7 @@ S32 LLXferManager::numPendingXfers(const LLHost &host)
 
 S32 LLXferManager::numActiveXfers(const LLHost &host)
 {
-	LLHostStatus *host_statusp = NULL;
+	LLHostStatus *host_statusp = nullptr;
 
 	for (status_list_t::iterator iter = mOutgoingHosts.begin();
 		 iter != mOutgoingHosts.end(); ++iter)
@@ -312,7 +312,7 @@ S32 LLXferManager::numActiveXfers(const LLHost &host)
 
 void LLXferManager::changeNumActiveXfers(const LLHost &host, S32 delta)
 {
-	LLHostStatus *host_statusp = NULL;
+	LLHostStatus *host_statusp = nullptr;
 
 	for (status_list_t::iterator iter = mOutgoingHosts.begin();
 		 iter != mOutgoingHosts.end(); ++iter)
@@ -329,10 +329,10 @@ void LLXferManager::changeNumActiveXfers(const LLHost &host, S32 delta)
 
 void LLXferManager::registerCallbacks(LLMessageSystem *msgsystem)
 {
-	msgsystem->setHandlerFuncFast(_PREHASH_ConfirmXferPacket,  process_confirm_packet, NULL);
-	msgsystem->setHandlerFuncFast(_PREHASH_RequestXfer,        process_request_xfer,        NULL);
-	msgsystem->setHandlerFuncFast(_PREHASH_SendXferPacket,	   	continue_file_receive,		 NULL);
-	msgsystem->setHandlerFuncFast(_PREHASH_AbortXfer, 	   	process_abort_xfer,		     NULL);
+	msgsystem->setHandlerFuncFast(_PREHASH_ConfirmXferPacket,  process_confirm_packet, nullptr);
+	msgsystem->setHandlerFuncFast(_PREHASH_RequestXfer,        process_request_xfer, nullptr);
+	msgsystem->setHandlerFuncFast(_PREHASH_SendXferPacket,	   	continue_file_receive, nullptr);
+	msgsystem->setHandlerFuncFast(_PREHASH_AbortXfer, 	   	process_abort_xfer, nullptr);
 }
 
 ///////////////////////////////////////////////////////////
@@ -343,8 +343,10 @@ U64 LLXferManager::getNextID ()
 
 	a_guid.generate();
 
-	
-	return(*((U64*)(a_guid.mData)));
+	U64 out_tmp;
+	memcpy(&out_tmp, a_guid.mData, sizeof(out_tmp));
+
+	return out_tmp;
 }
 
 ///////////////////////////////////////////////////////////
@@ -376,27 +378,29 @@ BOOL LLXferManager::isLastPacket(S32 packet_num)
 
 U64 LLXferManager::registerXfer(const void *datap, const S32 length)
 {
-	LLXfer *xferp;
+	LLXfer *xferp = nullptr;
 	U64 xfer_id = getNextID();
 
-	xferp = (LLXfer *) new LLXfer_Mem();
-	if (xferp)
+	try
 	{
-		xferp->mNext = mSendList;
-		mSendList = xferp;
-
-		xfer_id = ((LLXfer_Mem *)xferp)->registerXfer(xfer_id, datap,length);
-
-		if (!xfer_id)
-		{
-			removeXfer(xferp,&mSendList);
-		}
+		xferp = (LLXfer *) new LLXfer_Mem();
 	}
-	else
+	catch (const std::bad_alloc& e)
 	{
-		LL_ERRS() << "Xfer allocation error" << LL_ENDL;
+		LL_ERRS() << "Xfer allcoation error: " << e.what() << LL_ENDL;
 		xfer_id = 0;
-	}	
+		return(xfer_id);
+	}
+
+	xferp->mNext = mSendList;
+	mSendList = xferp;
+
+	xfer_id = ((LLXfer_Mem *) xferp)->registerXfer(xfer_id, datap, length);
+
+	if (!xfer_id)
+	{
+		removeXfer(xferp, &mSendList);
+	}
 
     return(xfer_id);
 }
@@ -413,7 +417,7 @@ U64 LLXferManager::requestFile(const std::string& local_filename,
 								BOOL is_priority,
 								BOOL use_big_packets)
 {
-	LLXfer *xferp;
+	LLXfer *xferp = nullptr;
 
 	for (xferp = mReceiveList; xferp ; xferp = xferp->mNext)
 	{
@@ -433,36 +437,39 @@ U64 LLXferManager::requestFile(const std::string& local_filename,
 	U64 xfer_id = 0;
 
 	S32 chunk_size = use_big_packets ? LL_XFER_LARGE_PAYLOAD : -1;
-	xferp = (LLXfer *) new LLXfer_File(chunk_size);
-	if (xferp)
+	try
 	{
-		addToList(xferp, mReceiveList, is_priority);
+		xferp = (LLXfer *) new LLXfer_File(chunk_size);
+	}
+	catch (const std::bad_alloc& e)
+	{
+		LL_ERRS() << "Xfer allcoation error: " << e.what() << LL_ENDL;
+		return 0;
+	}
 
-		// Remove any file by the same name that happens to be lying
-		// around.
-		// Note: according to AaronB, this is here to deal with locks on files that were
-		// in transit during a crash,
-		if( delete_remote_on_completion
-			&& (remote_filename.substr(remote_filename.length()-4) == ".tmp")
-			&& gDirUtilp->fileExists(local_filename))
-		{
-			LLFile::remove(local_filename, ENOENT);
-		}
-		xfer_id = getNextID();
-		((LLXfer_File *)xferp)->initializeRequest(
-			xfer_id,
-			local_filename,
-			remote_filename,
-			remote_path,
-			remote_host,
-			delete_remote_on_completion,
-			callback,user_data);
-		startPendingDownloads();
-	}
-	else
+	addToList(xferp, mReceiveList, is_priority);
+
+	// Remove any file by the same name that happens to be lying
+	// around.
+	// Note: according to AaronB, this is here to deal with locks on files that were
+	// in transit during a crash,
+	if (delete_remote_on_completion
+		&& (remote_filename.substr(remote_filename.length() - 4) == ".tmp")
+		&& gDirUtilp->fileExists(local_filename))
 	{
-		LL_ERRS() << "Xfer allocation error" << LL_ENDL;
+		LLFile::remove(local_filename, ENOENT);
 	}
+	xfer_id = getNextID();
+	((LLXfer_File *) xferp)->initializeRequest(
+		xfer_id,
+		local_filename,
+		remote_filename,
+		remote_path,
+		remote_host,
+		delete_remote_on_completion,
+		callback, user_data);
+	startPendingDownloads();
+
 	return xfer_id;
 }
 
@@ -474,24 +481,26 @@ void LLXferManager::requestFile(const std::string& remote_filename,
 								void** user_data,
 								BOOL is_priority)
 {
-	LLXfer *xferp;
+	LLXfer *xferp = nullptr;
 
-	xferp = (LLXfer *) new LLXfer_Mem();
-	if (xferp)
+	try
 	{
-		addToList(xferp, mReceiveList, is_priority);
-		((LLXfer_Mem *)xferp)->initializeRequest(getNextID(),
-												 remote_filename, 
-												 remote_path,
-												 remote_host,
-												 delete_remote_on_completion,
-												 callback, user_data);
-		startPendingDownloads();
+		xferp = (LLXfer *) new LLXfer_Mem();
 	}
-	else
+	catch (const std::bad_alloc& e)
 	{
-		LL_ERRS() << "Xfer allocation error" << LL_ENDL;
+		LL_ERRS() << "Xfer allcoation error: " << e.what() << LL_ENDL;
+		return;
 	}
+
+	addToList(xferp, mReceiveList, is_priority);
+	((LLXfer_Mem *) xferp)->initializeRequest(getNextID(),
+		remote_filename,
+		remote_path,
+		remote_host,
+		delete_remote_on_completion,
+		callback, user_data);
+	startPendingDownloads();
 }
 
 void LLXferManager::requestVFile(const LLUUID& local_id,
@@ -502,7 +511,7 @@ void LLXferManager::requestVFile(const LLUUID& local_id,
 								 void** user_data,
 								 BOOL is_priority)
 {
-	LLXfer *xferp;
+	LLXfer *xferp = nullptr;
 
 	for (xferp = mReceiveList; xferp ; xferp = xferp->mNext)
 	{
@@ -519,25 +528,26 @@ void LLXferManager::requestVFile(const LLUUID& local_id,
 		}
 	}
 
-	xferp = (LLXfer *) new LLXfer_VFile();
-	if (xferp)
+	try
 	{
-		addToList(xferp, mReceiveList, is_priority);
-		((LLXfer_VFile *)xferp)->initializeRequest(getNextID(),
-			vfs,
-			local_id,
-			remote_id,
-			type,
-			remote_host,
-			callback,
-			user_data);
-		startPendingDownloads();
+		xferp = (LLXfer *) new LLXfer_VFile();
 	}
-	else
+	catch (const std::bad_alloc& e)
 	{
-		LL_ERRS() << "Xfer allocation error" << LL_ENDL;
+		LL_ERRS() << "Xfer allcoation error: " << e.what() << LL_ENDL;
+		return;
 	}
 
+	addToList(xferp, mReceiveList, is_priority);
+	((LLXfer_VFile *) xferp)->initializeRequest(getNextID(),
+		vfs,
+		local_id,
+		remote_id,
+		type,
+		remote_host,
+		callback,
+		user_data);
+		startPendingDownloads();
 }
 
 /*
@@ -622,10 +632,9 @@ void LLXferManager::processReceiveData (LLMessageSystem *mesgsys, void ** /*user
 
 	if (!xferp) 
 	{
-		char U64_BUF[MAX_STRING];		/* Flawfinder : ignore */
 		LL_INFOS() << "received xfer data from " << mesgsys->getSender()
 			<< " for non-existent xfer id: "
-			<< U64_to_str(id, U64_BUF, sizeof(U64_BUF)) << LL_ENDL;
+			<< std::to_string(id) << LL_ENDL;
 		return;
 	}
 
@@ -808,8 +817,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 	mesgsys->getBOOL("XferID", "UseBigPackets", b_use_big_packets);
 	
 	mesgsys->getU64Fast(_PREHASH_XferID, _PREHASH_ID, id);
-	char U64_BUF[MAX_STRING];		/* Flawfinder : ignore */
-	LL_INFOS() << "xfer request id: " << U64_to_str(id, U64_BUF, sizeof(U64_BUF))
+	LL_INFOS() << "xfer request id: " << std::to_string(id)
 		   << " to " << mesgsys->getSender() << LL_ENDL;
 
 	mesgsys->getStringFast(_PREHASH_XferID, _PREHASH_Filename, local_filename);
@@ -824,11 +832,11 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 	mesgsys->getS16Fast(_PREHASH_XferID, _PREHASH_VFileType, type_s16);
 	type = (LLAssetType::EType)type_s16;
 
-	LLXfer *xferp;
+	LLXfer *xferp = nullptr;
 
 	if (uuid != LLUUID::null)
 	{
-		if(NULL == LLAssetType::lookup(type))
+		if(nullptr == LLAssetType::lookup(type))
 		{
 			LL_WARNS() << "Invalid type for xfer request: " << uuid << ":"
 					<< type_s16 << " to " << mesgsys->getSender() << LL_ENDL;
@@ -843,17 +851,19 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 			return;
 		}
 
-		xferp = (LLXfer *)new LLXfer_VFile(mVFS, uuid, type);
-		if (xferp)
+		try
 		{
-			xferp->mNext = mSendList;
-			mSendList = xferp;	
-			result = xferp->startSend(id,mesgsys->getSender());
+			xferp = (LLXfer *)new LLXfer_VFile(mVFS, uuid, type);
 		}
-		else
+		catch (const std::bad_alloc& e)
 		{
-			LL_ERRS() << "Xfer allcoation error" << LL_ENDL;
+			LL_ERRS() << "Xfer allcoation error: " << e.what() << LL_ENDL;
+			return;
 		}
+
+		xferp->mNext = mSendList;
+		mSendList = xferp;	
+		result = xferp->startSend(id,mesgsys->getSender());
 	}
 	else if (!local_filename.empty())
 	{
@@ -910,24 +920,25 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 		mesgsys->getBOOL("XferID", "DeleteOnCompletion", delete_local_on_completion);
 
 		// -1 chunk_size causes it to use the default
-		xferp = (LLXfer *)new LLXfer_File(expanded_filename, delete_local_on_completion, b_use_big_packets ? LL_XFER_LARGE_PAYLOAD : -1);
-		
-		if (xferp)
+		try
 		{
-			xferp->mNext = mSendList;
-			mSendList = xferp;	
-			result = xferp->startSend(id,mesgsys->getSender());
+			xferp = (LLXfer *)new LLXfer_File(expanded_filename, delete_local_on_completion, b_use_big_packets ? LL_XFER_LARGE_PAYLOAD : -1);
 		}
-		else
+		catch (const std::bad_alloc& e)
 		{
-			LL_ERRS() << "Xfer allcoation error" << LL_ENDL;
+			LL_ERRS() << "Xfer allcoation error: " << e.what() << LL_ENDL;
+			return;
 		}
+
+		xferp->mNext = mSendList;
+		mSendList = xferp;	
+		result = xferp->startSend(id,mesgsys->getSender());
 	}
 	else
 	{
 		char U64_BUF[MAX_STRING];		/* Flawfinder : ignore */
 		LL_INFOS() << "starting memory transfer: "
-			<< U64_to_str(id, U64_BUF, sizeof(U64_BUF)) << " to "
+			<< std::to_string(id) << " to "
 			<< mesgsys->getSender() << LL_ENDL;
 
 		xferp = findXfer(id, mSendList);
@@ -1038,7 +1049,7 @@ void LLXferManager::retransmitUnackedPackets ()
 
 	xferp = mSendList; 
 	updateHostStatus();
-	F32 et;
+	F32 et = 0.f;
 	while (xferp)
 	{
 		if (xferp->mWaitingForACK && ( (et = xferp->ACKTimer.getElapsedTimeF32()) > LL_PACKET_TIMEOUT))
@@ -1215,7 +1226,7 @@ void LLXferManager::addToList(LLXfer* xferp, LLXfer*& head, BOOL is_priority)
 {
 	if(is_priority)
 	{
-		xferp->mNext = NULL;
+		xferp->mNext = nullptr;
 		LLXfer* next = head;
 		if(next)
 		{
@@ -1241,7 +1252,7 @@ void LLXferManager::addToList(LLXfer* xferp, LLXfer*& head, BOOL is_priority)
 //  Globals and C routines
 ///////////////////////////////////////////////////////////
 
-LLXferManager *gXferManager = NULL;
+LLXferManager *gXferManager = nullptr;
 
 
 void start_xfer_manager(LLVFS *vfs)
@@ -1254,7 +1265,7 @@ void cleanup_xfer_manager()
 	if (gXferManager)
 	{
 		delete(gXferManager);
-		gXferManager = NULL;
+		gXferManager = nullptr;
 	}
 }
 

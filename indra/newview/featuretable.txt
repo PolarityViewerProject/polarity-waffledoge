@@ -346,7 +346,7 @@ RenderFSAASamples			1	2
 PVRender_EnableGodRays		1	0
 PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
-PVRender_AttachmentShadowDetail	1	3
+PVRender_AttachmentShadowDetail	1	2
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	1
@@ -481,7 +481,7 @@ RenderCompressTextures		1	0
 // Fallback for cards where OpenGL-based VRAM detection fails
 //
 list ATIVRAMFALLBACK
-PVDebug_ForcedVideoMemory 1 1024
+PVDebug_ForcedVideoMemory 1 128
 RenderCompressTextures		1	0
 
 //

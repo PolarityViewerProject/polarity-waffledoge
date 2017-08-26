@@ -47,30 +47,30 @@ public:
 	virtual ~LLPanelGroupGeneral();
 
 	// LLPanelGroupTab
-	virtual void activate();
-	virtual bool needsApply(std::string& mesg);
-	virtual bool apply(std::string& mesg);
-	virtual void cancel();
+	void activate() override;
+	bool needsApply(std::string& mesg) override;
+	bool apply(std::string& mesg) override;
+	void cancel() override;
 	bool createGroupCallback(const LLSD& notification, const LLSD& response);
-	
-	virtual void update(LLGroupChange gc);
-	
-	virtual BOOL postBuild();
-	
-	virtual void draw();
 
-	virtual void setGroupID(const LLUUID& id);
+	void update(LLGroupChange gc) override;
 
-	virtual void setupCtrls	(LLPanel* parent);
+	BOOL postBuild() override;
+
+	void draw() override;
+
+	void setGroupID(const LLUUID& id) override;
+
+	void setupCtrls	(LLPanel* parent) override;
 private:
 	void	reset();
 
-	void	resetDirty();
+	void	resetDirty() override;
 
+	void onCommitAny();
+	void onCommitUserOnly();
+	void onCommitEnrollment();
 	static void onFocusEdit(LLFocusableElement* ctrl, void* data);
-	static void onCommitAny(LLUICtrl* ctrl, void* data);
-	static void onCommitUserOnly(LLUICtrl* ctrl, void* data);
-	static void onCommitEnrollment(LLUICtrl* ctrl, void* data);
 	static void onClickInfo(void* userdata);
 	static void onReceiveNotices(LLUICtrl* ctrl, void* data);
 
@@ -99,6 +99,7 @@ private:
 	LLTextBox       *mActiveTitleLabel;
 	LLComboBox		*mComboActiveTitle;
 	LLComboBox		*mComboMature;
+    LLCheckBoxCtrl  *mCtrlReceiveGroupChat;
 };
 
 #endif

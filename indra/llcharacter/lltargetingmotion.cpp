@@ -45,12 +45,16 @@ const F32 TORSO_TARGET_HALF_LIFE = 0.25f;
 // LLTargetingMotion()
 // Class Constructor
 //-----------------------------------------------------------------------------
-LLTargetingMotion::LLTargetingMotion(const LLUUID &id) : LLMotion(id)
+LLTargetingMotion::LLTargetingMotion(const LLUUID &id)
+	: LLMotion(id),
+	  mCharacter(nullptr),
+	  mTorsoState(new LLJointState),
+	  mPelvisJoint(nullptr),
+	  mTorsoJoint(nullptr),
+	  // LLPointer<LLJointState>
+	  mRightHandJoint(nullptr)
 {
-	mCharacter = NULL;
 	mName = "targeting";
-
-	mTorsoState = new LLJointState;
 }
 
 

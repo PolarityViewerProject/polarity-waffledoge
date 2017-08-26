@@ -80,7 +80,8 @@ class LLLocalBitmap
 			ET_IMG_BMP,
 			ET_IMG_TGA,
 			ET_IMG_JPG,
-			ET_IMG_PNG
+			ET_IMG_PNG,
+			ET_IMG_UNKNOWN
 		};
 
 	private: /* members */
@@ -106,7 +107,7 @@ class LLLocalBitmapTimer : public LLEventTimer
 		void startTimer();
 		void stopTimer();
 		bool isRunning();
-		BOOL tick();
+		BOOL tick() override;
 
 };
 

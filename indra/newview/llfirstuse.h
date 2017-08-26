@@ -27,9 +27,6 @@
 #ifndef LL_LLFIRSTUSE_H
 #define LL_LLFIRSTUSE_H
 
-#include <vector>
-#include "llstring.h"
-
 /*
 1.  On first use of 'sit here', explain how to get up and rotate view. 
 
@@ -61,15 +58,13 @@ other functions.
 attach objects to your body by dragging ontl yourelf of rgt-clk->wear from
 object or from inventory.
 
-11.  FIrst time you run the client on a system without QuickTime installed.
+11. First time you create a flexible object.
 
-12. First time you create a flexible object.
+12. First time you open the debug menus (ctrl-alt-shift D)
 
-13. First time you open the debug menus (ctrl-alt-shift D)
+13. First time you create/edit a sculpted prim.
 
-14. First time you create/edit a sculpted prim.
-
-15. Explanation of Speak&flyout buttons.
+14. Explanation of Speak&flyout buttons.
 */
 
 class LLNotification;

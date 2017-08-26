@@ -40,7 +40,7 @@ class LLWearable;
 LLTexGlobalColor::LLTexGlobalColor(LLAvatarAppearance* appearance)
 	:
 	mAvatarAppearance(appearance),
-	mInfo(NULL)
+	mInfo(nullptr)
 {
 }
 
@@ -64,7 +64,7 @@ BOOL LLTexGlobalColor::setInfo(LLTexGlobalColorInfo *info)
 		LLTexParamGlobalColor* param_color = new LLTexParamGlobalColor(this);
 		if (!param_color->setInfo(*iter, TRUE))
 		{
-			mInfo = NULL;
+			mInfo = nullptr;
 			return FALSE;
 		}
 		mParamGlobalColorList.push_back(param_color);
@@ -119,9 +119,9 @@ LLTexParamGlobalColor::~LLTexParamGlobalColor()
 	return new LLTexParamGlobalColor(*this);
 }
 
-void LLTexParamGlobalColor::onGlobalColorChanged()
+void LLTexParamGlobalColor::onGlobalColorChanged(bool upload_bake)
 {
-	mAvatarAppearance->onGlobalColorChanged(mTexGlobalColor);
+	mAvatarAppearance->onGlobalColorChanged(mTexGlobalColor, upload_bake);
 }
 
 //-----------------------------------------------------------------------------

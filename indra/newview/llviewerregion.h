@@ -29,16 +29,15 @@
 
 // A ViewerRegion is a class that contains a bunch of objects and surfaces
 // that are in to a particular region.
-
 #include "llwind.h"
 #include "v3dmath.h"
-#include "llstring.h"
 #include "llregionflags.h"
 #include "lluuid.h"
-#include "llweb.h"
 #include "llcapabilityprovider.h"
 #include "m4math.h"					// LLMatrix4
 #include "llframetimer.h"
+#include "lleasymessagesender.h"
+#include <unordered_map>
 
 // Surface id's
 #define LAND  1
@@ -51,7 +50,7 @@ const U32 REGION_HANDSHAKE_SUPPORTS_SELF_APPEARANCE = 1U << 2;
 class LLEventPoll;
 class LLVLComposition;
 class LLViewerObject;
-class LLViewerTexture;
+class LLViewerTexture; // <alchemy/>
 class LLMessageSystem;
 class LLNetMap;
 class LLViewerParcelOverlay;
@@ -149,7 +148,7 @@ public:
 
 	// Draw lines in the dirt showing ownership. Return number of 
 	// vertices drawn.
-	S32 renderPropertyLines();
+	S32 renderPropertyLines() const;
 
 	// Call this whenever you change the height data in the region.
 	// (Automatically called by LLSurfacePatch's update routine)
@@ -226,7 +225,7 @@ public:
 
 	void setCacheID(const LLUUID& id);
 
-	F32	getWidth() const						{ return mWidth; }
+	F32	getWidth()						const { return mWidth; }
 
 	void idleUpdate(F32 max_update_time);
 	void lightIdleUpdate();
@@ -255,9 +254,13 @@ public:
 	void setCapabilityDebug(const std::string& name, const std::string& url);
 	bool isCapabilityAvailable(const std::string& name) const;
 	// implements LLCapabilityProvider
-    virtual std::string getCapability(const std::string& name) const;
+	std::string getCapability(const std::string& name) const override;
     std::string getCapabilityDebug(const std::string& name) const;
 
+
+	virtual std::set<std::string> getCapURLNames(const std::string& cap_url);
+	virtual bool isCapURLMapped(const std::string& cap_url);
+	virtual std::set<std::string> getAllCaps();
 
 	// has region received its final (not seed) capability list?
 	bool capabilitiesReceived() const;
@@ -268,7 +271,7 @@ public:
 	void logActiveCapabilities() const;
 
     /// implements LLCapabilityProvider
-	/*virtual*/ const LLHost& getHost() const;
+	/*virtual*/ const LLHost& getHost() const override;
 	const U64 		&getHandle() const 			{ return mHandle; }
 
 	LLSurface		&getLand() const;
@@ -352,8 +355,9 @@ public:
 
 	friend std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region);
     /// implements LLCapabilityProvider
-    virtual std::string getDescription() const;
-	std::string getHttpUrl() const { return mHttpUrl ;}
+    virtual std::string getDescription() const override;
+    std::string getLegacyHttpUrl() const { return mLegacyHttpUrl; }
+    std::string getViewerAssetUrl() const { return mViewerAssetUrl; }
 
 	U32 getNumOfVisibleGroups() const;
 	U32 getNumOfActiveCachedObjects() const;
@@ -383,7 +387,33 @@ public:
 
 	static BOOL isNewObjectCreationThrottleDisabled() {return sNewObjectCreationThrottle < 0;}
 
-	LLViewerTexture* getMapImage();
+	/* ================================================================
+	 * @name OpenSimExtras Simulator Features capability
+	 * @{
+	 */
+	/// Get region allows export
+	bool getRegionAllowsExport() const;
+	/// Avatar picker url
+	std::string getAvatarPickerURL() const;
+	/// Destination guide url
+	std::string getDestinationGuideURL() const;
+	/// Hypergrid map server url
+	std::string getMapServerURL() const;
+	/// Hypergrid search server url
+	std::string getSearchServerURL() const;
+	/// Buy currency server url
+	std::string getBuyCurrencyServerURL() const;
+	/// Grid login/gateway authority (0.8.1)
+	std::string getHGGrid() const;
+	/// Grid name (0.8.1)
+	std::string getHGGridName() const;
+	/// "God names" surname and full account names map
+	std::set<std::string> getGods() const { return mGodNames; };
+	//@}
+
+	typedef std::vector<LLPointer<LLViewerTexture> > tex_matrix_t;
+	const tex_matrix_t& getWorldMapTiles() const;
+
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
@@ -396,7 +426,8 @@ private:
 
 	void addCacheMiss(U32 id, LLViewerRegion::eCacheMissType miss_type);
 	void decodeBoundingInfo(LLVOCacheEntry* entry);
-	bool isNonCacheableObjectCreated(U32 local_id);	
+	bool isNonCacheableObjectCreated(U32 local_id);
+	void setGodnames();
 
 public:
 	struct CompareDistance
@@ -408,10 +439,12 @@ public:
 	};
 
 	void showReleaseNotes();
+	void reInitPartitions();
 
 protected:
 	void disconnectAllNeighbors();
 	void initStats();
+	void initPartitions();
 
 public:
 	LLWind  mWind;
@@ -428,15 +461,13 @@ public:
 	// positions stored in the first array so they're maintained separately until 
 	// we stop supporting the old CoarseLocationUpdate message.
 	std::vector<U32> mMapAvatars;
-	std::vector<LLUUID> mMapAvatarIDs;
+	uuid_vec_t mMapAvatarIDs;
 
 	static BOOL sVOCacheCullingEnabled; //vo cache culling enabled or not.
 	static S32  sLastCameraUpdated;
 
 	LLFrameTimer &	getRenderInfoRequestTimer()	{ return mRenderInfoRequestTimer; };
 	LLFrameTimer &	getRenderInfoReportTimer()	{ return mRenderInfoReportTimer; };
-
-	LLPointer<LLViewerTexture> mMapImage; // <polarity/> World Map texture in minimap
 
 	struct CompareRegionByLastUpdate
 	{
@@ -508,7 +539,8 @@ private:
 	std::string mColoName;
 	std::string mProductSKU;
 	std::string mProductName;
-	std::string mHttpUrl ;
+	std::string mLegacyHttpUrl;
+	std::string mViewerAssetUrl;
 	
 	// Maps local ids to cache entries.
 	// Regions can have order 10,000 objects, so assume
@@ -546,6 +578,13 @@ private:
 	LLFrameTimer mMaterialsCapThrottleTimer;
 	LLFrameTimer mRenderInfoRequestTimer;
 	LLFrameTimer mRenderInfoReportTimer;
+
+	mutable tex_matrix_t mWorldMapTiles;
+	std::set<std::string> mGodNames;
+
+	LLEasyMessageSender mMessageSender;
+	using url_mapping_t = std::unordered_multimap<std::string, std::string>;
+	url_mapping_t mCapURLMappings;
 };
 
 inline BOOL LLViewerRegion::getRegionProtocol(U64 protocol) const

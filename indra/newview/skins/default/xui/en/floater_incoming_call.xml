@@ -60,8 +60,7 @@
      width="36" />
     <text
      clip_partial="true"
-     font="SansSerif"
-     font.size="Large"
+     font="SansSerifLarge"
      height="37"
      layout="topleft"
      left="77"

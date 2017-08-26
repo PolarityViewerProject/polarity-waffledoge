@@ -48,9 +48,9 @@ struct ViewerFolderEntry : public LLDictionaryEntry
 		) 
 		:
 		LLDictionaryEntry(dictionary_name),
-		mNewCategoryName(new_category_name),
 		mIconNameOpen(icon_name_open),
 		mIconNameClosed(icon_name_closed),
+		mNewCategoryName(new_category_name),
 		mIsQuiet(is_quiet),
 		mHideIfEmpty(hide_if_empty)
 	{
@@ -136,18 +136,18 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 	
 	bool boxes_invisible = !gSavedSettings.getBOOL("InventoryOutboxMakeVisible");
 	addEntry(LLFolderType::FT_INBOX, 				new ViewerFolderEntry("Received Items",			"Inv_SysOpen",			"Inv_SysClosed",		FALSE,     boxes_invisible));
-	addEntry(LLFolderType::FT_OUTBOX, 				new ViewerFolderEntry("Merchant Outbox",		"Inv_SysOpen",			"Inv_SysClosed",		FALSE,     true));
+	addEntry(LLFolderType::FT_OUTBOX, 				new ViewerFolderEntry("Merchant Outbox",		"Inv_SysOpen",			"Inv_SysClosed",		FALSE,     boxes_invisible));
 
 	addEntry(LLFolderType::FT_BASIC_ROOT, 			new ViewerFolderEntry("Basic Root",				"Inv_SysOpen",			"Inv_SysClosed",		FALSE,     true));
 
 	addEntry(LLFolderType::FT_MARKETPLACE_LISTINGS, new ViewerFolderEntry("Marketplace Listings",   "Inv_SysOpen",			"Inv_SysClosed",		FALSE,     boxes_invisible));
 	addEntry(LLFolderType::FT_MARKETPLACE_STOCK,    new ViewerFolderEntry("New Stock",              "Inv_StockFolderOpen",	"Inv_StockFolderClosed",		FALSE,     false, "default"));
 	addEntry(LLFolderType::FT_MARKETPLACE_VERSION,  new ViewerFolderEntry("New Version",            "Inv_VersionFolderOpen","Inv_VersionFolderClosed",		FALSE,     false, "default"));
+	addEntry(LLFolderType::FT_SUITCASE,				new ViewerFolderEntry("My Suitcase",			"Inv_SysOpen", "Inv_SysClosed",							FALSE,		false));
+	addEntry(LLFolderType::FT_ANIM_OVERRIDES,		new ViewerFolderEntry("Animation Overrides",	"Inv_SysOpen",			"Inv_SysClosed",		FALSE,	false));
 
 	addEntry(LLFolderType::FT_NONE, 				new ViewerFolderEntry("New Folder",				"Inv_FolderOpen",		"Inv_FolderClosed",		FALSE,     false, "default"));
-
-	// Virtual "System" folders
-	addEntry(LLFolderType::FT_RLV,					new ViewerFolderEntry("RLV",					"Inv_RLVOpen",				"Inv_RLVClosed",		FALSE,     true));
+	addEntry(LLFolderType::FT_TOXIC, 			new ViewerFolderEntry("Firstorm",				"Inv_FolderOpenToxic",		"Inv_FolderClosedToxic",		FALSE,     false));
 
 	for (U32 type = (U32)LLFolderType::FT_ENSEMBLE_START; type <= (U32)LLFolderType::FT_ENSEMBLE_END; ++type)
 	{

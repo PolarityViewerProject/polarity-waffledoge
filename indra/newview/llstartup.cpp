@@ -53,26 +53,24 @@
 #include "llexperiencecache.h"
 #include "lllandmark.h"
 #include "llcachename.h"
+#include "llcurrencywrapper.h"
 #include "lldir.h"
 #include "lldonotdisturbnotificationstorage.h"
 #include "llerrorcontrol.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
+#include "llfloatergridstatus.h"
 #include "llfloaterimsession.h"
 #include "lllocationhistory.h"
 #include "llimageworker.h"
 
-#include "llloginflags.h"
-#include "llmd5.h"
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
-#include "llmoveview.h"
 #include "llfloaterimcontainer.h"
-#include "llfloaterimnearbychat.h"
+#include "llfloaterperms.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llpersistentnotificationstorage.h"
-#include "llteleporthistory.h"
 #include "llregionhandle.h"
 #include "llsd.h"
 #include "llsdserialize.h"
@@ -83,7 +81,6 @@
 #include "llviewercontrol.h"
 #include "llviewerhelp.h"
 #include "llvfs.h"
-#include "llxorcipher.h"	// saved password, MAC address
 #include "llwindow.h"
 #include "message.h"
 #include "v3math.h"
@@ -104,10 +101,7 @@
 #include "lleventnotifier.h"
 #include "llface.h"
 #include "llfeaturemanager.h"
-//#include "llfirstuse.h"
-#include "llfloaterhud.h"
 #include "llfloaterland.h"
-#include "llfloaterpreference.h"
 #include "llfloatertopobjects.h"
 #include "llfloaterworldmap.h"
 #include "llgesturemgr.h"
@@ -128,12 +122,12 @@
 #include "llpanelpick.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelgroupnotices.h"
-#include "llpreview.h"
 #include "llpreviewscript.h"
 #include "llproxy.h"
 #include "llproductinforequest.h"
 #include "llselectmgr.h"
 #include "llsky.h"
+#include "llstreaminfo.h"
 #include "llstatview.h"
 #include "llstatusbar.h"		// sendMoneyBalanceRequest(), owns L$ balance
 #include "llsurface.h"
@@ -146,13 +140,11 @@
 #include "llurlentry.h"
 #include "llslurl.h"
 #include "llurlhistory.h"
-#include "llurlwhitelist.h"
 #include "llvieweraudio.h"
 #include "llviewerassetstorage.h"
 #include "llviewercamera.h"
 #include "llviewerdisplay.h"
 #include "llviewergenericmessage.h"
-#include "llviewergesture.h"
 #include "llviewertexturelist.h"
 #include "llviewermedia.h"
 #include "llviewermenu.h"
@@ -172,46 +164,31 @@
 #include "llworldmapmessage.h"
 #include "llxfermanager.h"
 #include "pipeline.h"
-#include "llappviewer.h"
 #include "llfasttimerview.h"
-#include "llfloatermap.h"
-#include "llweb.h"
+#include "llfloaterdirectory.h"
 #include "llvoiceclient.h"
 #include "llnamelistctrl.h"
 #include "llnamebox.h"
 #include "llnameeditor.h"
 #include "llwlparammanager.h"
-#include "llwaterparammanager.h"
 #include "llagentlanguage.h"
-#include "llwearable.h"
-#include "llinventorybridge.h"
 #include "llappearancemgr.h"
 #include "llavatariconctrl.h"
 #include "llvoicechannel.h"
 #include "llpathfindingmanager.h"
-// [RLVa:KB] - Checked: RLVa-1.2.0
-#include "rlvhandler.h"
-// [/RLVa:KB]
 
-#include "lllogin.h"
 #include "llevents.h"
 #include "llstartuplistener.h"
 #include "lltoolbarview.h"
 #include "llexperiencelog.h"
-
 #include "llcleanup.h"
 
-// <polarity> Polarity Includes
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
+#include "llstacktrace.h"
+
+#if LL_WINDOWS
+#include "lldxhardware.h"
 #endif
-#include "pvcommon.h"
-#include "pvfpsmeter.h"
-#ifdef PV_SEARCH_SEPARATOR
-#include "pvsearchseparator.h"
-#endif
-#include "fsassetblacklist.h"
-#include "llprogressview.h"
+
 //
 // exported globals
 //
@@ -254,7 +231,6 @@ static std::string gAgentStartLocation = "safe";
 static bool mLoginStatePastUI = false;
 
 const S32 DEFAULT_MAX_AGENT_GROUPS = 42;
-const S32 ALLOWED_MAX_AGENT_GROUPS = 500;
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
@@ -269,9 +245,8 @@ void login_callback(S32 option, void* userdata);
 void show_release_notes_if_required();
 void show_first_run_dialog();
 bool first_run_dialog_callback(const LLSD& notification, const LLSD& response);
-void set_startup_status(const F32 frac, const std::string& string);
+void set_startup_status(const F32 frac, const std::string& string, const std::string& msg);
 bool login_alert_status(const LLSD& notification, const LLSD& response);
-void login_packet_failed(void**, S32 result);
 void use_circuit_callback(void**, S32 result);
 void register_viewer_callbacks(LLMessageSystem* msg);
 void asset_callback_nothing(LLVFS*, const LLUUID&, LLAssetType::EType, void*, S32);
@@ -283,7 +258,7 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert);
 void general_cert_done(const LLSD& notification, const LLSD& response);
 void trust_cert_done(const LLSD& notification, const LLSD& response);
 void apply_udp_blacklist(const std::string& csv);
-bool process_login_success_response();
+bool process_login_success_response(U32& first_sim_size_x, U32& first_sim_size_y);
 void transition_back_to_login_panel(const std::string& emsg);
 
 void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is_group)
@@ -304,34 +279,6 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 // local classes
 //
 
-
-	// <polarity> LLEventTimer subclass to send a sit message to the sim after 0.25 seconds
-	class LLRestoreSeatEventTimer : public LLEventTimer
-	{
-	public:
-		LLRestoreSeatEventTimer() : LLEventTimer(0.25) {}
-
-		BOOL tick()
-		{
-			LLUUID last_seat_uuid = LLUUID(gSavedPerAccountSettings.getString("PVMovement_LastSatUponObject"));
-			LLVector3 last_offset = gSavedPerAccountSettings.getVector3("PVMovement_LastSatUponObjectOffset");
-			LLViewerObject *last_seat = gObjectList.findObject(last_seat_uuid);
-
-			gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
-			gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			gMessageSystem->nextBlockFast(_PREHASH_TargetObject);
-			gMessageSystem->addUUIDFast(_PREHASH_TargetID, last_seat->mID);
-			gMessageSystem->addVector3Fast(_PREHASH_Offset, last_offset);
-			last_seat->getRegion()->sendReliableMessage();
-
-			gAgentCamera.resetView();
-
-			return TRUE;
-		}
-	};
-	// </polarity>
 void update_texture_fetch()
 {
 	LLAppViewer::getTextureCache()->update(1); // unpauses the texture cache thread
@@ -360,7 +307,10 @@ bool idle_startup()
 	static F32 progress = 0.10f;
 
 	static std::string auth_desc;
-	//static std::string auth_message;
+	static std::string auth_message;
+
+	static U32 first_sim_size_x = 256;
+	static U32 first_sim_size_y = 256;
 
 	static LLVector3 initial_sun_direction(1.f, 0.f, 0.f);
 	static LLVector3 agent_start_position_region(10.f, 10.f, 10.f);		// default for when no space server
@@ -380,13 +330,10 @@ bool idle_startup()
 	LLMortician::updateClass();
 
 	const std::string delims (" ");
-	std::string system;
-	size_t begIdx, endIdx;
 	std::string osString = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
-
-	begIdx = osString.find_first_not_of (delims);
-	endIdx = osString.find_first_of (delims, begIdx);
-	system = osString.substr (begIdx, endIdx - begIdx);
+	size_t begIdx = osString.find_first_not_of (delims);
+	size_t endIdx = osString.find_first_of (delims, begIdx);
+	std::string system = osString.substr (begIdx, endIdx - begIdx);
 	system += "Locale";
 
 	LLStringUtil::setLocale (LLTrans::getString(system));
@@ -415,18 +362,6 @@ bool idle_startup()
 		std::string lastGPU = gSavedSettings.getString("LastGPUString");
 		std::string thisGPU = LLFeatureManager::getInstance()->getGPUString();
 		
-		// <polarity> PVData support
-#ifdef PVDATA_SYSTEM
-		gPVOldAPI = PVDataOldAPI::getInstance();
-#endif
-
-// [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0a) | Modified: RLVa-0.2.1d
-		if ( (gSavedSettings.controlExists(RLV_SETTING_MAIN)) && (gSavedSettings.getBOOL(RLV_SETTING_MAIN)) )
-		{
-			rlv_handler_t::setEnabled(TRUE);
-		}
-// [/RLVa:KB]
-
 		if (LLFeatureManager::getInstance()->isSafe())
 		{
 			LLNotificationsUtil::add("DisplaySetToSafe");
@@ -436,12 +371,12 @@ bool idle_startup()
 		{
 			LLNotificationsUtil::add("DisplaySetToRecommendedFeatureChange");
 		}
-		else if ((!lastGPU.empty() && (lastGPU != thisGPU) && (gSavedSettings.getS32("PVRender_KeepSettingsOnGPUChange") == -1)))
+		else if ( ! lastGPU.empty() && (lastGPU != thisGPU))
 		{
 			LLSD subs;
 			subs["LAST_GPU"] = lastGPU;
 			subs["THIS_GPU"] = thisGPU;
-			LLNotificationsUtil::add("AskForDisplayPreferencesReset", subs, LLSD(), callbackConfirmDisplayPreferencesReset);
+			LLNotificationsUtil::add("DisplaySetToRecommendedGPUChange", subs);
 		}
 		else if (!gViewerWindow->getInitAlert().empty())
 		{
@@ -459,21 +394,11 @@ bool idle_startup()
 		gSavedSettings.setS32("LastFeatureVersion", LLFeatureManager::getInstance()->getVersion());
 		gSavedSettings.setString("LastGPUString", thisGPU);
 
-		// load dynamic GPU/feature tables from website (S3)
-		if(gSavedSettings.getBOOL("PVNetwork_UseHTTPFeatureTable"))
-		{
-			LLFeatureManager::getInstance()->fetchHTTPTables();
-		}
-/*
-		if (!mFeatureTableExistsForVersion)
-		{
-			LLFeatureManager::getInstance()->fetchFallbackHTTPTable();
-		}
-*/
+
 		std::string xml_file = LLUI::locateSkin("xui_version.xml");
 		LLXMLNodePtr root;
 		bool xml_ok = false;
-		if (LLXMLNode::parseFile(xml_file, root, NULL))
+		if (LLXMLNode::parseFile(xml_file, root, nullptr))
 		{
 			if( (root->hasName("xui_version") ) )
 			{
@@ -513,7 +438,7 @@ bool idle_startup()
 
 		std::string message_template_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"message_template.msg");
 
-		LLFILE* found_template = NULL;
+		LLFILE* found_template = nullptr;
 		found_template = LLFile::fopen(message_template_path, "r");		/* Flawfinder: ignore */
 		
 		#if LL_WINDOWS
@@ -554,7 +479,7 @@ bool idle_startup()
 			const F32 circuit_heartbeat_interval = 5;
 			const F32 circuit_timeout = 100;
 
-			const LLUseCircuitCodeResponder* responder = NULL;
+			const LLUseCircuitCodeResponder* responder = nullptr;
 			bool failure_is_fatal = true;
 			
 			if(!start_messaging_system(
@@ -605,10 +530,10 @@ bool idle_startup()
 			LLMessageSystem* msg = gMessageSystem;
 			msg->setExceptionFunc(MX_UNREGISTERED_MESSAGE,
 								  invalid_message_callback,
-								  NULL);
+								  nullptr);
 			msg->setExceptionFunc(MX_PACKET_TOO_SHORT,
 								  invalid_message_callback,
-								  NULL);
+								  nullptr);
 
 			// running off end of a packet is now valid in the case
 			// when a reader has a newer message template than
@@ -618,7 +543,7 @@ bool idle_startup()
 								  NULL);*/
 			msg->setExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE,
 								  invalid_message_callback,
-								  NULL);
+								  nullptr);
 
 			if (gSavedSettings.getBOOL("LogMessages"))
 			{
@@ -660,8 +585,6 @@ bool idle_startup()
 		}
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
-		// Initialize grid manager
-		LLGridManager::getInstance()->initialize(std::string());
 
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
@@ -780,7 +703,7 @@ bool idle_startup()
 	{
 		LL_DEBUGS("AppInit") << "STATE_BROWSER_INIT" << LL_ENDL;
 		std::string msg = LLTrans::getString("LoginInitializingBrowser");
-		set_startup_status(0.03f, msg.c_str());
+		set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
 		display_startup();
 		// LLViewerMedia::initBrowser();
 		show_release_notes_if_required();
@@ -792,11 +715,11 @@ bool idle_startup()
 	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
 	{
 		LL_DEBUGS("AppInit") << "Initializing Window, show_connect_box = "
-			<< show_connect_box << LL_ENDL;
+							 << show_connect_box << LL_ENDL;
 
 		// if we've gone backwards in the login state machine, to this state where we show the UI
 		// AND the debug setting to exit in this case is true, then go ahead and bail quickly
-		if (mLoginStatePastUI && gSavedSettings.getBOOL("QuitOnLoginActivated"))
+		if ( mLoginStatePastUI && gSavedSettings.getBOOL("QuitOnLoginActivated") )
 		{
 			LL_DEBUGS("AppInit") << "taking QuitOnLoginActivated exit" << LL_ENDL;
 			// no requirement for notification here - just exit
@@ -807,7 +730,7 @@ bool idle_startup()
 
 		// Login screen needs menus for preferences, but we can enter
 		// this startup phase more than once.
-		if (gLoginMenuBarView == NULL)
+		if (gLoginMenuBarView == nullptr)
 		{
 			LL_DEBUGS("AppInit") << "initializing menu bar" << LL_ENDL;
 			initialize_edit_menu();
@@ -833,7 +756,7 @@ bool idle_startup()
 			// connect dialog is already shown, so fill in the names
 			if (gUserCredential.notNull())
 			{
-				LLPanelLogin::setFields( gUserCredential, gRememberPassword);
+				LLPanelLogin::selectUser(gUserCredential, gRememberPassword);
 			}
 			LLPanelLogin::giveFocus();
 
@@ -855,24 +778,22 @@ bool idle_startup()
 			{
 				LLViewerWindow::showSystemUIScaleFactorChanged();
 			}
-			//LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
+			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
-		//else
-		//{
-		//	LL_DEBUGS("AppInit") << "show_connect_box off, skipping to STATE_LOGIN_CLEANUP" << LL_ENDL;
-		//	// skip directly to message template verification
-		//	LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
-		//}
-
-		gPVOldAPI->downloadData();
-
-		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
+		else
+		{
+			LL_DEBUGS("AppInit") << "show_connect_box off, skipping to STATE_LOGIN_CLEANUP" << LL_ENDL;
+			// skip directly to message template verification
+			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
+		}
 
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
 		show_debug_menus();
 
+		// Hide the splash screen
+		LLSplashScreen::hide();
 		// Push our window frontmost
 		gViewerWindow->getWindow()->show();
 
@@ -880,61 +801,16 @@ bool idle_startup()
 		// first made visible.
 #ifdef _WIN32
 		MSG msg;
-		while( PeekMessage( &msg, /*All hWnds owned by this thread */ NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE ) )
+		while( PeekMessage( &msg, /*All hWnds owned by this thread */ nullptr, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE ) )
 		{ }
 #endif
         display_startup();
         timeout.reset();
 		return FALSE;
 	}
-	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
-	{
-#ifdef PVDATA_SYSTEM
-		// TODO: Move this state to AFTER showing the login interface, and disable the login button until pvdata
-		// is acquired or timed out (using the code here) and set the button string to "Please Wait...",
-		// then enable the login button again. this will reduce the apparent startup time.
-		// TODO: Move to debug
-		//LL_INFOS("PVDataStartup") << "Waiting on pvdata" << LL_ENDL;
-		static LLFrameTimer pvdata_timer;
-		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
-		const F32 MAX_PVDATA_TIME = 15.f;
-		
-		if (pvdata_time > MAX_PVDATA_TIME || gPVOldAPI->getAgentsDone() && gPVOldAPI->getDataDone())
-		{
-			LL_WARNS("PVDataOldAPI") << "Parsing data sucess or timeout, moving on..." << LL_ENDL;
-			//@todo run login button toggle
-			//LLStartUp::setStartupState(STATE_LOGIN_SHOW);
-			std::string new_title = gPVOldAPI->getRandomWindowTitle();
-			if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
-			{
-					new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
-			}
-			gViewerWindow->getWindow()->setTitle(new_title);
-			//LLPanelLogin::doLoginButtonLockUnlock();
-#endif
-			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
-#ifdef PVDATA_SYSTEM
-		}
-		else
-		{
-			ms_sleep(1);
-			return FALSE;
-		}
-#endif
-	}
-	
+
 	if (STATE_LOGIN_WAIT == LLStartUp::getStartupState())
 	{
-		/* Minecraft-like endless title spam
-		llassert(!PVDataOldAPI::instance()->getDataDone());
-		std::string new_title = gPVOldAPI->getRandomWindowTitle();
-		if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
-		{
-			new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
-		}
-		gViewerWindow->getWindow()->setTitle(new_title);
-		*/
-
 		// when we get to this state, we've already been past the login UI
 		// (possiblely automatically) - flag this so we can test in the 
 		// STATE_LOGIN_SHOW state if we've gone backwards
@@ -964,13 +840,6 @@ bool idle_startup()
 			return FALSE;
 		}
 
-// [RLVa:KB] - Checked: RLVa-0.2.1
-		if (gSavedSettings.getBOOL(RLV_SETTING_MAIN))
-		{
-			RlvHandler::setEnabled(true);
-		}
-// [/RLVa:KB]
-
 		// reset the values that could have come in from a slurl
 		// DEV-42215: Make sure they're not empty -- gUserCredential
 		// might already have been set from gSavedSettings, and it's too bad
@@ -997,15 +866,16 @@ bool idle_startup()
 		if(gUserCredential.notNull())                                                                                  
 		{  
 			userid = gUserCredential->userID();                                                                    
-			gSecAPIHandler->saveCredential(gUserCredential, gRememberPassword);  
+//			gSecAPIHandler->saveCredential(gUserCredential, gRememberPassword);  
 		}
 		gSavedSettings.setBOOL("RememberPassword", gRememberPassword);                                                 
 		LL_INFOS("AppInit") << "Attempting login as: " << userid << LL_ENDL;                                           
 		gDebugInfo["LoginName"] = userid;                                                                              
          
 		// create necessary directories
+		const std::string& gridlabel = !LLGridManager::getInstance()->isInSecondlife() ? LLGridManager::getInstance()->getGridLabel() : LLStringUtil::null;
 		// *FIX: these mkdir's should error check
-		gDirUtilp->setLindenUserDir(userid);
+		gDirUtilp->setLindenUserDir(userid, gridlabel);
 		LLFile::mkdir(gDirUtilp->getLindenUserDir());
 
 		// As soon as directories are ready initialize notification storages
@@ -1039,28 +909,20 @@ bool idle_startup()
 		//Default the path if one isn't set.
 		// *NOTE: unable to check variable differ from "InstantMessageLogPath" because it was
 		// provided in pre 2.0 viewer. See EXT-6661
-		//if (gSavedPerAccountSettings.getString("InstantMessageLogPath").empty())
-		//{
-		//	gDirUtilp->setChatLogsDir(gDirUtilp->getOSUserAppDir());
-		//	gSavedPerAccountSettings.setString("InstantMessageLogPath", gDirUtilp->getChatLogsDir());
-		//}
-		//else
-		//{
-		//	gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
-		//}
-
-		gPVCommon->getChatLogsDirOverride();
-
-		gDirUtilp->setPerAccountChatLogsDir(userid);  
+		if (gSavedPerAccountSettings.getString("InstantMessageLogPath").empty())
+		{
+			gDirUtilp->setChatLogsDir(gDirUtilp->getOSUserAppDir());
+			gSavedPerAccountSettings.setString("InstantMessageLogPath", gDirUtilp->getChatLogsDir());
+		}
+		else
+		{
+			gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
+		}
+		gDirUtilp->setPerAccountChatLogsDir(userid, gridlabel);
 		
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
-		//gPVOldAPI->moveTranscriptsAndLog(userid);
-		//gPVOldAPI->setChatLogsDirOverride();
-
-		// NaCl - Store Log Level
-		LLError::setDefaultLevel(static_cast<LLError::ELevel>(gSavedSettings.getU32("_NACL_LogLevel")));
 
 		//good a place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
@@ -1075,8 +937,6 @@ bool idle_startup()
 		std::string user_windlight_days_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/days", ""));
 		LLFile::mkdir(user_windlight_days_path_name.c_str());
 
-		// <FS:WS> Initalize Account based asset_blacklist
-		FSAssetBlacklist::getInstance()->init();
 
 		if (show_connect_box)
 		{
@@ -1096,6 +956,8 @@ bool idle_startup()
 		// Load media plugin cookies
 		LLViewerMedia::loadCookieFile();
 
+		LLRenderMuteList::getInstance()->loadFromFile();
+
 		//-------------------------------------------------
 		// Handle startup progress screen
 		//-------------------------------------------------
@@ -1104,14 +966,6 @@ bool idle_startup()
 		// their last location, or some URL "-url //sim/x/y[/z]"
 		// All accounts have both a home and a last location, and we don't support
 		// more locations than that.  Choose the appropriate one.  JC
-// [RLVa:KB] - Checked: RLVa-0.2.1
-		if ( (RlvHandler::isEnabled()) && (RlvSettings::getLoginLastLocation()) )
-		{
-			// Force login at the last location
-			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_LAST));
-		}
-// [/RLVa:KB]
-
 		switch (LLStartUp::getStartSLURL().getType())
 		  {
 		  case LLSLURL::LOCATION:
@@ -1132,16 +986,18 @@ bool idle_startup()
 		// Display the startup progress bar.
 		gViewerWindow->setShowProgress(TRUE);
 		gViewerWindow->setProgressCancelButtonVisible(TRUE, LLTrans::getString("Quit"));
+
 		gViewerWindow->revealIntroPanel();
 
 		// Poke the VFS, which could potentially block for a while if
 		// Windows XP is acting up
-		set_startup_status(0.07f, LLTrans::getString("LoginVerifyingCache"));
+		set_startup_status(0.07f, LLTrans::getString("LoginVerifyingCache"), LLStringUtil::null);
 		display_startup();
 
 		gVFS->pokeFiles();
-		// just to be sure
-		LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
+
+		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
+
 		return FALSE;
 	}
 
@@ -1151,7 +1007,7 @@ bool idle_startup()
 
 		// Update progress status and the display loop.
 		auth_desc = LLTrans::getString("LoginInProgress");
-		set_startup_status(progress, auth_desc);
+		set_startup_status(progress, auth_desc, auth_message);
 		progress += 0.02f;
 		display_startup();
 
@@ -1177,21 +1033,21 @@ bool idle_startup()
 		// If we get here we have gotten past the potential stall
 		// in curl, so take "may appear frozen" out of progress bar. JC
 		auth_desc = LLTrans::getString("LoginInProgressNoFrozen");
-		set_startup_status(progress, auth_desc);
+		set_startup_status(progress, auth_desc, auth_message);
 
-		LLStartUp::setStartupState(STATE_LOGIN_PROCESS_RESPONSE);
+		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
 		return FALSE;
 	}
 
-	if (STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState())
+	if(STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState()) 
 	{
 		// Generic failure message
 		std::ostringstream emsg;
 		emsg << LLTrans::getString("LoginFailed") << "\n";
-		if (LLLoginInstance::getInstance()->authFailure())
+		if(LLLoginInstance::getInstance()->authFailure())
 		{
 			LL_INFOS("LLStartup") << "Login failed, LLLoginInstance::getResponse(): "
-				<< LLLoginInstance::getInstance()->getResponse() << LL_ENDL;
+			                      << LLLoginInstance::getInstance()->getResponse() << LL_ENDL;
 			LLSD response = LLLoginInstance::getInstance()->getResponse();
 			// Still have error conditions that may need some 
 			// sort of handling - dig up specific message
@@ -1200,15 +1056,15 @@ bool idle_startup()
 			std::string message_id = response["message_id"];
 			std::string message; // actual string to show the user
 
-			if (!message_id.empty() && LLTrans::findString(message, message_id, response["message_args"]))
+			if(!message_id.empty() && LLTrans::findString(message, message_id, response["message_args"]))
 			{
 				// message will be filled in with the template and arguments
 			}
-			else if (!message_response.empty())
+			else if(!message_response.empty())
 			{
 				// *HACK: "no_inventory_host" sent as the message itself.
 				// Remove this clause when server is sending message_id as well.
-				message = LLAgent::sTeleportErrorMessages[message_response];
+				message = LLAgent::sTeleportErrorMessages[ message_response ];
 			}
 
 			if (message.empty())
@@ -1221,14 +1077,14 @@ bool idle_startup()
 			emsg << message;
 
 
-			if (reason_response == "key")
+			if(reason_response == "key")
 			{
 				// Couldn't login because user/password is wrong
 				// Clear the credential
 				gUserCredential->clearAuthenticator();
 			}
 
-			if (reason_response == "update"
+			if(reason_response == "update" 
 				|| reason_response == "optional")
 			{
 				// In the case of a needed update, quit.
@@ -1238,37 +1094,36 @@ bool idle_startup()
 				LLLoginInstance::getInstance()->disconnect();
 				LLAppViewer::instance()->forceQuit();
 			}
-			else
+			else 
 			{
-				if (reason_response != "tos")
+				if (reason_response != "tos") 
 				{
 					// Don't pop up a notification in the TOS case because
 					// LLFloaterTOS::onCancel() already scolded the user.
 					std::string error_code;
-					if (response.has("errorcode"))
+					if(response.has("errorcode"))
 					{
 						error_code = response["errorcode"].asString();
 					}
-					if ((reason_response == "CURLError") &&
-						(error_code == "SSL_CACERT" || error_code == "SSL_PEER_CERTIFICATE") &&
+					if ((reason_response == "CURLError") && 
+						(error_code == "SSL_CACERT" || error_code == "SSL_PEER_CERTIFICATE") && 
 						response.has("certificate"))
 					{
 						// This was a certificate error, so grab the certificate
 						// and throw up the appropriate dialog.
 						LLPointer<LLCertificate> certificate = gSecAPIHandler->getCertificate(response["certificate"]);
-						if (certificate)
+						if(certificate)
 						{
 							LLSD args = transform_cert_args(certificate);
 
-							if (error_code == "SSL_CACERT")
+							if(error_code == "SSL_CACERT")
 							{
 								// if we are handling an untrusted CA, throw up the dialog                             
 								// with the 'trust this CA' button.                                                    
 								LLNotificationsUtil::add("TrustCertificateError", args, response,
-														 trust_cert_done);
-
-								// <FS:Ansariel> Not needed here - done below
-								//show_connect_box = true;
+														trust_cert_done);
+								
+								show_connect_box = true;
 							}
 							else
 							{
@@ -1276,21 +1131,19 @@ bool idle_startup()
 								// we grab this string via the LLUserAuth object, and use that to grab the localized   
 								// string.                                                                             
 								args["REASON"] = LLTrans::getString(message_response);
-
+								
 								LLNotificationsUtil::add("GeneralCertificateError", args, response,
 														 general_cert_done);
-
-								// <FS:Ansariel> Not needed here - done below & in transition_back_to_login_panel()
-								//reset_login();
-								//gSavedSettings.setBOOL("AutoLogin", FALSE);
-								//show_connect_box = true;
-								// </FS:Ansariel>
-
+								
+								reset_login();
+								gSavedSettings.setBOOL("AutoLogin", FALSE);
+								show_connect_box = true;
+								
 							}
 
 						}
 					}
-					else
+					else 
 					{
 						// This wasn't a certificate error, so throw up the normal
 						// notificatioin message.
@@ -1300,64 +1153,35 @@ bool idle_startup()
 						LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
 					}
 				}
-				// <FS:Ansariel> Wait for notification confirmation
-				//transition_back_to_login_panel(emsg.str());
-				LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
-				// </FS:Ansariel>
+				transition_back_to_login_panel(emsg.str());
 				show_connect_box = true;
 			}
 		}
-		else if (LLLoginInstance::getInstance()->authSuccess())
+		else if(LLLoginInstance::getInstance()->authSuccess())
 		{
-			if(process_login_success_response())
+			if(process_login_success_response(first_sim_size_x, first_sim_size_y))
 			{
+				// Only save credentials after successful login
+				gSecAPIHandler->saveCredential(gUserCredential, gRememberPassword);  
+				gSavedSettings.setString("LastUsername", gUserCredential->userID());
 				// Pass the user information to the voice chat server interface.
 				LLVoiceClient::getInstance()->userAuthorized(gUserCredential->userID(), gAgentID);
 				// create the default proximal channel
 				LLVoiceChannel::initClass();
-
-				if (gSavedSettings.getBOOL("PVPrivacy_RememberUsername"))
-				{
-					gSecAPIHandler->saveCredential(gUserCredential, gRememberPassword);
-				}
-				LLPanelLogin::clearPassword();
-				LLStartUp::setStartupState(STATE_WORLD_INIT);
+				LLStartUp::setStartupState( STATE_WORLD_INIT);
 				LLTrace::get_frame_recording().reset();
 			}
 			else
 			{
 				LLSD args;
-#ifdef PVDATA_SYSTEM
-				if(!gPVOldAPI->getErrorMessage().empty())
-				{
-					args["ERROR_MESSAGE"] = gPVOldAPI->getErrorMessage();
-				}
-				else
-#endif
-				{
-					args["ERROR_MESSAGE"] = emsg.str();
-				}
+				args["ERROR_MESSAGE"] = emsg.str();
 				LL_INFOS("LLStartup") << "Notification: " << args << LL_ENDL;
 				LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-				// <FS:Ansariel> Wait for notification confirmation
-				//transition_back_to_login_panel(emsg.str());
-				LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
-				// </FS:Ansariel>
+				transition_back_to_login_panel(emsg.str());
 				show_connect_box = true;
 				return FALSE;
 			}
 		}
-		return FALSE;
-	}
-
-	// <FS:Ansariel> Wait for notification confirmation
-	if (STATE_LOGIN_CONFIRM_NOTIFICATON == LLStartUp::getStartupState())
-	{
-		display_startup();
-		gViewerWindow->getProgressView()->setVisible(FALSE);
-		show_connect_box = true;
-		display_startup();
-		ms_sleep(1);
 		return FALSE;
 	}
 
@@ -1366,16 +1190,8 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_WORLD_INIT == LLStartUp::getStartupState())
 	{
-		// LLAppViewer::instance()->PVGetDynamicWindowTitle();
-		set_startup_status(0.30f, LLTrans::getString("LoginInitializingWorld"));
+		set_startup_status(0.30f, LLTrans::getString("LoginInitializingWorld"), gAgent.mMOTD);
 		display_startup();
-// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-07-09 (Catznip-2.1.2a) | Added: Catznip-2.1.1a
-		if ((gSavedSettings.getBOOL("FullScreenWindow")) && (gViewerWindow->canFullscreenWindow()))
-		{
-			gViewerWindow->setFullscreenWindow(TRUE);
-		}
-// [/SL:KB]
-
 		// We should have an agent id by this point.
 		llassert(!(gAgentID == LLUUID::null));
 
@@ -1389,7 +1205,7 @@ bool idle_startup()
 
 		// Since we connected, save off the settings so the user doesn't have to
 		// type the name/password again if we crash.
-		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"));
+		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
 		LLUIColorTable::instance().saveUserSettings();
 
 		display_startup();
@@ -1408,8 +1224,6 @@ bool idle_startup()
 		display_startup();
 
 		LLDrawable::initClass();
-		display_startup();
-
 		display_startup();
 
         LLAvatarAppearance::initClass("avatar_lad.xml","avatar_skeleton.xml");
@@ -1442,16 +1256,19 @@ bool idle_startup()
 		gAgent.initOriginGlobal(from_region_handle(gFirstSimHandle));
 		display_startup();
 
+		LLWorld::getInstance()->setRegionSize(first_sim_size_x, first_sim_size_y);
 		LLWorld::getInstance()->addRegion(gFirstSimHandle, gFirstSim);
 		display_startup();
 
 		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(gFirstSimHandle);
 		LL_INFOS("AppInit") << "Adding initial simulator " << regionp->getOriginGlobal() << LL_ENDL;
 		
+		//LLFloaterPermsDefault::setCapsReceivedCallback(regionp);
+		
 		LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability from init_idle(). Seed cap == "
 		<< gFirstSimSeedCap << LL_ENDL;
 		regionp->setSeedCapability(gFirstSimSeedCap);
-		LL_DEBUGS("AppInit") << "Waiting for seed grant ...." << LL_ENDL;
+		LL_DEBUGS("AppInit") << "Waiting for seed grant..." << LL_ENDL;
 		display_startup();
 		// Set agent's initial region to be the one we just created.
 		gAgent.setRegion(regionp);
@@ -1510,11 +1327,11 @@ bool idle_startup()
 			{
 				LLStringUtil::format_map_t args;
 				args["[NUMBER]"] = llformat("%d", num_retries + 1);
-				set_startup_status(0.4f, LLTrans::getString("LoginRetrySeedCapGrant", args));
+				set_startup_status(0.4f, LLTrans::getString("LoginRetrySeedCapGrant", args), gAgent.mMOTD.c_str());
 			}
 			else
 			{
-				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"));
+				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"), gAgent.mMOTD.c_str());
 			}
 		}
 		display_startup();
@@ -1532,18 +1349,18 @@ bool idle_startup()
 		update_texture_fetch();
 		display_startup();
 
-		if (gViewerWindow != NULL)
+		if ( gViewerWindow != nullptr)
 		{	// This isn't the first logon attempt, so show the UI
-			gViewerWindow->setNormalControlsVisible(TRUE);
-		}
-		gLoginMenuBarView->setVisible(FALSE);
-		gLoginMenuBarView->setEnabled(FALSE);
+			gViewerWindow->setNormalControlsVisible( TRUE );
+		}	
+		gLoginMenuBarView->setVisible( FALSE );
+		gLoginMenuBarView->setEnabled( FALSE );
 		display_startup();
 
 		// direct logging to the debug console's line buffer
 		LLError::logToFixedBuffer(gDebugView->mDebugConsolep);
 		display_startup();
-
+		
 		// set initial visibility of debug console
 		gDebugView->mDebugConsolep->setVisible(gSavedSettings.getBOOL("ShowDebugConsole"));
 		display_startup();
@@ -1558,13 +1375,13 @@ bool idle_startup()
 		display_startup();
 
 		// Debugging info parameters
-		gMessageSystem->setMaxMessageTime(0.5f);			// Spam if decoding all msgs takes more than 500 ms
+		gMessageSystem->setMaxMessageTime( 0.5f );			// Spam if decoding all msgs takes more than 500 ms
 		display_startup();
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-		gMessageSystem->setTimeDecodes(TRUE);				// Time the decode of each msg
-		gMessageSystem->setTimeDecodesSpamThreshold(0.05f);  // Spam if a single msg takes over 50ms to decode
-#endif
+		#ifndef	LL_RELEASE_FOR_DOWNLOAD
+			gMessageSystem->setTimeDecodes( TRUE );				// Time the decode of each msg
+			gMessageSystem->setTimeDecodesSpamThreshold( 0.05f );  // Spam if a single msg takes over 50ms to decode
+		#endif
 		display_startup();
 
 		gXferManager->registerCallbacks(gMessageSystem);
@@ -1585,8 +1402,8 @@ bool idle_startup()
 		// *Note: this is where gWorldMap used to be initialized.
 
 		// register null callbacks for audio until the audio system is initialized
-		gMessageSystem->setHandlerFuncFast(_PREHASH_SoundTrigger, null_message_callback, NULL);
-		gMessageSystem->setHandlerFuncFast(_PREHASH_AttachedSound, null_message_callback, NULL);
+		gMessageSystem->setHandlerFuncFast(_PREHASH_SoundTrigger, null_message_callback, nullptr);
+		gMessageSystem->setHandlerFuncFast(_PREHASH_AttachedSound, null_message_callback, nullptr);
 		display_startup();
 
 		//reset statistics
@@ -1636,6 +1453,7 @@ bool idle_startup()
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
 
+		LLEnvManagerNew::getInstance()->usePrefs(); // Load all presets and settings
 		gSky.init(initial_sun_direction);
 
 		LLGLState::checkStates();
@@ -1650,7 +1468,7 @@ bool idle_startup()
 		for (int i = 0; i < DECODE_TIME_SEC; i++)
 		{
 			F32 frac = (F32)i / (F32)DECODE_TIME_SEC;
-			set_startup_status(0.45f + frac*0.1f, LLTrans::getString("LoginDecodingImages"));
+			set_startup_status(0.45f + frac*0.1f, LLTrans::getString("LoginDecodingImages"), gAgent.mMOTD);
 			display_startup();
 			gTextureList.decodeAllImages(1.f);
 		}
@@ -1682,7 +1500,7 @@ bool idle_startup()
 			FALSE,
 			(F32Seconds)gSavedSettings.getF32("UseCircuitCodeTimeout"),
 			use_circuit_callback,
-			NULL);
+			nullptr);
 
 		timeout.reset();
 		display_startup();
@@ -1696,7 +1514,7 @@ bool idle_startup()
 	if(STATE_WORLD_WAIT == LLStartUp::getStartupState())
 	{
 		LL_DEBUGS("AppInit") << "Waiting for simulator ack...." << LL_ENDL;
-		set_startup_status(0.59f, LLTrans::getString("LoginWaitingForRegionHandshake"));
+		set_startup_status(0.59f, LLTrans::getString("LoginWaitingForRegionHandshake"), gAgent.mMOTD);
 		if(gGotUseCircuitCodeAck)
 		{
 			LLStartUp::setStartupState( STATE_AGENT_SEND );
@@ -1717,7 +1535,7 @@ bool idle_startup()
 	if (STATE_AGENT_SEND == LLStartUp::getStartupState())
 	{
 		LL_DEBUGS("AppInit") << "Connecting to region..." << LL_ENDL;
-		set_startup_status(0.60f, LLTrans::getString("LoginConnectingToRegion"));
+		set_startup_status(0.60f, LLTrans::getString("LoginConnectingToRegion"), gAgent.mMOTD);
 		display_startup();
 		// register with the message system so it knows we're
 		// expecting this message
@@ -1978,14 +1796,10 @@ bool idle_startup()
 		LL_INFOS() << "Creating Inventory Views" << LL_ENDL;
 		LLFloaterReg::getInstance("inventory");
 		display_startup();
+		LL_INFOS() << "Creating People Views" << LL_ENDL;
+		LLFloaterReg::getInstance("people");
+		display_startup();
 
-// [RLVa:KB] - Checked: RLVa-1.1.0
-		if (RlvHandler::isEnabled())
-		{
-			// Regularly process a select subset of retained commands during logon
-			gIdleCallbacks.addFunction(RlvHandler::onIdleStartup, new LLTimer());
-		}
-// [/RLVa:KB]
 		LLStartUp::setStartupState( STATE_MISC );
 		display_startup();
 		return FALSE;
@@ -2054,11 +1868,17 @@ bool idle_startup()
 		}
 
 		display_startup();
+		
+		// Build the search floater early on so it pops open quick when we want it.
+		LLFloaterReg::getTypedInstance<LLFloaterDirectory>("search");
+		display_startup();
 
 		// We're successfully logged in.
 		gSavedSettings.setBOOL("FirstLoginThisInstall", FALSE);
 
 		LLFloaterReg::showInitialVisibleInstances();
+
+		LLFloaterGridStatus::getInstance()->startGridStatusTimer();
 
 		display_startup();
 
@@ -2213,7 +2033,8 @@ bool idle_startup()
 		{
 			gAgentWearables.notifyLoadingStarted();
 			gAgent.setOutfitChosen(TRUE);
-			gAgentWearables.sendDummyAgentWearablesUpdate();
+			if (LLGridManager::getInstance()->isInSecondlife())
+				gAgentWearables.sendDummyAgentWearablesUpdate();
 			callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(), set_flags_and_update_appearance);
 		}
 
@@ -2222,35 +2043,6 @@ bool idle_startup()
 		// wait precache-delay and for agent's avatar or a lot longer.
 		if ((timeout_frac > 1.f) && isAgentAvatarValid())
 		{
-			// <polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
-			if (LLStartUp::getStartSLURL().getType() == LLSLURL::LAST_LOCATION && gAgentStartLocation == "last")
-			{
-				LLUUID last_seat_uuid = LLUUID(gSavedPerAccountSettings.getString("PVMovement_LastSatUponObject"));
-				if (last_seat_uuid.notNull())
-				{
-					LLViewerObject *last_seat = gObjectList.findObject(last_seat_uuid);
-					if (last_seat)
-					{
-						LLVector3 seat_pos = last_seat->getPositionRegion();
-						LLVector3 agent_avatar_pos = gAgentAvatarp->getPositionRegion();
-						if (dist_vec(seat_pos, agent_avatar_pos) < 5.0) {
-							LLVector3d cam_position = gSavedPerAccountSettings.getVector3d("PVMovement_LastSatUponObjectCamPosition");
-							LLVector3d cam_focus = gSavedPerAccountSettings.getVector3d("PVMovement_LastSatUponObjectCamFocus");
-							LLUUID cam_focus_id = LLUUID(gSavedPerAccountSettings.getString("PVMovement_LastSatUponObjectCamFocusObject"));
-
-							gAgentCamera.setAnimationDuration(0.0);
-							gAgentCamera.unlockView();
-							gAgentCamera.setCameraPosAndFocusGlobal(cam_position, cam_focus, cam_focus_id, false);
-							gAgentCamera.updateCamera();
-
-							// The first tick of the following timer prepares and sends the sit message, then marks itself complete
-							new LLRestoreSeatEventTimer();
-						}
-					}
-				}
-			}
-			// </polarity>
-
 			LLStartUp::setStartupState( STATE_WEARABLES_WAIT );
 		}
 		else if (timeout_frac > 10.f) 
@@ -2269,7 +2061,8 @@ bool idle_startup()
 		{
 			update_texture_fetch();
 			set_startup_status(0.60f + 0.30f * timeout_frac,
-			                   LLTrans::getString("LoginPrecaching"));
+				LLTrans::getString("LoginPrecaching"),
+					gAgent.mMOTD.c_str());
 			display_startup();
 		}
 		
@@ -2306,18 +2099,15 @@ bool idle_startup()
 			record(LLStatViewer::LOADING_WEARABLES_LONG_DELAY, wearables_time);
 			LLStartUp::setStartupState( STATE_CLEANUP );
 		}
+		// wait for avatar to be completely loaded
 		else if (gAgent.isFirstLogin()
 				&& isAgentAvatarValid()
 				&& gAgentAvatarp->isFullyLoaded())
 		{
-			// wait for avatar to be completely loaded
-			if (isAgentAvatarValid()
-				&& gAgentAvatarp->isFullyLoaded())
-			{
-				LL_DEBUGS("Avatar") << "avatar fully loaded" << LL_ENDL;
-				LLStartUp::setStartupState( STATE_CLEANUP );
-				return TRUE;
-			}
+			
+			LL_DEBUGS("Avatar") << "avatar fully loaded" << LL_ENDL;
+			LLStartUp::setStartupState( STATE_CLEANUP );
+			return TRUE;
 		}
 		else
 		{
@@ -2335,7 +2125,7 @@ bool idle_startup()
 
 	if (STATE_CLEANUP == LLStartUp::getStartupState())
 	{
-		set_startup_status(1.0, "");
+		set_startup_status(1.0, "", "");
 		display_startup();
 
 		// Let the map know about the inventory.
@@ -2394,11 +2184,11 @@ bool idle_startup()
 		// This is a not-uncommon crash site, so surround it with
 		// LL_INFOS() output to aid diagnosis.
 		LL_INFOS("AppInit") << "Doing first audio_update_volume..." << LL_ENDL;
-		audio_update_volume(true);
+		audio_update_volume();
 		LL_INFOS("AppInit") << "Done first audio_update_volume." << LL_ENDL;
 
 		// reset keyboard focus to sane state of pointing at world
-		gFocusMgr.setKeyboardFocus(NULL);
+		gFocusMgr.setKeyboardFocus(nullptr);
 
 		LLAppViewer::instance()->handleLoginComplete();
 
@@ -2410,18 +2200,6 @@ bool idle_startup()
 		LLPathfindingManager::getInstance()->initSystem();
 
 		gAgentAvatarp->sendHoverHeight();
-
-		std::string appname_str = APP_NAME;
-		PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD, appname_str + " Viewer", CHAT_SOURCE_MOTD);
-#ifdef PVDATA_SYSTEM
-		gPVOldAPI->startRefreshTimer();
-#endif
-		PVFPSMeter::preComputeFloorAndCeiling();
-		PVFPSMeter::start();
-		if(gSavedSettings.getBOOL("TextureLoadFullRes"))
-		{
-			PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("FullResEnabledReminder"));
-		}
 
 		return TRUE;
 	}
@@ -2440,10 +2218,10 @@ void login_show()
 	// Hide the toolbars: may happen to come back here if login fails after login agent but before login in region
 	if (gToolBarView)
 	{
-		gToolBarView->setVisible(FALSE); 
+		gToolBarView->setVisible(FALSE);
 	}
 	
-	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(), login_callback, NULL );
+	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(), login_callback, nullptr );
 }
 
 // Callback for when login screen is closed.  Option 0 = connect, option 1 = quit.
@@ -2462,7 +2240,7 @@ void login_callback(S32 option, void *userdata)
 		if (!gSavedSettings.getBOOL("RememberPassword"))
 		{
 			// turn off the setting and write out to disk
-			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"));
+			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile") , TRUE );
 			LLUIColorTable::instance().saveUserSettings();
 		}
 
@@ -2487,19 +2265,14 @@ void login_callback(S32 option, void *userdata)
 */
 void show_release_notes_if_required()
 {
-	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
-		&& LLVersionInfo::getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
-		&& gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
-		&& !gSavedSettings.getBOOL("FirstLoginThisInstall")
-		)
-	{
-		LLSD info(LLAppViewer::instance()->getViewerInfo());
-		std::string rel_notes = info["VIEWER_RELEASE_NOTES_URL"];
-		if (rel_notes != "0")
-		{
-			LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
-		}
-	}
+    if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
+        && LLVersionInfo::getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
+        && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
+        && !gSavedSettings.getBOOL("FirstLoginThisInstall"))
+    {
+        LLSD info(LLAppViewer::instance()->getViewerInfo());
+        LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+    }
 }
 
 void show_first_run_dialog()
@@ -2513,7 +2286,7 @@ bool first_run_dialog_callback(const LLSD& notification, const LLSD& response)
 	if (0 == option)
 	{
 		LL_DEBUGS("AppInit") << "First run dialog cancelling" << LL_ENDL;
-		LLWeb::loadURLExternal(LLTrans::getString("create_account_url") );
+		LLWeb::loadURLExternal(LLGridManager::getInstance()->getCreateAccountURL());
 	}
 
 	LLPanelLogin::giveFocus();
@@ -2522,10 +2295,12 @@ bool first_run_dialog_callback(const LLSD& notification, const LLSD& response)
 
 
 
-void set_startup_status(const F32 frac, const std::string& string)
+void set_startup_status(const F32 frac, const std::string& string, const std::string& msg)
 {
 	gViewerWindow->setProgressPercent(frac*100);
 	gViewerWindow->setProgressString(string);
+
+	gViewerWindow->setProgressMessage(msg);
 }
 
 bool login_alert_status(const LLSD& notification, const LLSD& response)
@@ -2589,24 +2364,26 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("RegionInfo", LLViewerRegion::processRegionInfo);
 
 	msg->setHandlerFuncFast(_PREHASH_ChatFromSimulator,		process_chat_from_simulator);
-	msg->setHandlerFuncFast(_PREHASH_KillObject,				process_kill_object,	NULL);
-	msg->setHandlerFuncFast(_PREHASH_SimulatorViewerTimeMessage,	process_time_synch,		NULL);
+	msg->setHandlerFuncFast(_PREHASH_KillObject,				process_kill_object, nullptr);
+	msg->setHandlerFuncFast(_PREHASH_SimulatorViewerTimeMessage,	process_time_synch, nullptr);
 	msg->setHandlerFuncFast(_PREHASH_EnableSimulator,			process_enable_simulator);
 	msg->setHandlerFuncFast(_PREHASH_DisableSimulator,			process_disable_simulator);
-	msg->setHandlerFuncFast(_PREHASH_KickUser,					process_kick_user,		NULL);
+	msg->setHandlerFuncFast(_PREHASH_KickUser,					process_kick_user, nullptr);
 
 	msg->setHandlerFunc("CrossedRegion", process_crossed_region);
 	msg->setHandlerFuncFast(_PREHASH_TeleportFinish, process_teleport_finish);
 
 	msg->setHandlerFuncFast(_PREHASH_AlertMessage,             process_alert_message);
 	msg->setHandlerFunc("AgentAlertMessage", process_agent_alert_message);
-	msg->setHandlerFuncFast(_PREHASH_MeanCollisionAlert,             process_mean_collision_alert_message,  NULL);
+	msg->setHandlerFuncFast(_PREHASH_MeanCollisionAlert,             process_mean_collision_alert_message, nullptr);
 	msg->setHandlerFunc("ViewerFrozenMessage",             process_frozen_message);
 
 	msg->setHandlerFuncFast(_PREHASH_NameValuePair,			process_name_value);
 	msg->setHandlerFuncFast(_PREHASH_RemoveNameValuePair,	process_remove_name_value);
 	msg->setHandlerFuncFast(_PREHASH_AvatarAnimation,		process_avatar_animation);
 	msg->setHandlerFuncFast(_PREHASH_AvatarAppearance,		process_avatar_appearance);
+	msg->setHandlerFunc("AgentCachedTextureResponse",	LLAgent::processAgentCachedTextureResponse);
+	msg->setHandlerFunc("RebakeAvatarTextures", LLVOAvatarSelf::processRebakeAvatarTextures);
 	msg->setHandlerFuncFast(_PREHASH_CameraConstraint,		process_camera_constraint);
 	msg->setHandlerFuncFast(_PREHASH_AvatarSitResponse,		process_avatar_sit_response);
 	msg->setHandlerFunc("SetFollowCamProperties",			process_set_follow_cam_properties);
@@ -2614,17 +2391,14 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFuncFast(_PREHASH_ImprovedInstantMessage,	process_improved_im);
 	msg->setHandlerFuncFast(_PREHASH_ScriptQuestion,			process_script_question);
-	// <FS:Techwolf Lupindo> area search
-	//msg->setHandlerFuncFast(_PREHASH_ObjectProperties,			LLSelectMgr::processObjectProperties, NULL);
-	msg->setHandlerFuncFast(_PREHASH_ObjectProperties,			process_object_properties, NULL);
-	// </FS:Techwolf Lupindo> area search
-	msg->setHandlerFuncFast(_PREHASH_ObjectPropertiesFamily,	LLSelectMgr::processObjectPropertiesFamily, NULL);
+	msg->setHandlerFuncFast(_PREHASH_ObjectProperties,			LLSelectMgr::processObjectProperties, nullptr);
+	msg->setHandlerFuncFast(_PREHASH_ObjectPropertiesFamily,	LLSelectMgr::processObjectPropertiesFamily, nullptr);
 	msg->setHandlerFunc("ForceObjectSelect", LLSelectMgr::processForceObjectSelect);
 
-	msg->setHandlerFuncFast(_PREHASH_MoneyBalanceReply,		process_money_balance_reply,	NULL);
-	msg->setHandlerFuncFast(_PREHASH_CoarseLocationUpdate,		LLWorld::processCoarseUpdate, NULL);
-	msg->setHandlerFuncFast(_PREHASH_ReplyTaskInventory, 		LLViewerObject::processTaskInv,	NULL);
-	msg->setHandlerFuncFast(_PREHASH_DerezContainer,			process_derez_container, NULL);
+	msg->setHandlerFuncFast(_PREHASH_MoneyBalanceReply,		process_money_balance_reply, nullptr);
+	msg->setHandlerFuncFast(_PREHASH_CoarseLocationUpdate,		LLWorld::processCoarseUpdate, nullptr);
+	msg->setHandlerFuncFast(_PREHASH_ReplyTaskInventory, 		LLViewerObject::processTaskInv, nullptr);
+	msg->setHandlerFuncFast(_PREHASH_DerezContainer,			process_derez_container, nullptr);
 	msg->setHandlerFuncFast(_PREHASH_ScriptRunningReply,
 						&LLLiveLSLEditor::processScriptRunningReply);
 
@@ -2683,6 +2457,8 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	// msg->setHandlerFuncFast(_PREHASH_ReputationIndividualReply,
 	//					LLFloaterRate::processReputationIndividualReply);
 
+	msg->setHandlerFuncFast(_PREHASH_AgentWearablesUpdate, LLAgentWearables::processAgentInitialWearablesUpdate );
+
 	msg->setHandlerFunc("ScriptControlChange",
 						LLAgent::processScriptControlChange );
 
@@ -2700,14 +2476,14 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_UserInfoReply,
 		process_user_info_reply);
 
-	msg->setHandlerFunc("RegionHandshake", process_region_handshake, NULL);
+	msg->setHandlerFunc("RegionHandshake", process_region_handshake, nullptr);
 
 	msg->setHandlerFunc("TeleportStart", process_teleport_start );
 	msg->setHandlerFunc("TeleportProgress", process_teleport_progress);
-	msg->setHandlerFunc("TeleportFailed", process_teleport_failed, NULL);
-	msg->setHandlerFunc("TeleportLocal", process_teleport_local, NULL);
+	msg->setHandlerFunc("TeleportFailed", process_teleport_failed, nullptr);
+	msg->setHandlerFunc("TeleportLocal", process_teleport_local, nullptr);
 
-	msg->setHandlerFunc("ImageNotInDatabase", LLViewerTextureList::processImageNotInDatabase, NULL);
+	msg->setHandlerFunc("ImageNotInDatabase", LLViewerTextureList::processImageNotInDatabase, nullptr);
 
 	msg->setHandlerFuncFast(_PREHASH_GroupMembersReply,
 						LLGroupMgr::processGroupMembersReply);
@@ -2720,6 +2496,13 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	// Special handler as this message is sometimes used for group land.
 	msg->setHandlerFunc("PlacesReply", process_places_reply);
 	msg->setHandlerFunc("GroupNoticesListReply", LLPanelGroupNotices::processGroupNoticesListReply);
+	
+	msg->setHandlerFunc("DirPeopleReply", LLFloaterDirectory::processSearchPeopleReply);
+	msg->setHandlerFunc("DirGroupsReply", LLFloaterDirectory::processSearchGroupsReply);
+	msg->setHandlerFunc("DirPlacesReply", LLFloaterDirectory::processSearchPlacesReply);
+	msg->setHandlerFunc("DirEventsReply", LLFloaterDirectory::processSearchEventsReply);
+	msg->setHandlerFunc("DirLandReply",   LLFloaterDirectory::processSearchLandReply);
+	msg->setHandlerFunc("DirClassifiedReply",  LLFloaterDirectory::processSearchClassifiedsReply);
 
 	msg->setHandlerFunc("AvatarPickerReply", LLFloaterAvatarPicker::processAvatarPickerReply);
 
@@ -2815,7 +2598,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 
 	// try to find the outfit - if not there, create some default
 	// wearables.
-	LLUUID cat_id = findDescendentCategoryIDByName(
+	LLUUID cat_id = gInventory.findDescendentCategoryIDByName(
 		gInventory.getLibraryRootFolderID(),
 		outfit_folder_name);
 	if (cat_id.isNull())
@@ -2840,7 +2623,8 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	}
 
 	gAgent.setOutfitChosen(TRUE);
-	gAgentWearables.sendDummyAgentWearablesUpdate();
+	if (LLGridManager::getInstance()->isInSecondlife())
+		gAgentWearables.sendDummyAgentWearablesUpdate();
 }
 
 //static
@@ -2870,7 +2654,7 @@ void init_start_screen(S32 location_id)
 {
 	if (gStartTexture.notNull())
 	{
-		gStartTexture = NULL;
+		gStartTexture = nullptr;
 		LL_INFOS("AppInit") << "re-initializing start screen" << LL_ENDL;
 	}
 
@@ -2878,17 +2662,15 @@ void init_start_screen(S32 location_id)
 
 	std::string temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
 
-	// <polarity> This doesn't work anymore for us. Force to screen last.
-	//if ((S32)START_LOCATION_ID_LAST == location_id)
-	//{
-	//	temp_str += SCREEN_LAST_FILENAME;
-	//}
-	//else
-	//{
-	//	temp_str += SCREEN_HOME_FILENAME;
-	//}
-	temp_str += SCREEN_LAST_FILENAME;
-	
+	if ((S32)START_LOCATION_ID_LAST == location_id)
+	{
+		temp_str += SCREEN_LAST_FILENAME;
+	}
+	else
+	{
+		temp_str += SCREEN_HOME_FILENAME;
+	}
+
 	LLPointer<LLImageBMP> start_image_bmp = new LLImageBMP;
 	
 	// Turn off start screen to get around the occasional readback 
@@ -2901,7 +2683,7 @@ void init_start_screen(S32 location_id)
 	else if(!start_image_bmp->load(temp_str) )
 	{
 		LL_WARNS("AppInit") << "Bitmap load failed" << LL_ENDL;
-		gStartTexture = NULL;
+		gStartTexture = nullptr;
 	}
 	else
 	{
@@ -2912,7 +2694,7 @@ void init_start_screen(S32 location_id)
 		if (!start_image_bmp->decode(raw, 0.0f))
 		{
 			LL_WARNS("AppInit") << "Bitmap decode failed" << LL_ENDL;
-			gStartTexture = NULL;
+			gStartTexture = nullptr;
 		}
 		else
 		{
@@ -2934,7 +2716,7 @@ void init_start_screen(S32 location_id)
 void release_start_screen()
 {
 	LL_DEBUGS("AppInit") << "Releasing bitmap..." << LL_ENDL;
-	gStartTexture = NULL;
+	gStartTexture = nullptr;
 }
 
 
@@ -2965,10 +2747,6 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 		RTNENUM( STATE_WEARABLES_WAIT );
 		RTNENUM( STATE_CLEANUP );
 		RTNENUM( STATE_STARTED );
-		// <polarity> Extra startup states
-		RTNENUM( STATE_PVDATA_WAIT );
-		RTNENUM( STATE_LOGIN_CONFIRM_NOTIFICATON );
-		// <polarity>
 	default:
 		return llformat("(state #%d)", state);
 	}
@@ -3025,18 +2803,20 @@ void LLStartUp::multimediaInit()
 {
 	LL_DEBUGS("AppInit") << "Initializing Multimedia...." << LL_ENDL;
 	std::string msg = LLTrans::getString("LoginInitializingMultimedia");
-	set_startup_status(0.42f, msg);
+	set_startup_status(0.42f, msg, gAgent.mMOTD);
 	display_startup();
 
 	// LLViewerMedia::initClass();
 	LLViewerParcelMedia::initClass();
+	
+	new LLStreamInfo();
 }
 
 void LLStartUp::fontInit()
 {
 	LL_DEBUGS("AppInit") << "Initializing fonts...." << LL_ENDL;
 	std::string msg = LLTrans::getString("LoginInitializingFonts");
-	set_startup_status(0.45f, msg);
+	set_startup_status(0.45f, msg, gAgent.mMOTD);
 	display_startup();
 
 	LLFontGL::loadDefaultFonts();
@@ -3077,7 +2857,7 @@ void LLStartUp::cleanupNameCache()
 	SUBSYSTEM_CLEANUP(LLAvatarNameCache);
 
 	delete gCacheName;
-	gCacheName = NULL;
+	gCacheName = nullptr;
 }
 
 bool LLStartUp::dispatchURL()
@@ -3103,7 +2883,7 @@ bool LLStartUp::dispatchURL()
 			|| (dy*dy > SLOP*SLOP) )
 		{
 			LLURLDispatcher::dispatch(getStartSLURL().getSLURLString(), "clicked",
-						  NULL, false);
+						  nullptr, false);
 		}
 		return true;
 	}
@@ -3306,10 +3086,7 @@ bool LLStartUp::startLLProxy()
 
 bool login_alert_done(const LLSD& notification, const LLSD& response)
 {
-	// <FS:Ansariel> [FS Login Panel]
-	//LLPanelLogin::giveFocus();
-	transition_back_to_login_panel(std::string());
-	// </FS:Ansariel> [FS Login Panel]
+	LLPanelLogin::giveFocus();
 	return false;
 }
 
@@ -3340,7 +3117,7 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert)
 			LLSD usage = cert_info[iter->first];
 			for (LLSD::array_iterator usage_iter = usage.beginArray();
 				 usage_iter != usage.endArray();
-				usage_iter++)
+				 usage_iter++)
 			{
 				
 				if(usage_iter != usage.beginArray())
@@ -3369,11 +3146,8 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert)
 // when we handle a cert error, give focus back to the login panel
 void general_cert_done(const LLSD& notification, const LLSD& response)
 {
-	// <FS:Ansariel> [FS Login Panel]
-	//LLStartUp::setStartupState( STATE_LOGIN_SHOW );			
-	//LLPanelLogin::giveFocus();
-	transition_back_to_login_panel(std::string());
-	// </FS:Ansariel> [FS Login Panel]
+	LLStartUp::setStartupState( STATE_LOGIN_SHOW );			
+	LLPanelLogin::giveFocus();
 }
 
 // check to see if the user wants to trust the cert.
@@ -3393,17 +3167,11 @@ void trust_cert_done(const LLSD& notification, const LLSD& response)
 			break;
 		}
 		case OPT_CANCEL_TRUST:
-			// <FS:Ansariel> That's what transition_back_to_login_panel is for and does!
-			//reset_login();
-			//gSavedSettings.setBOOL("AutoLogin", FALSE);			
-			//LLStartUp::setStartupState( STATE_LOGIN_SHOW );				
-			transition_back_to_login_panel(std::string());
-			// </FS:Ansariel>
+			reset_login();
+			gSavedSettings.setBOOL("AutoLogin", FALSE);			
+			LLStartUp::setStartupState( STATE_LOGIN_SHOW );				
 		default:
-			// <FS:Ansariel> [FS Login Panel]
-			//LLPanelLogin::giveFocus();
-			transition_back_to_login_panel(std::string());
-			// </FS:Ansariel> [FS Login Panel]
+			LLPanelLogin::giveFocus();
 			break;
 	}
 
@@ -3433,29 +3201,21 @@ void apply_udp_blacklist(const std::string& csv)
 	
 }
 
-bool process_login_success_response()
+bool process_login_success_response(U32& first_sim_size_x, U32& first_sim_size_y)
 {
 	LLSD response = LLLoginInstance::getInstance()->getResponse();
 
 	std::string text(response["udp_blacklist"]);
-	if (!text.empty())
+	if(!text.empty())
 	{
 		apply_udp_blacklist(text);
 	}
 
 	// unpack login data needed by the application
 	text = response["agent_id"].asString();
-	if (!text.empty()) gAgentID.set(text);
+	if(!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
-
-#ifdef PVDATA_SYSTEM
-	if (!PVAgent::isAllowedToLogin(gAgentID, true))
-	{
-		LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
-		return FALSE;
-	}
-#endif
-
+	
 	// Agent id needed for parcel info request in LLUrlEntryParcel
 	// to resolve parcel name.
 	LLUrlEntryParcel::setAgentID(gAgentID);
@@ -3487,26 +3247,6 @@ bool process_login_success_response()
 			LLStringUtil::trim(gDisplayName);
 		}
 	}
-	std::string first_name;
-	if(response.has("first_name"))
-	{
-		first_name = response["first_name"].asString();
-		LLStringUtil::replaceChar(first_name, '"', ' ');
-		LLStringUtil::trim(first_name);
-		gAgentUsername = first_name;
-	}
-
-	if(response.has("last_name") && !gAgentUsername.empty())
-	{
-		std::string last_name = response["last_name"].asString();
-		if (last_name != "Resident")
-		{
-		    LLStringUtil::replaceChar(last_name, '"', ' ');
-		    LLStringUtil::trim(last_name);
-		    gAgentUsername = gAgentUsername + " " + last_name;
-		}
-	}
-
 	if(gDisplayName.empty())
 	{
 		if(response.has("first_name"))
@@ -3560,13 +3300,13 @@ bool process_login_success_response()
 	text = response["circuit_code"].asString();
 	if(!text.empty())
 	{
-		gMessageSystem->mOurCircuitCode = strtoul(text.c_str(), NULL, 10);
+		gMessageSystem->mOurCircuitCode = strtoul(text.c_str(), nullptr, 10);
 	}
 	std::string sim_ip_str = response["sim_ip"];
 	std::string sim_port_str = response["sim_port"];
 	if(!sim_ip_str.empty() && !sim_port_str.empty())
 	{
-		U32 sim_port = strtoul(sim_port_str.c_str(), NULL, 10);
+		U32 sim_port = strtoul(sim_port_str.c_str(), nullptr, 10);
 		gFirstSim.set(sim_ip_str, sim_port);
 		if (gFirstSim.isOk())
 		{
@@ -3577,11 +3317,17 @@ bool process_login_success_response()
 	std::string region_y_str = response["region_y"];
 	if(!region_x_str.empty() && !region_y_str.empty())
 	{
-		U32 region_x = strtoul(region_x_str.c_str(), NULL, 10);
-		U32 region_y = strtoul(region_y_str.c_str(), NULL, 10);
+		U32 region_x = strtoul(region_x_str.c_str(), nullptr, 10);
+		U32 region_y = strtoul(region_y_str.c_str(), nullptr, 10);
 		gFirstSimHandle = to_region_handle(region_x, region_y);
 	}
-	
+
+	text = response["region_size_x"].asString();
+	if (!text.empty()) LLViewerParcelMgr::getInstance()->init(first_sim_size_x = atoi(text.c_str()));
+	//region Y size is currently unused, major refactoring required. - Patrick Sapinski (2/10/2011)
+	text = response["region_size_y"].asString();
+	if (!text.empty()) first_sim_size_y = atoi(text.c_str());
+
 	const std::string look_at_str = response["look_at"];
 	if (!look_at_str.empty())
 	{
@@ -3597,10 +3343,10 @@ bool process_login_success_response()
 	text = response["seconds_since_epoch"].asString();
 	if(!text.empty())
 	{
-		U32 server_utc_time = strtoul(text.c_str(), NULL, 10);
+		U32 server_utc_time = strtoul(text.c_str(), nullptr, 10);
 		if(server_utc_time)
 		{
-			time_t now = time(NULL);
+			time_t now = time(nullptr);
 			gUTCOffset = (server_utc_time - now);
 
 			// Print server timestamp
@@ -3633,23 +3379,7 @@ bool process_login_success_response()
 		gAgent.setHomePosRegion(region_handle, position);
 	}
 
-#if !PVDATA_SYSTEM
-	auto motd_response = response["message"];
-	LL_INFOS("PVDataOldAPI") << "MOTD not set, using grid MOTD '" << motd_response << "'" << LL_ENDL;
-	gAgent.mMOTD.assign(motd_response);
-#else
-	auto progress_view = gViewerWindow->getProgressView();
-	if (progress_view)
-	{
-		std::string message = gPVOldAPI->getNewProgressTip();
-		if (message.empty())
-		{
-			// use MOTD
-			message = gAgent.mMOTD;
-		}
-		progress_view->setMessage(message);
-	}
-#endif
+	gAgent.mMOTD.assign(response["message"]);
 
 	// Options...
 	// Each 'option' is an array of submaps. 
@@ -3709,7 +3439,7 @@ bool process_login_success_response()
 
 	// Request the map server url
 	// Non-agni grids have a different default location.
-	if (!LLGridManager::getInstance()->isInProductionGrid())
+	if (LLGridManager::getInstance()->isInSLBeta())
 	{
 		gSavedSettings.setString("MapServerURL", "http://test.map.secondlife.com.s3.amazonaws.com/");
 	}
@@ -3803,27 +3533,45 @@ bool process_login_success_response()
 		LLViewerMedia::openIDSetup(openid_url, openid_token);
 	}
 
-	gMaxAgentGroups = DEFAULT_MAX_AGENT_GROUPS;
-	if(response.has("max-agent-groups"))
+	if(response.has("max-agent-groups") || response.has("max_groups"))
 	{
-		S32 agent_groups = atoi(std::string(response["max-agent-groups"]).c_str());
-		if (agent_groups > 0 && agent_groups <= ALLOWED_MAX_AGENT_GROUPS)
+		std::string max_agent_groups(response.has("max_groups")
+									 ? response["max_groups"]
+									 : response["max-agent-groups"]);
+		try
 		{
-			gMaxAgentGroups = agent_groups;
-			LL_INFOS("LLStartup") << "gMaxAgentGroups read from login.cgi: "
-				<< gMaxAgentGroups << LL_ENDL;
+			gMaxAgentGroups = std::stoi(max_agent_groups);
+			LL_INFOS("LLStartup") << "gMaxAgentGroups read from login.cgi: " << gMaxAgentGroups << LL_ENDL;
 		}
-		else
+		catch (const std::invalid_argument&)
 		{
-			LL_INFOS("LLStartup") << "Invalid value received, using defaults for gMaxAgentGroups: "
-				<< gMaxAgentGroups << LL_ENDL;
+			gMaxAgentGroups = DEFAULT_MAX_AGENT_GROUPS;
+			LL_WARNS("LLStartup") << "max-agent-groups '" << max_agent_groups << "' is not a valid integer. Using default" << LL_ENDL;
+		}
+		catch (const std::out_of_range&)
+		{
+			gMaxAgentGroups = DEFAULT_MAX_AGENT_GROUPS;
+			LL_WARNS("LLStartup") << "max-agent-groups '" << max_agent_groups << "' is out of range. Using default" << LL_ENDL;
 		}
 	}
-	else {
-		LL_INFOS("LLStartup") << "Missing max-agent-groups, using default value for gMaxAgentGroups: "
+	else
+	{
+		gMaxAgentGroups = DEFAULT_MAX_AGENT_GROUPS;
+		LL_INFOS("LLStartup") << "using gMaxAgentGroups default: "
 							  << gMaxAgentGroups << LL_ENDL;
 	}
-		
+
+	std::string currency = "L$";
+	if(response.has("currency"))
+	{
+		currency = response["currency"].asString();
+	}
+	else if (LLGridManager::getInstance()->isInOpenSim())
+	{
+		currency = "$$";
+	}
+	LLCurrencyWrapper::setCurrency(currency);
+
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
 	// in place.  Don't delete/clear gUserCredentials until then.
@@ -3847,22 +3595,3 @@ void transition_back_to_login_panel(const std::string& emsg)
 	gSavedSettings.setBOOL("AutoLogin", FALSE);
 }
 
-bool callbackConfirmDisplayPreferencesReset(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	switch (option)
-	{
-	case 0: // Yes
-		LLFeatureManager::getInstance()->applyRecommendedSettings();
-		break;
-	case 1: // No
-		break;
-	case -1: // Cancel/window closed
-		break;
-	default:
-		// Don't ask again
-		gSavedSettings.setS32("PVRender_KeepSettingsOnGPUChange", 1);
-		break;
-	}
-	return false;
-}

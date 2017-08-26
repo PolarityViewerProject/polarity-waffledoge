@@ -66,13 +66,9 @@
 // Boost (for linux/unix command-line execv)
 #include <boost/tokenizer.hpp>
 
-// External utility
-#include <string>
-#include <list>
-#include <map>
-
 #if LL_DARWIN
 #include <CoreFoundation/CFURL.h>
+#include <CoreFoundation/CFBundle.h>
 #endif
 
 // Static initialization
@@ -112,14 +108,15 @@ public:
 		Params() {}
 	};
 	LLOverlapPanel(Params p = Params()) : LLPanel(p),
-		mSpacing(10),
+		mLastClickedElement(nullptr),
 		// mClickedElement(NULL),
-		mLastClickedElement(NULL)
+		mSpacing(10)
 	{
 		mOriginalWidth = getRect().getWidth();
 		mOriginalHeight = getRect().getHeight();
 	}
-	virtual void draw();
+
+	void draw() override;
 	
 	typedef std::map<LLView*, std::list<LLView*> >	OverlapMap;
 	OverlapMap mOverlapMap;						// map, of XUI element to a list of XUI elements it overlaps
@@ -140,8 +137,8 @@ public:
 	std::string getLocStr(S32 ID);							// fetches the localization string based on what is selected in the drop-down menu
 	void displayFloater(BOOL click, S32 ID);			// needs to be public so live file can call it when it finds an update
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onClose(bool app_quitting);
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void onClose(bool app_quitting) override;
 
 	void refreshList();										// refresh list (empty it out and fill it up from scratch)
 	void addFloaterEntry(const std::string& path);			// add a single file's entry to the list of floaters
@@ -244,7 +241,7 @@ public:
 	BOOL mFirstFade;				// setting this avoids showing the fade reload warning on first load
 	std::string mFileName;
 protected:
-	bool loadFile();
+	bool loadFile() override;
 };
 
 // Implementation of graphical fade in/out (on timer) for when XUI files are updated
@@ -252,7 +249,7 @@ class LLFadeEventTimer : public LLEventTimer
 {
 public:
 	LLFadeEventTimer(F32 refresh, LLGUIPreviewLiveFile* parent);
-	BOOL tick();
+	BOOL tick() override;
 	LLGUIPreviewLiveFile* mParent;
 private:
 	BOOL mFadingOut;			// fades in then out; this is toggled in between
@@ -270,9 +267,9 @@ public:
 	{
 	}
 
-	virtual void draw();
-	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	BOOL handleToolTip(S32 x, S32 y, MASK mask);
+	void draw() override;
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL handleToolTip(S32 x, S32 y, MASK mask) override;
 	BOOL selectElement(LLView* parent, int x, int y, int depth);	// select element to display its overlappers
 
 	LLFloaterUIPreview* mFloaterUIPreview;
@@ -307,19 +304,19 @@ LLLocalizationResetForcer::~LLLocalizationResetForcer()
 // Live file constructor
 // Needs full path for LLLiveFile but needs just file name for this code, hence the reduntant arguments; easier than separating later
 LLGUIPreviewLiveFile::LLGUIPreviewLiveFile(std::string path, std::string name, LLFloaterUIPreview* parent)
-        : mFileName(name),
+        : LLLiveFile(path, 1.0),
 		mParent(parent),
+		mFadeTimer(nullptr),
 		mFirstFade(TRUE),
-		mFadeTimer(NULL),
-		LLLiveFile(path, 1.0)
+		mFileName(name)
 {}
 
 LLGUIPreviewLiveFile::~LLGUIPreviewLiveFile()
 {
-	mParent->mLiveFile = NULL;
+	mParent->mLiveFile = nullptr;
 	if(mFadeTimer)
 	{
-		mFadeTimer->mParent = NULL;
+		mFadeTimer->mParent = nullptr;
 		// deletes itself; see lltimer.cpp
 	}
 }
@@ -336,7 +333,7 @@ bool LLGUIPreviewLiveFile::loadFile()
 	{
 		if(mFadeTimer)
 		{
-			mFadeTimer->mParent = NULL;
+			mFadeTimer->mParent = nullptr;
 		}
 		mFadeTimer = new LLFadeEventTimer(0.05f,this);
 	}
@@ -345,9 +342,9 @@ bool LLGUIPreviewLiveFile::loadFile()
 
 // Initialize fade event timer
 LLFadeEventTimer::LLFadeEventTimer(F32 refresh, LLGUIPreviewLiveFile* parent)
-	: mParent(parent),
-	mFadingOut(TRUE),
-	LLEventTimer(refresh)
+	: LLEventTimer(refresh),
+	mParent(parent),
+	mFadingOut(TRUE)
 {
 	mOriginalColor = mParent->mParent->mDisplayedFloater->getBackgroundColor();
 }
@@ -355,17 +352,13 @@ LLFadeEventTimer::LLFadeEventTimer(F32 refresh, LLGUIPreviewLiveFile* parent)
 // Single tick of fade event timer: increment the color
 BOOL LLFadeEventTimer::tick()
 {
-	if (LLApp::isQuitting())
-	{
-		return TRUE;
-	}
-	float diff = 0.04f;
+	F32 diff = 0.04f;
 	if(TRUE == mFadingOut)	// set fade for in/out color direction
 	{
 		diff = -diff;
 	}
 
-	if(NULL == mParent)	// no more need to tick, so suicide
+	if(nullptr == mParent)	// no more need to tick, so suicide
 	{
 		return TRUE;
 	}
@@ -396,11 +389,28 @@ BOOL LLFadeEventTimer::tick()
 // Constructor
 LLFloaterUIPreview::LLFloaterUIPreview(const LLSD& key)
   : LLFloater(key),
-	mDisplayedFloater(NULL),
-	mDisplayedFloater_2(NULL),
-	mLiveFile(NULL),
-	// sHighlightingDiffs(FALSE),
+	mDisplayedFloater(nullptr),
+	mDisplayedFloater_2(nullptr),
+	mLiveFile(nullptr),
+	mOverlapPanel(nullptr),
+	// mHighlightingDiffs(FALSE),
 	mHighlightingOverlaps(FALSE),
+	mExternalEditor(),
+	mFileList(nullptr),
+	mEditorPathTextBox(nullptr),
+	mEditorArgsTextBox(nullptr),
+	mDiffPathTextBox(nullptr),
+	mDisplayFloaterBtn(nullptr),
+	mDisplayFloaterBtn_2(nullptr),
+	mEditFloaterBtn(nullptr),
+	mExecutableBrowseButton(nullptr),
+	mCloseOtherButton(nullptr),
+	mCloseOtherButton_2(nullptr),
+	mDiffBrowseButton(nullptr),
+	mToggleHighlightButton(nullptr),
+	mToggleOverlapButton(nullptr),
+	mLanguageSelection(nullptr),
+	mLanguageSelection_2(nullptr),
 	mLastDisplayedX(0),
 	mLastDisplayedY(0)
 {
@@ -420,7 +430,7 @@ LLFloaterUIPreview::~LLFloaterUIPreview()
 	if(mLiveFile)
 	{
 		delete mLiveFile;
-		mLiveFile = NULL;
+		mLiveFile = nullptr;
 	}
 }
 
@@ -437,7 +447,7 @@ BOOL LLFloaterUIPreview::postBuild()
 	mLanguageSelection = main_panel_tmp->getChild<LLComboBox>("language_select_combo");
 	mLanguageSelection->setCommitCallback(boost::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection));
 	mLanguageSelection_2 = main_panel_tmp->getChild<LLComboBox>("language_select_combo_2");
-	mLanguageSelection_2->setCommitCallback(boost::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection));
+	mLanguageSelection_2->setCommitCallback(boost::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection_2));
 	LLPanel* editor_panel_tmp = main_panel_tmp->getChild<LLPanel>("editor_panel");
 	mDisplayFloaterBtn = main_panel_tmp->getChild<LLButton>("display_floater");
 	mDisplayFloaterBtn->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickDisplayFloater, this, PRIMARY_FLOATER));
@@ -461,6 +471,7 @@ BOOL LLFloaterUIPreview::postBuild()
 	main_panel_tmp->getChild<LLButton>("save_floater")->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickSaveFloater, this, PRIMARY_FLOATER));
 	main_panel_tmp->getChild<LLButton>("save_all_floaters")->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickSaveAll, this, PRIMARY_FLOATER));
 
+	getChild<LLButton>("refresh_btn")->setClickedCallback(boost::bind(&LLFloaterUIPreview::refreshList, this));
 	getChild<LLButton>("export_schema")->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickExportSchema, this));
 	getChild<LLUICtrl>("show_rectangles")->setCommitCallback(
 		boost::bind(&LLFloaterUIPreview::onClickShowRectangles, this, _2));
@@ -487,42 +498,42 @@ BOOL LLFloaterUIPreview::postBuild()
 	BOOL found_en_us = FALSE;
 	std::string language_directory;
 	std::string xui_dir = get_xui_dir();	// directory containing localizations -- don't forget trailing delim
-	mLanguageSelection->removeall();																				// clear out anything temporarily in list from XML
+	mLanguageSelection->removeall();	// clear out anything temporarily in list from XML
 
 	LLDirIterator iter(xui_dir, "*");
-	while(found)																									// for every directory
+	while(found)	// for every directory
 	{
-		if((found = iter.next(language_directory)))							// get next directory
+		if((found = iter.next(language_directory)))		// get next directory
 		{
 			std::string full_path = gDirUtilp->add(xui_dir, language_directory);
-			if(LLFile::isfile(full_path.c_str()))																	// if it's not a directory, skip it
+			if(LLFile::isfile(full_path.c_str()))	// if it's not a directory, skip it
 			{
 				continue;
 			}
 
-			if(strncmp("template",language_directory.c_str(),8) && std::string::npos == language_directory.find('.'))				// if it's not the template directory or a hidden directory
+			if(strncmp("template",language_directory.c_str(),8)	// if it's not the template directory or a hidden directory
+			   && std::string::npos == language_directory.find('.'))
 			{
-				if(!strncmp("en",language_directory.c_str(),5))													// remember if we've seen en, so we can make it default
+				if(!strncmp("en",language_directory.c_str(),5))	// remember if we've seen en, so we can make it default
 				{
 					found_en_us = TRUE;
 				}
 				else
 				{
-					mLanguageSelection->add(std::string(language_directory));											// add it to the language selection dropdown menu
-					mLanguageSelection_2->add(std::string(language_directory));
+					mLanguageSelection->add(language_directory);	// add it to the language selection dropdown menu
+					mLanguageSelection_2->add(language_directory);
 				}
 			}
 		}
 	}
 	if(found_en_us)
 	{
-		mLanguageSelection->add(std::string("en"),ADD_TOP);															// make en first item if we found it
-		mLanguageSelection_2->add(std::string("en"),ADD_TOP);	
+		mLanguageSelection->add(LLStringExplicit("en"), ADD_TOP);	// make en first item if we found it
+		mLanguageSelection_2->add(LLStringExplicit("en"), ADD_TOP);
 	}
 	else
 	{
-		std::string warning = std::string("No EN localization found; check your XUI directories!");
-		popupAndPrintWarning(warning);
+		popupAndPrintWarning(LLStringExplicit("No EN localization found; check your XUI directories!"));
 	}
 	mLanguageSelection->selectFirstItem();																			// select the first item
 	mLanguageSelection_2->selectFirstItem();
@@ -538,7 +549,7 @@ void LLFloaterUIPreview::onLanguageComboSelect(LLUICtrl* ctrl)
 	LLComboBox* caller = dynamic_cast<LLComboBox*>(ctrl);
 	if (!caller)
 		return;
-	if(caller->getName() == std::string("language_select_combo"))
+	if(caller->getName() == LLStringExplicit("language_select_combo"))
 	{
 		if(mDisplayedFloater)
 		{
@@ -550,7 +561,7 @@ void LLFloaterUIPreview::onLanguageComboSelect(LLUICtrl* ctrl)
 	{
 		if(mDisplayedFloater_2)
 		{
-			onClickCloseDisplayedFloater(PRIMARY_FLOATER);
+			onClickCloseDisplayedFloater(SECONDARY_FLOATER);
 			displayFloater(TRUE,2);	// *TODO: make take an arg
 		}
 	}
@@ -601,9 +612,9 @@ void LLFloaterUIPreview::onClose(bool app_quitting)
 		onClickCloseDisplayedFloater(PRIMARY_FLOATER);
 		onClickCloseDisplayedFloater(SECONDARY_FLOATER);
 		delete mDisplayedFloater;
-		mDisplayedFloater = NULL;
+		mDisplayedFloater = nullptr;
 		delete mDisplayedFloater_2;
-		mDisplayedFloater_2 = NULL;
+		mDisplayedFloater_2 = nullptr;
 	}
 }
 
@@ -620,14 +631,8 @@ void LLFloaterUIPreview::popupAndPrintWarning(const std::string& warning)
 // Get localization string from drop-down menu
 std::string LLFloaterUIPreview::getLocStr(S32 ID)
 {
-	if(ID == 1)
-	{
-		return mLanguageSelection->getSelectedItemLabel(0);
-	}
-	else
-	{
-		return mLanguageSelection_2->getSelectedItemLabel(0);
-	}
+	return (ID == 1) ? mLanguageSelection->getSelectedItemLabel(0)
+					 : mLanguageSelection_2->getSelectedItemLabel(0);
 }
 
 // Get localized directory (build path from data directory to XUI files, substituting localization string in for language)
@@ -645,7 +650,7 @@ void LLFloaterUIPreview::refreshList()
 	std::string name;
 	BOOL found = TRUE;
 
-	LLDirIterator floater_iter(getLocalizedDirectory(), "floater_*.xml");
+	LLDirIterator floater_iter(getLocalizedDirectory(), LLStringExplicit("floater_*.xml"));
 	while(found)				// for every floater file that matches the pattern
 	{
 		if((found = floater_iter.next(name)))	// get next file matching pattern
@@ -655,7 +660,7 @@ void LLFloaterUIPreview::refreshList()
 	}
 	found = TRUE;
 
-	LLDirIterator inspect_iter(getLocalizedDirectory(), "inspect_*.xml");
+	LLDirIterator inspect_iter(getLocalizedDirectory(), LLStringExplicit("inspect_*.xml"));
 	while(found)				// for every inspector file that matches the pattern
 	{
 		if((found = inspect_iter.next(name)))	// get next file matching pattern
@@ -665,7 +670,7 @@ void LLFloaterUIPreview::refreshList()
 	}
 	found = TRUE;
 
-	LLDirIterator menu_iter(getLocalizedDirectory(), "menu_*.xml");
+	LLDirIterator menu_iter(getLocalizedDirectory(), LLStringExplicit("menu_*.xml"));
 	while(found)				// for every menu file that matches the pattern
 	{
 		if((found = menu_iter.next(name)))	// get next file matching pattern
@@ -675,7 +680,7 @@ void LLFloaterUIPreview::refreshList()
 	}
 	found = TRUE;
 
-	LLDirIterator panel_iter(getLocalizedDirectory(), "panel_*.xml");
+	LLDirIterator panel_iter(getLocalizedDirectory(), LLStringExplicit("panel_*.xml"));
 	while(found)				// for every panel file that matches the pattern
 	{
 		if((found = panel_iter.next(name)))	// get next file matching pattern
@@ -685,7 +690,7 @@ void LLFloaterUIPreview::refreshList()
 	}
 	found = TRUE;
 
-	LLDirIterator sidepanel_iter(getLocalizedDirectory(), "sidepanel_*.xml");
+	LLDirIterator sidepanel_iter(getLocalizedDirectory(), LLStringExplicit("sidepanel_*.xml"));
 	while(found)				// for every sidepanel file that matches the pattern
 	{
 		if((found = sidepanel_iter.next(name)))	// get next file matching pattern
@@ -704,13 +709,12 @@ void LLFloaterUIPreview::refreshList()
 // Note: no deduplification (shouldn't be necessary)
 void LLFloaterUIPreview::addFloaterEntry(const std::string& path)
 {
-	LLUUID* entry_id = new LLUUID();				// create a new UUID
-	entry_id->generate(path);
-	const LLUUID& entry_id_ref = *entry_id;			// get a reference to the UUID for the LLSD block
+	LLUUID entry_id;
+	entry_id.generate(path);
 
 	// fill LLSD column entry: initialize row/col structure
 	LLSD row;
-	row["id"] = entry_id_ref;
+	row["id"] = entry_id;
 	LLSD& columns = row["columns"];
 
 	// Get name of floater:
@@ -725,29 +729,29 @@ void LLFloaterUIPreview::addFloaterEntry(const std::string& path)
 		LLXmlTreeNode* root_floater = xml_tree.getRoot();
 		if (!root_floater)
 		{
-			std::string warning = std::string("No root node found in XUI file: ") + path;
+			std::string warning = LLStringExplicit("No root node found in XUI file: ") + path;
 			popupAndPrintWarning(warning);
 			return;
 		}
 
 		// get name
-		root_floater->getAttributeString("name",entry_name);
-		if(std::string("") == entry_name)
+		root_floater->getAttributeString(LLStringExplicit("name"), entry_name);
+		if (entry_name.empty())
 		{
 			entry_name = "Error: unable to load " + std::string(path);	// set to error state if load fails
 		}
 
 		// get title
-		root_floater->getAttributeString("title",entry_title); // some don't have a title, and some have title = "(unknown)", so just leave it blank if it fails
+		root_floater->getAttributeString(LLStringExplicit("title"), entry_title); // some don't have a title, and some have title = "(unknown)", so just leave it blank if it fails
 	}
 	else
 	{
-		std::string warning = std::string("Unable to parse XUI file: ") + path;	// error handling
+		std::string warning = std::string("Unable to parse XUI file: ").append(path);	// error handling
 		popupAndPrintWarning(warning);
 		if(mLiveFile)
 		{
 			delete mLiveFile;
-			mLiveFile = NULL;
+			mLiveFile = nullptr;
 		}
 		return;
 	}
@@ -760,7 +764,7 @@ void LLFloaterUIPreview::addFloaterEntry(const std::string& path)
 	// Fill floater path column
 	columns[1]["column"] = "file_column";
 	columns[1]["type"] = "text";
-	columns[1]["value"] = std::string(path);
+	columns[1]["value"] = path;
 
 	// Fill floater name column
 	columns[2]["column"] = "top_level_node_column";
@@ -780,7 +784,7 @@ void LLFloaterUIPreview::onClickDisplayFloater(S32 caller_id)
 void LLFloaterUIPreview::onClickSaveFloater(S32 caller_id)
 {
 	displayFloater(TRUE, caller_id);
-	popupAndPrintWarning("Save-floater functionality removed, use XML schema to clean up XUI files");
+	popupAndPrintWarning(LLStringExplicit("Save-floater functionality removed, use XML schema to clean up XUI files"));
 }
 
 // Saves all floater/panels
@@ -788,12 +792,12 @@ void LLFloaterUIPreview::onClickSaveAll(S32 caller_id)
 {
 	int listSize = mFileList->getItemCount();
 
-	for (int index = 0; index < listSize; index++)
+	for (S32 index = 0; index < listSize; index++)
 	{
 		mFileList->selectNthItem(index);
 		displayFloater(TRUE, caller_id);
 	}
-	popupAndPrintWarning("Save-floater functionality removed, use XML schema to clean up XUI files");
+	popupAndPrintWarning(LLStringExplicit("Save-floater functionality removed, use XML schema to clean up XUI files"));
 }
 
 // Actually display the floater
@@ -807,33 +811,33 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID)
 	LLPreviewedFloater** floaterp = (ID == 1 ? &(mDisplayedFloater) : &(mDisplayedFloater_2));
 	if(ID == 1)
 	{
-		BOOL floater_already_open = mDisplayedFloater != NULL;
+		BOOL floater_already_open = mDisplayedFloater != nullptr;
 		if(floater_already_open)											// if we are already displaying a floater
 		{
 			mLastDisplayedX = mDisplayedFloater->calcScreenRect().mLeft;	// save floater's last known position to put the new one there
 			mLastDisplayedY = mDisplayedFloater->calcScreenRect().mBottom;
 			delete mDisplayedFloater;							// delete it (this closes it too)
-			mDisplayedFloater = NULL;							// and reset the pointer
+			mDisplayedFloater = nullptr;							// and reset the pointer
 		}
 	}
 	else
 	{
-		if(mDisplayedFloater_2 != NULL)
+		if(mDisplayedFloater_2 != nullptr)
 		{
 			delete mDisplayedFloater_2;
-			mDisplayedFloater_2 = NULL;
+			mDisplayedFloater_2 = nullptr;
 		}
 	}
 
 	std::string path = mFileList->getSelectedItemLabel(1);		// get the path of the currently-selected floater
-	if(std::string("") == path)											// if no item is selected
+	if(path.empty())								// if no item is selected
 	{
-		return;															// ignore click (this can only happen with empty list; otherwise an item is always selected)
+		return;	// ignore click (this can only happen with empty list; otherwise an item is always selected)
 	}
 
 	LLFloater::Params p(LLFloater::getDefaultParams());
-	p.min_height=p.header_height;
-	p.min_width=10;
+	p.min_height = p.header_height;
+	p.min_width = 10;
 
 	*floaterp = new LLPreviewedFloater(this, p);
 
@@ -893,15 +897,15 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID)
 	}
 
 	// Add localization to title so user knows whether it's localized or defaulted to en
-	std::string full_path = getLocalizedDirectory() + path;
-	std::string floater_lang = "EN";
+	std::string full_path(getLocalizedDirectory().append(path));
+	std::string floater_lang("EN");
 	llstat dummy;
 	if(!LLFile::stat(full_path.c_str(), &dummy))	// if the file does not exist
 	{
 		floater_lang = getLocStr(ID);
 	}
-	std::string new_title = (*floaterp)->getTitle() + std::string(" [") + floater_lang +
-						(ID == 1 ? " - Primary" : " - Secondary") + std::string("]");
+	std::string new_title = (*floaterp)->getTitle() + LLStringExplicit(" [") + floater_lang +
+						(ID == 1 ? " - Primary" : " - Secondary") + LLStringExplicit("]");
 	(*floaterp)->setTitle(new_title);
 
 	(*floaterp)->center();
@@ -913,7 +917,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID)
 		if(mLiveFile)
 		{
 			delete mLiveFile;
-			mLiveFile = NULL;
+			mLiveFile = nullptr;
 		}
 		mLiveFile = new LLGUIPreviewLiveFile(std::string(full_path.c_str()),std::string(path.c_str()),this);
 		mLiveFile->checkAndReload();
@@ -933,8 +937,8 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID)
 	if(ID == 1)
 	{
 		mOverlapPanel->mOverlapMap.clear();
-		LLView::sPreviewClickedElement = NULL;	// stop overlapping elements from drawing
-		mOverlapPanel->mLastClickedElement = NULL;
+		LLView::sPreviewClickedElement = nullptr;	// stop overlapping elements from drawing
+		mOverlapPanel->mLastClickedElement = nullptr;
 		findOverlapsInChildren((LLView*)mDisplayedFloater);
 
 		// highlight and enable them
@@ -973,7 +977,7 @@ void LLFloaterUIPreview::onClickEditFloater()
 		llstat dummy;
 		if(LLFile::stat(file_path.c_str(), &dummy))								// if the file does not exist
 		{
-			popupAndPrintWarning("No file for this floater exists in the selected localization.  Opening the EN version instead.");
+			popupAndPrintWarning(LLStringExplicit("No file for this floater exists in the selected localization.  Opening the EN version instead."));
 			file_path = get_xui_dir() + mDelim + "en" + mDelim + file_name; // open the en version instead, by default
 		}
 	}
@@ -1037,37 +1041,37 @@ void LLFloaterUIPreview::onClickBrowseForEditor()
 #if LL_DARWIN
 	// on Mac, if it's an application bundle, figure out the actual path from the Info.plist file
 	CFStringRef path_cfstr = CFStringCreateWithCString(kCFAllocatorDefault, chosen_path.c_str(), kCFStringEncodingMacRoman);		// get path as a CFStringRef
-	CFURLRef path_url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, path_cfstr, kCFURLPOSIXPathStyle, TRUE);			// turn it into a CFURLRef
-	CFBundleRef chosen_bundle = CFBundleCreate(kCFAllocatorDefault, path_url);												// get a handle for the bundle
+	CFURLRef path_url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, path_cfstr, kCFURLPOSIXPathStyle, TRUE);	// turn it into a CFURLRef
+	CFRelease(path_cfstr);
+	CFBundleRef chosen_bundle = CFBundleCreate(kCFAllocatorDefault, path_url);	// get a handle for the bundle
+	CFRelease(path_url);
 	if(NULL != chosen_bundle)
 	{
 		CFDictionaryRef bundleInfoDict = CFBundleGetInfoDictionary(chosen_bundle);												// get the bundle's dictionary
 		if(NULL != bundleInfoDict)
 		{
 			CFStringRef executable_cfstr = (CFStringRef)CFDictionaryGetValue(bundleInfoDict, CFSTR("CFBundleExecutable"));	// get the name of the actual executable (e.g. TextEdit or firefox-bin)
-			int max_file_length = 256;																						// (max file name length is 255 in OSX)
+			int max_file_length = 256;	// (max file name length is 255 in OSX)
 			char executable_buf[max_file_length];
-			if(CFStringGetCString(executable_cfstr, executable_buf, max_file_length, kCFStringEncodingMacRoman))			// convert CFStringRef to char*
+			if(CFStringGetCString(executable_cfstr, executable_buf, max_file_length, kCFStringEncodingMacRoman))	// convert CFStringRef to char*
 			{
-				executable_path += std::string("/Contents/MacOS/") + std::string(executable_buf);							// append path to executable directory and then executable name to exec path
+				executable_path += std::string("/Contents/MacOS/") + std::string(executable_buf);	// append path to executable directory and then executable name to exec path
 			}
 			else
 			{
-				std::string warning = "Unable to get CString from CFString for executable path";
-				popupAndPrintWarning(warning);
+				popupAndPrintWarning(LLStringExplicit("Unable to get CString from CFString for executable path"));
 			}
 		}
 		else
 		{
-			std::string warning = "Unable to get bundle info dictionary from application bundle";
-			popupAndPrintWarning(warning);
+			popupAndPrintWarning(LLStringExplicit("Unable to get bundle info dictionary from application bundle"));
 		}
 	}
 	else
 	{
 		if(std::string::npos != executable_path.find(".app"))	// only warn if this path actually had ".app" in it, i.e. it probably just wasn'nt an app bundle and that's okay
 		{
-			std::string warning = std::string("Unable to get bundle from path \"") + chosen_path + std::string("\"");
+			std::string warning = LLStringExplicit("Unable to get bundle from path \"") + chosen_path + LLStringExplicit("\"");
 			popupAndPrintWarning(warning);
 		}
 	}
@@ -1080,9 +1084,8 @@ void LLFloaterUIPreview::onClickBrowseForEditor()
 void LLFloaterUIPreview::onClickBrowseForDiffs()
 {
 	// create load dialog box
-	LLFilePicker::ELoadFilter type = (LLFilePicker::ELoadFilter)((intptr_t)((void*)LLFilePicker::FFLOAD_XML));	// nothing for *.exe so just use all
 	LLFilePicker& picker = LLFilePicker::instance();
-	if (!picker.getOpenFile(type))	// user cancelled -- do nothing
+	if (!picker.getOpenFile(LLFilePicker::FFLOAD_EXE))	// user cancelled -- do nothing
 	{
 		return;
 	}
@@ -1090,7 +1093,7 @@ void LLFloaterUIPreview::onClickBrowseForDiffs()
 	// put the selected path into text field
 	const std::string chosen_path = picker.getFirstFile();
 	mDiffPathTextBox->setText(std::string(chosen_path));	// copy the path to the executable to the textfield for display and later fetching
-	if(LLView::sHighlightingDiffs)								// if we're already highlighting, toggle off and then on so we get the data from the new file
+	if(LLView::sHighlightingDiffs)	// if we're already highlighting, toggle off and then on so we get the data from the new file
 	{
 		onClickToggleDiffHighlighting();
 		onClickToggleDiffHighlighting();
@@ -1120,17 +1123,16 @@ void LLFloaterUIPreview::onClickToggleDiffHighlighting()
 		std::string path_in_textfield = mDiffPathTextBox->getText();	// get file path
 		BOOL error = FALSE;
 
-		if(std::string("") == path_in_textfield)									// check for blank file
+		if(path_in_textfield.empty())	// check for blank file
 		{
-			std::string warning = "Unable to highlight differences because no file was provided; fill in the relevant text field";
-			popupAndPrintWarning(warning);
+			popupAndPrintWarning(LLStringExplicit("Unable to highlight differences because no file was provided; fill in the relevant text field"));
 			error = TRUE;
 		}
 
 		llstat dummy;
 		if(LLFile::stat(path_in_textfield.c_str(), &dummy) && !error)			// check if the file exists (empty check is reduntant but useful for the informative error message)
 		{
-			std::string warning = std::string("Unable to highlight differences because an invalid path to a difference file was provided:\"") + path_in_textfield + "\"";
+			std::string warning = LLStringExplicit("Unable to highlight differences because an invalid path to a difference file was provided:\"") + path_in_textfield + "\"";
 			popupAndPrintWarning(warning);
 			error = TRUE;
 		}
@@ -1145,7 +1147,7 @@ void LLFloaterUIPreview::onClickToggleDiffHighlighting()
 			if(!strncmp("XuiDelta",root_floater->getName().c_str(),9))
 			{
 				for (LLXmlTreeNode* child = root_floater->getFirstChild();		// get the first child first, then below get the next one; otherwise the iterator is invalid (bug or feature in XML code?)
-					 child != NULL;
+					 child != nullptr;
  					 child = root_floater->getNextChild())	// get child for next iteration
 				{
 					if(!strncmp("file",child->getName().c_str(),5))
@@ -1159,7 +1161,7 @@ void LLFloaterUIPreview::onClickToggleDiffHighlighting()
 						child->getAttributeString("message",error_message);
 						if(mDiffsMap.find(error_file) != mDiffsMap.end())
 						{
-							mDiffsMap.insert(std::make_pair(error_file,std::make_pair(StringListPtr(new StringList), StringListPtr(new StringList))));
+							mDiffsMap.insert(std::make_pair(error_file,std::make_pair(std::make_shared<StringList>(), std::make_shared<StringList>())));
 						}
 						mDiffsMap[error_file].second->push_back(error_message);
 					}
@@ -1174,14 +1176,14 @@ void LLFloaterUIPreview::onClickToggleDiffHighlighting()
 			}
 			else
 			{
-				std::string warning = std::string("Root node not named XuiDelta:\"") + path_in_textfield + "\"";
+				std::string warning = LLStringExplicit("Root node not named XuiDelta:\"") + path_in_textfield + "\"";
 				popupAndPrintWarning(warning);
 				error = TRUE;
 			}
 		}
 		else if(!error)
 		{
-			std::string warning = std::string("Unable to create tree from XML:\"") + path_in_textfield + "\"";
+			std::string warning = LLStringExplicit("Unable to create tree from XML:\"") + path_in_textfield + "\"";
 			popupAndPrintWarning(warning);
 			error = TRUE;
 		}
@@ -1204,16 +1206,16 @@ void LLFloaterUIPreview::scanDiffFile(LLXmlTreeNode* file_node)
 	// Get file name
 	std::string file_name;
 	file_node->getAttributeString("name",file_name);
-	if(std::string("") == file_name)
+	if(file_name.empty())
 	{
-		std::string warning = std::string("Empty file name encountered in differences:\"") + file_name + "\"";
+		std::string warning = LLStringExplicit("Empty file name encountered in differences:\"") + file_name + "\"";
 		popupAndPrintWarning(warning);
 		return;
 	}
 
 	// Get a list of changed elements
 	// Get the first child first, then below get the next one; otherwise the iterator is invalid (bug or feature in XML code?)
-	for (LLXmlTreeNode* child = file_node->getFirstChild(); child != NULL; child = file_node->getNextChild())
+	for (LLXmlTreeNode* child = file_node->getFirstChild(); child != nullptr; child = file_node->getNextChild())
 	{
 		if(!strncmp("delta",child->getName().c_str(),6))
 		{
@@ -1221,13 +1223,13 @@ void LLFloaterUIPreview::scanDiffFile(LLXmlTreeNode* file_node)
 			child->getAttributeString("id",id);
 			if(mDiffsMap.find(file_name) == mDiffsMap.end())
 			{
-				mDiffsMap.insert(std::make_pair(file_name,std::make_pair(StringListPtr(new StringList), StringListPtr(new StringList))));
+				mDiffsMap.insert(std::make_pair(file_name,std::make_pair(std::make_shared<StringList>(), std::make_shared<StringList>())));
 			}
 			mDiffsMap[file_name].first->push_back(std::string(id.c_str()));
 		}
 		else
 		{
-			std::string warning = std::string("Child of file was not a delta, but rather the following:\"") + std::string(child->getName()) + "\"";
+			std::string warning = LLStringExplicit("Child of file was not a delta, but rather the following:\"") + child->getName() + "\"";
 			popupAndPrintWarning(warning);
 			return;
 		}
@@ -1236,7 +1238,7 @@ void LLFloaterUIPreview::scanDiffFile(LLXmlTreeNode* file_node)
 
 void LLFloaterUIPreview::highlightChangedElements()
 {
-	if(NULL == mLiveFile)
+	if(nullptr == mLiveFile)
 	{
 		return;
 	}
@@ -1269,7 +1271,7 @@ void LLFloaterUIPreview::highlightChangedElements()
 				element = element->findChild<LLView>(*token_iter, FALSE);	// try to find element: don't recur, and don't create if missing
 
 				// if we still didn't find it...
-				if (NULL == element)
+				if (nullptr == element)
 				{
 					LL_INFOS() << "Unable to find element in XuiDelta file named \"" << *iter << "\" in file \"" << mLiveFile->mFileName <<
 						"\". The element may no longer exist, the path may be incorrect, or it may not be a non-displayable element (not an LLView) such as a \"string\" type." << LL_ENDL;
@@ -1298,7 +1300,7 @@ void LLFloaterUIPreview::highlightChangedElements()
 	}
 	if (error_list)
 	{
-                for (std::list<std::string>::iterator iter = error_list->begin(); iter != error_list->end(); ++iter)	// for every changed element path
+		for (std::list<std::string>::iterator iter = error_list->begin(); iter != error_list->end(); ++iter)	// for every changed element path
 		{
 			std::string warning = LLStringExplicit("Error listed among differences.  Filename: \"") + mLiveFile->mFileName + "\".  Message: \"" + *iter + "\"";
 			popupAndPrintWarning(warning);
@@ -1331,13 +1333,13 @@ void LLFloaterUIPreview::onClickCloseDisplayedFloater(S32 caller_id)
 			mLastDisplayedX = mDisplayedFloater->calcScreenRect().mLeft;
 			mLastDisplayedY = mDisplayedFloater->calcScreenRect().mBottom;
 			delete mDisplayedFloater;
-			mDisplayedFloater = NULL;
+			mDisplayedFloater = nullptr;
 		}
 
 		if(mLiveFile)
 		{
 			delete mLiveFile;
-			mLiveFile = NULL;
+			mLiveFile = nullptr;
 		}
 
 		if(mToggleOverlapButton->getToggleState())
@@ -1346,14 +1348,14 @@ void LLFloaterUIPreview::onClickCloseDisplayedFloater(S32 caller_id)
 			onClickToggleOverlapping();
 		}
 
-		LLView::sPreviewClickedElement = NULL;	// stop overlapping elements panel from drawing
-		mOverlapPanel->mLastClickedElement = NULL;
+		LLView::sPreviewClickedElement = nullptr;	// stop overlapping elements panel from drawing
+		mOverlapPanel->mLastClickedElement = nullptr;
 	}
 	else
 	{
 		mCloseOtherButton_2->setEnabled(FALSE);
 		delete mDisplayedFloater_2;
-		mDisplayedFloater_2 = NULL;
+		mDisplayedFloater_2 = nullptr;
 	}
 
 }
@@ -1476,7 +1478,7 @@ BOOL LLPreviewedFloater::selectElement(LLView* parent, int x, int y, int depth)
 
 void LLPreviewedFloater::draw()
 {
-	if(NULL != mFloaterUIPreview)
+	if(nullptr != mFloaterUIPreview)
 	{
 		// Set and unset sDrawPreviewHighlights flag so as to avoid using two flags
 		if(mFloaterUIPreview->mHighlightingOverlaps)
@@ -1574,16 +1576,16 @@ void LLFloaterUIPreview::findOverlapsInChildren(LLView* parent)
 // *NOTE: If a list of elements which have localizable content were created, this function should return false if viewp's class is in that list.
 BOOL LLFloaterUIPreview::overlapIgnorable(LLView* viewp)
 {
-	return	NULL != dynamic_cast<LLDragHandle*>(viewp) ||
-			NULL != dynamic_cast<LLViewBorder*>(viewp) ||
-			NULL != dynamic_cast<LLResizeBar*>(viewp);
+	return nullptr != dynamic_cast<LLDragHandle*>(viewp) ||
+		nullptr != dynamic_cast<LLViewBorder*>(viewp) ||
+		nullptr != dynamic_cast<LLResizeBar*>(viewp);
 }
 
 // *HACK: these are the only two container types as of 8/08, per Richard
 // This is using dynamic casts because there is no object-oriented way to tell which elements are containers.
 BOOL LLFloaterUIPreview::containerType(LLView* viewp)
 {
-	return NULL != dynamic_cast<LLPanel*>(viewp) || NULL != dynamic_cast<LLLayoutStack*>(viewp);
+	return nullptr != dynamic_cast<LLPanel*>(viewp) || nullptr != dynamic_cast<LLLayoutStack*>(viewp);
 }
 
 // Check if two llview's rectangles overlap, with some tolerance
@@ -1610,7 +1612,7 @@ void LLOverlapPanel::draw()
 		LLUI::translate(5,getRect().getHeight()-20);	// translate to top-5,left-5
 		LLView::sDrawPreviewHighlights = FALSE;
 		LLFontGL::getFontSansSerifSmall()->renderUTF8(current_selection_text, 0, 0, 0, text_color,
-				LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
+				LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, nullptr, FALSE);
 	}
 	else
 	{
@@ -1628,7 +1630,7 @@ void LLOverlapPanel::draw()
 			std::string current_selection = std::string(current_selection_text + LLView::sPreviewClickedElement->getName() + " (no elements overlap)");
 			S32 text_width = LLFontGL::getFontSansSerifSmall()->getWidth(current_selection) + 10;
 			LLFontGL::getFontSansSerifSmall()->renderUTF8(current_selection, 0, 0, 0, text_color,
-					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
+					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, nullptr, FALSE);
 			// widen panel enough to fit this text
 			LLRect rect = getRect();
 			setRect(LLRect(rect.mLeft,rect.mTop,rect.getWidth() < text_width ? rect.mLeft + text_width : rect.mRight,rect.mTop));
@@ -1637,12 +1639,12 @@ void LLOverlapPanel::draw()
 
 		// recalculate required with and height; otherwise use cached
 		BOOL need_to_recalculate_bounds = FALSE;
-		if(mLastClickedElement == NULL)
+		if(mLastClickedElement == nullptr)
 		{
 			need_to_recalculate_bounds = TRUE;
 		}
 
-		if(NULL == mLastClickedElement)
+		if(nullptr == mLastClickedElement)
 		{
 			mLastClickedElement = LLView::sPreviewClickedElement;
 		}
@@ -1694,7 +1696,7 @@ void LLOverlapPanel::draw()
 		// draw currently-selected element at top of overlappers
 		LLUI::translate(0,-mSpacing);
 		LLFontGL::getFontSansSerifSmall()->renderUTF8(current_selection_text + LLView::sPreviewClickedElement->getName(), 0, 0, 0, text_color,
-				LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
+				LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, nullptr, FALSE);
 		LLUI::translate(0,-mSpacing-LLView::sPreviewClickedElement->getRect().getHeight());	// skip spacing distance + height
 		LLView::sPreviewClickedElement->draw();
 
@@ -1709,7 +1711,7 @@ void LLOverlapPanel::draw()
 			// draw name
 			LLUI::translate(0,-mSpacing);
 			LLFontGL::getFontSansSerifSmall()->renderUTF8(overlapper_text + viewp->getName(), 0, 0, 0, text_color,
-					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
+					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, nullptr, FALSE);
 
 			// draw element
 			LLUI::translate(0,-mSpacing-viewp->getRect().getHeight());	// skip spacing distance + height

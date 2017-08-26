@@ -82,7 +82,7 @@ public:
 	//--------------------------------------------------------------------
 	// LLInvFVBridge functionality
 	//--------------------------------------------------------------------
-	virtual const LLUUID& getUUID() const { return mUUID; }
+	const LLUUID& getUUID() const override { return mUUID; }
 	virtual void clearDisplayName() { mDisplayName.clear(); }
 	virtual void restoreItem() {}
 	virtual void restoreToWorld() {}
@@ -90,50 +90,52 @@ public:
 	//--------------------------------------------------------------------
 	// Inherited LLFolderViewModelItemInventory functions
 	//--------------------------------------------------------------------
-	virtual const std::string& getName() const;
-	virtual const std::string& getDisplayName() const;
-	const std::string& getSearchableName() const { return mSearchableName; }
+	const std::string& getName() const override;
+	const std::string& getDisplayName() const override;
+	const std::string& getSearchableName() const override { return mSearchableName; }
 
-	virtual PermissionMask getPermissionMask() const;
-	virtual LLFolderType::EType getPreferredType() const;
-	virtual time_t getCreationDate() const;
-        virtual void setCreationDate(time_t creation_date_utc);
-	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
-	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
-	virtual void openItem() {}
-	virtual void closeItem() {}
-	virtual void showProperties();
-	virtual BOOL isItemRenameable() const { return TRUE; }
+	PermissionMask getPermissionMask() const override;
+	LLFolderType::EType getPreferredType() const override;
+	time_t getCreationDate() const override;
+	void setCreationDate(time_t creation_date_utc) override;
+	LLFontGL::StyleFlags getLabelStyle() const override { return LLFontGL::NORMAL; }
+	std::string getLabelSuffix() const override { return LLStringUtil::null; }
+	void openItem() override {}
+	void closeItem() override {}
+	void showProperties() override;
+	BOOL isItemRenameable() const override { return TRUE; }
 	//virtual BOOL renameItem(const std::string& new_name) {}
-	virtual BOOL isItemRemovable() const;
-	virtual BOOL isItemMovable() const;
-	virtual BOOL isItemInTrash() const;
+	BOOL isItemRemovable() const override;
+	BOOL isItemMovable() const override;
+	BOOL isItemInTrash() const override;
 	virtual BOOL isLink() const;
 	virtual BOOL isLibraryItem() const;
 	//virtual BOOL removeItem() = 0;
-	virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch);
-	virtual void move(LLFolderViewModelItem* new_parent_bridge) {}
-	virtual BOOL isItemCopyable() const { return FALSE; }
-	virtual BOOL copyToClipboard() const;
-	virtual BOOL cutToClipboard();
-	virtual bool isCutToClipboard();
-	virtual BOOL isClipboardPasteable() const;
+	void removeBatch(std::vector<LLFolderViewModelItem*>& batch) override;
+	void move(LLFolderViewModelItem* new_parent_bridge) override {}
+	BOOL isItemCopyable() const override { return FALSE; }
+	BOOL copyToClipboard() const override;
+	BOOL cutToClipboard() override;
+	bool isCutToClipboard() override;
+	BOOL isClipboardPasteable() const override;
 	virtual BOOL isClipboardPasteableAsLink() const;
-	virtual void pasteFromClipboard() {}
-	virtual void pasteLinkFromClipboard() {}
+	void pasteFromClipboard() override {}
+	void pasteLinkFromClipboard() override {}
 	void getClipboardEntries(bool show_asset_id, menuentry_vec_t &items, 
 							 menuentry_vec_t &disabled_items, U32 flags);
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-    virtual LLToolDragAndDrop::ESource getDragSource() const;
-	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
-	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	LLToolDragAndDrop::ESource getDragSource() const override;
+	BOOL startDrag(EDragAndDropType* type, LLUUID* id) const override;
+
+	BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
 							void* cargo_data,
-							std::string& tooltip_msg) { return FALSE; }
-	virtual LLInventoryType::EType getInventoryType() const { return mInvType; }
-	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
-        EInventorySortGroup getSortGroup()  const { return SG_ITEM; }
-	virtual LLInventoryObject* getInventoryObject() const;
+							std::string& tooltip_msg) override { return FALSE; }
+
+	LLInventoryType::EType getInventoryType() const override { return mInvType; }
+	LLWearableType::EType getWearableType() const override { return LLWearableType::WT_NONE; }
+        EInventorySortGroup getSortGroup()  const override { return SG_ITEM; }
+	LLInventoryObject* getInventoryObject() const override;
 
 
 	//--------------------------------------------------------------------
@@ -148,6 +150,9 @@ protected:
 	virtual void addMarketplaceContextMenuOptions(U32 flags,
 											 menuentry_vec_t &items,
 											 menuentry_vec_t &disabled_items);
+	virtual void addLinkReplaceMenuOption(menuentry_vec_t& items,
+										  menuentry_vec_t& disabled_items);
+
 protected:
 	LLInvFVBridge(LLInventoryPanel* inventory, LLFolderView* root, const LLUUID& uuid);
 
@@ -189,14 +194,6 @@ protected:
 	void purgeItem(LLInventoryModel *model, const LLUUID &uuid);
 	void removeObject(LLInventoryModel *model, const LLUUID &uuid);
 	virtual void buildDisplayName() const {}
-
-	// <FS:ND> Reintegrate search by uuid/creator/descripting from Zi Ree after CHUI Merge
-public:
-	virtual std::string getSearchableCreator( void ) const;
-	virtual std::string getSearchableDescription( void ) const;
-	virtual std::string getSearchableUUID( void ) const;
-	virtual std::string getSearchableAll( void ) const;
-	// </FS:ND>
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -228,32 +225,32 @@ public:
 				 const LLUUID& uuid) :
 		LLInvFVBridge(inventory, root, uuid) {}
 
-	typedef boost::function<void(std::string& slurl)> slurl_callback_t;
+	typedef std::function<void(std::string& slurl)> slurl_callback_t;
 
-	virtual void performAction(LLInventoryModel* model, std::string action);
-	virtual void selectItem();
-	virtual void restoreItem();
-	virtual void restoreToWorld();
+	void performAction(LLInventoryModel* model, std::string action) override;
+	void selectItem() override;
+	void restoreItem() override;
+	void restoreToWorld() override;
 	virtual void gotoItem();
-	virtual LLUIImagePtr getIcon() const;
-	virtual std::string getLabelSuffix() const;
-	virtual LLFontGL::StyleFlags getLabelStyle() const;
-	virtual PermissionMask getPermissionMask() const;
-	virtual time_t getCreationDate() const;
-	virtual BOOL isItemRenameable() const;
-	virtual BOOL renameItem(const std::string& new_name);
-	virtual BOOL removeItem();
-	virtual BOOL isItemCopyable() const;
-	virtual bool hasChildren() const { return FALSE; }
-	virtual BOOL isUpToDate() const { return TRUE; }
-	virtual LLUIImagePtr getIconOverlay() const;
+	LLUIImagePtr getIcon() const override;
+	std::string getLabelSuffix() const override;
+	LLFontGL::StyleFlags getLabelStyle() const override;
+	PermissionMask getPermissionMask() const override;
+	time_t getCreationDate() const override;
+	BOOL isItemRenameable() const override;
+	BOOL renameItem(const std::string& new_name) override;
+	BOOL removeItem() override;
+	BOOL isItemCopyable() const override;
+	bool hasChildren() const override { return FALSE; }
+	BOOL isUpToDate() const override { return TRUE; }
+	LLUIImagePtr getIconOverlay() const override;
 
 	LLViewerInventoryItem* getItem() const;
 
 protected:
 	BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);
-	virtual BOOL isItemPermissive() const;
-	virtual void buildDisplayName() const;
+	BOOL isItemPermissive() const override;
+	void buildDisplayName() const override;
 	void doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb);
 
 private:
@@ -277,48 +274,48 @@ public:
     void callback_dropItemIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryItem* inv_item);
     void callback_dropCategoryIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryCategory* inv_category);
 
-    virtual void buildDisplayName() const;
+	void buildDisplayName() const override;
 
-	virtual void performAction(LLInventoryModel* model, std::string action);
-	virtual void openItem();
-	virtual void closeItem();
-	virtual BOOL isItemRenameable() const;
-	virtual void selectItem();
-	virtual void restoreItem();
+	void performAction(LLInventoryModel* model, std::string action) override;
+	void openItem() override;
+	void closeItem() override;
+	BOOL isItemRenameable() const override;
+	void selectItem() override;
+	void restoreItem() override;
 
-	virtual LLFolderType::EType getPreferredType() const;
-	virtual LLUIImagePtr getIcon() const;
-	virtual LLUIImagePtr getIconOpen() const;
-	virtual LLUIImagePtr getIconOverlay() const;
+	LLFolderType::EType getPreferredType() const override;
+	LLUIImagePtr getIcon() const override;
+	LLUIImagePtr getIconOpen() const override;
+	LLUIImagePtr getIconOverlay() const override;
 	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
-	virtual std::string getLabelSuffix() const;
-	virtual LLFontGL::StyleFlags getLabelStyle() const;
+	std::string getLabelSuffix() const override;
+	LLFontGL::StyleFlags getLabelStyle() const override;
 
-	virtual BOOL renameItem(const std::string& new_name);
+	BOOL renameItem(const std::string& new_name) override;
 
-	virtual BOOL removeItem();
+	BOOL removeItem() override;
 	BOOL removeSystemFolder();
 	bool removeItemResponse(const LLSD& notification, const LLSD& response);
     void updateHierarchyCreationDate(time_t date);
 
-	virtual void pasteFromClipboard();
-	virtual void pasteLinkFromClipboard();
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual bool hasChildren() const;
-	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+	void pasteFromClipboard() override;
+	void pasteLinkFromClipboard() override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	bool hasChildren() const override;
+	BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
 							void* cargo_data,
-							std::string& tooltip_msg);
+							std::string& tooltip_msg) override;
 
-	virtual BOOL isItemRemovable() const;
-	virtual BOOL isItemMovable() const ;
-	virtual BOOL isUpToDate() const;
-	virtual BOOL isItemCopyable() const;
-	virtual BOOL isClipboardPasteable() const;
-	virtual BOOL isClipboardPasteableAsLink() const;
+	BOOL isItemRemovable() const override;
+	BOOL isItemMovable() const override;
+	BOOL isUpToDate() const override;
+	BOOL isItemCopyable() const override;
+	BOOL isClipboardPasteable() const override;
+	BOOL isClipboardPasteableAsLink() const override;
 	
-	EInventorySortGroup getSortGroup()  const;
-	virtual void update();
+	EInventorySortGroup getSortGroup()  const override;
+	void update() override;
 
 	static void createWearable(LLFolderBridge* bridge, LLWearableType::EType type);
 
@@ -390,10 +387,11 @@ public:
 	{
 		mInvType = type;
 	}
-	virtual LLUIImagePtr getIcon() const;
-	virtual void openItem();
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual void performAction(LLInventoryModel* model, std::string action);
+
+	LLUIImagePtr getIcon() const override;
+	void openItem() override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	void performAction(LLInventoryModel* model, std::string action) override;
 	bool canSaveTexture(void);
 };
 
@@ -404,9 +402,10 @@ public:
 				  LLFolderView* root,
 				  const LLUUID& uuid) :
 		LLItemBridge(inventory, root, uuid) {}
-	virtual void openItem();
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual void performAction(LLInventoryModel* model, std::string action);
+
+	void openItem() override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	void performAction(LLInventoryModel* model, std::string action) override;
 	static void openSoundPreview(void*);
 };
 
@@ -417,10 +416,10 @@ public:
 					 LLFolderView* root,
 					 const LLUUID& uuid, 
 					 U32 flags = 0x00);
-	virtual void performAction(LLInventoryModel* model, std::string action);
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual LLUIImagePtr getIcon() const;
-	virtual void openItem();
+	void performAction(LLInventoryModel* model, std::string action) override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	LLUIImagePtr getIcon() const override;
+	void openItem() override;
 protected:
 	BOOL mVisited;
 };
@@ -432,16 +431,16 @@ public:
 						LLFolderView* folder,
 						const LLUUID& uuid );
 	~LLCallingCardBridge();
-	virtual std::string getLabelSuffix() const;
+	std::string getLabelSuffix() const override;
 	//virtual const std::string& getDisplayName() const;
-	virtual LLUIImagePtr getIcon() const;
-	virtual void performAction(LLInventoryModel* model, std::string action);
-	virtual void openItem();
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+	LLUIImagePtr getIcon() const override;
+	void performAction(LLInventoryModel* model, std::string action) override;
+	void openItem() override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
 							void* cargo_data,
-							std::string& tooltip_msg);
+							std::string& tooltip_msg) override;
 	void refreshFolderViewItem();
 	void checkSearchBySuffixChanges();
 protected:
@@ -455,8 +454,9 @@ public:
 					 LLFolderView* root,
 					 const LLUUID& uuid) :
 		LLItemBridge(inventory, root, uuid) {}
-	virtual void openItem();
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+
+	void openItem() override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
 };
 
 class LLGestureBridge : public LLItemBridge
@@ -468,12 +468,12 @@ public:
 		LLItemBridge(inventory, root, uuid) {}
 	// Only suffix for gesture items, not task items, because only
 	// gestures in your inventory can be active.
-	virtual LLFontGL::StyleFlags getLabelStyle() const;
-	virtual std::string getLabelSuffix() const;
-	virtual void performAction(LLInventoryModel* model, std::string action);
-	virtual void openItem();
-	virtual BOOL removeItem();
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+	LLFontGL::StyleFlags getLabelStyle() const override;
+	std::string getLabelSuffix() const override;
+	void performAction(LLInventoryModel* model, std::string action) override;
+	void openItem() override;
+	BOOL removeItem() override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
 	static void playGesture(const LLUUID& item_id);
 };
 
@@ -484,9 +484,10 @@ public:
 					  LLFolderView* root, 
 					  const LLUUID& uuid) :
 		LLItemBridge(inventory, root, uuid) {}
-	virtual void performAction(LLInventoryModel* model, std::string action);
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual void openItem();
+
+	void performAction(LLInventoryModel* model, std::string action) override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	void openItem() override;
 };
 
 class LLObjectBridge : public LLItemBridge
@@ -497,13 +498,13 @@ public:
 				   const LLUUID& uuid, 
 				   LLInventoryType::EType type, 
 				   U32 flags);
-	virtual LLUIImagePtr	getIcon() const;
-	virtual void			performAction(LLInventoryModel* model, std::string action);
-	virtual void			openItem();
-    virtual BOOL isItemWearable() const { return TRUE; }
-	virtual std::string getLabelSuffix() const;
-	virtual void			buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual BOOL renameItem(const std::string& new_name);
+	LLUIImagePtr	getIcon() const override;
+	void			performAction(LLInventoryModel* model, std::string action) override;
+	void			openItem() override;
+	BOOL isItemWearable() const override { return TRUE; }
+	std::string getLabelSuffix() const override;
+	void			buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	BOOL renameItem(const std::string& new_name) override;
 	LLInventoryObject* getObject() const;
 protected:
 	static LLUUID sContextMenuItemID;  // Only valid while the context menu is open.
@@ -518,7 +519,8 @@ public:
 					LLFolderView* root, 
 					const LLUUID& uuid ) :
 		LLItemBridge(inventory, root, uuid) {}
-	virtual void openItem();
+
+	void openItem() override;
 };
 
 class LLWearableBridge : public LLItemBridge
@@ -530,21 +532,21 @@ public:
 					 LLAssetType::EType asset_type, 
 					 LLInventoryType::EType inv_type, 
 					 LLWearableType::EType wearable_type);
-	virtual LLUIImagePtr getIcon() const;
-	virtual void	performAction(LLInventoryModel* model, std::string action);
-	virtual void	openItem();
-    virtual BOOL isItemWearable() const { return TRUE; }
-	virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual std::string getLabelSuffix() const;
-	virtual BOOL renameItem(const std::string& new_name);
-	virtual LLWearableType::EType getWearableType() const { return mWearableType; }
+	LLUIImagePtr getIcon() const override;
+	void	performAction(LLInventoryModel* model, std::string action) override;
+	void	openItem() override;
+	BOOL isItemWearable() const override { return TRUE; }
+	void	buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	std::string getLabelSuffix() const override;
+	BOOL renameItem(const std::string& new_name) override;
+	LLWearableType::EType getWearableType() const override { return mWearableType; }
 
 	static void		onWearOnAvatar( void* userdata );	// Access to wearOnAvatar() from menu
 	static BOOL		canWearOnAvatar( void* userdata );
-//	static void		onWearOnAvatarArrived( LLViewerWearable* wearable, void* userdata );
+	static void		onWearOnAvatarArrived( LLViewerWearable* wearable, void* userdata );
 	void			wearOnAvatar();
 
-//	static void		onWearAddOnAvatarArrived( LLViewerWearable* wearable, void* userdata );
+	static void		onWearAddOnAvatarArrived( LLViewerWearable* wearable, void* userdata );
 	void			wearAddOnAvatar();
 
 	static BOOL		canEditOnAvatar( void* userdata );	// Access to editOnAvatar() from menu
@@ -567,7 +569,7 @@ public:
 					 const LLUUID& uuid) :
 		LLItemBridge(inventory, root, uuid) {}
 	virtual const std::string& getPrefix() { return sPrefix; }
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
 protected:
 	static std::string sPrefix;
 };
@@ -580,10 +582,10 @@ public:
 					   const LLUUID& uuid) :
 		LLItemBridge(inventory, root, uuid) {}
 	virtual const std::string& getPrefix() { return sPrefix; }
-	virtual LLUIImagePtr getIcon() const;
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual void performAction(LLInventoryModel* model, std::string action);
-	virtual void gotoItem();
+	LLUIImagePtr getIcon() const override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
+	void performAction(LLInventoryModel* model, std::string action) override;
+	void gotoItem() override;
 protected:
 	const LLUUID &getFolderID() const;
 	static std::string sPrefix;
@@ -594,9 +596,9 @@ class LLMeshBridge : public LLItemBridge
 {
 	friend class LLInvFVBridge;
 public:
-	virtual LLUIImagePtr getIcon() const;
-	virtual void openItem();
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+	LLUIImagePtr getIcon() const override;
+	void openItem() override;
+	void buildContextMenu(LLMenuGL& menu, U32 flags) override;
 
 protected:
 	LLMeshBridge(LLInventoryPanel* inventory, 
@@ -640,7 +642,7 @@ class LLMeshBridgeAction: public LLInvFVBridgeAction
 {
 	friend class LLInvFVBridgeAction;
 public:
-	virtual void	doIt() ;
+	void	doIt() override;
 	virtual ~LLMeshBridgeAction(){}
 protected:
 	LLMeshBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
@@ -667,7 +669,7 @@ public:
 	{
 		mInvType = type;
 	}
-	/*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags);
+	/*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags) override;
 };
 
 // Bridge builder to create Inventory-Folder-View-Bridge for Recent Inventory Panel
@@ -677,14 +679,14 @@ public:
 	LLRecentInventoryBridgeBuilder() {}
 	// Overrides FolderBridge for Recent Inventory Panel.
 	// It use base functionality for bridges other than FolderBridge.
-	virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
+	LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
 		LLAssetType::EType actual_asset_type,
 		LLInventoryType::EType inv_type,
 		LLInventoryPanel* inventory,
 		LLFolderViewModelInventory* view_model,
 		LLFolderView* root,
 		const LLUUID& uuid,
-		U32 flags = 0x00) const;
+		U32 flags = 0x00) const override;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -698,11 +700,11 @@ public:
 	LLMarketplaceFolderBridge(LLInventoryPanel* inventory,
 							  LLFolderView* root,
                               const LLUUID& uuid);
-    
-	virtual LLUIImagePtr getIcon() const;
-	virtual LLUIImagePtr getIconOpen() const;
-	virtual std::string getLabelSuffix() const;
-	virtual LLFontGL::StyleFlags getLabelStyle() const;
+
+	LLUIImagePtr getIcon() const override;
+	LLUIImagePtr getIconOpen() const override;
+	std::string getLabelSuffix() const override;
+	LLFontGL::StyleFlags getLabelStyle() const override;
     
 private:
     LLUIImagePtr getMarketplaceFolderIcon(BOOL is_open) const;
@@ -711,41 +713,35 @@ private:
     mutable S32 m_stockCountCache;
 };
 
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Worn Inventory Panel related classes
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Overridden version of the Inventory-Folder-View-Bridge for Folders
-class LLWornItemsFolderBridge : public LLFolderBridge
+class LLWornInventoryFolderBridge : public LLFolderBridge
 {
+	friend class LLInvFVBridgeAction;
 public:
-	// Creates context menu for Folders related to Worn Inventory Panel.
-	// Uses base logic and than removes from visible items "New..." menu items.
-	LLWornItemsFolderBridge(LLInventoryType::EType type,
-							LLInventoryPanel* inventory,
-							LLFolderView* root,
-							const LLUUID& uuid) :
-		LLFolderBridge(inventory, root, uuid)
+	LLWornInventoryFolderBridge(LLInventoryType::EType type,
+								LLInventoryPanel* inventory,
+								LLFolderView* root,
+								const LLUUID& uuid) :
+	LLFolderBridge(inventory, root, uuid)
 	{
 		mInvType = type;
 	}
-	/*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags);
+	/*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags) override;
 };
-// Bridge builder to create Inventory-Folder-View-Bridge for Worn Inventory Panel
+
 class LLWornInventoryBridgeBuilder : public LLInventoryFolderViewModelBuilder
 {
 public:
-	// Overrides FolderBridge for Worn Inventory Panel.
-	// It use base functionality for bridges other than FolderBridge.
-	virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
-		LLAssetType::EType actual_asset_type,
-		LLInventoryType::EType inv_type,
-		LLInventoryPanel* inventory,
-		LLFolderViewModelInventory* view_model,
-		LLFolderView* root,
-		const LLUUID& uuid,
-		U32 flags = 0x00) const;
+	LLWornInventoryBridgeBuilder() {}
+	LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
+										LLAssetType::EType actual_asset_type,
+										LLInventoryType::EType inv_type,
+										LLInventoryPanel* inventory,
+										LLFolderViewModelInventory* view_model,
+										LLFolderView* root,
+										const LLUUID& uuid,
+										U32 flags = 0x00) const override;
 };
+
 void rez_attachment(LLViewerInventoryItem* item, 
 					LLViewerJointAttachment* attachment,
 					bool replace = false);
@@ -755,9 +751,9 @@ void rez_attachment(LLViewerInventoryItem* item,
 BOOL move_inv_category_world_to_agent(const LLUUID& object_id, 
 									  const LLUUID& category_id,
 									  BOOL drop,
-									  void (*callback)(S32, void*) = NULL,
-									  void* user_data = NULL,
-									  LLInventoryFilter* filter = NULL);
+									  void (*callback)(S32, void*) = nullptr,
+									  void* user_data = nullptr,
+									  LLInventoryFilter* filter = nullptr);
 
 // Utility function to hide all entries except those in the list
 // Can be called multiple times on the same menu (e.g. if multiple items
@@ -777,7 +773,7 @@ class LLFolderViewGroupedItemBridge: public LLFolderViewGroupedItemModel
 {
 public:
     LLFolderViewGroupedItemBridge();
-    virtual void groupFilterContextMenu(folder_view_item_deque& selected_items, LLMenuGL& menu);
+	void groupFilterContextMenu(folder_view_item_deque& selected_items, LLMenuGL& menu) override;
 };
 
 #endif // LL_LLINVENTORYBRIDGE_H

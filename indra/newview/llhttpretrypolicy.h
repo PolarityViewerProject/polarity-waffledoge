@@ -55,9 +55,6 @@ public:
 	virtual bool shouldRetry(F32& seconds_to_wait) const = 0;
 
 	virtual void reset() = 0;
-// [SL:KB] - Patch: Appearance-AISFilter | Checked: 2015-06-27 (Catznip-3.7)
-	virtual void cancelRetry() = 0;
-// [/SL:KB]
 };
 
 // Very general policy with geometric back-off after failures,
@@ -68,19 +65,16 @@ public:
 	LLAdaptiveRetryPolicy(F32 min_delay, F32 max_delay, F32 backoff_factor, U32 max_retries, bool retry_on_4xx = false);
 
 	// virtual
-	void onSuccess();
+	void onSuccess() override;
 
-	void reset();
-// [SL:KB] - Patch: Appearance-AISFilter | Checked: 2015-06-27 (Catznip-3.7)
-	/*virtual*/ void cancelRetry();
-// [/SL:KB]
+	void reset() override;
 	
 	// virtual
-	void onFailure(S32 status, const LLSD& headers);
+	void onFailure(S32 status, const LLSD& headers) override;
 	// virtual
-	void onFailure(const LLCore::HttpResponse *response);
+	void onFailure(const LLCore::HttpResponse *response) override;
 	// virtual
-	bool shouldRetry(F32& seconds_to_wait) const;
+	bool shouldRetry(F32& seconds_to_wait) const override;
 
     static bool getSecondsUntilRetryAfter(const std::string& retry_after, F32& seconds_to_wait);
 

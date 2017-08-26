@@ -42,9 +42,10 @@
 #include "llui.h"
 #include "lltooltip.h"
 
-//#include "llglheaders.h"
+#include "llglheaders.h"
 
 // Viewer includes
+#include "alavatarcolormgr.h"
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llappviewer.h" // for gDisconnected
@@ -55,26 +56,13 @@
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
 #include "llviewertexture.h"
-//#include "llviewertexturelist.h"
+#include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
-#include "llfloatercamera.h"
-#include "llviewerjoystick.h"
-
-#ifdef PVDATA_SYSTEM
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-#endif
-
-// [RLVa:KB] - Checked: RLVa-2.0.1
-#include "rlvactions.h"
-#include "rlvcommon.h"
-// [/RLVa:KB]
 
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
@@ -82,34 +70,34 @@ const F32 LLNetMap::MAP_SCALE_MIN = 32.f;
 const F32 LLNetMap::MAP_SCALE_MID = 1024.f;
 const F32 LLNetMap::MAP_SCALE_MAX = 4096.f;
 
-const F32 MAP_SCALE_ZOOM_FACTOR = 1.04f; // Zoom in factor per click of scroll wheel (4%)
+const F32 MAP_SCALE_ZOOM_FACTOR = 1.10f; // Zoom in factor per click of scroll wheel (10%) // <alchemy/>
 const F32 MIN_DOT_RADIUS = 3.5f;
 const F32 DOT_SCALE = 0.75f;
 const F32 MIN_PICK_SCALE = 2.f;
 const S32 MOUSE_DRAG_SLOP = 2;		// How far the mouse needs to move before we think it's a drag
 
-const F64 COARSEUPDATE_MAX_Z = 1020.0f;
+const F64 COARSEUPDATE_MAX_Z = 1020.0;
 
 LLNetMap::LLNetMap (const Params & p)
 :	LLUICtrl (p),
+	mUpdateNow(false),
 	mBackgroundColor (p.bg_color()),
 	mScale( MAP_SCALE_MID ),
 	mPixelsPerMeter( MAP_SCALE_MID / REGION_WIDTH_METERS ),
 	mObjectMapTPM(0.f),
 	mObjectMapPixels(0.f),
+	mPanning(false),
 	mTargetPan(0.f, 0.f),
 	mCurPan(0.f, 0.f),
 	mStartPan(0.f, 0.f),
 	mMouseDown(0, 0),
-	mPanning(false),
-	mUpdateNow(false),
 	mObjectImageCenterGlobal( gAgentCamera.getCameraPositionGlobal() ),
 	mObjectRawImagep(),
 	mObjectImagep(),
 	mClosestAgentToCursor(),
 	mClosestAgentAtLastRightClick(),
 	mToolTipMsg(),
-	mPopupMenu(NULL)
+	mPopupMenuHandle()
 {
 	mScale = gSavedSettings.getF32("MiniMapScale");
 	mPixelsPerMeter = mScale / REGION_WIDTH_METERS;
@@ -118,6 +106,12 @@ LLNetMap::LLNetMap (const Params & p)
 
 LLNetMap::~LLNetMap()
 {
+	auto menu = static_cast<LLMenuGL*>(mPopupMenuHandle.get());
+	if (menu)
+	{
+		menu->die();
+		mPopupMenuHandle.markDead();
+	}
 }
 
 BOOL LLNetMap::postBuild()
@@ -127,7 +121,8 @@ BOOL LLNetMap::postBuild()
 	registrar.add("Minimap.Zoom", boost::bind(&LLNetMap::handleZoom, this, _2));
 	registrar.add("Minimap.Tracker", boost::bind(&LLNetMap::handleStopTracking, this, _2));
 
-	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mPopupMenuHandle = menu->getHandle();
 	return TRUE;
 }
 
@@ -139,12 +134,12 @@ void LLNetMap::setScale( F32 scale )
 	
 	if (mObjectImagep.notNull())
 	{
-		F32 width = static_cast<F32>(getRect().getWidth());
-		F32 height = static_cast<F32>(getRect().getHeight());
+		F32 width = (F32)(getRect().getWidth());
+		F32 height = (F32)(getRect().getHeight());
 		F32 diameter = sqrt(width * width + height * height);
 		F32 region_widths = diameter / mScale;
-		F32 meters = region_widths * LLWorld::getInstance()->getRegionWidthInMeters();
-		F32 num_pixels = static_cast<F32>(mObjectImagep->getWidth());
+		F32 meters = region_widths * REGION_WIDTH_METERS;
+		F32 num_pixels = (F32)mObjectImagep->getWidth();
 		mObjectMapTPM = num_pixels / meters;
 		mObjectMapPixels = diameter;
 	}
@@ -165,20 +160,23 @@ void LLNetMap::draw()
 	LLViewerRegion* curregionp = gAgent.getRegion();
 	if (!curregionp)
 		return;
- 	static LLFrameTimer map_timer;
-	static LLUIColor map_avatar_color = LLUIColorTable::instance().getColor("MapAvatarColor", LLColor4::white);
+
+	static LLFrameTimer map_timer;
 	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	//static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
 	static LLUIColor map_frustum_color = LLUIColorTable::instance().getColor("MapFrustumColor", LLColor4::white);
 	static LLUIColor map_frustum_rotating_color = LLUIColorTable::instance().getColor("MapFrustumRotatingColor", LLColor4::white);
+	// <alchemy>
 	static LLUIColor map_line_color = LLUIColorTable::instance().getColor("MapLineColor", LLColor4::red);
-	static LLCachedControl<bool> use_world_map_image(gSavedSettings, "PVUI_MinimapTile", true);
-	static LLCachedControl<bool> center_to_region(gSavedSettings, "PVUI_MinimapCenterRegion", false);
-	static LLCachedControl<bool> enable_object_render(gSavedSettings, "PVUI_MinimapRenderObjects", true);
-	static LLCachedControl<bool> render_guide_line(gSavedSettings, "PVUI_MinimapGuideLine", false);
+	static LLCachedControl<bool> use_world_map_image(gSavedSettings, "AlchemyMinimapTile", true);
+	static LLCachedControl<bool> center_to_region(gSavedSettings, "AlchemyMinimapCenterRegion", false);
+	static LLCachedControl<bool> enable_object_render(gSavedSettings, "AlchemyMinimapRenderObjects", true);
+	static LLCachedControl<bool> render_guide_line(gSavedSettings, "AlchemyMinimapGuideLine", false);
+	// </alchemy>
+
 	const LLVector3d& globalpos = center_to_region ? curregionp->getCenterGlobal() : gAgentCamera.getCameraPositionGlobal();
 	const LLVector3& agentpos = center_to_region ? curregionp->getCenterAgent() : gAgentCamera.getCameraPositionAgent();
-	
+
 	if (mObjectImagep.isNull())
 	{
 		createObjectImage();
@@ -193,28 +191,16 @@ void LLNetMap::draw()
 	// Prepare a scissor region
 	F32 rotation = 0.f;
 
-	gGL.pushMatrix();
 	gGL.pushUIMatrix();
-	
-	LLVector3 offset = gGL.getUITranslation();
-	LLVector3 scale = gGL.getUIScale();
-
-	gGL.loadIdentity();
-	gGL.loadUIIdentity();
-
-	gGL.scalef(scale.mV[0], scale.mV[1], scale.mV[2]);
-	gGL.translatef(offset.mV[0], offset.mV[1], offset.mV[2]);
 	
 	{
 		LLLocalClipRect clip(getLocalRect());
 		{
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-			gGL.matrixMode(LLRender::MM_MODELVIEW);
-
 			// Draw background rectangle
 			const LLColor4& background_color = mBackgroundColor.get();
-			gGL.color4fv(background_color.mV);
+			gGL.color4fv( background_color.mV );
 			gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0);
 		}
 
@@ -222,23 +208,24 @@ void LLNetMap::draw()
 		S32 center_sw_left = getRect().getWidth() / 2 + llfloor(mCurPan.mV[VX]);
 		S32 center_sw_bottom = getRect().getHeight() / 2 + llfloor(mCurPan.mV[VY]);
 
-		gGL.pushMatrix();
-
-		gGL.translatef(static_cast<F32>(center_sw_left), static_cast<F32>(center_sw_bottom), 0.f);
+		gGL.pushUIMatrix();
+		gGL.translateUI( (F32) center_sw_left, (F32) center_sw_bottom, 0.f);
 
 		static LLUICachedControl<bool> rotate_map("MiniMapRotate", true);
-		if (rotate_map)
+		if( rotate_map )
 		{
 			// rotate subsequent draws to agent rotation
-			rotation = atan2(LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY]);
-			gGL.rotatef(rotation * RAD_TO_DEG, 0.f, 0.f, 1.f);
+			rotation = atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
+			LLQuaternion rot(rotation, LLVector3(0.f, 0.f, 1.f));
+			gGL.rotateUI(rot);
 		}
 
 		// figure out where agent is
-		S32 region_width = ll_round(LLWorld::getInstance()->getRegionWidthInMeters());
+		S32 region_width = REGION_WIDTH_UNITS;
 
+		LLWorld::region_list_t::const_iterator end_it = LLWorld::getInstance()->getRegionList().cend();
 		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
-			 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+			 iter != end_it; ++iter)
 		{
 			LLViewerRegion* regionp = *iter;
 			// Find x and y position relative to camera's center.
@@ -246,12 +233,13 @@ void LLNetMap::draw()
 			LLVector3 rel_region_pos = origin_agent - agentpos;
 			F32 relative_x = (rel_region_pos.mV[0] / region_width) * mScale;
 			F32 relative_y = (rel_region_pos.mV[1] / region_width) * mScale;
+			const F32 real_width(regionp->getWidth());
 
 			// background region rectangle
 			F32 bottom =	relative_y;
 			F32 left =		relative_x;
-			F32 top =		bottom + mScale ;
-			F32 right =		left + mScale ;
+			F32 top =		bottom + (real_width / REGION_WIDTH_METERS) * mScale ;
+			F32 right =		left + (real_width / REGION_WIDTH_METERS) * mScale ;
 
 			if (regionp == curregionp)
 			{
@@ -266,181 +254,178 @@ void LLNetMap::draw()
 			{
 				gGL.color4f(1.f, 0.5f, 0.5f, 1.f);
 			}
-
+			
+			// <alchemy>
+			bool render_land_textures = true;
 			if (use_world_map_image)
 			{
-				LLViewerTexture* img = regionp->getMapImage();
-				if (img && img->hasGLTexture())
+				const LLViewerRegion::tex_matrix_t& tiles(regionp->getWorldMapTiles());
+				for (S32 i(0), scaled_width((S32)real_width / region_width), square_width(scaled_width * scaled_width);
+					 i < square_width; ++i)
 				{
-					gGL.getTexUnit(0)->bind(img);
-					gGL.begin(LLRender::QUADS);
-					gGL.texCoord2f(0.f, 1.f);
-					gGL.vertex2f(left, top);
-					gGL.texCoord2f(0.f, 0.f);
-					gGL.vertex2f(left, bottom);
-					gGL.texCoord2f(1.f, 0.f);
-					gGL.vertex2f(right, bottom);
-					gGL.texCoord2f(1.f, 1.f);
-					gGL.vertex2f(right, top);
-					gGL.end();
-
-					img->setBoostLevel(LLGLTexture::BOOST_MAP_VISIBLE);
+					const F32 y(i / (F32)scaled_width);
+					const F32 x(i - y * scaled_width);
+					const F32 local_left(left + x * mScale);
+					const F32 local_right(local_left + mScale);
+					const F32 local_bottom(bottom + y * mScale);
+					const F32 local_top(local_bottom + mScale);
+					LLViewerTexture* img = tiles[x * scaled_width + y];
+					if (img && img->hasGLTexture())
+					{
+						gGL.getTexUnit(0)->bind(img);
+						gGL.begin(LLRender::TRIANGLE_STRIP);
+							gGL.texCoord2f(0.f, 1.f);
+							gGL.vertex2f(local_left, local_top);
+							gGL.texCoord2f(0.f, 0.f);
+							gGL.vertex2f(local_left, local_bottom);
+							gGL.texCoord2f(1.f, 1.f);
+							gGL.vertex2f(local_right, local_top);
+							gGL.texCoord2f(1.f, 0.f);
+							gGL.vertex2f(local_right, local_bottom);
+						gGL.end();
+						img->setBoostLevel(LLViewerTexture::BOOST_MAP_VISIBLE);
+						render_land_textures = false;
+					}
 				}
 			}
-			else
+			
+
+			if(render_land_textures)
 			{
 				// Draw using texture.
-				gGL.getTexUnit(0)->bind(regionp->getLand().getSTexture());
-				gGL.begin(LLRender::QUADS);
-				gGL.texCoord2f(0.f, 1.f);
-				gGL.vertex2f(left, top);
-				gGL.texCoord2f(0.f, 0.f);
-				gGL.vertex2f(left, bottom);
-				gGL.texCoord2f(1.f, 0.f);
-				gGL.vertex2f(right, bottom);
-				gGL.texCoord2f(1.f, 1.f);
-				gGL.vertex2f(right, top);
-				gGL.end();
-
-				// Draw water
-				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, ABOVE_WATERLINE_ALPHA / 255.f);
+				if (LLViewerTexture* stexture = regionp->getLand().getSTexture())
 				{
-					if (regionp->getLand().getWaterTexture())
-					{
-						gGL.getTexUnit(0)->bind(regionp->getLand().getWaterTexture());
-						gGL.begin(LLRender::QUADS);
+					gGL.getTexUnit(0)->bind(stexture);
+					gGL.begin(LLRender::TRIANGLE_STRIP);
 						gGL.texCoord2f(0.f, 1.f);
 						gGL.vertex2f(left, top);
 						gGL.texCoord2f(0.f, 0.f);
 						gGL.vertex2f(left, bottom);
-						gGL.texCoord2f(1.f, 0.f);
-						gGL.vertex2f(right, bottom);
 						gGL.texCoord2f(1.f, 1.f);
 						gGL.vertex2f(right, top);
+						gGL.texCoord2f(1.f, 0.f);
+						gGL.vertex2f(right, bottom);
+					gGL.end();
+				}
+
+				// Draw water
+				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, ABOVE_WATERLINE_ALPHA / 255.f);
+				{
+					if (LLViewerTexture* wtexture = regionp->getLand().getWaterTexture())
+					{
+						gGL.getTexUnit(0)->bind(wtexture);
+						gGL.begin(LLRender::TRIANGLE_STRIP);
+							gGL.texCoord2f(0.f, 1.f);
+							gGL.vertex2f(left, top);
+							gGL.texCoord2f(0.f, 0.f);
+							gGL.vertex2f(left, bottom);
+							gGL.texCoord2f(1.f, 1.f);
+							gGL.vertex2f(right, top);
+							gGL.texCoord2f(1.f, 0.f);
+							gGL.vertex2f(right, bottom);
 						gGL.end();
 					}
 				}
 				gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 			}
 		}
+		// <//alchemy> 
 
-			// Redraw object layer periodically
-			if (mUpdateNow || (map_timer.getElapsedTimeF32() > 0.5f))
-			{
-				mUpdateNow = false;
+		// Redraw object layer periodically
+		static LLCachedControl<F32> object_layer_update_time_setting(gSavedSettings, "AlchemyMinimapObjectUpdateInterval", 0.1f);
+		F32 object_layer_update_time = llclamp((F32)object_layer_update_time_setting, 0.01f, 60.f);
+		if (mUpdateNow || (map_timer.getElapsedTimeF32() > object_layer_update_time)) // <alchemy/>
+		{
+			mUpdateNow = false;
 
-				// Locate the centre of the object layer, accounting for panning
-				LLVector3 new_center = globalPosToView(globalpos);
-				new_center.mV[VX] -= mCurPan.mV[VX];
-				new_center.mV[VY] -= mCurPan.mV[VY];
-				new_center.mV[VZ] = 0.f;
-				mObjectImageCenterGlobal = viewPosToGlobal(llfloor(new_center.mV[VX]), llfloor(new_center.mV[VY]));
+			// Locate the centre of the object layer, accounting for panning
+			LLVector3 new_center = globalPosToView(globalpos);
+			new_center.mV[VX] -= mCurPan.mV[VX];
+			new_center.mV[VY] -= mCurPan.mV[VY];
+			new_center.mV[VZ] = 0.f;
+			mObjectImageCenterGlobal = viewPosToGlobal(llfloor(new_center.mV[VX]), llfloor(new_center.mV[VY]));
 
-				// Create the base texture.
-				U8 *default_texture = mObjectRawImagep->getData();
-				memset(default_texture, 0, mObjectImagep->getWidth() * mObjectImagep->getHeight() * mObjectImagep->getComponents());
+			// Create the base texture.
+			U8 *default_texture = mObjectRawImagep->getData();
+			memset( default_texture, 0, mObjectImagep->getWidth() * mObjectImagep->getHeight() * mObjectImagep->getComponents() );
 
-				// Draw objects
+			// Draw objects
 			if (enable_object_render)
 			{
 				gObjectList.renderObjectsForMap(*this);
 			}
 
-				mObjectImagep->setSubImage(mObjectRawImagep, 0, 0, mObjectImagep->getWidth(), mObjectImagep->getHeight());
+			mObjectImagep->setSubImage(mObjectRawImagep, 0, 0, mObjectImagep->getWidth(), mObjectImagep->getHeight());
+			
+			map_timer.reset();
+		}
 
-				map_timer.reset();
-			}
+		LLVector3 map_center_agent = gAgent.getPosAgentFromGlobal(mObjectImageCenterGlobal);
+		LLVector3 camera_position = agentpos;
+		map_center_agent -= camera_position;
+		map_center_agent.mV[VX] *= mScale/region_width;
+		map_center_agent.mV[VY] *= mScale/region_width;
 
-			LLVector3 map_center_agent = gAgent.getPosAgentFromGlobal(mObjectImageCenterGlobal);
-			LLVector3 camera_position = agentpos;
-			map_center_agent -= camera_position;
-			map_center_agent.mV[VX] *= mScale / region_width;
-			map_center_agent.mV[VY] *= mScale / region_width;
+		gGL.getTexUnit(0)->bind(mObjectImagep);
+		F32 image_half_width = 0.5f*mObjectMapPixels;
+		F32 image_half_height = 0.5f*mObjectMapPixels;
 
-			gGL.getTexUnit(0)->bind(mObjectImagep);
-			F32 image_half_width = 0.5f*mObjectMapPixels;
-			F32 image_half_height = 0.5f*mObjectMapPixels;
-
-			gGL.begin(LLRender::QUADS);
+		gGL.begin(LLRender::TRIANGLE_STRIP);
 			gGL.texCoord2f(0.f, 1.f);
 			gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, image_half_height + map_center_agent.mV[VY]);
 			gGL.texCoord2f(0.f, 0.f);
 			gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, map_center_agent.mV[VY] - image_half_height);
-			gGL.texCoord2f(1.f, 0.f);
-			gGL.vertex2f(image_half_width + map_center_agent.mV[VX], map_center_agent.mV[VY] - image_half_height);
 			gGL.texCoord2f(1.f, 1.f);
 			gGL.vertex2f(image_half_width + map_center_agent.mV[VX], image_half_height + map_center_agent.mV[VY]);
-			gGL.end();
+			gGL.texCoord2f(1.f, 0.f);
+			gGL.vertex2f(image_half_width + map_center_agent.mV[VX], map_center_agent.mV[VY] - image_half_height);
+		gGL.end();
 
-			gGL.popMatrix();
+		gGL.popUIMatrix();
 
-			// Mouse pointer in local coordinates
-			S32 local_mouse_x;
-			S32 local_mouse_y;
-			//localMouse(&local_mouse_x, &local_mouse_y);
-			LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
-			mClosestAgentToCursor.setNull();
-			F32 closest_dist_squared = F32_MAX; // value will be overridden in the loop
-			F32 min_pick_dist_squared = (mDotRadius * MIN_PICK_SCALE) * (mDotRadius * MIN_PICK_SCALE);
+		// Mouse pointer in local coordinates
+		S32 local_mouse_x;
+		S32 local_mouse_y;
+		//localMouse(&local_mouse_x, &local_mouse_y);
+		LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
+		mClosestAgentToCursor.setNull();
+		F32 closest_dist_squared = F32_MAX; // value will be overridden in the loop
+		F32 min_pick_dist_squared = (mDotRadius * MIN_PICK_SCALE) * (mDotRadius * MIN_PICK_SCALE);
 
-			LLVector3 pos_map;
-			uuid_vec_t avatar_ids;
-			std::vector<LLVector3d> positions;
-			bool unknown_relative_z;
-			LLColor4 color; // <polarity/>
+		LLVector3 pos_map;
+		LLWorld::pos_map_t positions;
+		bool unknown_relative_z;
+		LLColor4 color;
 
-			auto self_global_pos = gAgent.getPositionGlobal();
-			auto cam_pos_z = gAgentCamera.getCameraPositionGlobal();
-			LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, cam_pos_z);
-			F32 fixed_z;
-			// Draw avatars
-			for (U32 i = 0; i < avatar_ids.size(); i++)
-			{
-				const LLUUID& uuid = avatar_ids[i];
-				// Skip self, we'll draw it later
-				if (uuid == gAgent.getID()) continue;
+		LLWorld::getInstance()->getAvatars(&positions, gAgentCamera.getCameraPositionGlobal());
 
-				auto fixed_pos = positions[i];
-				pos_map = globalPosToView(fixed_pos);
-				
+		// Draw avatars
+		for (const auto& pos_pair : positions)
+		{
+			const auto& uuid = pos_pair.first;
+			// Skip self, we'll draw it later
+			if (uuid == gAgent.getID()) continue;
 
-#ifdef PVDATA_SYSTEM
-				// <polarity> Colored names for special users.
-				// Note: RLVa handled in getColor, do not put here.
-				color = PVAgent::getColor(uuid, map_avatar_color);
-				// </polarity>
-#else
-				// but put rlva here
-				static LLUIColor map_avatar_friend_color = LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::white);
-				bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL) && (RlvActions::canShowName(RlvActions::SNC_DEFAULT, uuid));
-				color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
-#endif
+			const auto& position = pos_pair.second;
+			pos_map = globalPosToView(position);
 
-				unknown_relative_z = fixed_pos.mdV[VZ] == COARSEUPDATE_MAX_Z &&
+			color = ALAvatarColorMgr::instance().getColor(uuid);
+
+			unknown_relative_z = position.mdV[VZ] == COARSEUPDATE_MAX_Z &&
 					camera_position.mV[VZ] >= COARSEUPDATE_MAX_Z;
 
-				if (!LLViewerJoystick::getInstance()->getOverrideCamera() && !LLFloaterCamera::inFreeCameraMode() && gAgentCamera.getFocusOnAvatar())
-				{
-					// use global pos to rule out camera values.
-					fixed_z = fixed_pos.mdV[VZ] - self_global_pos.mdV[VZ];
-				}
-				else
-				{
-					fixed_z = pos_map.mV[VZ];
-				}
-				LLWorldMapView::drawAvatar(
-					pos_map.mV[VX], pos_map.mV[VY],
-					color,
-					fixed_z, mDotRadius,
-					unknown_relative_z);
+			LLWorldMapView::drawAvatar(
+				pos_map.mV[VX], pos_map.mV[VY], 
+				color, 
+				pos_map.mV[VZ], mDotRadius,
+				unknown_relative_z);
 
 			if(uuid.notNull())
 			{
 				bool selected = false;
-				uuid_vec_t::iterator sel_iter = gmSelected.begin();
-				for (; sel_iter != gmSelected.end(); ++sel_iter)
+				for (const auto& sel_uuid : gmSelected)
 				{
-					if(*sel_iter == uuid)
+					if (sel_uuid == uuid)
 					{
 						selected = true;
 						break;
@@ -456,122 +441,126 @@ void LLNetMap::draw()
 						S32 x = ll_round( pos_map.mV[VX] );
 						S32 y = ll_round( pos_map.mV[VY] );
 						LLWorldMapView::drawTrackingCircle( getRect(), x, y, color, 1, 10);
-					} else
+					}
+					else
 					{
 						LLWorldMapView::drawTrackingDot(pos_map.mV[VX],pos_map.mV[VY],color,0.f);
 					}
 				}
 			}
 
-				F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-					LLVector2(local_mouse_x, local_mouse_y));
-				if (dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
-				{
-					closest_dist_squared = dist_to_cursor_squared;
-					mClosestAgentToCursor = uuid;
-				}
-			}
-
-			// Draw dot for autopilot target
-			if (gAgent.getAutoPilot())
+			F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+										  LLVector2(local_mouse_x,local_mouse_y));
+			if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
 			{
-				drawTracking(gAgent.getAutoPilotTargetGlobal(), map_track_color);
+				closest_dist_squared = dist_to_cursor_squared;
+				mClosestAgentToCursor = uuid;
 			}
-			else
+		}
+
+		// Draw dot for autopilot target
+		if (gAgent.getAutoPilot())
+		{
+			drawTracking( gAgent.getAutoPilotTargetGlobal(), map_track_color );
+		}
+		else
+		{
+			LLTracker& tracker = LLTracker::instance();
+			LLTracker::ETrackingStatus tracking_status = tracker.getTrackingStatus();
+			if (  LLTracker::TRACKING_AVATAR == tracking_status )
 			{
-				LLTracker::ETrackingStatus tracking_status = LLTracker::getTrackingStatus();
-				if (LLTracker::TRACKING_AVATAR == tracking_status)
-				{
-					drawTracking(LLAvatarTracker::instance().getGlobalPos(), map_track_color);
-				}
-				else if (LLTracker::TRACKING_LANDMARK == tracking_status
-					|| LLTracker::TRACKING_LOCATION == tracking_status)
-				{
-					drawTracking(LLTracker::getTrackedPositionGlobal(), map_track_color);
-				}
+				drawTracking( LLAvatarTracker::instance().getGlobalPos(), map_track_color );
+			} 
+			else if ( LLTracker::TRACKING_LANDMARK == tracking_status 
+					|| LLTracker::TRACKING_LOCATION == tracking_status )
+			{
+				drawTracking(tracker.getTrackedPositionGlobal(), map_track_color);
 			}
+		}
 
-			// Draw dot for self avatar position
-			pos_map = globalPosToView(self_global_pos);
-			S32 dot_width = ll_round(mDotRadius * 2.f);
-			LLUIImagePtr you = LLWorldMapView::sAvatarYouLargeImage;
-			if (you)
+		// Draw dot for self avatar position
+		pos_map = globalPosToView(gAgent.getPositionGlobal());
+		S32 dot_width = ll_round(mDotRadius * 2.f);
+		LLUIImagePtr you = LLWorldMapView::sAvatarYouLargeImage;
+		if (you)
+		{
+			you->draw(ll_round(pos_map.mV[VX] - mDotRadius),
+					  ll_round(pos_map.mV[VY] - mDotRadius),
+					  dot_width,
+					  dot_width);
+
+			F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+										  LLVector2(local_mouse_x,local_mouse_y));
+			if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
 			{
-				you->draw(ll_round(pos_map.mV[VX] - mDotRadius),
-					ll_round(pos_map.mV[VY] - mDotRadius),
-					dot_width,
-					dot_width);
-
-				F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-					LLVector2(local_mouse_x, local_mouse_y));
-				if (dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
-				{
-					mClosestAgentToCursor = gAgent.getID();
-				}
+				mClosestAgentToCursor = gAgent.getID();
 			}
+		}
 
-			// Draw frustum
-			F32 meters_to_pixels = mScale / LLWorld::getInstance()->getRegionWidthInMeters();
+		// Draw frustum
+		F32 meters_to_pixels = mScale/ REGION_WIDTH_METERS;
 
-			F32 horiz_fov = LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect();
-			F32 far_clip_meters = LLViewerCamera::getInstance()->getFar();
-			F32 far_clip_pixels = far_clip_meters * meters_to_pixels;
+		F32 horiz_fov = LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect();
+		F32 far_clip_meters = LLViewerCamera::getInstance()->getFar();
+		F32 far_clip_pixels = far_clip_meters * meters_to_pixels;
 
-			F32 half_width_meters = far_clip_meters * tan( horiz_fov / 2.f );
-			F32 half_width_pixels = half_width_meters * meters_to_pixels;
+		F32 half_width_meters = far_clip_meters * tan( horiz_fov / 2.f );
+		F32 half_width_pixels = half_width_meters * meters_to_pixels;
+		
+		LLVector3 cam_pos = globalPosToView(gAgentCamera.getCameraPositionGlobal());
+		F32 ctr_x = center_to_region ? cam_pos.mV[VX] : (F32)center_sw_left;
+		F32 ctr_y = center_to_region ? cam_pos.mV[VY] : (F32)center_sw_bottom;
 
-			LLVector3 cam_pos = globalPosToView(gAgentCamera.getCameraPositionGlobal());
-			F32 ctr_x = center_to_region ? cam_pos.mV[VX] : static_cast<F32>(center_sw_left);
-			F32 ctr_y = center_to_region ? cam_pos.mV[VY] : static_cast<F32>(center_sw_bottom);
 
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+		const LLColor4& line_col = map_line_color.get();
+		if( rotate_map )
+		{
+			gGL.color4fv((map_frustum_color()).mV);
 
-			const LLColor4& line_col = map_line_color.get();
-			if (rotate_map)
+			gGL.begin( LLRender::TRIANGLES  );
+				gGL.vertex2f( ctr_x, ctr_y );
+				gGL.vertex2f( ctr_x + half_width_pixels, ctr_y + far_clip_pixels );
+				gGL.vertex2f( ctr_x - half_width_pixels, ctr_y + far_clip_pixels );
+			gGL.end();
+
+			if (render_guide_line)
 			{
-				gGL.color4fv((map_frustum_color()).mV);
-
-				gGL.begin(LLRender::TRIANGLES);
-				gGL.vertex2f(ctr_x, ctr_y);
-				gGL.vertex2f(ctr_x - half_width_pixels, ctr_y + far_clip_pixels);
-				gGL.vertex2f(ctr_x + half_width_pixels, ctr_y + far_clip_pixels);
+				gGL.begin(LLRender::LINES);
+					gGL.color4fv(line_col.mV);
+					gGL.vertex2f(ctr_x, ctr_y);
+					gGL.vertex2f(ctr_x, ctr_y + far_clip_pixels);
+				gGL.end();
+			}
+		}
+		else
+		{
+			gGL.color4fv((map_frustum_rotating_color()).mV);
+			
+			// If we don't rotate the map, we have to rotate the frustum.
+			gGL.pushUIMatrix();
+				gGL.translateUI(ctr_x, ctr_y, 0);
+				LLQuaternion rot(atan2(LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY]), LLVector3(0.f, 0.f, -1.f));
+				gGL.rotateUI(rot);
+				gGL.begin( LLRender::TRIANGLES  );
+					gGL.vertex2f( 0.f, 0.f );
+					gGL.vertex2f(  half_width_pixels, far_clip_pixels );
+					gGL.vertex2f( -half_width_pixels, far_clip_pixels );
 				gGL.end();
 				if (render_guide_line)
 				{
 					gGL.begin(LLRender::LINES);
 						gGL.color4fv(line_col.mV);
-						gGL.vertex2f(ctr_x, ctr_y);
-						gGL.vertex2f(ctr_x, ctr_y + far_clip_pixels);
+						gGL.vertex2f(0.f, 0.f);
+						gGL.vertex2f(0.f, far_clip_pixels);
 					gGL.end();
 				}
-			}
-			else
-			{
-				gGL.color4fv((map_frustum_rotating_color()).mV);
 
-				// If we don't rotate the map, we have to rotate the frustum.
-				gGL.pushMatrix();
-				gGL.translatef( ctr_x, ctr_y, 0.f );
-				gGL.rotatef(atan2(LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY]) * RAD_TO_DEG, 0.f, 0.f, -1.f);
-				gGL.begin(LLRender::TRIANGLES);
-				gGL.vertex2f( 0.f, 0.f );
-				gGL.vertex2f(-half_width_pixels, far_clip_pixels);
-				gGL.vertex2f(half_width_pixels, far_clip_pixels);
-				gGL.end();
-				if (render_guide_line)
-				{
-					gGL.begin(LLRender::LINES);
-					gGL.color4fv(line_col.mV);
-					gGL.vertex2f(0.f, 0.f);
-					gGL.vertex2f(0.f, far_clip_pixels);
-					gGL.end();
-				}
-				gGL.popMatrix();
+			gGL.popUIMatrix();
 		}
 	}
 	
-	gGL.popMatrix();
 	gGL.popUIMatrix();
 
 	LLUICtrl::draw();
@@ -586,13 +575,16 @@ void LLNetMap::reshape(S32 width, S32 height, BOOL called_from_parent)
 LLVector3 LLNetMap::globalPosToView(const LLVector3d& global_pos)
 {
 	// <alchemy>
-	static LLCachedControl<bool> center_to_region(gSavedSettings, "PVUI_MinimapCenterRegion", false);
+	static LLCachedControl<bool> center_to_region(gSavedSettings, "AlchemyMinimapCenterRegion", false);
 	LLViewerRegion* regionp = gAgent.getRegion();
 	LLVector3d camera_position = (center_to_region && regionp) ? regionp->getCenterGlobal() : gAgentCamera.getCameraPositionGlobal();
+	// </alchemy>
 
 	LLVector3d relative_pos_global = global_pos - camera_position;
 	LLVector3 pos_local;
 	pos_local.setVec(relative_pos_global);  // convert to floats from doubles
+
+	mPixelsPerMeter = mScale / REGION_WIDTH_METERS;
 
 	pos_local.mV[VX] *= mPixelsPerMeter;
 	pos_local.mV[VY] *= mPixelsPerMeter;
@@ -643,7 +635,7 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 	x -= ll_round(getRect().getWidth() / 2 + mCurPan.mV[VX]);
 	y -= ll_round(getRect().getHeight() / 2 + mCurPan.mV[VY]);
 
-	LLVector3 pos_local( static_cast<F32>(x), static_cast<F32>(y), 0 );
+	LLVector3 pos_local( (F32)x, (F32)y, 0 );
 
 	F32 radians = - atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
 
@@ -654,13 +646,16 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 		pos_local.rotVec( rot );
 	}
 
-	pos_local *= ( LLWorld::getInstance()->getRegionWidthInMeters() / mScale );
+	pos_local *= ( REGION_WIDTH_METERS / mScale );
 	
 	LLVector3d pos_global;
 	pos_global.setVec( pos_local );
-	static LLCachedControl<bool> center_to_region(gSavedSettings, "PVUI_MinimapCenterRegion", false);
+
+	// <alchemy>
+	static LLCachedControl<bool> center_to_region(gSavedSettings, "AlchemyMinimapCenterRegion", false);
 	LLViewerRegion* regionp = gAgent.getRegion();
 	pos_global += center_to_region && regionp ? regionp->getCenterGlobal() : gAgentCamera.getCameraPositionGlobal();
+	// </alchemy>
 
 	return pos_global;
 }
@@ -695,19 +690,10 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 
 	// If the cursor is near an avatar on the minimap, a mini-inspector will be
 	// shown for the avatar, instead of the normal map tooltip.
-//	if (handleToolTipAgent(mClosestAgentToCursor))
-// [RLVa:KB] - Checked: RLVa-1.2.2
-	bool fRlvCanShowName = (mClosestAgentToCursor.notNull()) && (RlvActions::canShowName(RlvActions::SNC_DEFAULT, mClosestAgentToCursor));
-	if ( (fRlvCanShowName) && (handleToolTipAgent(mClosestAgentToCursor)) )
-// [/RLVa:KB]
+	if (handleToolTipAgent(mClosestAgentToCursor))
 	{
 		return TRUE;
 	}
-
-// [RLVa:KB] - Checked: RLVa-1.2.2
-	LLStringUtil::format_map_t args; LLAvatarName avName;
-	args["[AGENT]"] = ( (!fRlvCanShowName) && (mClosestAgentToCursor.notNull()) && (LLAvatarNameCache::get(mClosestAgentToCursor, &avName)) ) ? RlvStrings::getAnonym(avName) + "\n" : "";
-// [/RLVa:KB]
 
 	LLRect sticky_rect;
 	std::string region_name;
@@ -720,17 +706,14 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 		sticky_rect.mRight = sticky_rect.mLeft + 2 * SLOP;
 		sticky_rect.mTop = sticky_rect.mBottom + 2 * SLOP;
 
-//		region_name = region->getName();
-// [RLVa:KB] - Checked: RLVa-1.2.2
-		region_name = (RlvActions::canShowLocation()) ? region->getName() : RlvStrings::getString(RLV_STRING_HIDDEN_REGION);
-// [/RLVa:KB]
+		region_name = region->getName();
 		if (!region_name.empty())
 		{
 			region_name += "\n";
 		}
 	}
 
-//	LLStringUtil::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[REGION]"] = region_name;
 	std::string msg = mToolTipMsg;
 	LLStringUtil::format(msg, args);
@@ -741,7 +724,7 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	return TRUE;
 }
 
-BOOL LLNetMap::handleToolTipAgent(const LLUUID& avatar_id) const
+BOOL LLNetMap::handleToolTipAgent(const LLUUID& avatar_id)
 {
 	LLAvatarName av_name;
 	if (avatar_id.isNull() || !LLAvatarNameCache::get(avatar_id, &av_name))
@@ -796,7 +779,6 @@ void LLNetMap::renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &
 }
 
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color, 
 						   S32 diameter, S32 relative_height)
 {
@@ -805,8 +787,8 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
 		return;
 	}
 
-	const S32 image_width = static_cast<S32>(mObjectImagep->getWidth());
-	const S32 image_height = static_cast<S32>(mObjectImagep->getHeight());
+	const S32 image_width = (S32)mObjectImagep->getWidth();
+	const S32 image_height = (S32)mObjectImagep->getHeight();
 
 	S32 x_offset = ll_round(pos_local.mV[VX] * mObjectMapTPM + image_width / 2);
 	S32 y_offset = ll_round(pos_local.mV[VY] * mObjectMapTPM + image_height / 2);
@@ -826,7 +808,7 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
 	S32 pos_radius = diameter - neg_radius;
 	S32 x, y;
 
-	if (relative_height > 0.25f) // <polarity> More sensitive Z-detection
+	if (relative_height > 0)
 	{
 		// ...point above agent
 		S32 px, py;
@@ -841,7 +823,7 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
 				continue;
 			}
 			S32 offset = px + py * image_width;
-			reinterpret_cast<U32*>(datap)[offset] = color.mAll;
+			((U32*)datap)[offset] = color.mAll;
 		}
 
 		// top line
@@ -854,7 +836,7 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
 				continue;
 			}
 			S32 offset = px + py * image_width;
-			reinterpret_cast<U32*>(datap)[offset] = color.mAll;
+			((U32*)datap)[offset] = color.mAll;
 		}
 	}
 	else
@@ -876,7 +858,7 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
 					continue;
 				}
 				S32 offset = p_x + p_y * image_width;
-				reinterpret_cast<U32*>(datap)[offset] = color.mAll;
+				((U32*)datap)[offset] = color.mAll;
 			}
 		}
 	}
@@ -886,8 +868,8 @@ void LLNetMap::createObjectImage()
 {
 	// Find the size of the side of a square that surrounds the circle that surrounds getRect().
 	// ... which is, the diagonal of the rect.
-	F32 width = static_cast<F32>(getRect().getWidth());
-	F32 height = static_cast<F32>(getRect().getHeight());
+	F32 width = (F32)getRect().getWidth();
+	F32 height = (F32)getRect().getHeight();
 	S32 square_size = ll_round( sqrt(width*width + height*height) );
 
 	// Find the least power of two >= the minimum size.
@@ -960,12 +942,13 @@ BOOL LLNetMap::handleMouseUp( S32 x, S32 y, MASK mask )
 
 BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (mPopupMenu)
+	auto menu = static_cast<LLMenuGL*>(mPopupMenuHandle.get());
+	if (menu)
 	{
-		mPopupMenu->buildDrawLabels();
-		mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
-		mPopupMenu->setItemEnabled("Stop Tracking", LLTracker::isTracking(nullptr));
-		LLMenuGL::showPopup(this, mPopupMenu, x, y);
+		menu->buildDrawLabels();
+		menu->updateParent(LLMenuGL::sMenuContainer);
+		menu->setItemEnabled("Stop Tracking", LLTracker::getInstance()->isTracking());
+		LLMenuGL::showPopup(this, menu, x, y);
 	}
 	return TRUE;
 }
@@ -990,7 +973,7 @@ BOOL LLNetMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 	if (double_click_teleport || double_click_show_world_map)
 	{
 		// If we're not tracking a beacon already, double-click will set one 
-		if (!LLTracker::isTracking(nullptr))
+		if (!LLTracker::getInstance()->isTracking())
 		{
 			LLFloaterWorldMap* world_map = LLFloaterWorldMap::getInstance();
 			if (world_map)
@@ -1089,11 +1072,13 @@ void LLNetMap::handleZoom(const LLSD& userdata)
 	}
 }
 
-void LLNetMap::handleStopTracking (const LLSD& userdata) const
+void LLNetMap::handleStopTracking (const LLSD& userdata)
 {
-	if (mPopupMenu)
+	auto menu = static_cast<LLMenuGL*>(mPopupMenuHandle.get());
+	if (menu)
 	{
-		mPopupMenu->setItemEnabled ("Stop Tracking", false);
-		LLTracker::stopTracking (reinterpret_cast<void*>(static_cast<intptr_t>(LLTracker::isTracking(nullptr))));
+		menu->setItemEnabled ("Stop Tracking", false);
+		LLTracker& tracker = LLTracker::instance();
+		tracker.stopTracking(tracker.isTracking());
 	}
 }

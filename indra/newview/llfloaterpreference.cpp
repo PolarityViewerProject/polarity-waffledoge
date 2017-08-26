@@ -36,22 +36,28 @@
 
 #include "llfloaterpreference.h"
 
+#include "message.h"
 #include "llfloaterautoreplacesettings.h"
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llcheckboxctrl.h"
 #include "llcolorswatch.h"
 #include "llcombobox.h"
+#include "llcommandhandler.h"
+#include "lldesktopnotifications.h"
+#include "lldiriterator.h"
 #include "lldirpicker.h"
 #include "lleventtimer.h"
 #include "llfeaturemanager.h"
+#include "llfilepicker.h"
 #include "llfocusmgr.h"
 //#include "llfirstuse.h"
 #include "llfloaterreg.h"
-//#include "llfloaterabout.h"
+#include "llfloaterabout.h"
 #include "llfavoritesbar.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterimsession.h"
+#include "llfloaterpreferenceproxy.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
 #include "llnavigationbar.h"
@@ -60,7 +66,7 @@
 #include "llnotificationsutil.h"
 #include "llnotificationtemplate.h"
 #include "llpanellogin.h"
-//#include "llpanelvoicedevicesettings.h"
+#include "llpanelvoicedevicesettings.h"
 #include "llradiogroup.h"
 #include "llsearchcombobox.h"
 #include "llsky.h"
@@ -72,40 +78,53 @@
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
 #include "llviewerwindow.h"
-//#include "llviewermessage.h"
+#include "llviewermessage.h"
 #include "llviewershadermgr.h"
 #include "llviewerthrottle.h"
-//#include "llvoavatarself.h"
+#include "llvoavatarself.h"
+#include "llvotree.h"
+#include "llvosky.h"
 // linden library includes
 #include "llavatarnamecache.h"
 #include "llerror.h"
+#include "llfontgl.h"
+#include "llrect.h"
 #include "llstring.h"
+#include "llunzip.h"
 
 // project includes
 
+#include "llaudioengine.h"
 #include "llbutton.h"
 #include "llflexibleobject.h"
 #include "lllineeditor.h"
+#include "llresmgr.h"
 #include "llspinctrl.h"
 #include "llstartup.h"
 #include "lltextbox.h"
 #include "llui.h"
+#include "llversioninfo.h"
+#include "llviewernetwork.h"
+#include "llviewerobjectlist.h"
+#include "llviewerregion.h"
 #include "llvoavatar.h"
+#include "llvovolume.h"
+#include "llwindow.h"
+#include "llworld.h"
 #include "pipeline.h"
-#include "lluictrlfactory.h"
 #include "llviewermedia.h"
 #include "llpluginclassmedia.h"
+#include "llteleporthistorystorage.h"
+#include "llproxy.h"
+#include "llweb.h"
+
 #include "lllogininstance.h"        // to check if logged in yet
 #include "llsdserialize.h"
-//#include "llviewercontrol.h"
-//#include "llfeaturemanager.h"
+#include "llviewercontrol.h"
+#include "llfeaturemanager.h"
 #include "llviewertexturelist.h"
-#include "llteleporthistorystorage.h"
 
-// [RLVa:KB] - Checked: 2010-03-18 (RLVa-1.2.0a)
-#include "rlvactions.h"
-#include "rlvhandler.h"
-// [/RLVa:KB]
+#include <jsoncpp/reader.h>
 
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 char const* const VISIBILITY_DEFAULT = "default";
@@ -126,26 +145,46 @@ static const F32 MIN_ARC_LOG = log(MIN_ARC_LIMIT);
 static const F32 MAX_ARC_LOG = log(MAX_ARC_LIMIT);
 static const F32 ARC_LIMIT_MAP_SCALE = (MAX_ARC_LOG - MIN_ARC_LOG) / (MAX_INDIRECT_ARC_LIMIT - MIN_INDIRECT_ARC_LIMIT);
 
+const std::string DEFAULT_SKIN = "alchemy";
+
 class LLVoiceSetKeyDialog : public LLModalDialog
 {
 public:
 	LLVoiceSetKeyDialog(const LLSD& key);
 	~LLVoiceSetKeyDialog();
 	
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild() override;
 	
 	void setParent(LLFloaterPreference* parent) { mParent = parent; }
 	
-	BOOL handleKeyHere(KEY key, MASK mask);
+	BOOL handleKeyHere(KEY key, MASK mask) override;
 	static void onCancel(void* user_data);
 		
 private:
 	LLFloaterPreference* mParent;
 };
 
+typedef enum e_skin_type
+{
+	SYSTEM_SKIN,
+	USER_SKIN
+} ESkinType;
+
+typedef struct skin_t
+{
+	std::string mName = "Unknown";
+	std::string mAuthor = "Unknown";
+	std::string mUrl = "Unknown";
+	LLDate mDate = LLDate(0.0);
+	std::string mCompatVer = "Unknown";
+	std::string mNotes = LLStringUtil::null;
+	ESkinType mType = USER_SKIN;
+	
+} skin_t;
+
 LLVoiceSetKeyDialog::LLVoiceSetKeyDialog(const LLSD& key)
   : LLModalDialog(key),
-	mParent(NULL)
+	mParent(nullptr)
 {
 }
 
@@ -266,6 +305,37 @@ void handleAppearanceCameraMovementChanged(const LLSD& newvalue)
 	}
 }
 
+/*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (0 == option && floater )
+	{
+		if ( floater )
+		{
+			floater->setAllIgnored();
+		//	LLFirstUse::disableFirstUse();
+			floater->buildPopupLists();
+		}
+	}
+	return false;
+}
+
+bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if ( 0 == option && floater )
+	{
+		if ( floater )
+		{
+			floater->resetAllIgnored();
+			//LLFirstUse::resetFirstUse();
+			floater->buildPopupLists();
+		}
+	}
+	return false;
+}
+*/
+
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator)
 {
 	numerator = 0;
@@ -291,6 +361,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mGotPersonalInfo(false),
 	mOriginalIMViaEmail(false),
 	mLanguageChanged(false),
+	mSoundQualityChanged(false),
 	mAvatarDataInitialized(false)
 {
 	LLConversationLog::instance().addObserver(this);
@@ -303,8 +374,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 		LLFloaterReg::add("voice_set_key", "floater_select_key.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLVoiceSetKeyDialog>);
 		registered_dialog = true;
 	}
-
-	// note: non-static functions need 'this', static functions do not.
+	
 	mCommitCallbackRegistrar.add("Pref.Cancel",				boost::bind(&LLFloaterPreference::onBtnCancel, this, _2));
 	mCommitCallbackRegistrar.add("Pref.OK",					boost::bind(&LLFloaterPreference::onBtnOK, this, _2));
 	
@@ -312,23 +382,18 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.WebClearCache",			boost::bind(&LLFloaterPreference::onClickBrowserClearCache, this));
 	mCommitCallbackRegistrar.add("Pref.SetCache",				boost::bind(&LLFloaterPreference::onClickSetCache, this));
 	mCommitCallbackRegistrar.add("Pref.ResetCache",				boost::bind(&LLFloaterPreference::onClickResetCache, this));
-	mCommitCallbackRegistrar.add("Pref.ClickSkin",				boost::bind(&LLFloaterPreference::onClickSkin, this,_1, _2));
-	mCommitCallbackRegistrar.add("Pref.SelectSkin",				boost::bind(&LLFloaterPreference::onSelectSkin, this));
 	mCommitCallbackRegistrar.add("Pref.VoiceSetKey",			boost::bind(&LLFloaterPreference::onClickSetKey, this));
 	mCommitCallbackRegistrar.add("Pref.VoiceSetMiddleMouse",	boost::bind(&LLFloaterPreference::onClickSetMiddleMouse, this));
 	mCommitCallbackRegistrar.add("Pref.SetSounds",				boost::bind(&LLFloaterPreference::onClickSetSounds, this));
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
+	mCommitCallbackRegistrar.add("Pref.RenderExceptions",       boost::bind(&LLFloaterPreference::onClickRenderExceptions, this));
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",		boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
 	mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable",	boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this));
-	// <polarity> Moved to main preferences floater
 	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",	boost::bind(&LLFloaterPreference::updateMaxComplexity, this));
-	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreference::updateMaxNonImpostors,this));
-	// </polarity>
-	
 	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));
-	//mCommitCallbackRegistrar.add("Pref.WindowedMod",			boost::bind(&LLFloaterPreference::onCommitWindowedMode, this)); // <polarity> unused
+	mCommitCallbackRegistrar.add("Pref.WindowedMod",			boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",		boost::bind(&LLFloaterPreference::refreshUI,this));
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",		boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));
 	mCommitCallbackRegistrar.add("Pref.applyUIColor",			boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
@@ -340,51 +405,33 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.AutoReplace",            boost::bind(&LLFloaterPreference::onClickAutoReplace, this));
 	mCommitCallbackRegistrar.add("Pref.PermsDefault",           boost::bind(&LLFloaterPreference::onClickPermsDefault, this));
 	mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
-	//mCommitCallbackRegistrar.add("Pref.Advanced",				boost::bind(&LLFloaterPreference::onClickAdvanced, this)); // <polarity> unused
+	mCommitCallbackRegistrar.add("Pref.Advanced",				boost::bind(&LLFloaterPreference::onClickAdvanced, this));
 
-	// <Black Dragon:NiranV> Catznip's Borderless Window Mode
-	mCommitCallbackRegistrar.add("Pref.FullscreenWindow",		boost::bind(&LLFloaterPreference::toggleFullscreenWindow, this));
 	sSkin = gSavedSettings.getString("SkinCurrent");
-	// </Black Dragon:NiranV>
 
 	mCommitCallbackRegistrar.add("Pref.ClickActionChange",		boost::bind(&LLFloaterPreference::onClickActionChange, this));
 
 	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
-	
+
 	gSavedSettings.getControl("AppearanceCameraMovement")->getCommitSignal()->connect(boost::bind(&handleAppearanceCameraMovementChanged,  _2));
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 
 	mCommitCallbackRegistrar.add("Pref.ClearLog",				boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
 	mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
-	
-	// <Black Dragon:NiranV> Array Debugs
-	mCommitCallbackRegistrar.add("Pref.ArrayX", boost::bind(&LLFloaterPreference::onCommitX, _1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayY", boost::bind(&LLFloaterPreference::onCommitY, _1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayZ", boost::bind(&LLFloaterPreference::onCommitZ, _1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayXD", boost::bind(&LLFloaterPreference::onCommitXd, _1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayYD", boost::bind(&LLFloaterPreference::onCommitYd, _1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayZD", boost::bind(&LLFloaterPreference::onCommitZd, _1, _2));
 
-	// <Black Dragon:NiranV> Vector4
-	mCommitCallbackRegistrar.add("Pref.ArrayVec4X", boost::bind(&LLFloaterPreference::onCommitVec4X, _1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayVec4Y", boost::bind(&LLFloaterPreference::onCommitVec4Y, _1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayVec4Z", boost::bind(&LLFloaterPreference::onCommitVec4Z, _1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayVec4W", boost::bind(&LLFloaterPreference::onCommitVec4W, _1, _2));
-
-	// <Black Dragon:NiranV> Revert to Default
-	mCommitCallbackRegistrar.add("Pref.ResetToDefault", boost::bind(&LLFloaterPreference::resetToDefault, this, _1));
-
-	gSavedSettings.getControl("PVColorManager_LowPriorityFriendStatus")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
-
-	// <polarity> dedicated apply button for graphics
-	mCommitCallbackRegistrar.add("Pref.Apply", boost::bind(&LLFloaterPreference::applyGraphicsOptions, this));
-	// reset texture memory slider
-	mCommitCallbackRegistrar.add("Pref.getRecommendedtextMem", boost::bind(&LLFloaterPreference::resetTextureMemorySlider, this));
-	// reset memory slider. We use this to work around a slider update bug when resetting the underlying control
-	//mCommitCallbackRegistrar.add("Pref.resetFpsLimiterTarget", boost::bind(&LLFloaterPreference::resetFpsLimiterTarget, this));
+	mCommitCallbackRegistrar.add("Pref.ResetToDefault", boost::bind(&LLFloaterPreference::onClickResetControlDefault, this, _2)); // <alchemy/>
+	mCommitCallbackRegistrar.add("Pref.AddGrid", boost::bind(&LLFloaterPreference::onClickAddGrid, this));
+	mCommitCallbackRegistrar.add("Pref.RemoveGrid", boost::bind(&LLFloaterPreference::onClickRemoveGrid, this));
+	mCommitCallbackRegistrar.add("Pref.RefreshGrid", boost::bind(&LLFloaterPreference::onClickRefreshGrid, this));
+	mCommitCallbackRegistrar.add("Pref.DebugGrid", boost::bind(&LLFloaterPreference::onClickDebugGrid, this));
+	mCommitCallbackRegistrar.add("Pref.SelectGrid", boost::bind(&LLFloaterPreference::onSelectGrid, this, _2));
+	mCommitCallbackRegistrar.add("Pref.AddSkin", boost::bind(&LLFloaterPreference::onAddSkin, this));
+	mCommitCallbackRegistrar.add("Pref.RemoveSkin", boost::bind(&LLFloaterPreference::onRemoveSkin, this));
+	mCommitCallbackRegistrar.add("Pref.ApplySkin", boost::bind(&LLFloaterPreference::onApplySkin, this));
+	mCommitCallbackRegistrar.add("Pref.SelectSkin", boost::bind(&LLFloaterPreference::onSelectSkin, this, _2));
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -452,10 +499,6 @@ void LLFloaterPreference::saveAvatarProperties( void )
 
 BOOL LLFloaterPreference::postBuild()
 {
-	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
-
-	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
-
 	gSavedSettings.getControl("ChatBubbleOpacity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onNameTagOpacityChange, this, _2));
 
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeMaturity, this));
@@ -477,6 +520,8 @@ BOOL LLFloaterPreference::postBuild()
 
 	getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
 
+	getChild<LLComboBox>("sound_quality_combo")->setCommitCallback(boost::bind(&LLFloaterPreference::onSoundQualityChange, this));
+
 	getChild<LLComboBox>("FriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"FriendIMOptions"));
 	getChild<LLComboBox>("NonFriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NonFriendIMOptions"));
 	getChild<LLComboBox>("ConferenceIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"ConferenceIMOptions"));
@@ -484,55 +529,53 @@ BOOL LLFloaterPreference::postBuild()
 	getChild<LLComboBox>("NearbyChatOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NearbyChatOptions"));
 	getChild<LLComboBox>("ObjectIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"ObjectIMOptions"));
 
-#if INTERNAL_BUILD
-bool show_token_box = true;
-#else
-bool show_token_box = false;
-#endif
-	auto auth_box = getChild<LLTextEditor>("auth_token_editor");
-	if(auth_box)
-	{
-		auth_box->setEnabled(show_token_box);
-		auth_box->setVisible(show_token_box);
-	}
-	auto auth_text = getChild<LLTextBox>("auth_token_text");
-	if(auth_text)
-	{
-		auth_text->setVisible(show_token_box);
-	}
-	
-
 	// if floater is opened before login set default localized do not disturb message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
-		// <polarity> Don't overwrite DND custom string here.
-		if (!gSavedPerAccountSettings.getBOOL("DoNotDisturbResponseChanged"))
-		{
-			gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
-		}
+		gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
 	}
 
 	// set 'enable' property for 'Clear log...' button
 	changed();
 
 	LLLogChat::setSaveHistorySignal(boost::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
-
+	
+	refreshGridList();
+	mGridListChangedConnection = LLGridManager::getInstance()->addGridListChangedCallback(boost::bind(&LLFloaterPreference::refreshGridList, this));
+	
+	loadUserSkins();
+	
+	getChild<LLPanel>("panel_notify")->setVisible(gDesktopNotificationsp->isImplemented() ? TRUE : FALSE);
+	
+#ifdef LL_DARWIN
+	getChild<LLView>("OSXBadgeNotifications")->setVisible(TRUE);
+#else // !LL_DARWIN
+	getChild<LLView>("OSXBadgeNotifications")->setVisible(FALSE);
+#endif // LL_DARWIN
 
 	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
 	fov_slider->setMinValue(LLViewerCamera::getInstance()->getMinView());
 	fov_slider->setMaxValue(LLViewerCamera::getInstance()->getMaxView());
 
 
-	// <Black Dragon:NiranV> Refresh all controls
-	refreshGraphicControls();
 	return TRUE;
 }
 
 void LLFloaterPreference::updateDeleteTranscriptsButton()
 {
-	std::vector<std::string> list_of_transcriptions_file_names;
-	LLLogChat::getListOfTranscriptFiles(list_of_transcriptions_file_names);
-	getChild<LLButton>("delete_transcripts")->setEnabled(list_of_transcriptions_file_names.size() > 0);
+	BOOL enable = FALSE;
+
+	// get Users log directory
+	std::string dirname = gDirUtilp->getPerAccountChatLogsDir() + gDirUtilp->getDirDelimiter();
+	if (LLFile::isdir(dirname))
+	{
+		// Check if any text files.
+		LLDirIterator iter(dirname, "*.txt");
+		std::string temp;
+		enable = static_cast<BOOL>(iter.next(temp));
+	}
+
+	getChild<LLButton>("delete_transcripts")->setEnabled(enable);
 }
 
 void LLFloaterPreference::onDoNotDisturbResponseChanged()
@@ -545,6 +588,364 @@ void LLFloaterPreference::onDoNotDisturbResponseChanged()
 	gSavedPerAccountSettings.setBOOL("DoNotDisturbResponseChanged", response_changed_flag );
 }
 
+////////////////////////////////////////////////////
+// Grid panel
+
+void LLFloaterPreference::refreshGridList()
+{
+	LLScrollListCtrl* grid_list = getChild<LLScrollListCtrl>("grid_list");
+	grid_list->clearRows();
+	std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();
+	for (std::map<std::string, std::string>::iterator grid_iter = known_grids.begin();
+		 grid_iter != known_grids.end(); grid_iter++)
+	{
+		if (!grid_iter->first.empty() && !grid_iter->second.empty())
+		{
+			bool connected_grid = LLGridManager::getInstance()->getGrid() == grid_iter->first;
+			std::vector<std::string> uris;
+			LLGridManager::getInstance()->getLoginURIs(grid_iter->first, uris);
+			LLURI login_uri = LLURI(uris.at(0));
+			
+			LLSD row;
+			row["id"] = grid_iter->first;
+			row["columns"][0]["column"] = "grid_label";
+			row["columns"][0]["value"] = grid_iter->second;
+			row["columns"][0]["font"]["style"] = connected_grid ? "BOLD" : "NORMAL";
+			row["columns"][1]["column"] = "login_uri";
+			row["columns"][1]["value"] = login_uri.authority();
+			row["columns"][1]["font"]["style"] = connected_grid ? "BOLD" : "NORMAL";
+			
+			grid_list->addElement(row);
+		}
+	}
+}
+
+void LLFloaterPreference::onClickAddGrid()
+{
+	std::string login_uri = getChild<LLLineEditor>("add_grid")->getValue().asString();
+	LLGridManager::getInstance()->addRemoteGrid(login_uri, LLGridManager::ADD_MANUAL);
+}
+
+void LLFloaterPreference::onClickRemoveGrid()
+{
+	std::string grid = getChild<LLScrollListCtrl>("grid_list")->getSelectedValue().asString();
+	if (LLGridManager::getInstance()->getGrid() == grid)
+	{
+		LLNotificationsUtil::add("CannotRemoveConnectedGrid",
+								 LLSD().with("GRID", LLGridManager::getInstance()->getGridLabel()));
+	}
+	else
+	{
+		LLNotificationsUtil::add("ConfirmRemoveGrid",
+								 LLSD().with("GRID", LLGridManager::getInstance()->getGridLabel(grid)),
+								 LLSD(grid), boost::bind(&LLFloaterPreference::handleRemoveGridCB, this, _1, _2));
+	}
+}
+
+void LLFloaterPreference::onClickRefreshGrid()
+{
+	std::string grid = getChild<LLScrollListCtrl>("grid_list")->getSelectedValue().asString();
+	// So I'm a little paranoid, no big deal...
+	if (!LLGridManager::getInstance()->isSystemGrid(grid))
+	{
+		LLGridManager::getInstance()->addRemoteGrid(grid, LLGridManager::ADD_MANUAL);
+	}
+}
+
+void LLFloaterPreference::onClickDebugGrid()
+{
+	LLSD args;
+	std::stringstream data_str;
+	const std::string& grid = getChild<LLScrollListCtrl>("grid_list")->getSelectedValue().asString().c_str();
+	LLSD gridInfo = LLGridManager::getInstance()->getGridInfo(grid);
+	LLSDSerialize::toPrettyXML(gridInfo, data_str);
+	args["title"] = llformat("%s - %s", LLTrans::getString("GridInfoTitle").c_str(), grid.c_str());
+	args["data"] = data_str.str();
+	LLFloaterReg::showInstance("generic_text", args);
+}
+
+void LLFloaterPreference::onSelectGrid(const LLSD& data)
+{
+	getChild<LLUICtrl>("remove_grid")->setEnabled(LLGridManager::getInstance()->getGrid() != data.asString()
+												  && !LLGridManager::getInstance()->isSystemGrid(data.asString()));
+	getChild<LLUICtrl>("refresh_grid")->setEnabled(!LLGridManager::getInstance()->isSystemGrid(data.asString()));
+	getChild<LLUICtrl>("debug_grid")->setEnabled(!data.asString().empty());
+}
+
+bool LLFloaterPreference::handleRemoveGridCB(const LLSD& notification, const LLSD& response)
+{
+	const S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (0 == option)
+	{
+		const std::string& grid = notification["payload"].asString();
+		if (!LLGridManager::getInstance()->removeGrid(grid))
+			LLNotificationsUtil::add("RemoveGridFailure",
+									 LLSD().with("GRID", notification["substitutions"]["GRID"].asString()));
+	}
+	return false;
+}
+
+////////////////////////////////////////////////////
+// Skins panel
+
+skin_t manifestFromJson(const std::string& filename, const ESkinType type)
+{
+	skin_t skin;
+	Json::CharReaderBuilder reader;
+	Json::Value root;
+	std::string errors;
+	llifstream in;
+	in.open(filename);
+	if (in.is_open())
+	{
+		if (Json::parseFromStream(reader, in, &root, &errors))
+		{
+			skin.mName = root.get("name", "Unknown").asString();
+			skin.mAuthor = root.get("author", "Unknown").asString();
+			skin.mUrl = root.get("url", "Unknown").asString();
+			skin.mCompatVer = root.get("compatibility", "Unknown").asString();
+			skin.mDate = LLDate(root.get("date", "1983-04-20T00:00:00Z").asString());
+			skin.mNotes = root.get("notes", "").asString();
+			// If it's a system skin, the compatability version is always the current build
+			if (type == SYSTEM_SKIN)
+			{
+				skin.mCompatVer = LLVersionInfo::getShortVersion();
+			}
+		}
+		else
+		{
+			LL_WARNS() << "Failed to parse " << filename << ": " << errors << LL_ENDL;
+		}
+		in.close();
+	}
+	skin.mType = type;
+	return skin;
+}
+
+void LLFloaterPreference::loadUserSkins()
+{
+	mUserSkins.clear();
+	LLDirIterator sysiter(gDirUtilp->getSkinBaseDir(), "*");
+	bool found = true;
+	while (found)
+	{
+		std::string dir;
+		if ((found = sysiter.next(dir)))
+		{
+			const std::string& fullpath = gDirUtilp->add(gDirUtilp->getSkinBaseDir(), dir);
+			if (!LLFile::isdir(fullpath)) continue; // only directories!
+			
+			const std::string& manifestpath = gDirUtilp->add(fullpath, "manifest.json");
+			skin_t skin = manifestFromJson(manifestpath, SYSTEM_SKIN);
+			
+			mUserSkins.emplace(dir, skin);
+		}
+	}
+	
+	const std::string userskindir = gDirUtilp->add(gDirUtilp->getOSUserAppDir(), "skins");
+	if (LLFile::isdir(userskindir))
+	{
+		LLDirIterator iter(userskindir, "*");
+		found = true;
+		while (found)
+		{
+			std::string dir;
+			if ((found = iter.next(dir)))
+			{
+				const std::string& fullpath = gDirUtilp->add(userskindir, dir);
+				if (!LLFile::isdir(fullpath)) continue; // only directories!
+
+				const std::string& manifestpath = gDirUtilp->add(fullpath, "manifest.json");
+				skin_t skin = manifestFromJson(manifestpath, USER_SKIN);
+
+				mUserSkins.emplace(dir, skin);
+			}
+		}
+	}
+	reloadSkinList();
+}
+
+void LLFloaterPreference::reloadSkinList()
+{
+	LLScrollListCtrl* skin_list = getChild<LLScrollListCtrl>("skin_list");
+	const std::string current_skin = gSavedSettings.getString("SkinCurrent");
+	
+	skin_list->clearRows();
+
+	// User Downloaded Skins
+	for (const std::pair<std::string, skin_t>& skin : mUserSkins)
+	{
+		LLSD row;
+		row["id"] = skin.first;
+		row["columns"][0]["value"] = skin.second.mName == "Unknown" ? skin.first : skin.second.mName;
+		row["columns"][0]["font"]["style"] = current_skin == skin.first ? "BOLD" : "NORMAL";
+		skin_list->addElement(row);
+	}
+	skin_list->setSelectedByValue(current_skin, TRUE);
+	onSelectSkin(skin_list->getSelectedValue());
+}
+
+void LLFloaterPreference::onAddSkin()
+{
+	LLFilePicker& filepicker = LLFilePicker::instance();
+	if (filepicker.getOpenFile(LLFilePicker::FFLOAD_ZIP))
+	{
+		const std::string& package = filepicker.getFirstFile();
+		LLUnZip* zip = new LLUnZip(package);
+		if (zip->isValid())
+		{
+			size_t buf_size = zip->getSizeFile("manifest.json");
+			if (buf_size)
+			{
+				buf_size++;
+				buf_size *= sizeof(char);
+				char * buf = (char*)malloc(buf_size);
+				zip->extractFile("manifest.json", buf, buf_size);
+				buf[buf_size - 1] = '\0'; // force.
+				std::stringstream ss;
+				ss << buf;
+				free(buf);
+				
+				Json::CharReaderBuilder reader;
+				Json::Value root;
+				std::string errors;
+				if (Json::parseFromStream(reader, ss, &root, &errors))
+				{
+					const std::string& name = root.get("name", "Unknown").asString();
+					std::string pathname = gDirUtilp->add(gDirUtilp->getOSUserAppDir(), "skins");
+					if (!gDirUtilp->fileExists(pathname))
+					{
+						LLFile::mkdir(pathname);
+					}
+					pathname = gDirUtilp->add(pathname, name);
+					if (!LLFile::isdir(pathname) && (LLFile::mkdir(pathname) != 0))
+					{
+						LLNotificationsUtil::add("AddSkinUnpackFailed");
+					}
+					else if (!zip->extract(pathname))
+					{
+						LLNotificationsUtil::add("AddSkinUnpackFailed");
+					}
+					else
+					{
+						loadUserSkins();
+						LLNotificationsUtil::add("AddSkinSuccess", LLSD().with("PACKAGE", name));
+					}
+				}
+				else
+				{
+					LLNotificationsUtil::add("AddSkinCantParseManifest", LLSD().with("PACKAGE", package));
+				}
+			}
+			else
+			{
+				LLNotificationsUtil::add("AddSkinNoManifest", LLSD().with("PACKAGE", package));
+			}
+		}
+		
+		delete zip;
+	}
+}
+
+void LLFloaterPreference::onRemoveSkin()
+{
+	LLScrollListCtrl* skin_list = findChild<LLScrollListCtrl>("skin_list");
+	if (skin_list)
+	{
+		LLSD args;
+		args["SKIN"] = skin_list->getSelectedValue().asString();
+		LLNotificationsUtil::add("ConfirmRemoveSkin", args, args,
+								 boost::bind(&LLFloaterPreference::callbackRemoveSkin, this, _1, _2));
+	}
+}
+
+void LLFloaterPreference::callbackRemoveSkin(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0) // YES
+	{
+		const std::string& skin = notification["payload"]["SKIN"].asString();
+		std::string dir = gDirUtilp->add(gDirUtilp->getOSUserAppDir(), "skins");
+		dir = gDirUtilp->add(dir, skin);
+		if (gDirUtilp->deleteDirAndContents(dir) > 0)
+		{
+			skinmap_t::iterator iter = mUserSkins.find(skin);
+			if (iter != mUserSkins.end())
+				mUserSkins.erase(iter);
+			// If we just deleted the current skin, reset to default. It might not even be a good
+			// idea to allow this, but we'll see!
+			if (gSavedSettings.getString("SkinCurrent") == skin)
+			{
+				gSavedSettings.setString("SkinCurrent", DEFAULT_SKIN);
+			}
+			LLNotificationsUtil::add("RemoveSkinSuccess", LLSD().with("SKIN", skin));
+		}
+		else
+		{
+			LLNotificationsUtil::add("RemoveSkinFailure", LLSD().with("SKIN", skin));
+		}
+		reloadSkinList();
+	}
+}
+
+void LLFloaterPreference::callbackApplySkin(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	switch (option)
+	{
+		case 0:	// Yes
+			gSavedSettings.setBOOL("ResetUserColorsOnLogout", TRUE);
+			break;
+		case 1:	// No
+			gSavedSettings.setBOOL("ResetUserColorsOnLogout", FALSE);
+			break;
+		case 2:	// Cancel
+			gSavedSettings.setString("SkinCurrent", sSkin);
+			reloadSkinList();
+			break;
+		default:
+			LL_WARNS() << "Unhandled option! How could this be?" << LL_ENDL;
+			break;
+	}
+}
+
+void LLFloaterPreference::onApplySkin()
+{
+	LLScrollListCtrl* skin_list = findChild<LLScrollListCtrl>("skin_list");
+	if (skin_list)
+	{
+		gSavedSettings.setString("SkinCurrent", skin_list->getSelectedValue().asString());
+		reloadSkinList();
+	}
+	if (sSkin != gSavedSettings.getString("SkinCurrent"))
+	{
+		LLNotificationsUtil::add("ChangeSkin", LLSD(), LLSD(),
+								 boost::bind(&LLFloaterPreference::callbackApplySkin, this, _1, _2));
+	}
+}
+
+void LLFloaterPreference::onSelectSkin(const LLSD& data)
+{
+	bool userskin = false;
+	skinmap_t::iterator iter = mUserSkins.find(data.asString());
+	if (iter != mUserSkins.end())
+	{
+		refreshSkinInfo(iter->second);
+		userskin = (iter->second.mType == USER_SKIN);
+	}
+	getChild<LLUICtrl>("remove_skin")->setEnabled(userskin);
+}
+
+void LLFloaterPreference::refreshSkinInfo(const skin_t& skin)
+{
+	getChild<LLTextBase>("skin_name")->setText(skin.mName);
+	getChild<LLTextBase>("skin_author")->setText(skin.mAuthor);
+	getChild<LLTextBase>("skin_homepage")->setText(skin.mUrl);
+	getChild<LLTextBase>("skin_date")->setText(skin.mDate.toHTTPDateString("%A, %d %b %Y"));
+	getChild<LLTextBase>("skin_compatibility")->setText(skin.mCompatVer);
+	getChild<LLTextBase>("skin_notes")->setText(skin.mNotes);
+}
+
 LLFloaterPreference::~LLFloaterPreference()
 {
 	// clean up user data
@@ -553,138 +954,19 @@ LLFloaterPreference::~LLFloaterPreference()
 	{
 		ctrl_window_size->setCurrentByIndex(i);
 	}
+	
+	if (mGridListChangedConnection.connected())
+		mGridListChangedConnection.disconnect();
 
 	LLConversationLog::instance().removeObserver(this);
 }
 
-//BD - Vector4
-void LLFloaterPreference::onCommitVec4W(LLUICtrl* ctrl, const LLSD& param)
-{
-	LLVector4 value = gSavedSettings.getVector4(param.asString());
-	value.mV[VW] = ctrl->getValue().asReal();
-	gSavedSettings.setVector4(param.asString(), value);
-}
-void LLFloaterPreference::onCommitVec4X(LLUICtrl* ctrl, const LLSD& param)
-{
-	LLVector4 value = gSavedSettings.getVector4(param.asString());
-	value.mV[VX] = ctrl->getValue().asReal();
-	gSavedSettings.setVector4(param.asString(), value);
-}
-void LLFloaterPreference::onCommitVec4Y(LLUICtrl* ctrl, const LLSD& param)
-{
-	LLVector4 value = gSavedSettings.getVector4(param.asString());
-	value.mV[VY] = ctrl->getValue().asReal();
-	gSavedSettings.setVector4(param.asString(), value);
-}
-void LLFloaterPreference::onCommitVec4Z(LLUICtrl* ctrl, const LLSD& param)
-{
-	LLVector4 value = gSavedSettings.getVector4(param.asString());
-	value.mV[VZ] = ctrl->getValue().asReal();
-	gSavedSettings.setVector4( param.asString() , value);
-}
-// <Black Dragon:NiranV> Arrays Debug
-void LLFloaterPreference::onCommitX(LLUICtrl* ctrl, const LLSD& param)
-{
-	LLVector3 value = gSavedSettings.getVector3(param.asString());
-	value.mV[VX] = ctrl->getValue().asReal();
-	gSavedSettings.setVector3( param.asString() , value);
-}
-void LLFloaterPreference::onCommitY(LLUICtrl* ctrl, const LLSD& param)
-{
-	LLVector3 value = gSavedSettings.getVector3(param.asString());
-	value.mV[VY] = ctrl->getValue().asReal();
-	gSavedSettings.setVector3( param.asString() , value);
-}
-void LLFloaterPreference::onCommitZ(LLUICtrl* ctrl, const LLSD& param)
-{
-	LLVector3 value = gSavedSettings.getVector3(param.asString());
-	value.mV[VZ] = ctrl->getValue().asReal();
-	gSavedSettings.setVector3( param.asString() , value);
-}
-void LLFloaterPreference::onCommitXd(LLUICtrl* ctrl, const LLSD& param)
-{
-	LLVector3d value = gSavedSettings.getVector3d(param.asString());
-	value.mdV[VX] = ctrl->getValue().asReal();
-	gSavedSettings.setVector3d( param.asString() , value);
-}
-void LLFloaterPreference::onCommitYd(LLUICtrl* ctrl, const LLSD& param)
-{
-	LLVector3d value = gSavedSettings.getVector3d(param.asString());
-	value.mdV[VY] = ctrl->getValue().asReal();
-	gSavedSettings.setVector3d( param.asString() , value);
-}
-void LLFloaterPreference::onCommitZd(LLUICtrl* ctrl, const LLSD& param)
-{
-	LLVector3d value = gSavedSettings.getVector3d(param.asString());
-	value.mdV[VZ] = ctrl->getValue().asReal();
-	gSavedSettings.setVector3d( param.asString() , value);
-}
-// <Black Dragon:NiranV> Catznip's Borderless Window Mode
-void LLFloaterPreference::toggleFullscreenWindow()
-{
-	if ((gViewerWindow) && (gViewerWindow->canFullscreenWindow()))
-		gViewerWindow->setFullscreenWindow(!gViewerWindow->getFullscreenWindow());
-}
-// <polarity> apply fullscreen setting on save
-void LLFloaterPreference::applyGraphicsOptions()
-{
-	if(!gViewerWindow || !gViewerWindow->canFullscreenWindow())
-	{
-		return;
-	}
-	static LLCachedControl<bool> windowed_fullscreen(gSavedSettings, "FullScreenWindow");
-	gViewerWindow->setFullscreenWindow(windowed_fullscreen);
-}
-// <Black Dragon:NiranV> Refresh all controls
-void LLFloaterPreference::refreshGraphicControls()
-{
-	//getChild<LLUICtrl>("PVRender_ToneMappingControlA_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VX]);
-	//getChild<LLUICtrl>("PVRender_ToneMappingControlA_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VY]);
-	//getChild<LLUICtrl>("PVRender_ToneMappingControlA_Z")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VZ]);
-	//getChild<LLUICtrl>("PVRender_ToneMappingControlB_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VX]);
-	//getChild<LLUICtrl>("PVRender_ToneMappingControlB_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VY]);
-	//getChild<LLUICtrl>("PVRender_ToneMappingControlB_Z")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VZ]);
-	//getChild<LLUICtrl>("PVRender_ToneMappingControlC_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlC").mV[VX]);
-	//getChild<LLUICtrl>("PVRender_ToneMappingControlC_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlC").mV[VY]);
-	//getChild<LLUICtrl>("PVRender_Gamma_X")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VX]);
-	//getChild<LLUICtrl>("PVRender_Gamma_Y")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VY]);
-	//getChild<LLUICtrl>("PVRender_Gamma_Z")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VZ]);
-	//getChild<LLUICtrl>("PVRender_Exposure_X")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VX]);
-	//getChild<LLUICtrl>("PVRender_Exposure_Y")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VY]);
-	//getChild<LLUICtrl>("PVRender_Exposure_Z")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VZ]);
-	//getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_X")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VX]);
-	//getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_Y")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VY]);
-	//getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_Z")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VZ]);
-	//getChild<LLUICtrl>("PVRender_Vignette_X")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VX]);
-	//getChild<LLUICtrl>("PVRender_Vignette_Y")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VY]);
-	//getChild<LLUICtrl>("PVRender_Vignette_Z")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VZ]);
-
-	// <polarity> set initial value for avatar complexity stuff.
-	//@todo re-write this. what the hell. Q_Q
-	LLAvatarComplexityControls::setIndirectControls();
-	auto nonimpostorText = getChild<LLTextBox>("IndirectMaxNonImpostorsText", true);
-	auto maxcomplexityText = getChild<LLTextBox>("IndirectMaxComplexityText", true);
-	if (nonimpostorText)
-	{
-		setMaxNonImpostorsText(gSavedSettings.getU32("RenderAvatarMaxNonImpostors"), nonimpostorText);
-	}
-	if (maxcomplexityText)
-	{
-    	LLAvatarComplexityControls::setText(gSavedSettings.getU32("RenderAvatarMaxComplexity"), maxcomplexityText);
-    }
-	
-	updateMaxComplexity();
-	updateMaxNonImpostors();
-	// </polarity>
-}
-
-// </Black Dragon:NiranV>
 void LLFloaterPreference::draw()
 {
-	BOOL has_first_selected = (getChildRef<LLScrollListCtrl>("disabled_popups").getFirstSelected()!=NULL);
+	BOOL has_first_selected = (getChildRef<LLScrollListCtrl>("disabled_popups").getFirstSelected()!= nullptr);
 	gSavedSettings.setBOOL("FirstSelectedDisabledPopups", has_first_selected);
 	
-	has_first_selected = (getChildRef<LLScrollListCtrl>("enabled_popups").getFirstSelected()!=NULL);
+	has_first_selected = (getChildRef<LLScrollListCtrl>("enabled_popups").getFirstSelected()!= nullptr);
 	gSavedSettings.setBOOL("FirstSelectedEnabledPopups", has_first_selected);
 	
 	LLFloater::draw();
@@ -702,9 +984,6 @@ void LLFloaterPreference::saveSettings()
 		if (panel)
 			panel->saveSettings();
 	}
-	// <polarity> LookAt Logic
-	confirmNosyLookAt();
-	// </polarity>
 }	
 
 void LLFloaterPreference::apply()
@@ -714,8 +993,7 @@ void LLFloaterPreference::apply()
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (sSkin != gSavedSettings.getString("SkinCurrent"))
 	{
-		LLNotificationsUtil::add("ChangeSkin");
-		refreshSkin(this);
+		sSkin = gSavedSettings.getString("SkinCurrent");
 	}
 	// Call apply() on all panels that derive from LLPanelPreference
 	for (child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
@@ -804,7 +1082,7 @@ void LLFloaterPreference::cancel()
 	LLFloaterReg::hideInstance("prefs_spellchecker");
 
 	// hide advancede floater
-//	LLFloaterReg::hideInstance("prefs_graphics_advanced"); // <polarity> unused
+	LLFloaterReg::hideInstance("prefs_graphics_advanced");
 	
 	// reverts any changes to current skin
 	gSavedSettings.setString("SkinCurrent", sSkin);
@@ -828,7 +1106,8 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	// this variable and if that follows it are used to properly handle do not disturb mode response message
 	static bool initialized = FALSE;
 	// if user is logged in and we haven't initialized do not disturb mode response yet, do it
-	if (!initialized && LLStartUp::getStartupState() == STATE_STARTED)
+	bool logged_in = LLStartUp::getStartupState() == STATE_STARTED;
+	if (!initialized && logged_in)
 	{
 		// Special approach is used for do not disturb response localization, because "DoNotDisturbModeResponse" is
 		// in non-localizable xml, and also because it may be changed by user and in this case it shouldn't be localized.
@@ -841,6 +1120,12 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		// do not disturb response message.
 		gSavedPerAccountSettings.getControl("DoNotDisturbModeResponse")->getSignal()->connect(boost::bind(&LLFloaterPreference::onDoNotDisturbResponseChanged, this));
 	}
+	getChildView("do_not_disturb_response")->setEnabled(logged_in);
+	getChildView("AlchemyAutoresponse")->setEnabled(logged_in);
+	getChildView("AlchemyAutoresponseNotFriend")->setEnabled(logged_in);
+	getChildView("AlchemyAutoresponseEnable")->setEnabled(logged_in);
+	getChildView("AlchemyAutoresponseNotFriendEnable")->setEnabled(logged_in);
+	
 	gAgent.sendAgentUserInfoRequest();
 
 	/////////////////////////// From LLPanelGeneral //////////////////////////
@@ -865,14 +1150,19 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 			}
 		}
 		getChildView("maturity_desired_combobox")->setEnabled( true);
+		getChildView("maturity_desired_textbox")->setVisible( false);
 	}
 	else
 	{
+		getChild<LLUICtrl>("maturity_desired_textbox")->setValue(maturity_combo->getSelectedItemLabel());
 		getChildView("maturity_desired_combobox")->setEnabled( false);
 	}
 
 	// Forget previous language changes.
 	mLanguageChanged = false;
+
+	// Forget previous sound quality changes.
+	mSoundQualityChanged = false;
 
 	// Display selected maturity icons.
 	onChangeMaturity();
@@ -900,37 +1190,19 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
-	refreshGraphicControls();
 	
 	// Make sure the current state of prefs are saved away when
 	// when the floater is opened.  That will make cancel do its
 	// job
 	saveSettings();
+	LLButton* exceptions_btn = findChild<LLButton>("RenderExceptionsButton");
+	exceptions_btn->setEnabled(LLStartUp::getStartupState() == STATE_STARTED);
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
 {
 	refreshEnabledGraphics();
 }
-
-// <polarity> unused
-#if 0
-void LLFloaterPreferenceGraphicsAdvanced::onVertexShaderEnable()
-{
-	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
-	if (instance)
-	{
-		instance->refresh();
-	}
-
-	refreshEnabledGraphics();
-}
-
-void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledGraphics()
-{
-	refreshEnabledState();
-}
-#endif
 
 void LLFloaterPreference::onAvatarImpostorsEnable()
 {
@@ -947,16 +1219,6 @@ void LLFloaterPreference::initDoNotDisturbResponse()
 		}
 	}
 
-//static 
-void LLFloaterPreference::updateShowFavoritesCheckbox(bool val)
-{
-	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
-	if (instance)
-	{
-		instance->getChild<LLUICtrl>("favorites_on_login_check")->setValue(val);
-	}	
-}
-
 void LLFloaterPreference::setHardwareDefaults()
 {
 	LLFeatureManager::getInstance()->applyRecommendedSettings();
@@ -965,6 +1227,7 @@ void LLFloaterPreference::setHardwareDefaults()
 	LLAvatarComplexityControls::setIndirectControls(); 
 
 	refreshEnabledGraphics();
+
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
 	child_list_t::const_iterator end = tabcontainer->getChildList()->end();
@@ -977,9 +1240,6 @@ void LLFloaterPreference::setHardwareDefaults()
 			panel->setHardwareDefaults();
 		}
 	}
-	// <polarity> HACK: forcefully save settings and apply them to prevent temporary renderer bork
-	saveSettings();
-	apply();
 }
 
 //virtual
@@ -1011,17 +1271,14 @@ void LLFloaterPreference::onBtnOK(const LLSD& userdata)
 		saveSettings();
 		apply();
 		
-		// <polarity> unused
-//		if (userdata.asString() == "closeadvanced")
-//		{
-//			LLFloaterReg::hideInstance("prefs_graphics_advanced");
-//		}
-//		else
-//		{
-//			closeFloater(false);
-//		}
-		// </polarity>
-		closeFloater(false);
+		if (userdata.asString() == "closeadvanced")
+		{
+			LLFloaterReg::hideInstance("prefs_graphics_advanced");
+		}
+		else
+		{
+			closeFloater(false);
+		}
 
 		//Conversation transcript and log path changed so reload conversations based on new location
 		if(mPriorInstantMessageLogPath.length())
@@ -1041,12 +1298,12 @@ void LLFloaterPreference::onBtnOK(const LLSD& userdata)
 		}
 
 		LLUIColorTable::instance().saveUserSettings();
-		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"));
+		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
 		
 		//Only save once logged in and loaded per account settings
 		if(mGotPersonalInfo)
 		{
-			gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"));
+			gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
 	}
 	}
 	else
@@ -1072,16 +1329,14 @@ void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
 	}
 	cancel();
 
-// <polarity> unused
-//	if (userdata.asString() == "closeadvanced")
-//	{
-//		LLFloaterReg::hideInstance("prefs_graphics_advanced");
-//	}
-//	else
-//	{
-//		closeFloater();
-//	}
-	closeFloater();
+	if (userdata.asString() == "closeadvanced")
+	{
+		LLFloaterReg::hideInstance("prefs_graphics_advanced");
+	}
+	else
+	{
+		closeFloater();
+	}
 }
 
 // static 
@@ -1102,12 +1357,11 @@ void LLFloaterPreference::refreshEnabledGraphics()
 		instance->refresh();
 	}
 
-// <polarity> unused
-//	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
-//	if (advanced)
-//	{
-//		advanced->refresh();
-//	}
+	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
+	if (advanced)
+	{
+		advanced->refresh();
+	}
 }
 
 void LLFloaterPreference::onClickClearCache()
@@ -1136,18 +1390,17 @@ void LLFloaterPreference::onNotificationsChange(const std::string& OptionName)
 {
 	mNotificationOptions[OptionName] = getChild<LLComboBox>(OptionName)->getSelectedItemLabel();
 
-// <polarity> I've never seen this work. - Xenhat 2016.11.25
-//	bool show_notifications_alert = true;
-//	for (notifications_map::iterator it_notification = mNotificationOptions.begin(); it_notification != mNotificationOptions.end(); it_notification++)
-//	{
-//		if(it_notification->second != "No action")
-//		{
-//			show_notifications_alert = false;
-//			break;
-//		}
-//	}
-//
-//	getChild<LLTextBox>("notifications_alert")->setVisible(show_notifications_alert);
+	bool show_notifications_alert = true;
+	for (notifications_map::iterator it_notification = mNotificationOptions.begin(); it_notification != mNotificationOptions.end(); it_notification++)
+	{
+		if(it_notification->second != "No action")
+		{
+			show_notifications_alert = false;
+			break;
+		}
+	}
+
+	getChild<LLTextBox>("notifications_alert")->setVisible(show_notifications_alert);
 }
 
 void LLFloaterPreference::onNameTagOpacityChange(const LLSD& newvalue)
@@ -1206,25 +1459,6 @@ void LLFloaterPreference::onClickResetCache()
 	gSavedSettings.setString("CacheLocationTopFolder", top_folder);
 }
 
-void LLFloaterPreference::onClickSkin(LLUICtrl* ctrl, const LLSD& userdata)
-{
-	gSavedSettings.setString("SkinCurrent", userdata.asString());
-	ctrl->setValue(userdata.asString());
-}
-
-void LLFloaterPreference::onSelectSkin()
-{
-	std::string skin_selection = getChild<LLRadioGroup>("skin_selection")->getValue().asString();
-	gSavedSettings.setString("SkinCurrent", skin_selection);
-}
-
-void LLFloaterPreference::refreshSkin(void* data)
-{
-	LLPanel*self = (LLPanel*)data;
-	sSkin = gSavedSettings.getString("SkinCurrent");
-	self->getChild<LLRadioGroup>("skin_selection", true)->setValue(sSkin);
-}
-
 void LLFloaterPreference::buildPopupLists()
 {
 	LLScrollListCtrl& disabled_popups =
@@ -1251,7 +1485,7 @@ void LLFloaterPreference::buildPopupLists()
 		row["columns"][0]["font"] = "SANSSERIF_SMALL";
 		row["columns"][0]["width"] = 400;
 		
-		LLScrollListItem* item = NULL;
+		LLScrollListItem* item = nullptr;
 		
 		bool show_popup = !formp->getIgnored();
 		if (!show_popup)
@@ -1289,175 +1523,28 @@ void LLFloaterPreference::buildPopupLists()
 	}
 }
 
-
-void LLFloaterPreference::updateAALabel()
-{
-	LLTextBox* aa_label = getChild<LLTextBox>("antialiasing label");
-	if(aa_label)
-	{
-		// TODO: Get FXAA as a feature instead of this hacky check
-		std::string new_aa_label_text = llformat("Antialiasing (%s):", (gPipeline.RenderDeferred) ? "FXAA" : "FSAA"); // TODO: translate
-		aa_label->setValue(new_aa_label_text);
-	}
-	getChildView("antialiasing restart")->setVisible(!gPipeline.RenderDeferred);
-}
-
-void LLFloaterPreference::resetTextureMemorySlider()
-{
-	updateMemorySlider(true);
-}
-void LLFloaterPreference::updateMemorySlider(const bool& set_default)
-{
-	// Hardware settings
-	if (!hasChild("hardware_tab", TRUE))
-	{
-		return;
-	}
-	auto memorySlider = getChild<LLSliderCtrl>("GraphicsCardTextureMemory");
-	if(!memorySlider)
-	{
-		return;
-	}
-	if(set_default)
-	{
-		S32 recommended = LLViewerTextureList::getMaxVideoRamSetting(true).value();
-		gSavedSettings.setS32("TextureMemory", recommended);
-		memorySlider->setValue(recommended);
-	}
-	else
-	{
-		memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
-	}
-}
-
-void LLFloaterPreference::resetFpsLimiterTarget()
-{
-	// FPS Limiter slider
-//	auto controlp = gSavedSettings.getControl("PVRender_FPSLimiterTarget");
-//	controlp->resetToDefault(true);
-//	auto fps_limiter_slider = getChild<LLSliderCtrl>("fps_limiter_slider");
-//	if (fps_limiter_slider)
-//	{
-//		fps_limiter_slider->setValue(controlp->get().asInteger());
-//	}
-}
-
 void LLFloaterPreference::refreshEnabledState()
 {
-	// Hardware settings
-	if (hasChild("hardware_tab", TRUE))
-	{
-		auto memorySlider = getChild<LLSliderCtrl>("GraphicsCardTextureMemory");
-		if(memorySlider)
-		{
-			static bool min_max_set = false;
-			if(!min_max_set)
-			{
-				static S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting().value();
-				memorySlider->setMinValue(min_tex_mem);
-				memorySlider->setMaxValue(gMaxVideoRam.value());
-				min_max_set = true;
-			}
-			memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
-		}
-	}
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
-		!gGLManager.mHasVertexBufferObject)
-	{
-		getChildView("vbo")->setEnabled(FALSE);
-		// getChildView("vbo_stream")->setEnabled(FALSE);
-	}
-	else
-//#if LL_DARWIN
-//		getChildView("vbo_stream")->setEnabled(FALSE);  //Hardcoded disable on mac
-//		getChild<LLUICtrl>("vbo_stream")->setValue((LLSD::Boolean) FALSE);
-//#else
-//		getChildView("vbo_stream")->setEnabled(LLVertexBuffer::sEnableVBOs);
-//#endif
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures") ||
-		!gGLManager.mHasVertexBufferObject)
-	{
-		getChildView("texture compression")->setEnabled(FALSE);
-	}
-	// LLSpinCtrl* gamma_ctrl = getChild<LLSpinCtrl>("gamma");
-	// gamma_ctrl->setEnabled(!gPipeline.canUseWindLightShaders());
-	// getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
-	//{
-	//	LLUICtrl* fsaa_ctrl = getChild<LLUICtrl>("fsaa");
-	//	if (gPipeline.canUseAntiAliasing())
-	//	{
-	//		fsaa_ctrl->setEnabled(TRUE);
-	//	}
-	//	else
-	//	{
-	//		fsaa_ctrl->setEnabled(FALSE);
-	//		fsaa_ctrl->setValue((LLSD::Integer) 0);
-	//	}
-	//}
-	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
-// [RLVa:KB] - Checked: 2013-05-11 (RLVa-1.4.9)
-	if (rlv_handler_t::isEnabled())
-	{
-		getChild<LLUICtrl>("do_not_disturb_response")->setEnabled(!RlvActions::hasBehaviour(RLV_BHVR_SENDIM));
-	}
-// [/RLVa:KB]
-
-	BOOL reflections = gSavedSettings.getBOOL("VertexShaderEnable")
-		&& gGLManager.mHasCubeMap
-		&& LLCubeMap::sUseCubeMaps;
-	ctrl_reflections->setEnabled(reflections);
-	LLCheckBoxCtrl* bumpshiny_ctrl = getChild<LLCheckBoxCtrl>("BumpShiny");
-	bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
-	bumpshiny_ctrl->setEnabled(bumpshiny ? TRUE : FALSE);
-    //LLCheckBoxCtrl* ctrl_enhanced_skel = getChild<LLCheckBoxCtrl>("AvatarEnhancedSkeleton");
-	LLCheckBoxCtrl* ctrl_avatar_vp = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
-	LLCheckBoxCtrl* ctrl_avatar_cloth = getChild<LLCheckBoxCtrl>("AvatarCloth");
-	bool avatar_vp_enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarVP");
-	if (LLViewerShaderMgr::sInitialized)
-	{
-		S32 max_avatar_shader = LLViewerShaderMgr::instance()->mMaxAvatarShaderLevel;
-		avatar_vp_enabled = (max_avatar_shader > 0) ? TRUE : FALSE;
-	}
-
-	ctrl_avatar_vp->setEnabled(avatar_vp_enabled);
-	if (gSavedSettings.getBOOL("VertexShaderEnable") == FALSE || 
-		gSavedSettings.getBOOL("RenderAvatarVP") == FALSE)
-	{
-		ctrl_avatar_cloth->setEnabled(false);
-	} 
-	else
-	{
-		ctrl_avatar_cloth->setEnabled(true);
-	}
-	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
-	// if vertex shaders off, disable all shader related products
-	LLRadioGroup* terrain_detail = getChild<LLRadioGroup>("TerrainDetailRadio");   // can be linked with control var
-//	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
-	bool fCtrlShaderEnable = LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable");
-	ctrl_shader_enable->setEnabled(
-		fCtrlShaderEnable && ((!gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)) || (!gSavedSettings.getBOOL("VertexShaderEnable"))) );
-	BOOL shaders = ctrl_shader_enable->get();
-	if (shaders)
-	{
-		terrain_detail->setValue(1);
-		terrain_detail->setEnabled(FALSE);
-	}
-	else
-	{
-		terrain_detail->setEnabled(TRUE);
-	}
 	LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
-	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
-	bool fCtrlWindLightEnable = fCtrlShaderEnable && shaders;
-	ctrl_wind_light->setEnabled(
-		fCtrlWindLightEnable && ((!gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)) || (!gSavedSettings.getBOOL("WindLightUseAtmosShaders"))) );
-
-	sky->setEnabled(ctrl_wind_light->get() && shaders);
-	//Deferred/SSAO/Shadows
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 
+	// if vertex shaders off, disable all shader related products
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable") ||
+		!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
+	{
+		ctrl_wind_light->setEnabled(FALSE);
+		ctrl_wind_light->setValue(FALSE);
+	}
+	else
+	{
+		ctrl_wind_light->setEnabled(gSavedSettings.getBOOL("VertexShaderEnable"));
+	}
+
+	//Deferred/SSAO/Shadows
+	BOOL bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
+	BOOL shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders") && gSavedSettings.getBOOL("VertexShaderEnable");
 	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-						((bumpshiny_ctrl && bumpshiny_ctrl->get()) ? TRUE : FALSE) &&
+						bumpshiny &&
 						shaders && 
 						gGLManager.mHasFramebufferObject &&
 						gSavedSettings.getBOOL("RenderAvatarVP") &&
@@ -1465,173 +1552,9 @@ void LLFloaterPreference::refreshEnabledState()
 
 	ctrl_deferred->setEnabled(enabled);
 
-	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
-	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
-	LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
-	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
-	ctrl_deferred->set(gSavedSettings.getBOOL("RenderDeferred"));
-	ctrl_ssao->setEnabled(enabled);
-	ctrl_dof->setEnabled(enabled);
-	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
-	ctrl_shadow->setEnabled(enabled);
-	LLComboBox* ctrl_avatar_shadow = getChild<LLComboBox>("rigmeshshadow_dropdown");
-	ctrl_avatar_shadow->setEnabled(enabled && ctrl_shadow->getValue().asInteger() > 0);
-	disableUnavailableSettings();
-	getChildView("block_list")->setEnabled(LLLoginInstance::getInstance()->authSuccess());
-	LLFloaterPreference::updateAALabel();
-// Cannot have floater active until caps have been received
+	// Cannot have floater active until caps have been received
 	getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() < STATE_STARTED ? false : true);
 }
-
-#if 0
-void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
-{
-	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
-	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
-
-	// Reflections
-	BOOL reflections = gSavedSettings.getBOOL("VertexShaderEnable") 
-		&& gGLManager.mHasCubeMap
-		&& LLCubeMap::sUseCubeMaps;
-	ctrl_reflections->setEnabled(reflections);
-	reflections_text->setEnabled(reflections);
-	
-	// Bump & Shiny	
-	LLCheckBoxCtrl* bumpshiny_ctrl = getChild<LLCheckBoxCtrl>("BumpShiny");
-	bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
-	bumpshiny_ctrl->setEnabled(bumpshiny ? TRUE : FALSE);
-    
-	// Avatar Mode
-	// Enable Avatar Shaders
-	LLCheckBoxCtrl* ctrl_avatar_vp = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
-	// Avatar Render Mode
-	LLCheckBoxCtrl* ctrl_avatar_cloth = getChild<LLCheckBoxCtrl>("AvatarCloth");
-	
-	bool avatar_vp_enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarVP");
-	if (LLViewerShaderMgr::sInitialized)
-	{
-		S32 max_avatar_shader = LLViewerShaderMgr::instance()->mMaxAvatarShaderLevel;
-		avatar_vp_enabled = (max_avatar_shader > 0) ? TRUE : FALSE;
-	}
-
-	ctrl_avatar_vp->setEnabled(avatar_vp_enabled);
-	
-	if (gSavedSettings.getBOOL("VertexShaderEnable") == FALSE || 
-		gSavedSettings.getBOOL("RenderAvatarVP") == FALSE)
-	{
-		ctrl_avatar_cloth->setEnabled(FALSE);
-	} 
-	else
-	{
-		ctrl_avatar_cloth->setEnabled(TRUE);
-	}
-	
-	// Vertex Shaders
-	// Global Shader Enable
-	LLCheckBoxCtrl* ctrl_shader_enable   = getChild<LLCheckBoxCtrl>("BasicShaders");
-	LLSliderCtrl* terrain_detail = getChild<LLSliderCtrl>("TerrainDetail");   // can be linked with control var
-	LLTextBox* terrain_text = getChild<LLTextBox>("TerrainDetailText");
-
-//	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
-// [RLVa:KB] - Checked: 2010-03-18 (RLVa-1.2.0a) | Modified: RLVa-0.2.0a
-	// "Basic Shaders" can't be disabled - but can be enabled - under @setenv=n
-	bool fCtrlShaderEnable = LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable");
-	ctrl_shader_enable->setEnabled(
-		fCtrlShaderEnable && ((!gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)) || (!gSavedSettings.getBOOL("VertexShaderEnable"))) );
-// [/RLVa:KB]
-
-	BOOL shaders = ctrl_shader_enable->get();
-	if (shaders)
-	{
-		terrain_detail->setValue(1);
-		terrain_detail->setEnabled(FALSE);
-		terrain_text->setEnabled(FALSE);
-	}
-	else
-	{
-		terrain_detail->setEnabled(TRUE);
-		terrain_text->setEnabled(TRUE);
-	}
-	
-	// WindLight
-	LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
-	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
-	LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
-
-	// *HACK just checks to see if we can use shaders... 
-	// maybe some cards that use shaders, but don't support windlight
-//	ctrl_wind_light->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
-// [RLVa:KB] - Checked: 2010-03-18 (RLVa-1.2.0a) | Modified: RLVa-0.2.0a
-	// "Atmospheric Shaders" can't be disabled - but can be enabled - under @setenv=n
-	bool fCtrlWindLightEnable = fCtrlShaderEnable && shaders;
-	ctrl_wind_light->setEnabled(
-		fCtrlWindLightEnable && ((!gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)) || (!gSavedSettings.getBOOL("WindLightUseAtmosShaders"))) );
-// [/RLVa:KB]
-
-	sky->setEnabled(ctrl_wind_light->get() && shaders);
-	sky_text->setEnabled(ctrl_wind_light->get() && shaders);
-
-	//Deferred/SSAO/Shadows
-	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
-	
-	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-						((bumpshiny_ctrl && bumpshiny_ctrl->get()) ? TRUE : FALSE) &&
-						shaders && 
-						gGLManager.mHasFramebufferObject &&
-						gSavedSettings.getBOOL("RenderAvatarVP") &&
-						(ctrl_wind_light->get()) ? TRUE : FALSE;
-
-	ctrl_deferred->setEnabled(enabled);
-
-	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
-	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
-	LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
-	LLTextBox* shadow_text = getChild<LLTextBox>("RenderShadowDetailText");
-
-	// note, okay here to get from ctrl_deferred as it's twin, ctrl_deferred2 will alway match it
-	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
-	
-	ctrl_deferred->set(gSavedSettings.getBOOL("RenderDeferred"));
-
-	ctrl_ssao->setEnabled(enabled);
-	ctrl_dof->setEnabled(enabled);
-
-	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
-
-	ctrl_shadow->setEnabled(enabled);
-	shadow_text->setEnabled(enabled);
-	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
-	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
-	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
-
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
-		!gGLManager.mHasVertexBufferObject)
-	{
-		getChildView("vbo")->setEnabled(FALSE);
-	}
-
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures") ||
-		!gGLManager.mHasVertexBufferObject)
-	{
-		getChildView("texture compression")->setEnabled(FALSE);
-	}
-
-	// if no windlight shaders, turn off nighttime brightness, gamma, and fog distance
-	LLUICtrl* gamma_ctrl = getChild<LLUICtrl>("gamma");
-	gamma_ctrl->setEnabled(!gPipeline.canUseWindLightShaders());
-	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
-	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
-	getChildView("antialiasing restart")->setVisible(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"));
-
-
-	// now turn off any features that are unavailable
-	disableUnavailableSettings();
-
-	getChildView("block_list")->setEnabled(LLLoginInstance::getInstance()->authSuccess());
-}
-#endif
 
 // static
 void LLAvatarComplexityControls::setIndirectControls()
@@ -1652,7 +1575,7 @@ void LLAvatarComplexityControls::setIndirectControls()
 // static
 void LLAvatarComplexityControls::setIndirectMaxNonImpostors()
 {
-	static LLCachedControl<U32> max_non_impostors(gSavedSettings, "RenderAvatarMaxNonImpostors");
+	U32 max_non_impostors = gSavedSettings.getU32("RenderAvatarMaxNonImpostors");
 	// for this one, we just need to make zero, which means off, the max value of the slider
 	U32 indirect_max_non_impostors = (0 == max_non_impostors) ? LLVOAvatar::IMPOSTORS_OFF : max_non_impostors;
 	gSavedSettings.setU32("IndirectMaxNonImpostors", indirect_max_non_impostors);
@@ -1660,7 +1583,7 @@ void LLAvatarComplexityControls::setIndirectMaxNonImpostors()
 
 void LLAvatarComplexityControls::setIndirectMaxArc()
 {
-	static LLCachedControl<U32> max_arc(gSavedSettings, "RenderAvatarMaxComplexity");
+	U32 max_arc = gSavedSettings.getU32("RenderAvatarMaxComplexity");
 	U32 indirect_max_arc;
 	if (0 == max_arc)
 	{
@@ -1675,362 +1598,29 @@ void LLAvatarComplexityControls::setIndirectMaxArc()
 	gSavedSettings.setU32("IndirectMaxComplexity", indirect_max_arc);
 }
 
-void LLFloaterPreference::disableUnavailableSettings()
-{	
-	LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
-	LLCheckBoxCtrl* ctrl_avatar_vp     = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
-	LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
-	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
-	LLCheckBoxCtrl* ctrl_wind_light    = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
-	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
-	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
-	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
-	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
-	LLComboBox* ctrl_avatar_shadow = getChild<LLComboBox>("rigmeshshadow_dropdown");
-	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
-
-	// if vertex shaders off, disable all shader related products
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"))
-	{
-		ctrl_shader_enable->setEnabled(FALSE);
-		ctrl_shader_enable->setValue(FALSE);
-		
-		ctrl_wind_light->setEnabled(FALSE);
-		ctrl_wind_light->setValue(FALSE);
-
-		sky->setEnabled(FALSE);
-
-		ctrl_reflections->setEnabled(FALSE);
-		ctrl_reflections->setValue(0);
-		
-		ctrl_avatar_vp->setEnabled(FALSE);
-		ctrl_avatar_vp->setValue(FALSE);
-		
-		ctrl_avatar_cloth->setEnabled(FALSE);
-		ctrl_avatar_cloth->setValue(FALSE);
-
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-		
-		ctrl_avatar_shadow->setEnabled(FALSE);
-		ctrl_avatar_shadow->setValue(0);
-
-		ctrl_ssao->setEnabled(FALSE);
-		ctrl_ssao->setValue(FALSE);
-
-		ctrl_dof->setEnabled(FALSE);
-		ctrl_dof->setValue(FALSE);
-
-		ctrl_deferred->setEnabled(FALSE);
-		ctrl_deferred->setValue(FALSE);
-	}
-	
-	// disabled windlight
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
-	{
-		ctrl_wind_light->setEnabled(FALSE);
-		ctrl_wind_light->setValue(FALSE);
-
-		sky->setEnabled(FALSE);
-
-		//deferred needs windlight, disable deferred
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-
-		ctrl_avatar_shadow->setEnabled(FALSE);
-		ctrl_avatar_shadow->setValue(0);
-		
-		ctrl_ssao->setEnabled(FALSE);
-		ctrl_ssao->setValue(FALSE);
-
-		ctrl_dof->setEnabled(FALSE);
-		ctrl_dof->setValue(FALSE);
-
-		ctrl_deferred->setEnabled(FALSE);
-		ctrl_deferred->setValue(FALSE);
-	}
-
-	// disabled deferred
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") ||
-		!gGLManager.mHasFramebufferObject)
-	{
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-		
-		ctrl_avatar_shadow->setEnabled(FALSE);
-		ctrl_avatar_shadow->setValue(0);
-
-		ctrl_ssao->setEnabled(FALSE);
-		ctrl_ssao->setValue(FALSE);
-
-		ctrl_dof->setEnabled(FALSE);
-		ctrl_dof->setValue(FALSE);
-
-		ctrl_deferred->setEnabled(FALSE);
-		ctrl_deferred->setValue(FALSE);
-	}
-	
-	// disabled deferred SSAO
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO"))
-	{
-		ctrl_ssao->setEnabled(FALSE);
-		ctrl_ssao->setValue(FALSE);
-	}
-	
-	// disabled deferred shadows
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail"))
-	{
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-
-		ctrl_avatar_shadow->setEnabled(FALSE);
-		ctrl_avatar_shadow->setValue(0);
-	}
-
-	// disabled reflections
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionDetail"))
-	{
-		ctrl_reflections->setEnabled(FALSE);
-		ctrl_reflections->setValue(FALSE);
-	}
-	
-	// disabled av
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarVP"))
-	{
-		ctrl_avatar_vp->setEnabled(FALSE);
-		ctrl_avatar_vp->setValue(FALSE);
-		
-		ctrl_avatar_cloth->setEnabled(FALSE);
-		ctrl_avatar_cloth->setValue(FALSE);
-
-		//deferred needs AvatarVP, disable deferred
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-		
-		ctrl_avatar_shadow->setEnabled(FALSE);
-		ctrl_avatar_shadow->setValue(0);
-
-		ctrl_ssao->setEnabled(FALSE);
-		ctrl_ssao->setValue(FALSE);
-
-		ctrl_dof->setEnabled(FALSE);
-		ctrl_dof->setValue(FALSE);
-
-		ctrl_deferred->setEnabled(FALSE);
-		ctrl_deferred->setValue(FALSE);
-	}
-
-	// disabled cloth
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarCloth"))
-	{
-		ctrl_avatar_cloth->setEnabled(FALSE);
-		ctrl_avatar_cloth->setValue(FALSE);
-	}
-}
-#if 0
-void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
-{	
-	LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
-	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
-	LLCheckBoxCtrl* ctrl_avatar_vp     = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
-	LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
-	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
-	LLCheckBoxCtrl* ctrl_wind_light    = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
-	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
-	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
-	LLTextBox* shadows_text = getChild<LLTextBox>("RenderShadowDetailText");
-	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
-	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
-	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
-	LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
-
-	// if vertex shaders off, disable all shader related products
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"))
-	{
-		ctrl_shader_enable->setEnabled(FALSE);
-		ctrl_shader_enable->setValue(FALSE);
-		
-		ctrl_wind_light->setEnabled(FALSE);
-		ctrl_wind_light->setValue(FALSE);
-
-		sky->setEnabled(FALSE);
-		sky_text->setEnabled(FALSE);
-
-		ctrl_reflections->setEnabled(FALSE);
-		ctrl_reflections->setValue(0);
-		reflections_text->setEnabled(FALSE);
-		
-		ctrl_avatar_vp->setEnabled(FALSE);
-		ctrl_avatar_vp->setValue(FALSE);
-		
-		ctrl_avatar_cloth->setEnabled(FALSE);
-		ctrl_avatar_cloth->setValue(FALSE);
-
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(FALSE);
-		
-		ctrl_ssao->setEnabled(FALSE);
-		ctrl_ssao->setValue(FALSE);
-
-		ctrl_dof->setEnabled(FALSE);
-		ctrl_dof->setValue(FALSE);
-
-		ctrl_deferred->setEnabled(FALSE);
-		ctrl_deferred->setValue(FALSE);
-	}
-	
-	// disabled windlight
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
-	{
-		ctrl_wind_light->setEnabled(FALSE);
-		ctrl_wind_light->setValue(FALSE);
-
-		sky->setEnabled(FALSE);
-		sky_text->setEnabled(FALSE);
-
-		//deferred needs windlight, disable deferred
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(FALSE);
-		
-		ctrl_ssao->setEnabled(FALSE);
-		ctrl_ssao->setValue(FALSE);
-
-		ctrl_dof->setEnabled(FALSE);
-		ctrl_dof->setValue(FALSE);
-
-		ctrl_deferred->setEnabled(FALSE);
-		ctrl_deferred->setValue(FALSE);
-	}
-
-	// disabled deferred
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") ||
-		!gGLManager.mHasFramebufferObject)
-	{
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(FALSE);
-		
-		ctrl_ssao->setEnabled(FALSE);
-		ctrl_ssao->setValue(FALSE);
-
-		ctrl_dof->setEnabled(FALSE);
-		ctrl_dof->setValue(FALSE);
-
-		ctrl_deferred->setEnabled(FALSE);
-		ctrl_deferred->setValue(FALSE);
-	}
-	
-	// disabled deferred SSAO
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO"))
-	{
-		ctrl_ssao->setEnabled(FALSE);
-		ctrl_ssao->setValue(FALSE);
-	}
-	
-	// disabled deferred shadows
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail"))
-	{
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(FALSE);
-	}
-
-	// disabled reflections
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionDetail"))
-	{
-		ctrl_reflections->setEnabled(FALSE);
-		ctrl_reflections->setValue(FALSE);
-		reflections_text->setEnabled(FALSE);
-	}
-	
-	// disabled av
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarVP"))
-	{
-		ctrl_avatar_vp->setEnabled(FALSE);
-		ctrl_avatar_vp->setValue(FALSE);
-		
-		ctrl_avatar_cloth->setEnabled(FALSE);
-		ctrl_avatar_cloth->setValue(FALSE);
-
-		//deferred needs AvatarVP, disable deferred
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(FALSE);
-		
-		ctrl_ssao->setEnabled(FALSE);
-		ctrl_ssao->setValue(FALSE);
-
-		ctrl_dof->setEnabled(FALSE);
-		ctrl_dof->setValue(FALSE);
-
-		ctrl_deferred->setEnabled(FALSE);
-		ctrl_deferred->setValue(FALSE);
-	}
-
-	// disabled cloth
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarCloth"))
-	{
-		ctrl_avatar_cloth->setEnabled(FALSE);
-		ctrl_avatar_cloth->setValue(FALSE);
-	}
-}
-#endif
-
 void LLFloaterPreference::refresh()
 {
 	LLPanel::refresh();
-	LLAvatarComplexityControls::setIndirectControls();
-	setMaxNonImpostorsText(gSavedSettings.getU32("RenderAvatarMaxNonImpostors"),getChild<LLTextBox>("IndirectMaxNonImpostorsText", true));
     LLAvatarComplexityControls::setText(
         gSavedSettings.getU32("RenderAvatarMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText", true));
 	refreshEnabledState();
-	// <polarity> unused
-	//LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
-	//if (advanced)
-	//{
-	//	advanced->refresh();
-	//}
+	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
+	if (advanced)
+	{
+		advanced->refresh();
+	}
+
+	if (!gAudiop || gAudiop->getDriverName(false) != "FMOD Studio")
+	{
+		getChild<LLComboBox>("sound_quality_combo")->setEnabled(FALSE);
+	}
 }
 
-// <polarity> unused
-#if 0
-void LLFloaterPreferenceGraphicsAdvanced::refresh()
-{
-	getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer)  gSavedSettings.getU32("RenderFSAASamples"));
-
-	// sliders and their text boxes
-	//	mPostProcess = gSavedSettings.getS32("RenderGlowResolutionPow");
-	// slider text boxes
-	updateSliderText(getChild<LLSliderCtrl>("ObjectMeshDetail",		true), getChild<LLTextBox>("ObjectMeshDetailText",		true));
-	updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail",	true), getChild<LLTextBox>("FlexibleMeshDetailText",	true));
-	updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail",		true), getChild<LLTextBox>("TreeMeshDetailText",		true));
-	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail",		true), getChild<LLTextBox>("AvatarMeshDetailText",		true));
-	updateSliderText(getChild<LLSliderCtrl>("AvatarPhysicsDetail",	true), getChild<LLTextBox>("AvatarPhysicsDetailText",		true));
-	updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",	true), getChild<LLTextBox>("TerrainMeshDetailText",		true));
-	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true));
-	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
-	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true));	
-    LLAvatarComplexityControls::setIndirectControls();
-	setMaxNonImpostorsText(
-        gSavedSettings.getU32("RenderAvatarMaxNonImpostors"),
-        getChild<LLTextBox>("IndirectMaxNonImpostorsText", true));
-    LLAvatarComplexityControls::setText(
-        gSavedSettings.getU32("RenderAvatarMaxComplexity"),
-        getChild<LLTextBox>("IndirectMaxComplexityText", true));
-	refreshEnabledState();
-}
-#endif
-
-// <polarity> unused
-#if 0
 void LLFloaterPreference::onCommitWindowedMode()
 {
 	refresh();
 }
-#endif
 
 void LLFloaterPreference::onChangeQuality(const LLSD& data)
 {
@@ -2271,72 +1861,11 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	getChildView("conversation_log_combo")->setEnabled(TRUE);
 }
 
-
 void LLFloaterPreference::refreshUI()
 {
 	refresh();
 }
 
-// <polarity> unused
-#if 0
-void LLFloaterPreferenceGraphicsAdvanced::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box)
-{
-	if (text_box == NULL || ctrl== NULL)
-		return;
-
-	// get range and points when text should change
-	F32 value = (F32)ctrl->getValue().asReal();
-	F32 min = ctrl->getMinValue();
-	F32 max = ctrl->getMaxValue();
-	F32 range = max - min;
-	llassert(range > 0);
-	F32 midPoint = min + range / 3.0f;
-	F32 highPoint = min + (2.0f * range / 3.0f);
-
-	// choose the right text
-	if (value < midPoint)
-	{
-		text_box->setText(LLTrans::getString("GraphicsQualityLow"));
-	} 
-	else if (value < highPoint)
-	{
-		text_box->setText(LLTrans::getString("GraphicsQualityMid"));
-	}
-	else
-	{
-		text_box->setText(LLTrans::getString("GraphicsQualityHigh"));
-	}
-}
-#endif
-// <polarity> moved to LLFloaterPreference
-//@todo fix this horror. Whoever coded that... Sigh. SHAME ON YOU.
-void LLFloaterPreference::updateMaxNonImpostors()
-{
-	// Called when the IndirectMaxNonImpostors control changes
-	// Responsible for fixing the slider label (IndirectMaxNonImpostorsText) and setting RenderAvatarMaxNonImpostors
-	LLSliderCtrl* ctrl = getChild<LLSliderCtrl>("IndirectMaxNonImpostors",true);
-	U32 value = ctrl->getValue().asInteger();
-
-	if (0 == value || LLVOAvatar::IMPOSTORS_OFF <= value)
-	{
-		value=0;
-	}
-	gSavedSettings.setU32("RenderAvatarMaxNonImpostors", value);
-	LLVOAvatar::updateImpostorRendering(value); // make it effective immediately
-	setMaxNonImpostorsText(value, getChild<LLTextBox>("IndirectMaxNonImpostorsText"));
-}
-void LLFloaterPreference::setMaxNonImpostorsText(U32 value, LLTextBox* text_box)
-{
-	if (0 == value)
-	{
-		text_box->setText(LLTrans::getString("no_limit"));
-	}
-	else
-	{
-		text_box->setText(llformat("%d", value));
-	}
-}
-// </polarity>
 void LLAvatarComplexityControls::updateMax(LLSliderCtrl* slider, LLTextBox* value_label)
 {
 	// Called when the IndirectMaxComplexity control changes
@@ -2381,17 +1910,6 @@ void LLFloaterPreference::updateMaxComplexity()
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
 }
-
-// <polarity> unused
-#if 0
-void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
-{
-	// Called when the IndirectMaxComplexity control changes
-    LLAvatarComplexityControls::updateMax(
-        getChild<LLSliderCtrl>("IndirectMaxComplexity"),
-        getChild<LLTextBox>("IndirectMaxComplexityText"));
-}
-#endif
 
 void LLFloaterPreference::onChangeMaturity()
 {
@@ -2492,8 +2010,11 @@ void LLFloaterPreference::onClickSpellChecker()
     LLFloaterReg::showInstance("prefs_spellchecker");
 }
 
-// <polarity> unused
-#if 0
+void LLFloaterPreference::onClickRenderExceptions()
+{
+    LLFloaterReg::showInstance("avatar_render_settings");
+}
+
 void LLFloaterPreference::onClickAdvanced()
 {
 	LLFloaterReg::showInstance("prefs_graphics_advanced");
@@ -2510,7 +2031,6 @@ void LLFloaterPreference::onClickAdvanced()
 		}
 	}
 }
-#endif
 
 void LLFloaterPreference::onClickActionChange()
 {
@@ -2520,6 +2040,18 @@ void LLFloaterPreference::onClickActionChange()
 void LLFloaterPreference::onClickPermsDefault()
 {
 	LLFloaterReg::showInstance("perms_default");
+}
+
+// Called when user changes sound quality via the combobox.
+void LLFloaterPreference::onSoundQualityChange()
+{
+	// Let the user know that the change will only take effect after restart.
+	// Do it only once so that we're not too irritating.
+	if (!mSoundQualityChanged)
+	{
+		LLNotificationsUtil::add("ChangeSoundQuality");
+		mSoundQualityChanged = true;
+	}
 }
 
 void LLFloaterPreference::onDeleteTranscripts()
@@ -2539,12 +2071,14 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 	}
 }
 
-//BD - Revert to Default
-void LLFloaterPreference::resetToDefault(LLUICtrl* ctrl)
+void LLFloaterPreference::onClickResetControlDefault(const LLSD& userdata)
 {
-	llassert(ctrl);
-	ctrl->getControlVariable()->resetToDefault(true);
-	refreshGraphicControls();
+	const std::string& control_name = userdata.asString();
+	LLControlVariable* controlp = gSavedSettings.getControl(control_name);
+	if (controlp)
+	{
+		controlp->resetToDefault(true);
+	}
 }
 
 void LLFloaterPreference::onLogChatHistorySaved()
@@ -2599,7 +2133,7 @@ void LLFloaterPreference::selectPanel(const LLSD& name)
 {
 	LLTabContainer * tab_containerp = getChild<LLTabContainer>("pref core");
 	LLPanel * panel = tab_containerp->getPanelByName(name);
-	if (NULL != panel)
+	if (nullptr != panel)
 	{
 		tab_containerp->selectTabPanel(panel);
 	}
@@ -2637,7 +2171,7 @@ class LLPanelPreference::Updater : public LLEventTimer
 
 public:
 
-	typedef boost::function<bool(const LLSD&)> callback_t;
+	typedef std::function<bool(const LLSD&)> callback_t;
 
 	Updater(callback_t cb, F32 period)
 	:LLEventTimer(period),
@@ -2656,7 +2190,7 @@ public:
 
 protected:
 
-	BOOL tick()
+	BOOL tick() override
 	{
 		mCallback(mNewValue);
 		mEventTimer.stop();
@@ -2673,7 +2207,7 @@ private:
 static LLPanelInjector<LLPanelPreference> t_places("panel_preference");
 LLPanelPreference::LLPanelPreference()
 : LLPanel(),
-  mBandWidthUpdater(NULL)
+  mBandWidthUpdater(nullptr)
 {
 	mCommitCallbackRegistrar.add("Pref.setControlFalse",	boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 	mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",	boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
@@ -2694,31 +2228,12 @@ BOOL LLPanelPreference::postBuild()
 		}
 	}
 
-	////////////////////// PanelGraphics /////////////////
-	
-	//LLFloaterPreference::update;
-
 	////////////////////// PanelVoice ///////////////////
 	if (hasChild("voice_unavailable", TRUE))
 	{
 		BOOL voice_disabled = gSavedSettings.getBOOL("CmdLineDisableVoice");
 		getChildView("voice_unavailable")->setVisible( voice_disabled);
 		getChildView("enable_voice_check")->setVisible( !voice_disabled);
-	}
-	
-	//////////////////////PanelSkins ///////////////////
-	
-	if (hasChild("skin_selection", TRUE))
-	{
-		LLFloaterPreference::refreshSkin(this);
-
-		// if skin is set to a skin that no longer exists (silver) set back to default
-		if (getChild<LLRadioGroup>("skin_selection")->getSelectedIndex() < 0)
-		{
-			gSavedSettings.setString("SkinCurrent", "default");
-			LLFloaterPreference::refreshSkin(this);
-		}
-
 	}
 
 	//////////////////////PanelPrivacy ///////////////////
@@ -2739,9 +2254,7 @@ BOOL LLPanelPreference::postBuild()
 	}
 	if (hasChild("favorites_on_login_check", TRUE))
 	{
-		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setCommitCallback(boost::bind(&handleFavoritesOnLoginChanged, _1, _2));
-		bool show_favorites_at_login = LLPanelLogin::getShowFavorites();
-		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setValue(show_favorites_at_login);
+		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setCommitCallback(boost::bind(&showFavoritesOnLoginWarning, _1, _2));
 	}
 
 	//////////////////////PanelAdvanced ///////////////////
@@ -2789,17 +2302,16 @@ void LLPanelPreference::apply()
 
 void LLPanelPreference::saveSettings()
 {
-	//LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced"); // <polarity> unused
+	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
 
 	// Save the value of all controls in the hierarchy
 	mSavedValues.clear();
 	std::list<LLView*> view_stack;
 	view_stack.push_back(this);
-	// <polarity> unused
-	//if (advanced)
-	//{
-	//	view_stack.push_back(advanced);
-	//}
+	if (advanced)
+	{
+		view_stack.push_back(advanced);
+	}
 	while(!view_stack.empty())
 	{
 		// Process view on top of the stack
@@ -2841,15 +2353,11 @@ void LLPanelPreference::showFriendsOnlyWarning(LLUICtrl* checkbox, const LLSD& v
 	}
 }
 
-void LLPanelPreference::handleFavoritesOnLoginChanged(LLUICtrl* checkbox, const LLSD& value)
+void LLPanelPreference::showFavoritesOnLoginWarning(LLUICtrl* checkbox, const LLSD& value)
 {
-	if (checkbox)
+	if (checkbox && checkbox->getValue())
 	{
-		LLFavoritesOrderStorage::instance().showFavoritesOnLoginChanged(checkbox->getValue().asBoolean());
-		if(checkbox->getValue())
-		{
-			LLNotificationsUtil::add("FavoritesOnLogin");
-		}
+		LLNotificationsUtil::add("FavoritesOnLogin");
 	}
 }
 
@@ -2905,6 +2413,10 @@ void LLPanelPreference::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
 	}
 }
 
+void LLPanelPreference::setHardwareDefaults()
+{
+}
+
 class LLPanelPreferencePrivacy : public LLPanelPreference
 {
 public:
@@ -2914,7 +2426,7 @@ public:
 		mAccountIndependentSettings.push_back("AutoDisengageMic");
 	}
 
-	/*virtual*/ void saveSettings()
+	void saveSettings() override
 	{
 		LLPanelPreference::saveSettings();
 
@@ -2948,9 +2460,8 @@ static LLPanelInjector<LLPanelPreferencePrivacy> t_pref_privacy("panel_preferenc
 
 BOOL LLPanelPreferenceGraphics::postBuild()
 {
-// <polarity> unused
-//	LLFloaterReg::showInstance("prefs_graphics_advanced");
-//	LLFloaterReg::hideInstance("prefs_graphics_advanced");
+	LLFloaterReg::showInstance("prefs_graphics_advanced");
+	LLFloaterReg::hideInstance("prefs_graphics_advanced");
 
 // Don't do this on Mac as their braindead GL versioning
 // sets this when 8x and 16x are indeed available
@@ -2974,59 +2485,16 @@ void LLPanelPreferenceGraphics::draw()
 	LLPanelPreference::draw();
 }
 
-bool LLPanelPreferenceGraphics::hasDirtyChilds()
-{
-	//LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced"); // <polarity> unused
-	std::list<LLView*> view_stack;
-	view_stack.push_back(this);
-	// <polarity> unused
-	//if (advanced)
-	//{
-	//	view_stack.push_back(advanced);
-	//}
-	while(!view_stack.empty())
-	{
-		// Process view on top of the stack
-		LLView* curview = view_stack.front();
-		view_stack.pop_front();
-
-		LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
-		if (ctrl)
-		{
-			if (ctrl->isDirty())
-			{
-				LLControlVariable* control = ctrl->getControlVariable();
-				if (control)
-				{
-					std::string control_name = control->getName();
-					if (!control_name.empty())
-					{
-						return true;
-					}
-				}
-			}
-		}
-		// Push children onto the end of the work stack
-		for (child_list_t::const_iterator iter = curview->getChildList()->begin();
-			 iter != curview->getChildList()->end(); ++iter)
-		{
-			view_stack.push_back(*iter);
-		}
-	}
-
-	return false;
-}
 
 void LLPanelPreferenceGraphics::resetDirtyChilds()
 {
-	//LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced"); // <polarity> unused
+	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
 	std::list<LLView*> view_stack;
 	view_stack.push_back(this);
-	// <polarity> unused
-	//if (advanced)
-	//{
-	//	view_stack.push_back(advanced);
-	//}
+	if (advanced)
+	{
+		view_stack.push_back(advanced);
+	}
 	while(!view_stack.empty())
 	{
 		// Process view on top of the stack
@@ -3061,8 +2529,6 @@ void LLPanelPreferenceGraphics::setHardwareDefaults()
 	resetDirtyChilds();
 }
 
-// <polarity> unused
-#if 0
 LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const LLSD& key)
 	: LLFloater(key)
 {
@@ -3074,19 +2540,7 @@ LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const L
 LLFloaterPreferenceGraphicsAdvanced::~LLFloaterPreferenceGraphicsAdvanced()
 {
 }
-#endif
 
-LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
-	: LLFloater(key),
-	  mSocksSettingsDirty(false)
-{
-	mCommitCallbackRegistrar.add("Proxy.OK",                boost::bind(&LLFloaterPreferenceProxy::onBtnOk, this));
-	mCommitCallbackRegistrar.add("Proxy.Cancel",            boost::bind(&LLFloaterPreferenceProxy::onBtnCancel, this));
-	mCommitCallbackRegistrar.add("Proxy.Change",            boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
-}
-
-// <polarity> unused
-#if 0
 void LLFloaterPreferenceGraphicsAdvanced::onOpen(const LLSD& key)
 {
     refresh();
@@ -3100,238 +2554,402 @@ void LLFloaterPreferenceGraphicsAdvanced::onClickCloseBtn(bool app_quitting)
 		instance->cancel();
 	}
 }
-#endif
 
-LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
+void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
 {
+	// Called when the IndirectMaxComplexity control changes
+	LLAvatarComplexityControls::updateMax(
+		getChild<LLSliderCtrl>("IndirectMaxComplexity"),
+		getChild<LLTextBox>("IndirectMaxComplexityText"));
 }
 
-BOOL LLFloaterPreferenceProxy::postBuild()
+void LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors()
 {
-	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
-	if (!socksAuth)
+	// Called when the IndirectMaxNonImpostors control changes
+	// Responsible for fixing the slider label (IndirectMaxNonImpostorsText) and setting RenderAvatarMaxNonImpostors
+	LLSliderCtrl* ctrl = getChild<LLSliderCtrl>("IndirectMaxNonImpostors", true);
+	U32 value = ctrl->getValue().asInteger();
+
+	if (0 == value || LLVOAvatar::IMPOSTORS_OFF <= value)
 	{
-		return FALSE;
+		value = 0;
 	}
-	if (socksAuth->getSelectedValue().asString() == "None")
+	gSavedSettings.setU32("RenderAvatarMaxNonImpostors", value);
+	LLVOAvatar::updateImpostorRendering(value); // make it effective immediately
+	setMaxNonImpostorsText(value, getChild<LLTextBox>("IndirectMaxNonImpostorsText"));
+}
+
+void LLFloaterPreferenceGraphicsAdvanced::setMaxNonImpostorsText(U32 value, LLTextBox* text_box)
+{
+	if (0 == value)
 	{
-		getChild<LLLineEditor>("socks5_username")->setEnabled(false);
-		getChild<LLLineEditor>("socks5_password")->setEnabled(false);
+		text_box->setText(LLTrans::getString("no_limit"));
 	}
 	else
 	{
-		// Populate the SOCKS 5 credential fields with protected values.
-		LLPointer<LLCredential> socks_cred = gSecAPIHandler->loadCredential("SOCKS5");
-		getChild<LLLineEditor>("socks5_username")->setValue(socks_cred->getIdentifier()["username"].asString());
-		getChild<LLLineEditor>("socks5_password")->setValue(socks_cred->getAuthenticator()["creds"].asString());
-	}
-
-	return TRUE;
-}
-
-void LLFloaterPreferenceProxy::onOpen(const LLSD& key)
-{
-	saveSettings();
-}
-
-void LLFloaterPreferenceProxy::onClose(bool app_quitting)
-{
-	if(app_quitting)
-	{
-		cancel();
-	}
-
-	if (mSocksSettingsDirty)
-	{
-
-		// If the user plays with the Socks proxy settings after login, it's only fair we let them know
-		// it will not be updated until next restart.
-		if (LLStartUp::getStartupState()>STATE_LOGIN_WAIT)
-		{
-			LLNotifications::instance().add("ChangeProxySettings", LLSD(), LLSD());
-			mSocksSettingsDirty = false; // we have notified the user now be quiet again
-		}
+		text_box->setText(llformat("%d", value));
 	}
 }
 
-void LLFloaterPreferenceProxy::saveSettings()
+void LLFloaterPreferenceGraphicsAdvanced::onVertexShaderEnable()
 {
-	// Save the value of all controls in the hierarchy
-	mSavedValues.clear();
-	std::list<LLView*> view_stack;
-	view_stack.push_back(this);
-	while(!view_stack.empty())
+	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+	if (instance)
 	{
-		// Process view on top of the stack
-		LLView* curview = view_stack.front();
-		view_stack.pop_front();
-
-		LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
-		if (ctrl)
-		{
-			LLControlVariable* control = ctrl->getControlVariable();
-			if (control)
-			{
-				mSavedValues[control] = control->getValue();
-			}
-		}
-
-		// Push children onto the end of the work stack
-		for (child_list_t::const_iterator iter = curview->getChildList()->begin();
-				iter != curview->getChildList()->end(); ++iter)
-		{
-			view_stack.push_back(*iter);
-		}
+		instance->refresh();
 	}
+
+	refreshEnabledGraphics();
 }
 
-void LLFloaterPreferenceProxy::onBtnOk()
+void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledGraphics()
 {
-	// commit any outstanding text entry
-	if (hasFocus())
+	refreshEnabledState();
+}
+
+void LLFloaterPreferenceGraphicsAdvanced::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box)
+{
+	if (text_box == nullptr || ctrl == nullptr)
+		return;
+
+	// get range and points when text should change
+	F32 value = (F32) ctrl->getValue().asReal();
+	F32 min = ctrl->getMinValue();
+	F32 max = ctrl->getMaxValue();
+	F32 range = max - min;
+	llassert(range > 0);
+	F32 midPoint = min + range / 3.0f;
+	F32 highPoint = min + (2.0f * range / 3.0f);
+
+	// choose the right text
+	if (value < midPoint)
 	{
-		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-		if (cur_focus && cur_focus->acceptsTextInput())
-		{
-			cur_focus->onCommit();
-		}
+		text_box->setText(LLTrans::getString("GraphicsQualityLow"));
 	}
-
-	// Save SOCKS proxy credentials securely if password auth is enabled
-	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
-	if (socksAuth->getSelectedValue().asString() == "UserPass")
+	else if (value < highPoint)
 	{
-		LLSD socks_id = LLSD::emptyMap();
-		socks_id["type"] = "SOCKS5";
-		socks_id["username"] = getChild<LLLineEditor>("socks5_username")->getValue().asString();
-
-		LLSD socks_authenticator = LLSD::emptyMap();
-		socks_authenticator["type"] = "SOCKS5";
-		socks_authenticator["creds"] = getChild<LLLineEditor>("socks5_password")->getValue().asString();
-
-		// Using "SOCKS5" as the "grid" argument since the same proxy
-		// settings will be used for all grids and because there is no
-		// way to specify the type of credential.
-		LLPointer<LLCredential> socks_cred = gSecAPIHandler->createCredential("SOCKS5", socks_id, socks_authenticator);
-		gSecAPIHandler->saveCredential(socks_cred, true);
+		text_box->setText(LLTrans::getString("GraphicsQualityMid"));
 	}
 	else
 	{
-		// Clear SOCKS5 credentials since they are no longer needed.
-		LLPointer<LLCredential> socks_cred = new LLCredential("SOCKS5");
-		gSecAPIHandler->deleteCredential(socks_cred);
+		text_box->setText(LLTrans::getString("GraphicsQualityHigh"));
+	}
+}
+
+void LLFloaterPreferenceGraphicsAdvanced::refresh()
+{
+	getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer)  gSavedSettings.getU32("RenderFSAASamples"));
+
+	// sliders and their text boxes
+	//	mPostProcess = gSavedSettings.getS32("RenderGlowResolutionPow");
+	// slider text boxes
+	updateSliderText(getChild<LLSliderCtrl>("ObjectMeshDetail", true), getChild<LLTextBox>("ObjectMeshDetailText", true));
+	updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail", true), getChild<LLTextBox>("FlexibleMeshDetailText", true));
+	updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail", true), getChild<LLTextBox>("TreeMeshDetailText", true));
+	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail", true), getChild<LLTextBox>("AvatarMeshDetailText", true));
+	updateSliderText(getChild<LLSliderCtrl>("AvatarPhysicsDetail", true), getChild<LLTextBox>("AvatarPhysicsDetailText", true));
+	updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail", true), getChild<LLTextBox>("TerrainMeshDetailText", true));
+	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess", true), getChild<LLTextBox>("PostProcessText", true));
+	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail", true), getChild<LLTextBox>("SkyMeshDetailText", true));
+	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail", true), getChild<LLTextBox>("TerrainDetailText", true));
+	LLAvatarComplexityControls::setIndirectControls();
+	setMaxNonImpostorsText(
+		gSavedSettings.getU32("RenderAvatarMaxNonImpostors"),
+		getChild<LLTextBox>("IndirectMaxNonImpostorsText", true));
+	LLAvatarComplexityControls::setText(
+		gSavedSettings.getU32("RenderAvatarMaxComplexity"),
+		getChild<LLTextBox>("IndirectMaxComplexityText", true));
+	refreshEnabledState();
+}
+
+void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
+{
+	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
+	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
+
+	// Reflections
+	BOOL reflections = gSavedSettings.getBOOL("VertexShaderEnable")
+		&& gGLManager.mHasCubeMap
+		&& LLCubeMap::sUseCubeMaps;
+	ctrl_reflections->setEnabled(reflections);
+	reflections_text->setEnabled(reflections);
+
+	// Bump & Shiny	
+	LLCheckBoxCtrl* bumpshiny_ctrl = getChild<LLCheckBoxCtrl>("BumpShiny");
+	bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
+	bumpshiny_ctrl->setEnabled(bumpshiny ? TRUE : FALSE);
+
+	// Avatar Mode
+	// Enable Avatar Shaders
+	LLCheckBoxCtrl* ctrl_avatar_vp = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
+	// Avatar Render Mode
+	LLCheckBoxCtrl* ctrl_avatar_cloth = getChild<LLCheckBoxCtrl>("AvatarCloth");
+
+	bool avatar_vp_enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarVP");
+	if (LLViewerShaderMgr::sInitialized)
+	{
+		S32 max_avatar_shader = LLViewerShaderMgr::instance()->mMaxAvatarShaderLevel;
+		avatar_vp_enabled = (max_avatar_shader > 0) ? TRUE : FALSE;
 	}
 
-	closeFloater(false);
-}
+	ctrl_avatar_vp->setEnabled(avatar_vp_enabled);
 
-void LLFloaterPreferenceProxy::onBtnCancel()
-{
-	if (hasFocus())
+	if (gSavedSettings.getBOOL("VertexShaderEnable") == FALSE ||
+		gSavedSettings.getBOOL("RenderAvatarVP") == FALSE)
 	{
-		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-		if (cur_focus && cur_focus->acceptsTextInput())
-		{
-			cur_focus->onCommit();
-		}
-		refresh();
-	}
-
-	cancel();
-}
-
-void LLFloaterPreferenceProxy::onClickCloseBtn(bool app_quitting)
-{
-	cancel();
-}
-
-void LLFloaterPreferenceProxy::cancel()
-{
-
-	for (control_values_map_t::iterator iter =  mSavedValues.begin();
-			iter !=  mSavedValues.end(); ++iter)
-	{
-		LLControlVariable* control = iter->first;
-		LLSD ctrl_value = iter->second;
-		control->set(ctrl_value);
-	}
-	mSocksSettingsDirty = false;
-	closeFloater();
-}
-
-void LLFloaterPreferenceProxy::onChangeSocksSettings() 
-{
-	mSocksSettingsDirty = true;
-
-	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
-	if (socksAuth->getSelectedValue().asString() == "None")
-	{
-		getChild<LLLineEditor>("socks5_username")->setEnabled(false);
-		getChild<LLLineEditor>("socks5_password")->setEnabled(false);
+		ctrl_avatar_cloth->setEnabled(FALSE);
 	}
 	else
 	{
-		getChild<LLLineEditor>("socks5_username")->setEnabled(true);
-		getChild<LLLineEditor>("socks5_password")->setEnabled(true);
+		ctrl_avatar_cloth->setEnabled(TRUE);
 	}
 
-	// Check for invalid states for the other HTTP proxy radio
-	LLRadioGroup* otherHttpProxy = getChild<LLRadioGroup>("other_http_proxy_type");
-	if ((otherHttpProxy->getSelectedValue().asString() == "Socks" &&
-			getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get() == FALSE )||(
-					otherHttpProxy->getSelectedValue().asString() == "Web" &&
-					getChild<LLCheckBoxCtrl>("web_proxy_enabled")->get() == FALSE ) )
+	// Vertex Shaders
+	// Global Shader Enable
+	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
+	LLSliderCtrl* terrain_detail = getChild<LLSliderCtrl>("TerrainDetail");   // can be linked with control var
+	LLTextBox* terrain_text = getChild<LLTextBox>("TerrainDetailText");
+
+	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
+
+	BOOL shaders = ctrl_shader_enable->get();
+	if (shaders)
 	{
-		otherHttpProxy->selectFirstItem();
+		terrain_detail->setValue(1);
+		terrain_detail->setEnabled(FALSE);
+		terrain_text->setEnabled(FALSE);
+	}
+	else
+	{
+		terrain_detail->setEnabled(TRUE);
+		terrain_text->setEnabled(TRUE);
 	}
 
+	// WindLight
+	LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
+	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
+	LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
+
+	// *HACK just checks to see if we can use shaders... 
+	// maybe some cards that use shaders, but don't support windlight
+	ctrl_wind_light->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
+
+	sky->setEnabled(ctrl_wind_light->get() && shaders);
+	sky_text->setEnabled(ctrl_wind_light->get() && shaders);
+
+	//Deferred/SSAO/Shadows
+	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
+
+	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+		((bumpshiny_ctrl && bumpshiny_ctrl->get()) ? TRUE : FALSE) &&
+		shaders &&
+		gGLManager.mHasFramebufferObject &&
+		gSavedSettings.getBOOL("RenderAvatarVP") &&
+		(ctrl_wind_light->get()) ? TRUE : FALSE;
+
+	ctrl_deferred->setEnabled(enabled);
+
+	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
+	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
+	LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
+	LLTextBox* shadow_text = getChild<LLTextBox>("RenderShadowDetailText");
+
+	// note, okay here to get from ctrl_deferred as it's twin, ctrl_deferred2 will alway match it
+	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
+
+	ctrl_deferred->set(gSavedSettings.getBOOL("RenderDeferred"));
+
+	ctrl_ssao->setEnabled(enabled);
+	ctrl_dof->setEnabled(enabled);
+
+	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
+
+	ctrl_shadow->setEnabled(enabled);
+	shadow_text->setEnabled(enabled);
+
+	// Hardware settings
+	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
+	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
+	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
+	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
+	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
+
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
+		!gGLManager.mHasVertexBufferObject)
+	{
+		getChildView("vbo")->setEnabled(FALSE);
+	}
+
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures") ||
+		!gGLManager.mHasVertexBufferObject)
+	{
+		getChildView("texture compression")->setEnabled(FALSE);
+	}
+
+	// if no windlight shaders, turn off nighttime brightness, gamma, and fog distance
+	LLUICtrl* gamma_ctrl = getChild<LLUICtrl>("gamma");
+	gamma_ctrl->setEnabled(!gPipeline.canUseWindLightShaders());
+	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
+	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
+	getChildView("antialiasing restart")->setVisible(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"));
+
+	// No sound quality if we're not using fmod
+	if (gAudiop && gAudiop->getDriverName(false) == "FMOD Studio")
+	{
+		getChild<LLComboBox>("sound_quality_combo")->setEnabled(TRUE);
+	}
+
+	// now turn off any features that are unavailable
+	disableUnavailableSettings();
+
+	getChildView("block_list")->setEnabled(LLLoginInstance::getInstance()->authSuccess());
 }
 
-
-// <polarity> Lookat preferences logic
-bool LLFloaterPreference::confirmNosyLookAt()
+void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 {
-	static LLCachedControl<bool> lookat_local_disabled(gSavedSettings, "PVPrivacy_LookAtBroadcastDisabled", true);
-	static LLCachedControl<bool> show_lookat(gSavedSettings, "PVPrivacy_LookAtShow", false);
-	static LLCachedControl<bool> nosy(gSavedSettings, "PVPrivacy_LookAtShowAnyway", false);
-	if (!nosy)
+	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
+	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
+	LLCheckBoxCtrl* ctrl_avatar_vp = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
+	LLCheckBoxCtrl* ctrl_avatar_cloth = getChild<LLCheckBoxCtrl>("AvatarCloth");
+	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
+	LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
+	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
+	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
+	LLTextBox* shadows_text = getChild<LLTextBox>("RenderShadowDetailText");
+	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
+	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
+	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
+	LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
+
+	// if vertex shaders off, disable all shader related products
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"))
 	{
-		if (show_lookat && lookat_local_disabled)
-		{
-			LLNotificationsUtil::add("NoseyLookAt", LLSD(), LLSD(),
-				callbackcheckAllowedLookAt);
-		}
+		ctrl_shader_enable->setEnabled(FALSE);
+		ctrl_shader_enable->setValue(FALSE);
+
+		ctrl_wind_light->setEnabled(FALSE);
+		ctrl_wind_light->setValue(FALSE);
+
+		sky->setEnabled(FALSE);
+		sky_text->setEnabled(FALSE);
+
+		ctrl_reflections->setEnabled(FALSE);
+		ctrl_reflections->setValue(0);
+		reflections_text->setEnabled(FALSE);
+
+		ctrl_avatar_vp->setEnabled(FALSE);
+		ctrl_avatar_vp->setValue(FALSE);
+
+		ctrl_avatar_cloth->setEnabled(FALSE);
+		ctrl_avatar_cloth->setValue(FALSE);
+
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		shadows_text->setEnabled(FALSE);
+
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_dof->setEnabled(FALSE);
+		ctrl_dof->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
 	}
-	return false;
-}
-bool callbackcheckAllowedLookAt(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	bool confirmedNosy = false;
-	switch(option)
+
+	// disabled windlight
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
 	{
-		// Yes = 0, No = 1
-		// Nosey = Yes = 0
-		// Never mind = No = 1
-		// Screw logic, right? This works like an error code.
-		case 0: // Nosey
-			// Set new values
-			LL_WARNS("Preferences") << "Got \"Nosey\" response" << LL_ENDL;
-			confirmedNosy = true;
-			break;
-		case 1: // Nvm
-		/* FallThrough */
-		// TODO: Add a third button to turn on broadcasting as a "Broadcast my lookat" decision
-		case -1: // Closed the window
-		/* Fallthrough */
-		default:
-			// Revert settings to what they were/No-Op
-			LL_WARNS("Preferences") << "Got Something else" << LL_ENDL;
-			break;
+		ctrl_wind_light->setEnabled(FALSE);
+		ctrl_wind_light->setValue(FALSE);
+
+		sky->setEnabled(FALSE);
+		sky_text->setEnabled(FALSE);
+
+		//deferred needs windlight, disable deferred
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		shadows_text->setEnabled(FALSE);
+
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_dof->setEnabled(FALSE);
+		ctrl_dof->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
 	}
-	// save settings accordingly
-	gSavedSettings.setBOOL("PVPrivacy_LookAtShowAnyway", confirmedNosy);
-	gSavedSettings.setBOOL("PVPrivacy_LookAtShow", confirmedNosy);
-	return false;
+
+	// disabled deferred
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") ||
+		!gGLManager.mHasFramebufferObject)
+	{
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		shadows_text->setEnabled(FALSE);
+
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_dof->setEnabled(FALSE);
+		ctrl_dof->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
+	}
+
+	// disabled deferred SSAO
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO"))
+	{
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+	}
+
+	// disabled deferred shadows
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail"))
+	{
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		shadows_text->setEnabled(FALSE);
+	}
+
+	// disabled reflections
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionDetail"))
+	{
+		ctrl_reflections->setEnabled(FALSE);
+		ctrl_reflections->setValue(FALSE);
+		reflections_text->setEnabled(FALSE);
+	}
+
+	// disabled av
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarVP"))
+	{
+		ctrl_avatar_vp->setEnabled(FALSE);
+		ctrl_avatar_vp->setValue(FALSE);
+
+		ctrl_avatar_cloth->setEnabled(FALSE);
+		ctrl_avatar_cloth->setValue(FALSE);
+
+		//deferred needs AvatarVP, disable deferred
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		shadows_text->setEnabled(FALSE);
+
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_dof->setEnabled(FALSE);
+		ctrl_dof->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
+	}
+
+	// disabled cloth
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarCloth"))
+	{
+		ctrl_avatar_cloth->setEnabled(FALSE);
+		ctrl_avatar_cloth->setValue(FALSE);
+	}
 }
-// </polarity>

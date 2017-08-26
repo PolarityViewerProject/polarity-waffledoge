@@ -52,7 +52,7 @@ public:
 	struct Toolbar : public LLInitParam::Block<Toolbar>
 	{
 		Mandatory<LLToolBarEnums::ButtonType>	button_display_mode;
-		Optional<LLToolBarEnums::AlignmentType> button_alignment;
+		Optional<LLToolBarEnums::LayoutType>	button_layout_mode;
 		Multiple<LLCommandId::Params>	commands;
 
 		Toolbar();
@@ -69,11 +69,11 @@ public:
 
 	// Derived methods
 	virtual ~LLToolBarView();
-	virtual BOOL postBuild();
-	virtual void draw();
+	BOOL postBuild() override;
+	void draw() override;
 
 	// Toolbar view interface with the rest of the world
-	// Checks if the commandId is being used somewhere in one of the toolbars, returns LLToolBarEnums::EToolBarLocation
+	// Checks if the commandId is being used somewhere in one of the toolbars, returns EToolBarLocation
 	S32 hasCommand(const LLCommandId& commandId) const;
 	S32 addCommand(const LLCommandId& commandId, LLToolBarEnums::EToolBarLocation toolbar, int rank = LLToolBar::RANK_NONE);
 	S32 removeCommand(const LLCommandId& commandId, int& rank);	// Sets the rank the removed command was at, RANK_NONE if not found

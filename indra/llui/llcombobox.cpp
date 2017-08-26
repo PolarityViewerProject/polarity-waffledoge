@@ -72,15 +72,15 @@ LLComboBox::ItemParams::ItemParams()
 
 LLComboBox::Params::Params()
 :	allow_text_entry("allow_text_entry", false),
-	allow_new_values("allow_new_values", false),
 	show_text_as_tentative("show_text_as_tentative", true),
+	allow_new_values("allow_new_values", false),
 	max_chars("max_chars", 20),
 	list_position("list_position", BELOW),
-	items("item"),
 	combo_button("combo_button"),
 	combo_list("combo_list"),
 	combo_editor("combo_editor"),
-	drop_down_button("drop_down_button")
+	drop_down_button("drop_down_button"),
+	items("item")
 {
 	addSynonym(items, "combo_item");
 }
@@ -88,18 +88,18 @@ LLComboBox::Params::Params()
 
 LLComboBox::LLComboBox(const LLComboBox::Params& p)
 :	LLUICtrl(p),
-	mTextEntry(NULL),
-	mTextEntryTentative(p.show_text_as_tentative),
+	mTextEntry(nullptr),
+	mListPosition(p.list_position),
+	mLabel(p.label),
 	mHasAutocompletedText(false),
 	mAllowTextEntry(p.allow_text_entry),
 	mAllowNewValues(p.allow_new_values),
 	mMaxChars(p.max_chars),
+	mTextEntryTentative(p.show_text_as_tentative),
 	mPrearrangeCallback(p.prearrange_callback()),
 	mTextEntryCallback(p.text_entry_callback()),
 	mTextChangedCallback(p.text_changed_callback()),
-	mListPosition(p.list_position),
-	mLastSelectedIndex(-1),
-	mLabel(p.label)
+	mLastSelectedIndex(-1)
 {
 	// Text label button
 
@@ -287,6 +287,18 @@ LLScrollListItem* LLComboBox::add(const std::string& name, LLSD value, EAddPosit
 	return item;
 }
 
+LLScrollListItem* LLComboBox::addRemovable(const std::string& name, LLSD value, EAddPosition pos, BOOL enabled )
+{
+	LLScrollListItem* item = mList->addSimpleElement(name, pos, value);
+	item->setEnabled(enabled);
+	item->setUserRemovable(true);
+	if (!mAllowTextEntry && mLabel.empty())
+	{
+		selectFirstItem();
+	}
+	return item;
+}
+
 LLScrollListItem* LLComboBox::addSeparator(EAddPosition pos)
 {
 	return mList->addSeparator(pos);
@@ -377,6 +389,7 @@ void LLComboBox::setLabel(const LLStringExplicit& name)
 		{
 			mTextEntry->setTentative(FALSE);
 			mLastSelectedIndex = mList->getFirstSelectedIndex();
+            mTextEntry->setCursorToEnd(); // Cancels the "select all" done by selectItemByLabel()
 		}
 		else
 		{
@@ -537,16 +550,6 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 	}
 }
 
-// <FS:Ansariel> For setting the focus to the LLLineEditor
-void LLComboBox::focusEditor()
-{
-	if (mTextEntry)
-	{
-		mTextEntry->setFocus(TRUE);
-	}
-}
-// </FS:Ansariel>
-
 void LLComboBox::setLeftTextPadding(S32 pad)
 {
 	S32 left_pad, right_pad;
@@ -561,7 +564,7 @@ void* LLComboBox::getCurrentUserdata()
 	{
 		return item->getUserdata();
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -859,7 +862,7 @@ void LLComboBox::setTextEntry(const LLStringExplicit& text)
 
 void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 {
-	if (mTextEntryCallback != NULL)
+	if (!mTextEntryCallback.empty())
 	{
 		(mTextEntryCallback)(line_editor, LLSD());
 	}
@@ -879,7 +882,7 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 			mList->deselectAllItems();
 			mLastSelectedIndex = -1;
 		}
-		if (mTextChangedCallback != NULL)
+		if (!mTextChangedCallback.empty())
 		{
 			(mTextChangedCallback)(line_editor, LLSD());
 		}
@@ -927,7 +930,7 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 		// RN: presumably text entry
 		updateSelection();
 	}
-	if (mTextChangedCallback != NULL)
+	if (!mTextChangedCallback.empty())
 	{
 		(mTextChangedCallback)(line_editor, LLSD());
 	}
@@ -997,7 +1000,7 @@ void LLComboBox::setFocus(BOOL b)
 	}
 }
 
-void LLComboBox::prearrangeList(std::string filter)
+void LLComboBox::prearrangeList(const std::string& filter)
 {
 	if (mPrearrangeCallback)
 	{
@@ -1067,7 +1070,7 @@ BOOL LLComboBox::setCurrentByID(const LLUUID& id)
 
 LLUUID LLComboBox::getCurrentID() const
 {
-	return mList->getStringUUIDSelectedItem();
+	return mList->getSelectedValue().asUUID();
 }
 BOOL LLComboBox::setSelectedByValue(const LLSD& value, BOOL selected)
 {

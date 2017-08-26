@@ -37,7 +37,7 @@
 #include "llviewerregion.h"
 #include "llviewermedia.h"
 #include "llviewerparcelmedia.h"
-#include "lluictrlfactory.h"
+#include "llviewercontrol.h" // gSavedSettings
 
 // library includes
 #include "llcheckboxctrl.h"
@@ -54,23 +54,31 @@
 #include "roles_constants.h"
 #include "llscrolllistctrl.h"
 
+// Values for the parcel voice settings radio group
+enum
+{
+	kRadioVoiceChatEstate = 0,
+	kRadioVoiceChatPrivate = 1,
+	kRadioVoiceChatDisable = 2
+};
+
 //---------------------------------------------------------------------------
 // LLPanelLandMedia
 //---------------------------------------------------------------------------
 
 LLPanelLandMedia::LLPanelLandMedia(LLParcelSelectionHandle& parcel)
 :	LLPanel(),
-	mParcel(parcel),
-	mMediaURLEdit(NULL),
-	mMediaDescEdit(NULL),
-	mMediaTypeCombo(NULL),
-	mSetURLButton(NULL),
-	mMediaHeightCtrl(NULL),
-	mMediaWidthCtrl(NULL),
-	mMediaSizeCtrlLabel(NULL),
-	mMediaTextureCtrl(NULL),
-	mMediaAutoScaleCheck(NULL),
-	mMediaLoopCheck(NULL)
+	mMediaURLEdit(nullptr),
+	mMediaDescEdit(nullptr),
+	mMediaTypeCombo(nullptr),
+	mSetURLButton(nullptr),
+	mMediaHeightCtrl(nullptr),
+	mMediaWidthCtrl(nullptr),
+	mMediaSizeCtrlLabel(nullptr),
+	mMediaTextureCtrl(nullptr),
+	mMediaAutoScaleCheck(nullptr),
+	mMediaLoopCheck(nullptr),
+	mParcel(parcel)
 {
 }
 
@@ -84,36 +92,57 @@ BOOL LLPanelLandMedia::postBuild()
 {
 
 	mMediaTextureCtrl = getChild<LLTextureCtrl>("media texture");
-	mMediaTextureCtrl->setCommitCallback( onCommitAny, this );
+	mMediaTextureCtrl->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
 	mMediaTextureCtrl->setAllowNoTexture ( TRUE );
 	mMediaTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
 	mMediaTextureCtrl->setDnDFilterPermMask(PERM_COPY | PERM_TRANSFER);
 	mMediaTextureCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
 
 	mMediaAutoScaleCheck = getChild<LLCheckBoxCtrl>("media_auto_scale");
-	childSetCommitCallback("media_auto_scale", onCommitAny, this);
+	mMediaAutoScaleCheck->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
 
 	mMediaLoopCheck = getChild<LLCheckBoxCtrl>("media_loop");
-	childSetCommitCallback("media_loop", onCommitAny, this );
+	mMediaLoopCheck->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
 
 	mMediaURLEdit = getChild<LLLineEditor>("media_url");
-	childSetCommitCallback("media_url", onCommitAny, this );
+	mMediaURLEdit->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
 
 	mMediaDescEdit = getChild<LLLineEditor>("url_description");
-	childSetCommitCallback("url_description", onCommitAny, this);
+	mMediaDescEdit->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
 
 	mMediaTypeCombo = getChild<LLComboBox>("media type");
 	childSetCommitCallback("media type", onCommitType, this);
 	populateMIMECombo();
 
 	mMediaWidthCtrl = getChild<LLSpinCtrl>("media_size_width");
-	childSetCommitCallback("media_size_width", onCommitAny, this);
+	mMediaWidthCtrl->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
 	mMediaHeightCtrl = getChild<LLSpinCtrl>("media_size_height");
-	childSetCommitCallback("media_size_height", onCommitAny, this);
+	mMediaHeightCtrl->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
 	mMediaSizeCtrlLabel = getChild<LLTextBox>("media_size");
 
 	mSetURLButton = getChild<LLButton>("set_media_url");
 	childSetAction("set_media_url", onSetBtn, this);
+	
+	mCheckSoundLocal = getChild<LLCheckBoxCtrl>("check sound local");
+	mCheckSoundLocal->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
+	
+	mCheckParcelEnableVoice = getChild<LLCheckBoxCtrl>("parcel_enable_voice_channel");
+	mCheckParcelEnableVoice->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
+	
+	// This one is always disabled so no need for a commit callback
+	mCheckEstateDisabledVoice = getChild<LLCheckBoxCtrl>("parcel_enable_voice_channel_is_estate_disabled");
+	
+	mCheckParcelVoiceLocal = getChild<LLCheckBoxCtrl>("parcel_enable_voice_channel_local");
+	mCheckParcelVoiceLocal->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
+	
+	mMusicURLEdit = getChild<LLComboBox>("music_url");
+	mMusicURLEdit->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitMusicUrl, this));
+	
+	mCheckAVSoundAny = getChild<LLCheckBoxCtrl>("all av sound check");
+	mCheckAVSoundAny->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
+	
+	mCheckAVSoundGroup = getChild<LLCheckBoxCtrl>("group av sound check");
+	mCheckAVSoundGroup->setCommitCallback(boost::bind(&LLPanelLandMedia::onCommitAny, this));
 
 	return TRUE;
 }
@@ -186,6 +215,57 @@ void LLPanelLandMedia::refresh()
 		mMediaTextureCtrl->setEnabled( can_change_media );
 
 		mSetURLButton->setEnabled( can_change_media );
+		
+		mCheckSoundLocal->set( parcel->getSoundLocal() );
+		mCheckSoundLocal->setEnabled( can_change_media );
+		
+		bool allow_voice = parcel->getParcelFlagAllowVoice();
+		
+		LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+		if (region && region->isVoiceEnabled())
+		{
+			mCheckEstateDisabledVoice->setVisible(false);
+			
+			mCheckParcelEnableVoice->setVisible(true);
+			mCheckParcelEnableVoice->setEnabled( can_change_media );
+			mCheckParcelEnableVoice->set(allow_voice);
+			
+			mCheckParcelVoiceLocal->setEnabled( can_change_media && allow_voice );
+		}
+		else
+		{
+			// Voice disabled at estate level, overrides parcel settings
+			// Replace the parcel voice checkbox with a disabled one
+			// labelled with an explanatory message
+			mCheckEstateDisabledVoice->setVisible(true);
+			
+			mCheckParcelEnableVoice->setVisible(false);
+			mCheckParcelEnableVoice->setEnabled(false);
+			mCheckParcelVoiceLocal->setEnabled(false);
+		}
+		
+		mCheckParcelEnableVoice->set(allow_voice);
+		mCheckParcelVoiceLocal->set(!parcel->getParcelFlagUseEstateVoiceChannel());
+		
+		const std::string& current_url = parcel->getMusicURL();
+		mMusicURLEdit->clearRows();
+		LLSD stream_list = gSavedSettings.getLLSD("StreamList");
+		const LLSD streams = stream_list["audio"];
+		for(LLSD::array_const_iterator s_itr = streams.beginArray(); s_itr != streams.endArray(); ++s_itr)
+		{
+			mMusicURLEdit->add(LLSD(*s_itr));
+		}
+		mMusicURLEdit->addSeparator(ADD_TOP);
+		mMusicURLEdit->add(LLSD(current_url), ADD_TOP);
+		mMusicURLEdit->selectByValue(current_url);
+		mMusicURLEdit->setEnabled( can_change_media );
+		
+		BOOL can_change_av_sounds = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_OPTIONS) && parcel->getHaveNewParcelLimitData();
+		mCheckAVSoundAny->set(parcel->getAllowAnyAVSounds());
+		mCheckAVSoundAny->setEnabled(can_change_av_sounds);
+		
+		mCheckAVSoundGroup->set(parcel->getAllowGroupAVSounds() || parcel->getAllowAnyAVSounds());	// On if "Everyone" is on
+		mCheckAVSoundGroup->setEnabled(can_change_av_sounds && !parcel->getAllowAnyAVSounds());		// Enabled if "Everyone" is off
 
 	}
 }
@@ -245,6 +325,7 @@ void LLPanelLandMedia::setMediaURL(const std::string& media_url)
 	// LLViewerParcelMedia::sendMediaNavigateMessage(media_url);
 	getChild<LLUICtrl>("current_url")->setValue(media_url);
 }
+
 std::string LLPanelLandMedia::getMediaURL()
 {
 	return mMediaURLEdit->getText();	
@@ -260,36 +341,46 @@ void LLPanelLandMedia::onCommitType(LLUICtrl *ctrl, void *userdata)
 	{
 		self->getChild<LLUICtrl>("mime_type")->setValue(LLMIMETypes::findDefaultMimeType(new_type));
 	}
-	onCommitAny(ctrl, userdata);
+	self->onCommitAny();
 
 }
 
-// static
-void LLPanelLandMedia::onCommitAny(LLUICtrl*, void *userdata)
+void LLPanelLandMedia::onCommitAny()
 {
-	LLPanelLandMedia *self = (LLPanelLandMedia *)userdata;
-
-	LLParcel* parcel = self->mParcel->getParcel();
+	LLParcel* parcel = mParcel->getParcel();
 	if (!parcel)
 	{
 		return;
 	}
 
 	// Extract data from UI
-	std::string media_url	= self->mMediaURLEdit->getText();
-	std::string media_desc	= self->mMediaDescEdit->getText();
-	std::string mime_type	= self->getChild<LLUICtrl>("mime_type")->getValue().asString();
-	U8 media_auto_scale		= self->mMediaAutoScaleCheck->get();
-	U8 media_loop           = self->mMediaLoopCheck->get();
-	S32 media_width			= (S32)self->mMediaWidthCtrl->get();
-	S32 media_height		= (S32)self->mMediaHeightCtrl->get();
-	LLUUID media_id			= self->mMediaTextureCtrl->getImageAssetID();
+	std::string media_url	= mMediaURLEdit->getText();
+	std::string media_desc	= mMediaDescEdit->getText();
+	std::string mime_type	= getChild<LLUICtrl>("mime_type")->getValue().asString();
+	U8 media_auto_scale		= mMediaAutoScaleCheck->get();
+	U8 media_loop           = mMediaLoopCheck->get();
+	S32 media_width			= (S32)mMediaWidthCtrl->get();
+	S32 media_height		= (S32)mMediaHeightCtrl->get();
+	LLUUID media_id			= mMediaTextureCtrl->getImageAssetID();
+	
+	BOOL sound_local		= mCheckSoundLocal->get();
+	std::string music_url	= mMusicURLEdit->getSimple();
+	
+	BOOL voice_enabled = mCheckParcelEnableVoice->get();
+	BOOL voice_estate_chan = !mCheckParcelVoiceLocal->get();
+	
+	BOOL any_av_sound		= mCheckAVSoundAny->get();
+	BOOL group_av_sound		= TRUE;		// If set to "Everyone" then group is checked as well
+	if (!any_av_sound)
+	{	// If "Everyone" is off, use the value from the checkbox
+		group_av_sound = mCheckAVSoundGroup->get();
+	}
 
-
-	self->getChild<LLUICtrl>("mime_type")->setValue(mime_type);
+	getChild<LLUICtrl>("mime_type")->setValue(mime_type);
 
 	// Remove leading/trailing whitespace (common when copying/pasting)
 	LLStringUtil::trim(media_url);
+	LLStringUtil::trim(music_url);
 
 	// Push data into current parcel
 	parcel->setMediaURL(media_url);
@@ -300,13 +391,43 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl*, void *userdata)
 	parcel->setMediaID(media_id);
 	parcel->setMediaAutoScale ( media_auto_scale );
 	parcel->setMediaLoop ( media_loop );
+	
+	parcel->setParcelFlag(PF_ALLOW_VOICE_CHAT, voice_enabled);
+	parcel->setParcelFlag(PF_USE_ESTATE_VOICE_CHAN, voice_estate_chan);
+	parcel->setParcelFlag(PF_SOUND_LOCAL, sound_local);
+	parcel->setMusicURL(music_url);
+	parcel->setAllowAnyAVSounds(any_av_sound);
+	parcel->setAllowGroupAVSounds(group_av_sound);
 
 	// Send current parcel data upstream to server
 	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 
 	// Might have changed properties, so let's redraw!
-	self->refresh();
+	refresh();
 }
+
+void LLPanelLandMedia::onCommitMusicUrl()
+{
+	std::string music_url = mMusicURLEdit->getSimple();
+	LLStringUtil::trim(music_url);
+	if (!music_url.empty())
+	{
+		LLSD stream_list = gSavedSettings.getLLSD("StreamList");
+		const LLSD streams = stream_list["audio"];
+		bool found = false;
+		for(LLSD::array_const_iterator s_itr = streams.beginArray(); s_itr != streams.endArray(); ++s_itr)
+		{
+			if (LLStringUtil::compareInsensitive((LLSD(*s_itr)).asString(), music_url) == 0)
+				found = true;
+		}
+		if (!found)
+			stream_list["audio"].append(music_url);
+		gSavedSettings.setLLSD("StreamList", stream_list);
+	}
+	
+	onCommitAny();
+}
+
 // static
 void LLPanelLandMedia::onSetBtn(void *userdata)
 {

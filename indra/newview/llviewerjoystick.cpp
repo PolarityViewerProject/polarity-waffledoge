@@ -37,11 +37,11 @@
 #include "llkeyboard.h"
 #include "lltoolmgr.h"
 #include "llselectmgr.h"
-//#include "llviewermenu.h"
+#include "llviewermenu.h"
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llfocusmgr.h"
-#include "pvconstants.h"
+
 
 // ----------------------------------------------------------------------------
 // Constants
@@ -139,7 +139,7 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
 // -----------------------------------------------------------------------------
 LLViewerJoystick::LLViewerJoystick()
 :	mDriverState(JDS_UNINITIALIZED),
-	mNdofDev(NULL),
+	mNdofDev(nullptr),
 	mResetFlag(false),
 	mCameraUpdated(true),
 	mOverrideCamera(false),
@@ -176,8 +176,8 @@ void LLViewerJoystick::init(bool autoenable)
 	{
 		// Note: The HotPlug callbacks are not actually getting called on Windows
 		if (ndof_libinit(HotPlugAddCallback, 
-						 HotPlugRemovalCallback, 
-						 NULL))
+						 HotPlugRemovalCallback,
+						 nullptr))
 		{
 			mDriverState = JDS_UNINITIALIZED;
 		}
@@ -214,7 +214,7 @@ void LLViewerJoystick::init(bool autoenable)
 			mNdofDev->absolute = 1;
 
 			// init & use the first suitable NDOF device found on the USB chain
-			if (ndof_init_first(mNdofDev, NULL))
+			if (ndof_init_first(mNdofDev, nullptr))
 			{
 				mDriverState = JDS_UNINITIALIZED;
 				LL_WARNS() << "ndof_init_first FAILED" << LL_ENDL;
@@ -239,39 +239,22 @@ void LLViewerJoystick::init(bool autoenable)
 	
 	if (mDriverState == JDS_INITIALIZED)
 	{
-		std::string controller_name = getDescription();
 		// A Joystick device is plugged in
 		if (isLikeSpaceNavigator())
 		{
-			if (controller_name == "SpaceNavigator")
+			// It's a space navigator, we have defaults for it.
+			if (gSavedSettings.getString("JoystickInitialized") != "SpaceNavigator")
 			{
-				// It's a space navigator, we have defaults for it.
-				LL_WARNS("Joystick") << "SpaceNavigator \"" << controller_name << "\" found; Flycam enabled automatically." << LL_ENDL;
+				// Only set the defaults if we haven't already (in case they were overridden)
 				setSNDefaults();
-				gSavedSettings.setBOOL("JoystickEnabled", TRUE);
+				gSavedSettings.setString("JoystickInitialized", "SpaceNavigator");
 			}
-		else
-		{
-				// We don't know what this is; disable flycam
-				LL_WARNS("Joystick") << "Unknown SpaceNavigator \"" << controller_name << "\"; Flycam NOT enabled. Please report this to the " << APP_NAME << " support team if you want support for your device." << LL_ENDL;
-				gSavedSettings.setBOOL("JoystickEnabled", FALSE);
-			}
-		}
-		else if ((controller_name == "Controller (XBOX 360 For Windows)") || (controller_name == "Controller (Xbox 360 Wireless Receiver for Windows)")) /* OMG Microsoft... */
-		{
-			// We know this device works, let's enable flycam by default
-			setXbox360Defaults();
-			gSavedSettings.setBOOL("JoystickEnabled", TRUE);
 		}
 		else
 		{
-			// This is some weird device we can't test; assume this is a 360 pad but don't enable flycam automatically.
-			LL_WARNS("Joystick") << "Unknown joystick \"" << controller_name << "\"; Flycam NOT enabled. Please report this to the " << APP_NAME << " support team if you want support for your device." << LL_ENDL;
-			gSavedSettings.setBOOL("JoystickEnabled", FALSE);
+			// It's not a Space Navigator
+			gSavedSettings.setString("JoystickInitialized", "UnknownDevice");
 		}
-		// To be sure we don't break anything.
-		//LL_WARNS("Joystick") << "Something weird happened. Please report this to the " << APP_NAME << " support team." << LL_ENDL;
-		gSavedSettings.setString("JoystickInitialized", controller_name);
 	}
 	else
 	{
@@ -352,11 +335,8 @@ void LLViewerJoystick::handleRun(F32 inc)
 		if (1 == mJoystickRun)
 		{
 			++mJoystickRun;
-//			gAgent.setRunning();
-//			gAgent.sendWalkRun(gAgent.getRunning());
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-			gAgent.setTempRun();
-// [/RLVa:KB]
+			gAgent.setRunning();
+			gAgent.sendWalkRun(gAgent.getRunning());
 		}
 		else if (0 == mJoystickRun)
 		{
@@ -371,11 +351,8 @@ void LLViewerJoystick::handleRun(F32 inc)
 			--mJoystickRun;
 			if (0 == mJoystickRun)
 			{
-//				gAgent.clearRunning();
-//				gAgent.sendWalkRun(gAgent.getRunning());
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-				gAgent.clearTempRun();
-// [/RLVa:KB]
+				gAgent.clearRunning();
+				gAgent.sendWalkRun(gAgent.getRunning());
 			}
 		}
 	}
@@ -384,8 +361,7 @@ void LLViewerJoystick::handleRun(F32 inc)
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::agentJump()
 {
-	// <NiranV:Black Dragon> Xbox360 Controller Support
-	gAgent.moveUp(1, false);
+    gAgent.moveUp(1);
 }
 
 // -----------------------------------------------------------------------------
@@ -393,13 +369,11 @@ void LLViewerJoystick::agentSlide(F32 inc)
 {
 	if (inc < 0.f)
 	{
-		// <NiranV:Black Dragon> Xbox360 Controller Support
-		gAgent.moveLeft(1, false);
+		gAgent.moveLeft(1);
 	}
 	else if (inc > 0.f)
 	{
-		// <NiranV:Black Dragon> Xbox360 Controller Support
-		gAgent.moveLeft(-1, false);
+		gAgent.moveLeft(-1);
 	}
 }
 
@@ -424,21 +398,16 @@ void LLViewerJoystick::agentFly(F32 inc)
 		if (! (gAgent.getFlying() ||
 		       !gAgent.canFly() ||
 		       gAgent.upGrabbed() ||
-			    // <polarity> Ditch AutomaticFly because it's not granular enough
-			    // !gSavedSettings.getBOOL("AutomaticFly")) )
-			    !gSavedSettings.getBOOL("PVMovement_AutomaticFly")) )
-			     // </polarity>
+		       !gSavedSettings.getBOOL("AutomaticFly")) )
 		{
 			gAgent.setFlying(true);
 		}
-		//BD - Xbox360 Controller Support
-		gAgent.moveUp(1, false);
+		gAgent.moveUp(1);
 	}
 	else if (inc > 0.f)
 	{
 		// crouch
-		//BD - Xbox360 Controller Support
-		gAgent.moveUp(-1, false);
+		gAgent.moveUp(-1);
 	}
 }
 
@@ -514,14 +483,6 @@ void LLViewerJoystick::moveObjects(bool reset)
 		gSavedSettings.getS32("JoystickAxis5"),
 	};
 
-// // <Black Dragon:NiranV> Remappable joystick controls
-	S32 buttons[] =
-	{
-		gSavedSettings.getS32("PVInput_JoystickButtonRollLeft"),
-		gSavedSettings.getS32("PVInput_JoystickButtonRollRight"),
-		gSavedSettings.getS32("PVInput_JoystickButtonJump"),
-		gSavedSettings.getS32("PVInput_JoystickButtonCrouch")
-	};
 	if (reset || mResetFlag)
 	{
 		resetDeltas(axis);
@@ -564,14 +525,6 @@ void LLViewerJoystick::moveObjects(bool reset)
 	for (U32 i = 0; i < 6; i++)
 	{
 		cur_delta[i] = -mAxes[axis[i]];
-//	// <Black Dragon:NiranV> Remappable joystick controls
-		cur_delta[3] -= getJoystickButton(buttons[0]);
-		cur_delta[3] += getJoystickButton(buttons[1]);
-		cur_delta[2] += getJoystickButton(buttons[2]);
-		cur_delta[2] -= getJoystickButton(buttons[3]);
-//	// <Black Dragon:NiranV> Invertable pitch controls
-		if(gSavedSettings.getBOOL("PVInput_JoystickInvertPitch"))
-			cur_delta[4] *= -1.f;
 		F32 tmp = cur_delta[i];
 		if (absolute)
 		{
@@ -654,15 +607,6 @@ void LLViewerJoystick::moveAvatar(bool reset)
 		gSavedSettings.getS32("JoystickAxis5")
 	};
 
-// // <Black Dragon:NiranV> Remappable joystick controls
-	S32 buttons[] =
-	{
-		gSavedSettings.getS32("PVInput_JoystickButtonFly"),
-		gSavedSettings.getS32("PVInput_JoystickButtonJump"),
-		gSavedSettings.getS32("PVInput_JoystickButtonCrouch"),
-		gSavedSettings.getS32("PVInput_JoystickButtonRunToggle"),
-		gSavedSettings.getS32("PVInput_JoystickButtonMouselook")
-	};
 	if (reset || mResetFlag)
 	{
 		resetDeltas(axis);
@@ -677,59 +621,36 @@ void LLViewerJoystick::moveAvatar(bool reset)
 
 	bool is_zero = true;
 	static bool button_held = false;
-	// PLVR TODO: Compare against parent branch again if this breaks. I left it alone for now.
-	static bool w_button_held = false;
-	static bool m_button_held = false;
 
-// // <Black Dragon:NiranV> Remappable joystick controls
-	if (getJoystickButton(buttons[0]) && !button_held)
+	if (mBtn[1] == 1)
+	{
+		// If AutomaticFly is enabled, then button1 merely causes a
+		// jump (as the up/down axis already controls flying) if on the
+		// ground, or cease flight if already flying.
+		// If AutomaticFly is disabled, then button1 toggles flying.
+		if (gSavedSettings.getBOOL("AutomaticFly"))
+		{
+			if (!gAgent.getFlying())
+			{
+				gAgent.moveUp(1);
+			}
+			else if (!button_held)
 			{
 				button_held = true;
-		if(gAgent.getFlying())
-		{
 				gAgent.setFlying(FALSE);
+			}
 		}
-		else
+		else if (!button_held)
 		{
-			gAgent.setFlying(TRUE);
+			button_held = true;
+			gAgent.setFlying(!gAgent.getFlying());
 		}
+
+		is_zero = false;
 	}
-	else if (!getJoystickButton(buttons[0]) && button_held)
+	else
 	{
 		button_held = false;
-	}
-	if (getJoystickButton(buttons[3]) && !w_button_held)
-		{
-		w_button_held = true;
-		if(gAgent.getAlwaysRun())
-		{
-			gAgent.clearAlwaysRun();
-		}
-		else
-		{
-			gAgent.setAlwaysRun();
-		}
-	}
-	else if (!getJoystickButton(buttons[3]) && w_button_held)
-	{
-		w_button_held = false;
-	}
-
-	if (getJoystickButton(buttons[4]) && !m_button_held)
-	{
-		m_button_held = true;
-		if(gAgentCamera.cameraMouselook())
-		{
-			gAgentCamera.changeCameraToDefault();
-		}
-		else
-		{
-			gAgentCamera.changeCameraToMouselook();
-		}
-	}
-	else if (!getJoystickButton(buttons[4]) && m_button_held)
-	{
-		m_button_held = false;
 	}
 
 	F32 axis_scale[] =
@@ -776,9 +697,6 @@ void LLViewerJoystick::moveAvatar(bool reset)
 	for (U32 i = 0; i < 6; i++)
 	{
 		cur_delta[i] = -mAxes[axis[i]];
-//	// <Black Dragon:NiranV> Remappable joystick controls
-		cur_delta[2] += getJoystickButton(buttons[1]);
-		cur_delta[2] -= getJoystickButton(buttons[2]);
 		if (absolute)
 		{
 			F32 tmp = cur_delta[i];
@@ -821,9 +739,6 @@ void LLViewerJoystick::moveAvatar(bool reset)
 		setCameraNeedsUpdate(true);
 	}
 
-// // <Black Dragon:NiranV> Invertable pitch controls
-	if(!gSavedSettings.getBOOL("PVInput_JoystickInvertPitch"))
-		cur_delta[RX_I] *= -1.f;
 	// forward|backward movements overrule the real dominant movement if 
 	// they're bigger than its 20%. This is what you want 'cos moving forward
 	// is what you do most. We also added a special (even more lenient) case 
@@ -851,21 +766,67 @@ void LLViewerJoystick::moveAvatar(bool reset)
 	
 	handleRun((F32) sqrt(sDelta[Z_I]*sDelta[Z_I] + sDelta[X_I]*sDelta[X_I]));
 	
-// // <Black Dragon:NiranV> Use raw deltas, do not add any stupid limitations or extra dead zones
-	//	 otherwise alot controllers will cry and camera movement will bug out
+	// Allow forward/backward movement some priority
+	if (dom_axis == Z_I)
+	{
+		agentPush(sDelta[Z_I]);			// forward/back
 		
+		if (fabs(sDelta[X_I])  > .1f)
+		{
+			agentSlide(sDelta[X_I]);	// move sideways
+		}
 		
+		if (fabs(sDelta[Y_I])  > .1f)
+		{
+			agentFly(sDelta[Y_I]);		// up/down & crouch
+		}
 	
-	//	 or be completely ignored on some controllers. Especially fixes Xbox 360
+		// too many rotations during walking can be confusing, so apply
+		// the deadzones one more time (quick & dirty), at 50%|30% power
+		F32 eff_rx = .3f * dead_zone[RX_I];
+		F32 eff_ry = .3f * dead_zone[RY_I];
 	
-	//	 controller avatar movement.
+		if (sDelta[RX_I] > 0)
+		{
+			eff_rx = llmax(sDelta[RX_I] - eff_rx, 0.f);
+		}
+		else
+		{
+			eff_rx = llmin(sDelta[RX_I] + eff_rx, 0.f);
+		}
+
+		if (sDelta[RY_I] > 0)
+		{
+			eff_ry = llmax(sDelta[RY_I] - eff_ry, 0.f);
+		}
+		else
+		{
+			eff_ry = llmin(sDelta[RY_I] + eff_ry, 0.f);
+		}
 		
 		
+		if (fabs(eff_rx) > 0.f || fabs(eff_ry) > 0.f)
+		{
+			if (gAgent.getFlying())
+			{
+				agentPitch(eff_rx);
+				agentYaw(eff_ry);
+			}
+			else
+			{
+				agentPitch(eff_rx);
+				agentYaw(2.f * eff_ry);
+			}
+		}
+	}
+	else
+	{
 		agentSlide(sDelta[X_I]);		// move sideways
 		agentFly(sDelta[Y_I]);			// up/down & crouch
 		agentPush(sDelta[Z_I]);			// forward/back
 		agentPitch(sDelta[RX_I]);		// pitch
 		agentYaw(sDelta[RY_I]);			// turn
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -892,17 +853,6 @@ void LLViewerJoystick::moveFlycam(bool reset)
 		gSavedSettings.getS32("JoystickAxis6")
 	};
 
-// // <Black Dragon:NiranV> Remappable joystick controls
-	S32 buttons[] =
-	{
-		gSavedSettings.getS32("PVInput_JoystickButtonRollLeft"),
-		gSavedSettings.getS32("PVInput_JoystickButtonRollRight"),
-		gSavedSettings.getS32("PVInput_JoystickButtonZoomOut"),
-		gSavedSettings.getS32("PVInput_JoystickButtonZoomIn"),
-		gSavedSettings.getS32("PVInput_JoystickButtonJump"),
-		gSavedSettings.getS32("PVInput_JoystickButtonCrouch"),
-		gSavedSettings.getS32("PVInput_JoystickButtonZoomDefault")
-	};
 	bool in_build_mode = LLToolMgr::getInstance()->inBuildMode();
 	if (reset || mResetFlag)
 	{
@@ -915,27 +865,15 @@ void LLViewerJoystick::moveFlycam(bool reset)
 		return;
 	}
 
-	// <polarity> PLVR-285 Global Joystick Input Multiplier
-	float input_multiplier = gSavedSettings.getF32("PVInput_SpaceNavInputMultiplier");
-	// </polarity>
 	F32 axis_scale[] =
 	{
-		// <polarity> PLVR-285 Global Joystick Input Multiplier
-		// gSavedSettings.getF32("FlycamAxisScale0"),
-		// gSavedSettings.getF32("FlycamAxisScale1"),
-		// gSavedSettings.getF32("FlycamAxisScale2"),
-		// gSavedSettings.getF32("FlycamAxisScale3"),
-		// gSavedSettings.getF32("FlycamAxisScale4"),
-		// gSavedSettings.getF32("FlycamAxisScale5"),
-		// gSavedSettings.getF32("FlycamAxisScale6")
-		(gSavedSettings.getF32("FlycamAxisScale0") * input_multiplier),
-		(gSavedSettings.getF32("FlycamAxisScale1") * input_multiplier),
-		(gSavedSettings.getF32("FlycamAxisScale2") * input_multiplier),
-		(gSavedSettings.getF32("FlycamAxisScale3") * input_multiplier),
-		(gSavedSettings.getF32("FlycamAxisScale4") * input_multiplier),
-		(gSavedSettings.getF32("FlycamAxisScale5") * input_multiplier),
-		(gSavedSettings.getF32("FlycamAxisScale6") * input_multiplier)
-		// </polarity>
+		gSavedSettings.getF32("FlycamAxisScale0"),
+		gSavedSettings.getF32("FlycamAxisScale1"),
+		gSavedSettings.getF32("FlycamAxisScale2"),
+		gSavedSettings.getF32("FlycamAxisScale3"),
+		gSavedSettings.getF32("FlycamAxisScale4"),
+		gSavedSettings.getF32("FlycamAxisScale5"),
+		gSavedSettings.getF32("FlycamAxisScale6")
 	};
 
 	F32 dead_zone[] =
@@ -965,18 +903,6 @@ void LLViewerJoystick::moveFlycam(bool reset)
 	for (U32 i = 0; i < 7; i++)
 	{
 		cur_delta[i] = -getJoystickAxis(axis[i]);
-//	// <Black Dragon:NiranV> Remappable joystick controls
-		cur_delta[3] -= getJoystickButton(buttons[0]);
-		cur_delta[3] += getJoystickButton(buttons[1]);
-		cur_delta[6] -= getJoystickButton(buttons[2]);
-		cur_delta[6] += getJoystickButton(buttons[3]);
-		cur_delta[2] += getJoystickButton(buttons[4]);
-		cur_delta[2] -= getJoystickButton(buttons[5]);
-//	// <Black Dragon:NiranV> Invertable pitch controls
-		if(!gSavedSettings.getBOOL("PVInput_JoystickInvertPitch"))
-			cur_delta[4] *= -1.f;
-		if (getJoystickButton(buttons[6]))
-			sFlycamZoom = DEFAULT_FIELD_OF_VIEW;
 
 
 		F32 tmp = cur_delta[i];
@@ -1002,7 +928,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
 		{
 			if (i == X_I || i == Y_I || i == Z_I)
 			{
-				static LLCachedControl<F32> build_mode_scale(gSavedSettings,"FlycamBuildModeScale", 1.0);
+				static LLCachedControl<F32> build_mode_scale(gSavedSettings,"FlycamBuildModeScale", 1.0f);
 				cur_delta[i] *= build_mode_scale;
 			}
 		}
@@ -1031,10 +957,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
 	LLMatrix3 rot_mat(sDelta[3], sDelta[4], sDelta[5]);
 	sFlycamRotation = LLQuaternion(rot_mat)*sFlycamRotation;
 
-	// <polarity> Cache more settings
-	static LLCachedControl<bool> AutoLeveling(gSavedSettings, "AutoLeveling", false);
-	// if (gSavedSettings.getBOOL("AutoLeveling"))
-	if (AutoLeveling)
+	if (gSavedSettings.getBOOL("AutoLeveling"))
 	{
 		LLMatrix3 level(sFlycamRotation);
 
@@ -1128,10 +1051,9 @@ void LLViewerJoystick::scanJoystick()
 
 	static long toggle_flycam = 0;
 
-// // <Black Dragon:NiranV> Toggle flycam
-	if (mBtn[gSavedSettings.getS32("PVInput_JoystickButtonFlycam")] == 1)
+	if (mBtn[0] == 1)
     {
-		if (mBtn[gSavedSettings.getS32("PVInput_JoystickButtonFlycam")] != toggle_flycam)
+		if (mBtn[0] != toggle_flycam)
 		{
 			toggle_flycam = toggleFlycam() ? 1 : 0;
 		}
@@ -1198,39 +1120,28 @@ void LLViewerJoystick::setSNDefaults()
 	gSavedSettings.setS32("JoystickAxis5", 5); // yaw
 	gSavedSettings.setS32("JoystickAxis6", -1);
 	
-	gSavedSettings.setS32("PVInput_JoystickButtonJump", -1);
-	gSavedSettings.setS32("PVInput_JoystickButtonCrouch", -1);
-	gSavedSettings.setS32("PVInput_JoystickButtonFly", 1);
-	gSavedSettings.setS32("PVInput_JoystickButtonRunToggle", -1);
-	gSavedSettings.setS32("PVInput_JoystickButtonMouselook", -1);
-	gSavedSettings.setS32("PVInput_JoystickButtonZoomDefault", -1);
-	gSavedSettings.setS32("PVInput_JoystickButtonFlycam", 0);
-	gSavedSettings.setS32("PVInput_JoystickButtonZoomOut", -1);
-	gSavedSettings.setS32("PVInput_JoystickButtonZoomIn", -1);
-	gSavedSettings.setS32("PVInput_JoystickButtonRollLeft", -1);
-	gSavedSettings.setS32("PVInput_JoystickButtonRollRight", -1);
 	gSavedSettings.setBOOL("Cursor3D", is_3d_cursor);
-	gSavedSettings.setBOOL("AutoLeveling", false);
+	gSavedSettings.setBOOL("AutoLeveling", true);
 	gSavedSettings.setBOOL("ZoomDirect", false);
 	
 	gSavedSettings.setF32("AvatarAxisScale0", 1.f * platformScaleAvXZ);
 	gSavedSettings.setF32("AvatarAxisScale1", 1.f * platformScaleAvXZ);
 	gSavedSettings.setF32("AvatarAxisScale2", 1.f);
+	gSavedSettings.setF32("AvatarAxisScale4", .1f * platformScale);
+	gSavedSettings.setF32("AvatarAxisScale5", .1f * platformScale);
 	gSavedSettings.setF32("AvatarAxisScale3", 0.f * platformScale);
-	gSavedSettings.setF32("AvatarAxisScale4", .2f * platformScale);
-	gSavedSettings.setF32("AvatarAxisScale5", .4f * platformScale);
 	gSavedSettings.setF32("BuildAxisScale1", .3f * platformScale);
 	gSavedSettings.setF32("BuildAxisScale2", .3f * platformScale);
 	gSavedSettings.setF32("BuildAxisScale0", .3f * platformScale);
 	gSavedSettings.setF32("BuildAxisScale4", .3f * platformScale);
 	gSavedSettings.setF32("BuildAxisScale5", .3f * platformScale);
 	gSavedSettings.setF32("BuildAxisScale3", .3f * platformScale);
-	gSavedSettings.setF32("FlycamAxisScale0", 4.f * platformScale);
 	gSavedSettings.setF32("FlycamAxisScale1", 2.f * platformScale);
 	gSavedSettings.setF32("FlycamAxisScale2", 2.f * platformScale);
-	gSavedSettings.setF32("FlycamAxisScale3", .2f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale0", 2.1f * platformScale);
 	gSavedSettings.setF32("FlycamAxisScale4", .1f * platformScale);
 	gSavedSettings.setF32("FlycamAxisScale5", .15f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale3", 0.f * platformScale);
 	gSavedSettings.setF32("FlycamAxisScale6", 0.f * platformScale);
 	
 	gSavedSettings.setF32("AvatarAxisDeadZone0", .1f);
@@ -1256,79 +1167,83 @@ void LLViewerJoystick::setSNDefaults()
 	gSavedSettings.setF32("AvatarFeathering", 6.f);
 	gSavedSettings.setF32("BuildFeathering", 12.f);
 	gSavedSettings.setF32("FlycamFeathering", 5.f);
-
-	gSavedSettings.setBOOL("JoystickAvatarEnabled", FALSE);
-	gSavedSettings.setBOOL("JoystickBuildEnabled", FALSE);
-	gSavedSettings.setBOOL("JoystickFlycamEnabled", TRUE);
 }
-// PLVR TODO: Move to settings.
+
 void LLViewerJoystick::setXbox360Defaults()
 {
-	LL_INFOS() << "restoring Xbox360 Controller defaults..." << LL_ENDL;
-	gSavedSettings.setS32("JoystickAxis0", 1); // z (at)
-	gSavedSettings.setS32("JoystickAxis1", 0); // x (slide)
-	gSavedSettings.setS32("JoystickAxis2", -1); // y (up)
-	gSavedSettings.setS32("JoystickAxis3", 2); // pitch
-	gSavedSettings.setS32("JoystickAxis4", 4); // roll
-	gSavedSettings.setS32("JoystickAxis5", 3); // yaw
-	gSavedSettings.setS32("JoystickAxis6", -1);
-	gSavedSettings.setS32("PVInput_JoystickButtonJump", 0);
-	gSavedSettings.setS32("PVInput_JoystickButtonCrouch", 1);
-	gSavedSettings.setS32("PVInput_JoystickButtonFly", 2);
-	gSavedSettings.setS32("PVInput_JoystickButtonRunToggle", 8);
-	gSavedSettings.setS32("PVInput_JoystickButtonMouselook", 9);
-	gSavedSettings.setS32("PVInput_JoystickButtonZoomDefault", 6);
-	gSavedSettings.setS32("PVInput_JoystickButtonFlycam", 7);
-	gSavedSettings.setS32("PVInput_JoystickButtonZoomOut", 5);
-	gSavedSettings.setS32("PVInput_JoystickButtonZoomIn", 4);
-	gSavedSettings.setS32("PVInput_JoystickButtonRollLeft", -1);
-	gSavedSettings.setS32("PVInput_JoystickButtonRollRight", -1);
-	gSavedSettings.setBOOL("Cursor3D", false);
+#if LL_DARWIN || LL_LINUX
+	const float platformScale = 20.f;
+	const float platformScaleAvXZ = 1.f;
+#else
+	const float platformScale = 1.f;
+	const float platformScaleAvXZ = 1.f;
+#endif
+	
+	//gViewerWindow->alertXml("CacheWillClear");
+	LL_INFOS() << "restoring Xbox360 defaults..." << LL_ENDL;
+	/*
+	Axis 0: Left Thumbstick Horizontal
+	Axis 1: Left Thumbstick Vertical
+	Axis 2: Left and Right triggers (Analog)
+	Axis 3: Right Thumbstick Horizontal
+	Axis 4: Left Thumbstick Vertical
+	Axis 5: Unused
+	
+	Syntax/Format:
+		Debug setting				InternalMapping,Jostick Axis (see above)	*/
+	gSavedSettings.setS32("JoystickAxis0", 1);	// Z Axis Mapping
+	gSavedSettings.setS32("JoystickAxis1", 0);	// X Axis Mapping
+	gSavedSettings.setS32("JoystickAxis2", -1);	// Y Axis Mapping
+	gSavedSettings.setS32("JoystickAxis3", 2);	// Roll Mapping
+	gSavedSettings.setS32("JoystickAxis4", 4);	// Pitch Mapping
+	gSavedSettings.setS32("JoystickAxis5", 3);	// Yaw Mapping
+	gSavedSettings.setS32("JoystickAxis6", -1);	// Zoom Mapping
+	
+	gSavedSettings.setBOOL("Cursor3D", false); // Xbox Gamepad, not 3D Mouse
 	gSavedSettings.setBOOL("AutoLeveling", false);
 	gSavedSettings.setBOOL("ZoomDirect", false);
-	gSavedSettings.setF32("AvatarAxisScale0", .7f); // strafe
-	gSavedSettings.setF32("AvatarAxisScale1", .7f); // ?
-	gSavedSettings.setF32("AvatarAxisScale2", .7f); // forward
-	gSavedSettings.setF32("AvatarAxisScale4", 1.0f);
-	gSavedSettings.setF32("AvatarAxisScale5", 2.4f);
-	gSavedSettings.setF32("AvatarAxisScale3", 2.0f);
-	gSavedSettings.setF32("BuildAxisScale1", 2.f);
-	gSavedSettings.setF32("BuildAxisScale2", 2.f);
-	gSavedSettings.setF32("BuildAxisScale0", 2.f);
-	gSavedSettings.setF32("BuildAxisScale4", 1.f);
-	gSavedSettings.setF32("BuildAxisScale5", 1.f);
-	gSavedSettings.setF32("BuildAxisScale3", 1.f);
-	gSavedSettings.setF32("FlycamAxisScale1", 15.f); // strafe
-	gSavedSettings.setF32("FlycamAxisScale0", 15.f); // ?
-	gSavedSettings.setF32("FlycamAxisScale2", 15.f); // forward
-	gSavedSettings.setF32("FlycamAxisScale4", 2.f);  // Pitch
-	gSavedSettings.setF32("FlycamAxisScale5", 2.f);  // Yaw
-	gSavedSettings.setF32("FlycamAxisScale3", 2.f);  // Roll
-	gSavedSettings.setF32("FlycamAxisScale6", 1.f);  // Zoom
-	gSavedSettings.setF32("AvatarAxisDeadZone0", .4f);
-	gSavedSettings.setF32("AvatarAxisDeadZone1", .4f);
+	
+	gSavedSettings.setF32("AvatarAxisScale0", 0.43f * platformScaleAvXZ);
+	gSavedSettings.setF32("AvatarAxisScale1", 0.43f * platformScaleAvXZ);
+	gSavedSettings.setF32("AvatarAxisScale2", 0.43f);
+	gSavedSettings.setF32("AvatarAxisScale4", 4.f * platformScale);
+	gSavedSettings.setF32("AvatarAxisScale5", 4.f * platformScale);
+	gSavedSettings.setF32("AvatarAxisScale3", 4.f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale1", .3f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale2", .3f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale0", .3f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale4", .3f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale5", .3f * platformScale);
+	gSavedSettings.setF32("BuildAxisScale3", .3f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale0", 25.f * platformScale); // Z Scale
+	gSavedSettings.setF32("FlycamAxisScale1", 4.f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale2", 4.f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale3", 4.f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale4", 4.f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale5", 4.f * platformScale);
+	gSavedSettings.setF32("FlycamAxisScale6", 4.f * platformScale);
+	
+	gSavedSettings.setF32("AvatarAxisDeadZone0", .2f);
+	gSavedSettings.setF32("AvatarAxisDeadZone1", .2f);
 	gSavedSettings.setF32("AvatarAxisDeadZone2", .2f);
-	gSavedSettings.setF32("AvatarAxisDeadZone3", .25f);
-	gSavedSettings.setF32("AvatarAxisDeadZone4", .25f);
-	gSavedSettings.setF32("AvatarAxisDeadZone5", .25f);
-	gSavedSettings.setF32("BuildAxisDeadZone0", .2f);
-	gSavedSettings.setF32("BuildAxisDeadZone1", .2f);
-	gSavedSettings.setF32("BuildAxisDeadZone2", .2f);
-	gSavedSettings.setF32("BuildAxisDeadZone3", .1f);
-	gSavedSettings.setF32("BuildAxisDeadZone4", .1f);
-	gSavedSettings.setF32("BuildAxisDeadZone5", .1f);
+	gSavedSettings.setF32("AvatarAxisDeadZone3", .2f);
+	gSavedSettings.setF32("AvatarAxisDeadZone4", .2f);
+	gSavedSettings.setF32("AvatarAxisDeadZone5", .2f);
+	gSavedSettings.setF32("BuildAxisDeadZone0", .02f);
+	gSavedSettings.setF32("BuildAxisDeadZone1", .02f);
+	gSavedSettings.setF32("BuildAxisDeadZone2", .02f);
+	gSavedSettings.setF32("BuildAxisDeadZone3", .02f);
+	gSavedSettings.setF32("BuildAxisDeadZone4", .02f);
+	gSavedSettings.setF32("BuildAxisDeadZone5", .02f);
 	gSavedSettings.setF32("FlycamAxisDeadZone0", .2f);
 	gSavedSettings.setF32("FlycamAxisDeadZone1", .2f);
 	gSavedSettings.setF32("FlycamAxisDeadZone2", .2f);
-	gSavedSettings.setF32("FlycamAxisDeadZone3", .2f);
-	gSavedSettings.setF32("FlycamAxisDeadZone4", .2f);
-	gSavedSettings.setF32("FlycamAxisDeadZone5", .2f);
-	gSavedSettings.setF32("FlycamAxisDeadZone6", .2f);
-	gSavedSettings.setF32("AvatarFeathering", 7.150f);
-	gSavedSettings.setF32("BuildFeathering", 3.f);
-	gSavedSettings.setF32("FlycamFeathering", 2.3f);
-
-	gSavedSettings.setBOOL("JoystickAvatarEnabled", TRUE);
-	gSavedSettings.setBOOL("JoystickBuildEnabled", FALSE);
-	gSavedSettings.setBOOL("JoystickFlycamEnabled", TRUE);
+	gSavedSettings.setF32("FlycamAxisDeadZone3", 0.1f);
+	gSavedSettings.setF32("FlycamAxisDeadZone4", .25f);
+	gSavedSettings.setF32("FlycamAxisDeadZone5", .25f);
+	gSavedSettings.setF32("FlycamAxisDeadZone6", 0.2f);
+	
+	gSavedSettings.setF32("AvatarFeathering", 3.f);
+	gSavedSettings.setF32("BuildFeathering", 12.f);
+	gSavedSettings.setF32("FlycamFeathering", 1.f);
 }

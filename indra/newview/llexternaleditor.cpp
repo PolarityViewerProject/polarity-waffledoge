@@ -29,11 +29,12 @@
 #include "llviewerprecompiledheaders.h"
 #include "llexternaleditor.h"
 
+#include <boost/tokenizer.hpp>
+
 #include "lltrans.h"
 #include "llui.h"
 #include "llprocess.h"
 #include "llsdutil.h"
-#include <boost/foreach.hpp>
 
 // static
 const std::string LLExternalEditor::sFilenameMarker = "%s";
@@ -46,8 +47,22 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 	std::string cmd = findCommand(env_var, override);
 	if (cmd.empty())
 	{
-		LL_WARNS() << "Editor command is empty or not set" << LL_ENDL;
-		return EC_NOT_SPECIFIED;
+		LL_INFOS() << "Editor command is empty or not set. Falling back on generic open handler." << LL_ENDL;
+#if LL_WINDOWS
+		std::string comspec(getenv("COMSPEC"));
+		comspec.append(" /C START \"%s\"");
+		cmd = findCommand(LLStringUtil::null, comspec);
+#elif LL_DARWIN
+		cmd = findCommand(LLStringUtil::null, "/usr/bin/open \"%s\"");
+#elif LL_LINUX
+		// xdg-open might not actually be installed on all distros, but it's our best bet.
+		cmd = findCommand(LLStringUtil::null, "/usr/bin/xdg-open \"%s\"");
+#endif
+		if (cmd.empty())
+		{
+			LL_WARNS() << "Failed to find generic open handler: " << cmd << LL_ENDL;
+			return EC_NOT_SPECIFIED;
+		}
 	}
 
 	string_vec_t tokens;
@@ -94,7 +109,7 @@ LLExternalEditor::EErrorCode LLExternalEditor::run(const std::string& file_path)
 	params.executable = mProcessParams.executable;
 
 	// Substitute the filename marker in the command with the actual passed file name.
-	BOOST_FOREACH(const std::string& arg, mProcessParams.args)
+	for (const std::string& arg : mProcessParams.args)
 	{
 		std::string fixed(arg);
 		LLStringUtil::replaceString(fixed, sFilenameMarker, file_path);

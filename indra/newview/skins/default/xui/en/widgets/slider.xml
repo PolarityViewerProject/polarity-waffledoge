@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <slider name="slider" 
         can_edit_text="false" 
-        font="SansSerif"
-        font.size="Small"
+        font="SansSerifSmall"
         volume="false"
         mouse_opaque="true" 
         show_text="true" 

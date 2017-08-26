@@ -36,13 +36,11 @@
 #include "llgl.h"
 #include "llfontgl.h"
 
-#include "lluictrlfactory.h"
 #include "lltracerecording.h"
 #include "llcriticaldamp.h"
 #include "lltooltip.h"
 #include "lllocalcliprect.h"
 #include <iostream>
-//#include "../newview/pvfpsmeter.h"
 #include "lltrans.h"
 
 // rate at which to update display of value that is rapidly changing
@@ -161,13 +159,13 @@ LLStatBar::Params::Params()
 	bar_min("bar_min", 0.f),
 	bar_max("bar_max", 0.f),
 	tick_spacing("tick_spacing", 0.f),
-	decimal_digits("decimal_digits", 3),
 	show_bar("show_bar", false),
 	show_history("show_history", false),
 	scale_range("scale_range", true),
+	decimal_digits("decimal_digits", 3),
 	num_frames("num_frames", 200),
 	num_frames_short("num_frames_short", 20),
-	max_height("max_height", 75), // <polarity>
+	max_height("max_height", 100),
 	stat("stat"),
 	orientation("orientation", VERTICAL)
 {
@@ -178,29 +176,29 @@ LLStatBar::Params::Params()
 
 LLStatBar::LLStatBar(const Params& p)
 :	LLView(p),
-	mLabel(p.label),
-	mUnitLabel(p.unit_label),
 	mTargetMinBar(llmin(p.bar_min, p.bar_max)),
 	mTargetMaxBar(llmax(p.bar_max, p.bar_min)),
 	mCurMaxBar(p.bar_max),
-    mCurMinBar(0),
-	mDecimalDigits(p.decimal_digits),
+	mCurMinBar(0),
+	mTickSpacing(p.tick_spacing),
+    mDecimalDigits(p.decimal_digits),
 	mNumHistoryFrames(p.num_frames),
 	mNumShortHistoryFrames(p.num_frames_short),
 	mMaxHeight(p.max_height),
+	mOrientation(p.orientation),
+	mLastDisplayValue(0.f),
+	mStatType(STAT_NONE),
+	mLabel(p.label),
+	mUnitLabel(p.unit_label),
 	mDisplayBar(p.show_bar),
 	mDisplayHistory(p.show_history),
-	mOrientation(p.orientation),
 	mAutoScaleMax(!p.bar_max.isProvided()),
-	mAutoScaleMin(!p.bar_min.isProvided()),
-	mTickSpacing(p.tick_spacing),
-	mLastDisplayValue(0.f),
-	mStatType(STAT_NONE)
+	mAutoScaleMin(!p.bar_min.isProvided())
 {
 	mFloatingTargetMinBar = mTargetMinBar;
 	mFloatingTargetMaxBar = mTargetMaxBar;
 
-	mStat.valid = NULL;
+	mStat.valid = nullptr;
 	// tick value will be automatically calculated later
 	if (!p.tick_spacing.isProvided() && p.bar_min.isProvided() && p.bar_max.isProvided())
 	{
@@ -292,7 +290,7 @@ S32 calc_num_rapid_changes(LLTrace::PeriodicRecording& periodic_recording, const
 }
 
 void LLStatBar::draw()
-{  // <polarity> Look here for FPS counter value
+{
 	LLLocalClipRect _(getLocalRect());
 
 	LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
@@ -430,15 +428,14 @@ void LLStatBar::draw()
 
 		drawTicks(min, max, value_scale, bar_rect);
 
-		auto uiCT = LLUIColorTable::getInstance();
-		static LLColor4 bar_bg(uiCT->getColor("StatBarFPSBGColor"));
-
 		// draw background bar.
-		gl_rect_2d(bar_rect.mLeft, bar_rect.mTop, bar_rect.mRight, bar_rect.mBottom, bar_bg);
+		gl_rect_2d(bar_rect.mLeft, bar_rect.mTop, bar_rect.mRight, bar_rect.mBottom, LLColor4(0.f, 0.f, 0.f, 0.25f));
 
 		// draw values
 		if (!llisnan(display_value) && frame_recording.getNumRecordedPeriods() != 0)
 		{
+			static LLUIColor main_bar_color = LLUIColorTable::instance().getColor("StatBarBackgroundColor", LLColor4(1.f, 0.f, 0.f, 1.f));
+			static LLUIColor main_bar_color_25 = LLUIColorTable::instance().getColor("StatBarBackgroundColor_25", LLColor4(1.f, 0.f, 0.f, 0.25f));
 			// draw min and max
 			S32 begin = (S32) ((min - mCurMinBar) * value_scale);
 
@@ -448,32 +445,27 @@ void LLStatBar::draw()
 			}
 
 			S32 end = (S32) ((max - mCurMinBar) * value_scale);
-			// The range color is too bright when displayed on the stats bar, darken it a little
-			//auto fps_color = PVFPSMeter::getColor();
-			//auto range_bar_fixed = LLColor4(fps_color.mV[0] - 0.13, fps_color.mV[1] - 0.13, fps_color.mV[2] - 0.13, 0.45f);
 			if (mOrientation == HORIZONTAL)
 			{
-				gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, bar_bg); // <polarity/>
+				gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, main_bar_color_25.get());
 			}
 			else // VERTICAL
 			{
-				gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom, bar_bg); // <polarity/>
+				gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom, main_bar_color_25.get());
 			}
 
 			F32 span = (mOrientation == HORIZONTAL)
 					? (bar_rect.getWidth())
 					: (bar_rect.getHeight());
 
-			static LLColor4 bar_dot(uiCT->getColor("EmphasisColor"));
 			if (mDisplayHistory && mStat.valid)
 			{
 				const S32 num_values = frame_recording.getNumRecordedPeriods() - 1;
 				F32 min_value = 0.f,
 					max_value = 0.f;
 
-				// We set alpha here because this color depends on the channel
-				gGL.color4fv(LLColor4(bar_dot.mV[0], bar_dot.mV[1], bar_dot.mV[2], 0.75f).mV); // <polarity/>
-				gGL.begin( LLRender::QUADS );
+				gGL.color4fv(main_bar_color.get().mV);
+				gGL.begin( LLRender::TRIANGLES );
 				const S32 max_frame = llmin(num_frames, num_values);
 				U32 num_samples = 0;
 				for (S32 i = 1; i <= max_frame; i++)
@@ -513,17 +505,22 @@ void LLStatBar::draw()
 					F32 max = llmax(min + 1, (max_value - mCurMinBar) * value_scale);
 					if (mOrientation == HORIZONTAL)
 					{
-						gGL.vertex2f((F32)bar_rect.mRight - offset, max);
-						gGL.vertex2f((F32)bar_rect.mRight - offset, min);
-						gGL.vertex2f((F32)bar_rect.mRight - offset - 1, min);
 						gGL.vertex2f((F32)bar_rect.mRight - offset - 1, max);
+						gGL.vertex2f((F32)bar_rect.mRight - offset - 1, min);
+						gGL.vertex2f((F32)bar_rect.mRight - offset, max);
+						gGL.vertex2f((F32)bar_rect.mRight - offset, max);
+						gGL.vertex2f((F32)bar_rect.mRight - offset - 1, min);
+						gGL.vertex2f((F32)bar_rect.mRight - offset, min);
 					}
 					else
 					{
 						gGL.vertex2f(min, (F32)bar_rect.mBottom + offset + 1);
 						gGL.vertex2f(min, (F32)bar_rect.mBottom + offset);
+						gGL.vertex2f(max, (F32)bar_rect.mBottom + offset + 1);
+						gGL.vertex2f(max, (F32)bar_rect.mBottom + offset + 1);
+						gGL.vertex2f(min, (F32)bar_rect.mBottom + offset);
 						gGL.vertex2f(max, (F32)bar_rect.mBottom + offset);
-						gGL.vertex2f(max, (F32)bar_rect.mBottom + offset + 1 );
+						
 					}
 				}
 				gGL.end();
@@ -535,26 +532,26 @@ void LLStatBar::draw()
 				// draw current
 				if (mOrientation == HORIZONTAL)
 				{
-                    gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, bar_dot); // <polarity/>
+					gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, main_bar_color.get());
 				}
 				else
 				{
-                    gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom, bar_dot); // <polarity/>
+					gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom, main_bar_color.get());
 				}
 			}
 
 			// draw mean bar
 			{
+				static LLUIColor mean_bar_color = LLUIColorTable::instance().getColor("StatBarMeanBarColor", LLColor4(0.f, 1.f, 0.f, 1.f));
 				const S32 begin = (S32) ((mean - mCurMinBar) * value_scale) - 1;
 				const S32 end = (S32) ((mean - mCurMinBar) * value_scale) + 1;
-				static LLColor4 bar_mean_line(uiCT->getColor("StatBarMeanBarColor"));
 				if (mOrientation == HORIZONTAL)
 				{
-					gl_rect_2d(bar_rect.mLeft - 2, begin, bar_rect.mRight + 2, end, bar_mean_line); // <polarity/>
+					gl_rect_2d(bar_rect.mLeft - 2, begin, bar_rect.mRight + 2, end, mean_bar_color.get());
 				}
 				else
 				{
-					gl_rect_2d(begin, bar_rect.mTop + 2, end, bar_rect.mBottom - 2, bar_mean_line); // <polarity/>
+					gl_rect_2d(begin, bar_rect.mTop + 2, end, bar_rect.mBottom - 2, mean_bar_color.get());
 				}
 			}
 		}

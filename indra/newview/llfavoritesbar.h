@@ -56,20 +56,20 @@ protected:
 public:
 	virtual ~LLFavoritesBarCtrl();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild() override;
 
 	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
-								   std::string& tooltip_msg);
+								   std::string& tooltip_msg) override;
 
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) override;
 	// LLInventoryObserver observer trigger
-	virtual void changed(U32 mask);
-	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	virtual void draw();
+	void changed(U32 mask) override;
+	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
+	void draw() override;
 
 	void showDragMarker(BOOL show) { mShowDragMarker = show; }
 	void setLandingTab(LLUICtrl* tab) { mLandingTab = tab; }
@@ -106,10 +106,8 @@ protected:
 	bool mUpdateDropDownItems;
 	bool mRestoreOverflowMenu;
 
-	bool mGetPrevItems;
-
 	LLUUID mSelectedItemID;
-	LLFrameTimer mItemsChangedTimer;
+
 	LLUIImage* mImageDragIndication;
 
 private:
@@ -175,6 +173,7 @@ class LLFavoritesOrderStorage : public LLSingleton<LLFavoritesOrderStorage>
 	, public LLDestroyClass<LLFavoritesOrderStorage>
 {
 	LLSINGLETON(LLFavoritesOrderStorage);
+	~LLFavoritesOrderStorage() { save(); }
 	LOG_CLASS(LLFavoritesOrderStorage);
 public:
 	/**
@@ -208,20 +207,8 @@ public:
 	 * @see cleanup()
 	 */
 	static void destroyClass();
-	static std::string getStoredFavoritesFilename();
-	static std::string getSavedOrderFileName();
-
-	BOOL saveFavoritesRecord(bool pref_changed = false);
-	void showFavoritesOnLoginChanged(BOOL show);
-
-	LLInventoryModel::item_array_t mPrevFavorites;
-
 
 	const static S32 NO_INDEX;
-	static bool mSaveOnExit;
-	bool mUpdateRequired;
-	std::map<LLUUID,std::string> mFavoriteNames;
-
 private:
 	/**
 	 * Removes sort indexes for items which are not in Favorites bar for now.
@@ -229,8 +216,13 @@ private:
 	void cleanup();
 
 	const static std::string SORTING_DATA_FILE_NAME;
-
+    std::string getSavedOrderFileName();
+    static std::string getStoredFavoritesFilename();
+    
 	void load();
+	void save();
+
+	void saveFavoritesSLURLs();
 
 	// Remove record of current user's favorites from file on disk.
 	void removeFavoritesRecordOfUser();
@@ -275,7 +267,7 @@ private:
 
 inline
 LLFavoritesOrderStorage::LLFavoritesOrderStorage() :
-	mIsDirty(false), mUpdateRequired(false)
+	mIsDirty(false)
 { load(); }
 
 #endif // LL_LLFAVORITESBARCTRL_H

@@ -30,10 +30,8 @@
 
 #include "llfloatertexturefetchdebugger.h"
 
-#include "lluictrlfactory.h"
 #include "llbutton.h"
 #include "llspinctrl.h"
-#include "llresmgr.h"
 
 #include "llmath.h"
 #include "llviewerwindow.h"
@@ -43,7 +41,7 @@
 
 LLFloaterTextureFetchDebugger::LLFloaterTextureFetchDebugger(const LLSD& key)
 	: LLFloater(key),
-	mDebugger(NULL)
+	mDebugger(nullptr)
 {
 	setTitle("Texture Fetching Debugger Floater");
 	

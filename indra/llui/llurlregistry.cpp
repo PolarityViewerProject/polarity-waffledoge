@@ -40,14 +40,10 @@ void LLUrlRegistryNullCallback(const std::string &url, const std::string &label,
 
 LLUrlRegistry::LLUrlRegistry()
 {
-//	mUrlEntry.reserve(34);
-// [RLVa:KB] - Checked: 2010-11-01 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-	mUrlEntry.reserve(35);
-// [/RLVa:KB]
+	mUrlEntry.reserve(23); // <alchemy/>
 
 	// Urls are matched in the order that they were registered
-	mUrlEntryNoLink = new LLUrlEntryNoLink();
-	registerUrl(mUrlEntryNoLink);
+	registerUrl(new LLUrlEntryNoLink());
 	mUrlEntryIcon = new LLUrlEntryIcon();
 	registerUrl(mUrlEntryIcon);
 	mLLUrlEntryInvalidSLURL = new LLUrlEntryInvalidSLURL();
@@ -55,23 +51,10 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntrySLURL());
 
 	// decorated links for host names like: secondlife.com and lindenlab.com
-	registerUrl(new LLUrlEntrySecondlifeURL());
+	mUrlEntryTrusted = new LLUrlEntrySecondlifeURL();
+	registerUrl(mUrlEntryTrusted);
 	registerUrl(new LLUrlEntrySimpleSecondlifeURL());
-	registerUrl(new LLUrlEntrySimpleURlVendor());
-	registerUrl(new LLUrlEntrySimpleURLBitbucket());
-	registerUrl(new LLUrlEntrySimpleURLe621());
-	registerUrl(new LLUrlEntrySimpleURLFlickr());
-	registerUrl(new LLUrlEntrySimpleURLGithub());
-	registerUrl(new LLUrlEntrySimpleURLImgur());
-	registerUrl(new LLUrlEntrySimpleURLLastFM());
-	registerUrl(new LLUrlEntrySimpleURLReddit());
-	registerUrl(new LLUrlEntrySimpleURLSoundcloud());
-	registerUrl(new LLUrlEntrySimpleURLSteam());
-	registerUrl(new LLUrlEntrySimpleURLTwitch());
-	registerUrl(new LLUrlEntrySimpleURLTwitter());
-	registerUrl(new LLUrlEntrySimpleURLWikipedia());
-	registerUrl(new LLUrlEntrySimpleURLYoutube());
-	
+
 	registerUrl(new LLUrlEntryHTTP());
 	mUrlEntryHTTPLabel = new LLUrlEntryHTTPLabel();
 	registerUrl(mUrlEntryHTTPLabel);
@@ -79,9 +62,6 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryAgentLegacyName());
 	registerUrl(new LLUrlEntryAgentDisplayName());
 	registerUrl(new LLUrlEntryAgentUserName());
-// [RLVa:KB] - Checked: 2010-11-01 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-	registerUrl(new LLUrlEntryAgentRLVAnonymizedName());
-// [/RLVa:KB]
 	// LLUrlEntryAgent*Name must appear before LLUrlEntryAgent since 
 	// LLUrlEntryAgent is a less specific (catchall for agent urls)
 	registerUrl(new LLUrlEntryAgent());
@@ -93,16 +73,15 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryObjectIM());
 	registerUrl(new LLUrlEntryPlace());
 	registerUrl(new LLUrlEntryInventory());
-	//registerUrl(new LLUrlEntryObjectIM());
-	registerUrl(new LLUrlEntryExperienceProfile());
+    registerUrl(new LLUrlEntryExperienceProfile());
 	//LLUrlEntrySL and LLUrlEntrySLLabel have more common pattern, 
 	//so it should be registered in the end of list
 	registerUrl(new LLUrlEntrySL());
 	mUrlEntrySLLabel = new LLUrlEntrySLLabel();
 	registerUrl(mUrlEntrySLLabel);
 	registerUrl(new LLUrlEntryEmail());
-	// parse jira issue names to links -KC
-	registerUrl(new LLUrlEntryJira());
+	// Parse teh jiras!
+	registerUrl(new LLUrlEntryJira()); // <alchemy/>
 }
 
 LLUrlRegistry::~LLUrlRegistry()
@@ -122,7 +101,7 @@ void LLUrlRegistry::registerUrl(LLUrlEntryBase *url, bool force_front)
 		if (force_front)  // IDEVO
 			mUrlEntry.insert(mUrlEntry.begin(), url);
 		else
-		mUrlEntry.push_back(url);
+			mUrlEntry.push_back(url);
 	}
 }
 
@@ -184,57 +163,38 @@ static bool stringHasUrl(const std::string &text)
 			text.find('@') != std::string::npos);
 }
 
+// <alchemy>
 static bool stringHasJira(const std::string &text)
 {
-	// same as above, but for jiras
-	// <FS:CR> Please make sure to sync these with the items in LLUrlEntryJira::LLUrlEntryJira() if you make a change
-	return (text.find("ALCH") != std::string::npos ||
-			text.find("ARVD") != std::string::npos ||
-			text.find("BUG") != std::string::npos ||
-			text.find("CHOP") != std::string::npos ||
-			text.find("CHUIBUG") != std::string::npos ||
-			text.find("CTS") != std::string::npos ||
-			text.find("DOC") != std::string::npos ||
-			text.find("DN") != std::string::npos ||
-			text.find("ECC") != std::string::npos ||
-			text.find("EXP") != std::string::npos ||
-			text.find("FIRE") != std::string::npos ||
-			text.find("FITMESH") != std::string::npos ||
-			text.find("LEAP") != std::string::npos ||
-			text.find("LLSD") != std::string::npos ||
-			text.find("MATBUG") != std::string::npos ||
-			text.find("MISC") != std::string::npos ||
-			text.find("OPEN") != std::string::npos ||
-			text.find("PATHBUG") != std::string::npos ||
-			text.find("PLAT") != std::string::npos ||
-			text.find("PLVR") != std::string::npos ||
-			text.find("PYO") != std::string::npos ||
-			text.find("SCR") != std::string::npos ||
-			text.find("SH") != std::string::npos ||
-			text.find("SINV") != std::string::npos ||
-			text.find("SLS") != std::string::npos ||
-			text.find("SNOW") != std::string::npos ||
-			text.find("SOCIAL") != std::string::npos ||
-			text.find("STORM") != std::string::npos ||
-			text.find("SUN") != std::string::npos ||
-			text.find("SUP") != std::string::npos ||
-			text.find("SVC") != std::string::npos ||
-			text.find("TPV") != std::string::npos ||
-			text.find("VWR") != std::string::npos ||
-			text.find("WEB") != std::string::npos);
+	// fast heuristic test for a URL in a string. This is used
+	// to avoid lots of costly regex calls, BUT it needs to be
+	// kept in sync with the LLUrlEntry regexes we support.
+	return (text.find("ALCH")	 != std::string::npos ||
+			text.find("BUG")	 != std::string::npos ||
+			text.find("CHOP")	 != std::string::npos ||
+			text.find("FIRE")	 != std::string::npos ||
+			text.find("MAINT")	 != std::string::npos ||
+			text.find("OPEN")	 != std::string::npos ||
+			text.find("PLVR")	 != std::string::npos ||
+			text.find("SCR")	 != std::string::npos ||
+			text.find("STORM")	 != std::string::npos ||
+			text.find("SVC")	 != std::string::npos ||
+			text.find("VWR")	 != std::string::npos ||
+			text.find("WEB")	 != std::string::npos);
 }
+// </alchemy>
 
 bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb, bool is_content_trusted)
 {
 	// avoid costly regexes if there is clearly no URL in the text
-	if (! (stringHasUrl(text) || stringHasJira(text)))
+	if (!(stringHasUrl(text) || stringHasJira(text))) // <alchemy/>
 	{
 		return false;
 	}
 
 	// find the first matching regex from all url entries in the registry
 	U32 match_start = 0, match_end = 0;
-	LLUrlEntryBase *match_entry = NULL;
+	LLUrlEntryBase *match_entry = nullptr;
 
 	std::vector<LLUrlEntryBase *>::iterator it;
 	for (it = mUrlEntry.begin(); it != mUrlEntry.end(); ++it)
@@ -251,7 +211,7 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 		if (matchRegex(text.c_str(), url_entry->getPattern(), start, end))
 		{
 			// does this match occur in the string before any other match
-			if (start < match_start || match_entry == NULL)
+			if (start < match_start || match_entry == nullptr)
 			{
 
 				if (mLLUrlEntryInvalidSLURL == *it)
@@ -287,33 +247,6 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 		// fill in the LLUrlMatch object and return it
 		std::string url = text.substr(match_start, match_end - match_start + 1);
 
-		LLUrlEntryBase *stripped_entry = NULL;
-		if((match_entry != mUrlEntryNoLink) && (match_entry != mUrlEntryHTTPLabel) && (match_entry !=mUrlEntrySLLabel)
-		        && LLStringUtil::containsNonprintable(url))
-		{
-			LLStringUtil::stripNonprintable(url);
-
-			std::vector<LLUrlEntryBase *>::iterator iter;
-			for (iter = mUrlEntry.begin(); iter != mUrlEntry.end(); ++iter)
-			{
-				LLUrlEntryBase *url_entry = *iter;
-				U32 start = 0, end = 0;
-				if (matchRegex(url.c_str(), url_entry->getPattern(), start, end))
-				{
-					if (mLLUrlEntryInvalidSLURL == *iter)
-					{
-						if(url_entry && url_entry->isSLURLvalid(url))
-						{
-							continue;
-						}
-					}
-					stripped_entry = url_entry;
-					break;
-				}
-			}
-		}
-
-
 		if (match_entry == mUrlEntryTrusted)
 		{
 			LLUriParser up(url);
@@ -321,12 +254,10 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 			url = up.normalizedUri();
 		}
 
-		std::string url_label = stripped_entry? stripped_entry->getLabel(url, cb) : match_entry->getLabel(url, cb);
-		std::string url_query = stripped_entry? stripped_entry->getQuery(url) : match_entry->getQuery(url);
 		match.setValues(match_start, match_end,
 						match_entry->getUrl(url),
-						url_label,
-						url_query,
+						match_entry->getLabel(url, cb),
+						match_entry->getQuery(url),
 						match_entry->getTooltip(url),
 						match_entry->getIcon(url),
 						match_entry->getStyle(),

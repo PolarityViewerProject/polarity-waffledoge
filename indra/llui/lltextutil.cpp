@@ -32,7 +32,7 @@
 #include "lltextbox.h"
 #include "llurlmatch.h"
 
-boost::function<bool(LLUrlMatch*,LLTextBase*)>	LLTextUtil::TextHelpers::iconCallbackCreationFunction = 0;
+std::function<bool(LLUrlMatch*,LLTextBase*)>	LLTextUtil::TextHelpers::iconCallbackCreationFunction = nullptr;
 
 void LLTextUtil::textboxSetHighlightedVal(LLTextBox *txtbox, const LLStyle::Params& normal_style, const std::string& text, const std::string& hl)
 {
@@ -96,10 +96,10 @@ const std::string& LLTextUtil::formatPhoneNumber(const std::string& phone_str)
 
 bool LLTextUtil::processUrlMatch(LLUrlMatch* match,LLTextBase* text_base, bool is_content_trusted)
 {
-	if (match == 0 || text_base == 0)
+	if (match == nullptr || text_base == nullptr)
 		return false;
 
-	if(match->getID() != LLUUID::null && TextHelpers::iconCallbackCreationFunction)
+	if((match->getID() != LLUUID::null) && TextHelpers::iconCallbackCreationFunction != nullptr)
 	{
 		bool segment_created = TextHelpers::iconCallbackCreationFunction(match,text_base);
 		if(segment_created)

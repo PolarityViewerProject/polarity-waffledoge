@@ -38,6 +38,7 @@ class LLCurrentlyWornFetchObserver;
 class LLPanelEditWearable;
 class LLViewerWearable;
 class LLPanelOutfitsInventory;
+class LLLoadingIndicator;
 
 class LLSidepanelAppearance : public LLPanel
 {
@@ -46,8 +47,8 @@ public:
 	LLSidepanelAppearance();
 	virtual ~LLSidepanelAppearance();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);	
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void onOpen(const LLSD& key) override;	
 
 	void refreshCurrentOutfitName(const std::string& name = "");
 
@@ -59,20 +60,12 @@ public:
 
 	void showOutfitsInventoryPanel();
 	void showOutfitEditPanel();
-	void showWearableEditPanel(LLViewerWearable *wearable = NULL, BOOL disable_camera_switch = FALSE);
+	void showWearableEditPanel(LLViewerWearable *wearable = nullptr, BOOL disable_camera_switch = FALSE);
 	void setWearablesLoading(bool val);
 	void showDefaultSubpart();
 	void updateScrollingPanelList();
 	void updateToVisibility( const LLSD& new_visibility );
 	LLPanelEditWearable* getWearable(){ return mEditWearable; }
-
-// [RLVa:KB] - Checked: 2010-09-16 (RLVa-1.2.1a) | Added: RLVa-1.2.1a
-	bool isOutfitEditPanelVisible() const;
-	bool isWearableEditPanelVisible() const;
-
-	LLPanelOutfitEdit*	 getOutfitEditPanel() { return mOutfitEdit; }
-	LLPanelEditWearable* getWearableEditPanel() { return mEditWearable; }
-// [/RLVa:KB]
 
 private:
 	void onFilterEdit(const std::string& search_string);
@@ -83,14 +76,16 @@ private:
 
 	void toggleMyOutfitsPanel(BOOL visible);
 	void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
-	void toggleWearableEditPanel(BOOL visible, LLViewerWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
+	void toggleWearableEditPanel(BOOL visible, LLViewerWearable* wearable = nullptr, BOOL disable_camera_switch = FALSE);
 
+	LLLoadingIndicator*		mOutfitLoadingIndicator;
 	LLFilterEditor*			mFilterEditor;
 	LLPanelOutfitsInventory* mPanelOutfitsInventory;
 	LLPanelOutfitEdit*		mOutfitEdit;
 	LLPanelEditWearable*	mEditWearable;
 
 	LLButton*					mOpenOutfitBtn;
+	LLButton*					mEditOutfitBtn;
 	LLButton*					mEditAppearanceBtn;
 	LLButton*					mNewOutfitBtn;
 	LLPanel*					mCurrOutfitPanel;

@@ -82,36 +82,34 @@ public:
 											damage_icon,
 											see_avatars_icon,
 											pathfinding_dirty_icon,
-											pathfinding_disabled_icon;
+											pathfinding_disabled_icon,
+											lightshare_icon;
 		Optional<LLTextBox::Params>			damage_text;
 		Params();
 	};
 
 	// LLView interface
-	/*virtual*/ void		setEnabled(BOOL enabled);
-	/*virtual*/ BOOL		handleToolTip(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL		handleKeyHere(KEY key, MASK mask);
-	/*virtual*/ void		onFocusReceived();
-	/*virtual*/ void		onFocusLost();
-	/*virtual*/ void		draw();
-	/*virtual*/ void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	/*virtual*/ void		setEnabled(BOOL enabled) override;
+	/*virtual*/ BOOL		handleToolTip(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL		handleKeyHere(KEY key, MASK mask) override;
+	/*virtual*/ void		onFocusReceived() override;
+	/*virtual*/ void		onFocusLost() override;
+	/*virtual*/ void		draw() override;
+	/*virtual*/ void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
 	//========================================================================
 
 	// LLUICtrl interface
-	/*virtual*/ void		setFocus(BOOL b);
+	/*virtual*/ void		setFocus(BOOL b) override;
 	//========================================================================
 
 	// LLComboBox interface
-	void					hideList();
-	void					onTextEntry(LLLineEditor* line_editor);
+	void					hideList() override;
+	void					onTextEntry(LLLineEditor* line_editor) override;
 	//========================================================================
 
 	LLLineEditor*			getTextEntry() const { return mTextEntry; }
 	void					handleLoginComplete();
-
-// [RLVa:KB] - Checked: 2014-03-23 (RLVa-1.4.10)
 	void					refresh();
-// [/RLVa:KB]
 
 private:
 
@@ -126,7 +124,8 @@ private:
 		SEE_AVATARS_ICON,         // 6
 		PATHFINDING_DIRTY_ICON,   // 7
 		PATHFINDING_DISABLED_ICON,// 8
-		ICON_COUNT			      // 9 total
+		LIGHTSHARE_ICON,          // 9
+		ICON_COUNT			      // 10 total
 	};
 
 	friend class LLUICtrlFactory;
@@ -139,7 +138,6 @@ private:
 	 * depending on whether current parcel has been landmarked.
 	 */
 	void					enableAddLandmarkButton(bool val);
-//	void					refresh();
 	void					refreshLocation();
 	void					refreshParcelIcons();
 	// Refresh the value in the health percentage text field
@@ -195,6 +193,7 @@ private:
 	boost::signals2::connection	mParcelMgrConnection;
 	boost::signals2::connection	mLocationHistoryConnection;
 	boost::signals2::connection	mRegionCrossingSlot;
+	boost::signals2::connection mLightshareChangedSlot;
 	LLPathfindingNavMesh::navmesh_slot_t mNavMeshSlot;
 	bool mIsNavMeshDirty;
 	LLUIImage* mLandmarkImageOn;

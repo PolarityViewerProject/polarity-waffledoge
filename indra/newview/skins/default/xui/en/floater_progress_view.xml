@@ -2,8 +2,7 @@
 <floater
  positioning="centered"
  header_height="0"
- background_visible="false"
- height="120"
+ height="90"
  layout="topleft"
  name="progress_view"
  chrome="false"
@@ -20,54 +19,50 @@ Teleporting to [REGION]...
    name="teleporting">
 Teleporting...
   </floater.string>
-  <panel
-    background_visible="true"
-    bg_opaque_color="LoginProgressSquarePanelColor"
-    bg_alpha_color="LoginProgressSquarePanelColor"
-    bg_opaque_image_overlay="Nametag_Rect"
-    bg_alpha_image_overlay="Nametag_Rect"
-    name="floater_background"
-    top="1"
-    bottom="-1"
-    />
-  <loading_anim
-    bottom="-45"
-    left="5"
-    right="-5"
-    follows="all"
-    name="teleport_floater_anim"
-    number_sprites="68"
-    top="25">
-  </loading_anim>
-  <progress_bar
-   height="8"
-   follows="bottom|left|right"
+  <text
+   height="26"
+   use_ellipses="true"
+   type="string"
+   text_color="LabelTextColor"
+   font="SansSerifHugeBold"
+   length="1"
+   follows="top|left"
    layout="topleft"
-   name="progress_bar"
-   left="5"
-   right="-5"
-   bottom="-5"
-   tool_tip="progress bar" 
-   color_bar="EmphasisColor"/>
+   name="location"
+   top="6"
+   left="6"
+   right="-6"
+   value="[APP_NAME]" />
   <text
    height="20"
    use_ellipses="true"
+   font="SanSerifHuge"
    type="string"
    length="1"
-   follows="bottom|left|right"
-   layout="bottomright"
+   follows="top|right"
+   layout="topleft"
    name="progress_text"
-   left_delta="0"
-   bottom="14"
-   right="-78">
- </text>
+   top_pad="10"
+   left="6"
+   width="334" />
   <button
-   height="29"
+   height="24"
    label="Cancel"
    left_pad="4"
    name="cancel_btn"
-   top_delta="0"
+   top_delta="-4"
    width="70">
- </button>
-
+    <button.commit_callback
+     function="cancel" />
+  </button>
+  <progress_bar
+   height="16"
+   follows="top|left"
+   layout="topleft"
+   name="progress_bar"
+   top_pad="4"
+   left="6"
+   right="-6"
+   tool_tip="progress bar" 
+   color_bar="EmphasisColor"/>
 </floater>

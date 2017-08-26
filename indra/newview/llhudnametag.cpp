@@ -56,7 +56,7 @@
 const F32 SPRING_STRENGTH = 0.7f;
 const F32 HORIZONTAL_PADDING = 16.f;
 const F32 VERTICAL_PADDING = 12.f;
-const F32 LINE_PADDING = 3.f;			// aka "leading"
+const F32 LINE_PADDING = 1.f;			// aka "leading"
 const F32 BUFFER_SIZE = 2.f;
 const F32 HUD_TEXT_MAX_WIDTH = 190.f;
 const S32 NUM_OVERLAP_ITERATIONS = 10;
@@ -75,14 +75,12 @@ bool llhudnametag_further_away::operator()(const LLPointer<LLHUDNameTag>& lhs, c
 	return lhs->getDistance() > rhs->getDistance();
 }
 
-static LLTrace::BlockTimerStatHandle FTM_NAMETAG_UPDATE("Nametags");
-static LLTrace::BlockTimerStatHandle FTM_NAMETAG_RESHAPE("Reshape");
 
 LLHUDNameTag::LLHUDNameTag(const U8 type)
 :	LLHUDObject(type),
 	mDoFade(TRUE),
-	mFadeDistance(8.f),
 	mFadeRange(4.f),
+	mFadeDistance(8.f),
 	mLastDistance(0.f),
 	mZCompare(TRUE),
 	mVisibleOffScreen(FALSE),
@@ -109,10 +107,6 @@ LLHUDNameTag::LLHUDNameTag(const U8 type)
 {
 	LLPointer<LLHUDNameTag> ptr(this);
 	sTextObjects.insert(ptr);
-	// <FS:Ansariel> Performance improvement
-	mRoundedRectImg = LLUI::getUIImage("Nametag_Rect");
-	mRoundedRectTopImg = LLUI::getUIImage("Nametag_Rect_Top");
-	// </FS:Ansariel>
 }
 
 LLHUDNameTag::~LLHUDNameTag()
@@ -282,18 +276,12 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
 
 	// *TODO: cache this image
-	// <FS:Ansariel> Performance improvement
-	//LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Rect");
+	LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Rect");
 
 	// *TODO: make this a per-text setting
-	//LLColor4 bg_color = LLUIColorTable::instance().getColor("NameTagBackground");
-	//bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
-	static LLUIColor s_bg_color = LLUIColorTable::instance().getColor("NameTagBackground");
-	static LLCachedControl<F32> chatBubbleOpacity(gSavedSettings, "ChatBubbleOpacity");
-	LLColor4 bg_color = s_bg_color.get();
-	F32 color_alpha = chatBubbleOpacity * alpha_factor;
-	bg_color.setAlpha(color_alpha);
-	// </FS:Ansariel>
+	static LLCachedControl<F32> bubble_opacity(gSavedSettings, "ChatBubbleOpacity");
+	LLColor4 bg_color = LLUIColorTable::instance().getColor("NameTagBackground");
+	bg_color.setAlpha(bubble_opacity * alpha_factor);
 
 	// scale screen size of borders down
 	//RN: for now, text on hud objects is never occluded
@@ -320,27 +308,17 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 	LLRect screen_rect;
 	screen_rect.setCenterAndSize(0, static_cast<S32>(lltrunc(-mHeight / 2 + mOffsetY)), static_cast<S32>(lltrunc(mWidth)), static_cast<S32>(lltrunc(mHeight)));
-	// <FS:Ansariel> Performance improvement
-	//imagep->draw3D(render_position, x_pixel_vec, y_pixel_vec, screen_rect, bg_color);
-	mRoundedRectImg->draw3D(render_position, x_pixel_vec, y_pixel_vec, screen_rect, bg_color);
-	// </FS:Ansariel>
+	imagep->draw3D(render_position, x_pixel_vec, y_pixel_vec, screen_rect, bg_color);
 	if (mLabelSegments.size())
 	{
-		// <FS:Ansariel> Performance improvement
-		//LLUIImagePtr rect_top_image = LLUI::getUIImage("Rounded_Rect_Top");
+		LLUIImagePtr rect_top_image = LLUI::getUIImage("Rounded_Rect_Top");
 		LLRect label_top_rect = screen_rect;
 		const S32 label_height = ll_round((mFontp->getLineHeight() * (F32)mLabelSegments.size() + (VERTICAL_PADDING / 3.f)));
 		label_top_rect.mBottom = label_top_rect.mTop - label_height;
 		LLColor4 label_top_color = text_color;
-		// <FS:Ansariel> Performance improvement
-		//label_top_color.mV[VALPHA] = gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor;
-		label_top_color.mV[VALPHA] = color_alpha;
-		// </FS:Ansariel>
+		label_top_color.mV[VALPHA] = bubble_opacity * alpha_factor;
 
-		// <FS:Ansariel> Performance improvement
-		//rect_top_image->draw3D(render_position, x_pixel_vec, y_pixel_vec, label_top_rect, label_top_color);
-		mRoundedRectTopImg->draw3D(render_position, x_pixel_vec, y_pixel_vec, label_top_rect, label_top_color);
-		// </FS:Ansariel>
+		rect_top_image->draw3D(render_position, x_pixel_vec, y_pixel_vec, label_top_rect, label_top_color);
 	}
 
 	F32 y_offset = (F32)mOffsetY;
@@ -397,7 +375,18 @@ void LLHUDNameTag::renderText(BOOL for_select)
 			U8 style = segment_iter->mStyle;
 			LLFontGL::ShadowType shadow = LLFontGL::DROP_SHADOW;
 	
-			F32 x_offset = -0.5f*segment_iter->getWidth(fontp) + 1.5f;
+			F32 x_offset;
+			if (mTextAlignment== ALIGN_TEXT_CENTER)
+			{
+				x_offset = -0.5f*segment_iter->getWidth(fontp);
+			}
+			else // ALIGN_LEFT
+			{
+				x_offset = -0.5f * mWidth + (HORIZONTAL_PADDING / 2.f);
+
+				// *HACK
+				x_offset += 1;
+			}
 
 			text_color = segment_iter->mColor;
 			text_color.mV[VALPHA] *= alpha_factor;
@@ -710,7 +699,6 @@ void LLHUDNameTag::updateSize()
 
 void LLHUDNameTag::updateAll()
 {
-	LL_RECORD_BLOCK_TIME(FTM_NAMETAG_UPDATE);
 	// iterate over all text objects, calculate their restoration forces,
 	// and add them to the visible set if they are on screen and close enough
 	sVisibleTextObjects.clear();
@@ -890,7 +878,6 @@ void LLHUDNameTag::addPickable(std::set<LLViewerObject*> &pick_list)
 // called when UI scale changes, to flush font width caches
 void LLHUDNameTag::reshape()
 {
-	LL_RECORD_BLOCK_TIME(FTM_NAMETAG_RESHAPE);
 	TextObjectIterator text_it;
 	for (text_it = sTextObjects.begin(); text_it != sTextObjects.end(); ++text_it)
 	{

@@ -46,7 +46,6 @@
 #include "llselectmgr.h"
 #include "llscrolllistctrl.h"
 #include "llviewerobject.h"
-#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "lltrans.h"
 
@@ -76,7 +75,7 @@ BOOL LLFloaterBuy::postBuild()
 
 LLFloaterBuy::~LLFloaterBuy()
 {
-	mObjectSelection = NULL;
+	mObjectSelection = nullptr;
 }
 
 void LLFloaterBuy::reset()
@@ -106,10 +105,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	// Clean up the lists...
 	floater->reset();
 	floater->mSaleInfo = sale_info;
-// [RLVa:KB] - Checked: RLVa-2.0.0
-	floater->mObjectSelection = LLSelectMgr::getInstance()->getSelection();
-// [/RLVa:KB]
-//	floater->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+	floater->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 	
 	LLSelectNode* node = selection->getFirstRootNode();
 	if (!node)
@@ -188,7 +184,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	// sometimes the inventory is already there and 
 	// the callback is called immediately.
 	LLViewerObject* obj = selection->getFirstRootObject();
-	floater->registerVOInventoryListener(obj,NULL);
+	floater->registerVOInventoryListener(obj, nullptr);
 	floater->requestVOInventory();
 }
 

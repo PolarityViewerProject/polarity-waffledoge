@@ -142,31 +142,31 @@ LLTextBase::Params::Params()
 	text_color("text_color"),
 	text_readonly_color("text_readonly_color"),
 	text_tentative_color("text_tentative_color"),
-	bg_visible("bg_visible", false),
-	border_visible("border_visible", false),
 	bg_readonly_color("bg_readonly_color"),
 	bg_writeable_color("bg_writeable_color"),
 	bg_focus_color("bg_focus_color"),
 	text_selected_color("text_selected_color"),
 	bg_selected_color("bg_selected_color"),
-	allow_scroll("allow_scroll", true),
-	plain_text("plain_text",false),
+	bg_visible("bg_visible", false),
+	border_visible("border_visible", false),
 	track_end("track_end", false),
 	read_only("read_only", false),
 	spellcheck("spellcheck", false),
-	v_pad("v_pad", 0),
-	h_pad("h_pad", 0),
-	clip("clip", true),
-	clip_partial("clip_partial", true),
-	line_spacing("line_spacing"),
-	max_text_length("max_length", 255),
-	font_shadow("font_shadow"),
+	allow_scroll("allow_scroll", true),
+	plain_text("plain_text",false),
 	wrap("wrap"),
-	trusted_content("trusted_content", true),
 	use_ellipses("use_ellipses", false),
 	parse_urls("parse_urls", false),
 	force_urls_external("force_urls_external", false),
-	parse_highlights("parse_highlights", false)
+	parse_highlights("parse_highlights", false),
+	clip("clip", true),
+	clip_partial("clip_partial", true),
+	trusted_content("trusted_content", true),
+	v_pad("v_pad", 0),
+	h_pad("h_pad", 0),
+	line_spacing("line_spacing"),
+	max_text_length("max_length", 255),
+	font_shadow("font_shadow")
 {
 	addSynonym(track_end, "track_bottom");
 	addSynonym(wrap, "word_wrap");
@@ -176,20 +176,11 @@ LLTextBase::Params::Params()
 
 LLTextBase::LLTextBase(const LLTextBase::Params &p) 
 :	LLUICtrl(p, LLTextViewModelPtr(new LLTextViewModel)),
-	mURLClickSignal(NULL),
-	mIsFriendSignal(NULL),
-	mIsObjectBlockedSignal(NULL),
-	mMaxTextByteLength( p.max_text_length ),
+	mStyleDirty(true),
 	mFont(p.font),
 	mFontShadow(p.font_shadow),
-	mPopupMenuHandle(),
-	mReadOnly(p.read_only),
-	mSpellCheck(p.spellcheck),
-	mSpellCheckStart(-1),
-	mSpellCheckEnd(-1),
 	mCursorColor(p.cursor_color),
 	mFgColor(p.text_color),
-	mBorderVisible( p.border_visible ),
 	mReadOnlyFgColor(p.text_readonly_color),
 	mTentativeFgColor(p.text_tentative_color()),
 	mWriteableBgColor(p.bg_writeable_color),
@@ -197,33 +188,42 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mFocusBgColor(p.bg_focus_color),
 	mTextSelectedColor(p.text_selected_color),
 	mSelectedBGColor(p.bg_selected_color),
-	mReflowIndex(S32_MAX),
 	mCursorPos( 0 ),
-	mScrollNeeded(FALSE),
 	mDesiredXPixel(-1),
+	mSelectionStart( 0 ),
+	mSelectionEnd( 0 ),
+	mIsSelecting( FALSE ),
+	mSpellCheck(p.spellcheck),
+	mSpellCheckStart(-1),
+	mSpellCheckEnd(-1),
 	mHPad(p.h_pad),
 	mVPad(p.v_pad),
 	mHAlign(p.font_halign),
 	mVAlign(p.font_valign),
 	mLineSpacingMult(p.line_spacing.multiple),
 	mLineSpacingPixels(p.line_spacing.pixels),
-	mClip(p.clip),
-	mClipPartial(p.clip_partial && !p.allow_scroll),
-	mTrustedContent(p.trusted_content),
-	mTrackEnd( p.track_end ),
-	mScrollIndex(-1),
-	mSelectionStart( 0 ),
-	mSelectionEnd( 0 ),
-	mIsSelecting( FALSE ),
-	mPlainText ( p.plain_text ),
-	mWordWrap(p.wrap),
-	mUseEllipses( p.use_ellipses ),
+	mBorderVisible( p.border_visible ),
 	mParseHTML(p.parse_urls),
 	mForceUrlsExternal(p.force_urls_external),
 	mParseHighlights(p.parse_highlights),
+	mWordWrap(p.wrap),
+	mUseEllipses( p.use_ellipses ),
+	mTrackEnd( p.track_end ),
+	mReadOnly(p.read_only),
 	mBGVisible(p.bg_visible),
-	mScroller(NULL),
-	mStyleDirty(true)
+	mClip(p.clip),
+	mClipPartial(p.clip_partial && !p.allow_scroll),
+	mTrustedContent(p.trusted_content),
+	mPlainText ( p.plain_text ),
+	mMaxTextByteLength( p.max_text_length ),
+	mPopupMenuHandle(),
+	mScroller(nullptr),
+	mReflowIndex(S32_MAX),
+	mScrollNeeded(FALSE),
+	mScrollIndex(-1),
+	mURLClickSignal(nullptr),
+	mIsFriendSignal(nullptr),
+	mIsObjectBlockedSignal(nullptr)
 {
 	if(p.allow_scroll)
 	{
@@ -269,6 +269,12 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 LLTextBase::~LLTextBase()
 {
 	mSegments.clear();
+	LLContextMenu* menu = static_cast<LLContextMenu*>(mPopupMenuHandle.get());
+	if (menu)
+	{
+		menu->die();
+		mPopupMenuHandle.markDead();
+	}
 	delete mURLClickSignal;
 	delete mIsFriendSignal;
 	delete mIsObjectBlockedSignal;
@@ -293,8 +299,8 @@ bool LLTextBase::truncate()
 {
 	BOOL did_truncate = FALSE;
 
-	// First rough check - if we're less than 1/4th the size, we're OK
-	if (getLength() >= S32(mMaxTextByteLength / 4))
+	// First rough check - if we're less than 1/2th the size, we're OK
+	if (getLength() >= S32(mMaxTextByteLength / 2))
 	{	
 		// Have to check actual byte size
 		S32 utf8_byte_size = 0;
@@ -827,7 +833,8 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 	getViewModel()->getEditableDisplay().insert(pos, wstr);
 
-	if ( truncate() )
+	//HACK: If we are readonly we shouldn't need to truncate
+	if ( !mReadOnly && truncate() )
 	{
 		insert_len = getLength() - old_len;
 	}
@@ -1220,7 +1227,7 @@ void LLTextBase::draw()
 		gl_rect_2d(text_rect, bg_color % alpha, TRUE);
 	}
 
-	bool should_clip = mClip || mScroller != NULL;
+	bool should_clip = mClip || mScroller != nullptr;
 	{ LLLocalClipRect clip(text_rect, should_clip);
  
 		// draw document view
@@ -1292,7 +1299,7 @@ void LLTextBase::deselect()
 
 bool LLTextBase::getSpellCheck() const
 {
-	return (LLSpellChecker::getUseSpellCheck()) && (!mReadOnly) && (mSpellCheck);
+	return (!mReadOnly) && (mSpellCheck) && (LLSpellChecker::getUseSpellCheck());
 }
 
 const std::string& LLTextBase::getSuggestion(U32 index) const
@@ -1503,8 +1510,8 @@ void LLTextBase::reflow()
 		segment_set_t::iterator seg_iter = mSegments.begin();
 		S32 seg_offset = 0;
 		S32 line_start_index = 0;
-		const S32 text_available_width = mVisibleTextRect.getWidth() - mHPad;  // reserve room for margin
-		S32 remaining_pixels = text_available_width;
+		const F32 text_available_width = mVisibleTextRect.getWidth() - mHPad;  // reserve room for margin
+		F32 remaining_pixels = text_available_width;
 		S32 line_count = 0;
 
 		// find and erase line info structs starting at start_index and going to end of document
@@ -1520,7 +1527,7 @@ void LLTextBase::reflow()
 		}
 
 		S32 line_height = 0;
-		S32 seg_line_offset = line_count;
+		S32 seg_line_offset = line_count + 1;
 
 		while(seg_iter != mSegments.end())
 		{
@@ -1530,14 +1537,15 @@ void LLTextBase::reflow()
 			S32 cur_index = segment->getStart() + seg_offset;
 
 			// ask segment how many character fit in remaining space
-			S32 character_count = segment->getNumChars(getWordWrap() ? llmax(0, remaining_pixels) : S32_MAX,
+			S32 character_count = segment->getNumChars(getWordWrap() ? llmax(0, ll_round(remaining_pixels)) : S32_MAX,
 														seg_offset, 
 														cur_index - line_start_index, 
 														S32_MAX,
 														line_count - seg_line_offset);
 
-			S32 segment_width, segment_height;
-			bool force_newline = segment->getDimensions(seg_offset, character_count, segment_width, segment_height);
+			F32 segment_width;
+			S32 segment_height;
+			bool force_newline = segment->getDimensionsF32(seg_offset, character_count, segment_width, segment_height);
 			// grow line height as necessary based on reported height of this segment
 			line_height = llmax(line_height, segment_height);
 			remaining_pixels -= segment_width;
@@ -1546,11 +1554,13 @@ void LLTextBase::reflow()
 
 			S32 last_segment_char_on_line = segment->getStart() + seg_offset;
 
-			S32 text_actual_width = text_available_width - remaining_pixels;
+			// Note: make sure text will fit in width - use ceil, but also make sure
+			// ceil is used only once per line
+			S32 text_actual_width = llceil(text_available_width - remaining_pixels);
 			S32 text_left = getLeftOffset(text_actual_width);
 			LLRect line_rect(text_left, 
 							cur_top, 
-							text_left + text_actual_width, 
+							text_left + text_actual_width,
 							cur_top - line_height);
 
 			// if we didn't finish the current segment...
@@ -1956,7 +1966,6 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
 	registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
 	registrar.add("Url.CopyUrl", boost::bind(&LLUrlAction::copyURLToClipboard, url));
-	registrar.add("Url.CopyUUID", boost::bind(&LLUrlAction::copyUUIDToClipboard, url)); // <polarity/>
 
 	// create and return the context menu from the XUI file
 
@@ -2072,9 +2081,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 
 			LLStyle::Params link_params(style_params);
 			if (!style_params.override_link_style)
-			{
 				link_params.overwriteFrom(match.getStyle());
-			}
 
 			// output the text before the Url
 			if (start > 0)
@@ -2100,11 +2107,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			}
 
 			// output the styled Url
-			// <FS:CR> FIRE-11437 - Don't supress font style for chat history name links
-			//appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
-			appendAndHighlightTextImpl(match.getLabel(), part, link_params,
-										input_params.override_link_style ? false : match.underlineOnHoverOnly());
-			// </FS:CR>
+			appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
 			bool tooltip_required =  !match.getTooltip().empty();
 
 			// set the tooltip for the Url label
@@ -2113,13 +2116,13 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 				setLastSegmentToolTip(match.getTooltip());
 			}
 
-			// show query part of url with gray color only for LLUrlEntryHTTP url entries
+			// show query part of url with gray color only for LLUrlEntryHTTP and LLUrlEntryHTTPNoProtocol url entries
 			std::string label = match.getQuery();
-			if (label.size())
+			if (!label.empty())
 			{
 				link_params.color = LLColor4::grey;
 				link_params.readonly_color = LLColor4::grey;
-				appendAndHighlightTextImpl(label, part, link_params, input_params.override_link_style ? false : match.underlineOnHoverOnly());
+				appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
 
 				// set the tooltip for the query part of url
 				if (tooltip_required)
@@ -2229,12 +2232,10 @@ void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 
 void LLTextBase::appendImageSegment(const LLStyle::Params& style_params)
 {
-	// <polarity> Always show url icons.
-	//if(getPlainText())
-	//{
-	//	return;
-	//}
-	// </polarity>
+	if(getPlainText())
+	{
+		return;
+	}
 	segment_vec_t segments;
 	LLStyleConstSP sp(new LLStyle(style_params));
 	segments.push_back(new LLImageTextSegment(sp, getLength(),*this));
@@ -3074,7 +3075,15 @@ boost::signals2::connection LLTextBase::setIsObjectBlockedCallback(const is_bloc
 LLTextSegment::~LLTextSegment()
 {}
 
-bool LLTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const { width = 0; height = 0; return false;}
+bool LLTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const { width = 0; height = 0; return false; }
+bool LLTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
+{
+	F32 fwidth = 0;
+	bool result = getDimensionsF32(first_char, num_chars, fwidth, height);
+	width = ll_round(fwidth);
+	return result;
+}
+
 S32	LLTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const { return 0; }
 S32	LLTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const { return 0; }
 void LLTextSegment::updateLayout(const LLTextBase& editor) {}
@@ -3087,7 +3096,7 @@ const LLColor4& LLTextSegment::getColor() const { return LLColor4::white; }
 LLStyleConstSP LLTextSegment::getStyle() const {static LLStyleConstSP sp(new LLStyle()); return sp; }
 void LLTextSegment::setStyle(LLStyleConstSP style) {}
 void LLTextSegment::setToken( LLKeywordToken* token ) {}
-LLKeywordToken*	LLTextSegment::getToken() const { return NULL; }
+LLKeywordToken*	LLTextSegment::getToken() const { return nullptr; }
 void LLTextSegment::setToolTip( const std::string &msg ) {}
 void LLTextSegment::dump() const {}
 BOOL LLTextSegment::handleMouseDown(S32 x, S32 y, MASK mask) { return FALSE; }
@@ -3115,9 +3124,9 @@ BOOL LLTextSegment::hasMouseCapture() { return FALSE; }
 
 LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor ) 
 :	LLTextSegment(start, end),
+	mEditor(editor),
 	mStyle( style ),
-	mToken(NULL),
-	mEditor(editor)
+	mToken(nullptr)
 {
 	mFontHeight = mStyle->getFont()->getLineHeight();
 
@@ -3130,8 +3139,8 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 
 LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible) 
 :	LLTextSegment(start, end),
-	mToken(NULL),
-	mEditor(editor)
+	mEditor(editor),
+	mToken(nullptr)
 {
 	mStyle = new LLStyle(LLStyle::Params().visible(is_visible).color(color));
 
@@ -3321,7 +3330,7 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
 	mTooltip = tooltip;
 }
 
-bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
+bool LLNormalTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
 {
 	height = 0;
 	width = 0;
@@ -3330,7 +3339,7 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 		height = mFontHeight;
 		const LLWString &text = getWText();
 		// if last character is a newline, then return true, forcing line break
-		width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
+		width = mStyle->getFont()->getWidthF32(text.c_str(), mStart + first_char, num_chars);
 	}
 	return false;
 }
@@ -3484,12 +3493,12 @@ BOOL LLOnHoverChangeableTextSegment::handleHover(S32 x, S32 y, MASK mask)
 
 LLInlineViewSegment::LLInlineViewSegment(const Params& p, S32 start, S32 end)
 :	LLTextSegment(start, end),
-	mView(p.view),
-	mForceNewLine(p.force_newline),
 	mLeftPad(p.left_pad),
 	mRightPad(p.right_pad),
 	mTopPad(p.top_pad),
-	mBottomPad(p.bottom_pad)
+	mBottomPad(p.bottom_pad),
+	mView(p.view),
+	mForceNewLine(p.force_newline)
 {
 } 
 
@@ -3498,7 +3507,7 @@ LLInlineViewSegment::~LLInlineViewSegment()
 	mView->die();
 }
 
-bool LLInlineViewSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
+bool LLInlineViewSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
 {
 	if (first_char == 0 && num_chars == 0)
 	{
@@ -3585,7 +3594,7 @@ LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLT
 LLLineBreakTextSegment::~LLLineBreakTextSegment()
 {
 }
-bool LLLineBreakTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
+bool LLLineBreakTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
 {
 	width = 0;
 	height = mFontHeight;
@@ -3603,8 +3612,8 @@ F32	LLLineBreakTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 se
 
 LLImageTextSegment::LLImageTextSegment(LLStyleConstSP style,S32 pos,class LLTextBase& editor)
 :	LLTextSegment(pos,pos+1),
-	mStyle( style ),
-	mEditor(editor)
+	mEditor(editor),
+	mStyle( style )
 {
 }
 
@@ -3614,7 +3623,7 @@ LLImageTextSegment::~LLImageTextSegment()
 
 static const S32 IMAGE_HPAD = 3;
 
-bool LLImageTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
+bool LLImageTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
 {
 	width = 0;
 	height = mStyle->getFont()->getLineHeight();

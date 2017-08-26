@@ -27,6 +27,7 @@
 #ifndef LL_LLAISAPI_H
 #define LL_LLAISAPI_H
 
+#include "lluuid.h"
 #include "llhttpretrypolicy.h"
 #include "llviewerinventory.h"
 #include "llcorehttputil.h"
@@ -35,7 +36,7 @@
 class AISAPI
 {
 public:
-    typedef boost::function<void(const LLUUID &invItem)>    completion_t;
+    typedef std::function<void(const LLUUID &invItem)>    completion_t;
 
     static bool isAvailable();
     static void getCapNames(LLSD& capNames);
@@ -64,7 +65,7 @@ private:
     static const std::string INVENTORY_CAP_NAME;
     static const std::string LIBRARY_CAP_NAME;
 
-    typedef boost::function < LLSD (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
+    typedef std::function < LLSD (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
         const std::string, LLSD, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) > invokationFn_t;
 
     static void EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc);
@@ -85,10 +86,7 @@ public:
 	void parseUpdate(const LLSD& update);
 	void parseMeta(const LLSD& update);
 	void parseContent(const LLSD& update);
-// [SL:KB] - Patch: Appearance-SyncAttach | Checked: Catznip-3.7
-	static void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
-// [/SL:KB]
-//	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
+	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
 	void parseLink(const LLSD& link_map);
 	void parseItem(const LLSD& link_map);
 	void parseCategory(const LLSD& link_map);

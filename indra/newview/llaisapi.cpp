@@ -402,41 +402,16 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 
     gInventory.onAISUpdateReceived("AISCommand", result);
 
-    if (callback && !callback.empty())
+    if (callback && callback != nullptr)
     {   
-// [SL:KB] - Patch: Appearance-SyncAttach | Checked: Catznip-3.7
-		uuid_list_t ids;
-		switch (type)
-		{
-			case COPYLIBRARYCATEGORY:
-				if (result.has("category_id"))
-				{
-					ids.insert(result["category_id"]);
-				}
-				break;
-			case COPYINVENTORY:
-				{
-					AISUpdate::parseUUIDArray(result, "_created_items", ids);
-					AISUpdate::parseUUIDArray(result, "_created_categories", ids);
-				}
-				break;
-			default:
-				break;
-		}
+        LLUUID id(LLUUID::null);
 
-		// If we were feeling daring we'd call LLInventoryCallback::fire for every item but it would take additional work to investigate whether all LLInventoryCallback derived classes
-		// were designed to handle multiple fire calls (with legacy link creation only one would ever fire per link creation) so we'll be cautious and only call for the first one for now
-		// (note that the LL code as written below will always call fire once with the NULL UUID for anything but CopyLibraryCategoryCommand so even the above is an improvement)
-		callback( (!ids.empty()) ? *ids.begin() : LLUUID::null);
-// [/SL:KB]
-//        LLUUID id(LLUUID::null);
-//
-//        if (result.has("category_id") && (type == COPYLIBRARYCATEGORY))
-//	    {
-//		    id = result["category_id"];
-//	    }
-//
-//        callback(id);
+        if (result.has("category_id") && (type == COPYLIBRARYCATEGORY))
+	    {
+		    id = result["category_id"];
+	    }
+
+        callback(id);
     }
 
 }

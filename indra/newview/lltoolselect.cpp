@@ -49,11 +49,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llworld.h"
-// [RLVa:KB] - Checked: RLVa-2.0.0
-#include "rlvactions.h"
-#include "rlvhelper.h"
-#include "llfloaterreg.h"
-// [/RLVa:KB]
 
 // Globals
 //extern BOOL gAllowSelectAvatar;
@@ -87,44 +82,6 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 	{
 		object = object->getRootEdit();
 	}
-
-// [RLVa:KB] - Checked: RLVa-2.1.0
-	if ( (object) && (RlvActions::isRlvEnabled()) )
-	{
-		if (!RlvActions::canEdit(object))
-		{
-			if (!temp_select)
-				return LLSelectMgr::getInstance()->getSelection();
-			else if (LLToolMgr::instance().inBuildMode())
-				LLToolMgr::instance().leaveBuildMode();
-		}
-
-		if ( (RlvActions::hasBehaviour(RLV_BHVR_FARTOUCH)) && ( (!object->isAttachment()) || (!object->permYouOwner())) )
-		{
-			static RlvCachedBehaviourModifier<float> s_nFartouchDist(RLV_MODIFIER_FARTOUCHDIST);
-			float nFartouchDistSq = s_nFartouchDist * s_nFartouchDist;
-
-			// User is allowed to edit/select this object if it's within their current fartouch distance
-			if (dist_vec_squared(gAgent.getPositionAgent(), object->getPositionRegion()) > nFartouchDistSq)
-			{
-				// The object is out of range but we'll still allow them a temporary select (e.g. context menu) if the surface point is within range
-				if (dist_vec_squared(gAgent.getPositionAgent(), pick.mIntersection) > 1.5f * 1.5f)
-				{
-					// Even the surface point is out of range so deny them the hit
-					if ( (LLFloaterReg::instanceVisible("build")) && (pick.mKeyMask != MASK_SHIFT) && (pick.mKeyMask != MASK_CONTROL) )
-						LLSelectMgr::getInstance()->deselectAll();
-					return LLSelectMgr::getInstance()->getSelection();
-				}
-				else if (LLToolMgr::instance().inBuildMode())
-				{
-					// Allow the selection but keep it temporary by pulling them out of build mode when they click too far
-					LLToolMgr::instance().leaveBuildMode();
-				}
-			}
-		}
-	}
-// [/RLVa:KB]
-
 	BOOL select_owned = gSavedSettings.getBOOL("SelectOwnedOnly");
 	BOOL select_movable = gSavedSettings.getBOOL("SelectMovableOnly");
 	
@@ -224,11 +181,10 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 			LLSelectMgr::getInstance()->setAgentHUDZoom(target_zoom, current_zoom);
 		}
 
-		static LLCachedControl<bool> rotate_toward_selection(gSavedSettings, "PVMovement_RotateTowardSelection", FALSE);
-		if (!gAgentCamera.getFocusOnAvatar() &&										// if camera not glued to avatar
+		static LLCachedControl<bool> disablePointAt(gSavedSettings, "AlchemyPointAtDisable", false);
+		if (!disablePointAt && !gAgentCamera.getFocusOnAvatar() &&										// if camera not glued to avatar
 			LLVOAvatar::findAvatarFromAttachment(object) != gAgentAvatarp &&	// and it's not one of your attachments
-			object != gAgentAvatarp &&								// and it's not you
-			(rotate_toward_selection))
+			object != gAgentAvatarp)									// and it's not you
 		{
 			// have avatar turn to face the selected object(s)
 			LLVector3d selection_center = LLSelectMgr::getInstance()->getSelectionCenterGlobal();
@@ -241,7 +197,7 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 			{
 				LLQuaternion target_rot;
 				target_rot.shortestArc(LLVector3::x_axis, selection_dir);
-				gAgent.startAutoPilotGlobal(gAgent.getPositionGlobal(), "", &target_rot, NULL, NULL, 1.f, SELECTION_ROTATION_TRESHOLD);
+				gAgent.startAutoPilotGlobal(gAgent.getPositionGlobal(), "", &target_rot, nullptr, nullptr, 1.f, SELECTION_ROTATION_TRESHOLD);
 			}
 		}
 

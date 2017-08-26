@@ -29,7 +29,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfloaternotificationsconsole.h"
 #include "llnotifications.h"
-#include "lluictrlfactory.h"
 #include "llbutton.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -44,11 +43,11 @@ class LLNotificationChannelPanel : public LLLayoutPanel
 public:
 	LLNotificationChannelPanel(const Params& p);
 	~LLNotificationChannelPanel();
-	BOOL postBuild();
+	BOOL postBuild() override;
 
 private:
 	bool update(const LLSD& payload);
-	static void toggleClick(void* user_data);
+	void toggleClick();
 	static void onClickNotification(void* user_data);
 	LLNotificationChannelPtr mChannelPtr;
 };
@@ -70,7 +69,7 @@ LLNotificationChannelPanel::~LLNotificationChannelPanel()
 		LLScrollListItem* item = *data_itor;
 		LLNotification* notification = (LLNotification*)item->getUserdata();
 		delete notification;
-		notification = NULL;
+		notification = nullptr;
 	}
 }
 
@@ -78,7 +77,7 @@ BOOL LLNotificationChannelPanel::postBuild()
 {
 	LLButton* header_button = getChild<LLButton>("header");
 	header_button->setLabel(mChannelPtr->getName());
-	header_button->setClickedCallback(toggleClick, this);
+	header_button->setCommitCallback(boost::bind(&LLNotificationChannelPanel::toggleClick, this));
 
 	mChannelPtr->connectChanged(boost::bind(&LLNotificationChannelPanel::update, this, _1));
 
@@ -88,23 +87,19 @@ BOOL LLNotificationChannelPanel::postBuild()
 	return TRUE;
 }
 
-//static
-void LLNotificationChannelPanel::toggleClick(void *user_data)
+void LLNotificationChannelPanel::toggleClick()
 {
-	LLNotificationChannelPanel* self = (LLNotificationChannelPanel*)user_data;
-	if (!self) return;
+	LLButton* header_button = getChild<LLButton>("header");
 	
-	LLButton* header_button = self->getChild<LLButton>("header");
-	
-	LLLayoutStack* stack = dynamic_cast<LLLayoutStack*>(self->getParent());
+	LLLayoutStack* stack = dynamic_cast<LLLayoutStack*>(getParent());
 	if (stack)
 	{
-		stack->collapsePanel(self, header_button->getToggleState());
+		stack->collapsePanel(this, header_button->getToggleState());
 	}
 
 	// turn off tab stop for collapsed panel
-	self->getChild<LLScrollListCtrl>("notifications_list")->setTabStop(!header_button->getToggleState());
-	self->getChild<LLScrollListCtrl>("notifications_list")->setVisible(!header_button->getToggleState());
+	getChild<LLScrollListCtrl>("notifications_list")->setTabStop(!header_button->getToggleState());
+	getChild<LLScrollListCtrl>("notifications_list")->setVisible(!header_button->getToggleState());
 }
 
 /*static*/
@@ -255,7 +250,7 @@ BOOL LLFloaterNotification::postBuild()
 		return TRUE;
 	}
 
-	responses_combo->setCommitCallback(onCommitResponse, this);
+	responses_combo->setCommitCallback(boost::bind(&LLFloaterNotification::respond, this));
 
 	LLSD form_sd = form->asLLSD();
 

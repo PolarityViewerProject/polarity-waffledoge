@@ -71,7 +71,7 @@ void LLHUDEffectSpiral::markDead()
 	if (mPartSourcep)
 	{
 		mPartSourcep->setDead();
-		mPartSourcep = NULL;
+		mPartSourcep = nullptr;
 	}
 	LLHUDEffect::markDead();
 }
@@ -84,8 +84,7 @@ void LLHUDEffectSpiral::packData(LLMessageSystem *mesgsys)
 	}
 	LLHUDEffect::packData(mesgsys);
 
-	U8 packed_data[56];
-	memset(packed_data, 0, 56);
+	U8 packed_data[56] = {0};
 
 	if (mSourceObject)
 	{
@@ -122,11 +121,11 @@ void LLHUDEffectSpiral::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	htonmemcpy(target_object_id.mData, packed_data + 16, MVT_LLUUID, 16);
 	htonmemcpy(mPositionGlobal.mdV, packed_data + 32, MVT_LLVector3d, 24);
 
-	LLViewerObject *objp = NULL;
+	LLViewerObject *objp = nullptr;
 
 	if (object_id.isNull())
 	{
-		setSourceObject(NULL);
+		setSourceObject(nullptr);
 	}
 	else
 	{
@@ -145,7 +144,7 @@ void LLHUDEffectSpiral::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 
 	if (target_object_id.isNull())
 	{
-		setTargetObject(NULL);
+		setTargetObject(nullptr);
 	}
 	else
 	{
@@ -169,7 +168,7 @@ void LLHUDEffectSpiral::triggerLocal()
 {
 	mKillTime = mTimer.getElapsedTimeF32() + mDuration;
 
-	BOOL show_beam = gSavedSettings.getBOOL("ShowSelectionBeam");
+	static LLCachedControl<bool> show_beam(gSavedSettings, "ShowSelectionBeam");
 
 	LLColor4 color;
 	color.setVec(mColor);
@@ -197,7 +196,7 @@ void LLHUDEffectSpiral::triggerLocal()
 				{
 					LLPointer<LLViewerPartSourceBeam> psb = new LLViewerPartSourceBeam;
 					psb->setSourceObject(mSourceObject);
-					psb->setTargetObject(NULL);
+					psb->setTargetObject(nullptr);
 					psb->setColor(color);
 					psb->mLKGTargetPosGlobal = mPositionGlobal;
 					psb->setOwnerUUID(gAgent.getID());
@@ -266,10 +265,11 @@ void LLHUDEffectSpiral::render()
 {
 	F32 time = mTimer.getElapsedTimeF32();
 
+	static LLCachedControl<bool> show_beam(gSavedSettings, "ShowSelectionBeam");
 	if ((!mSourceObject.isNull() && mSourceObject->isDead()) ||
 	    (!mTargetObject.isNull() && mTargetObject->isDead()) ||
 	    mKillTime < time ||
-		(!mPartSourcep.isNull() && !gSavedSettings.getBOOL("ShowSelectionBeam")) )
+		(!mPartSourcep.isNull() && !show_beam))
 	{
 		markDead();
 		return;

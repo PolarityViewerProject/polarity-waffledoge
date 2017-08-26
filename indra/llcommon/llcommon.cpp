@@ -29,22 +29,21 @@
 
 #include "llcommon.h"
 
-#include "llapr.h"
 #include "llmemory.h"
 #include "llthread.h"
 #include "lltrace.h"
 #include "lltracethreadrecorder.h"
+#include "llapr.h"
 #include "llcleanup.h"
 
 //static
 BOOL LLCommon::sAprInitialized = FALSE;
 
-static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
+static LLTrace::ThreadRecorder* sMasterThreadRecorder = nullptr;
 
 //static
 void LLCommon::initClass()
 {
-	LLMemory::initClass();
 	if (!sAprInitialized)
 	{
 		ll_init_apr();
@@ -64,8 +63,8 @@ void LLCommon::initClass()
 void LLCommon::cleanupClass()
 {
 	delete sMasterThreadRecorder;
-	sMasterThreadRecorder = NULL;
-	LLTrace::set_master_thread_recorder(NULL);
+	sMasterThreadRecorder = nullptr;
+	LLTrace::set_master_thread_recorder(nullptr);
 	LLThreadSafeRefCount::cleanupThreadSafeRefCount();
 	SUBSYSTEM_CLEANUP(LLTimer);
 	if (sAprInitialized)
@@ -73,5 +72,4 @@ void LLCommon::cleanupClass()
 		ll_cleanup_apr();
 		sAprInitialized = FALSE;
 	}
-	SUBSYSTEM_CLEANUP(LLMemory);
 }

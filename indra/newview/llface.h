@@ -203,7 +203,7 @@ public:
 	S32			getReferenceIndex() 		const	{ return mReferenceIndex; }
 	void		setReferenceIndex(const S32 index)	{ mReferenceIndex = index; }
 
-	BOOL		verify(const U32* indices_array = NULL) const;
+	BOOL		verify(const U32* indices_array = nullptr) const;
 	void		printDebugInfo() const;
 
 	void		setGeomIndex(U16 idx); 
@@ -218,10 +218,6 @@ public:
 	BOOL        hasMedia() const ;
 
 	BOOL		switchTexture() ;
-
-// [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
-	void		setDefaultTexture(U32 nChannel, bool fShowDefault) const;
-// [/SL:KB]
 
 	//vertex buffer tracking
 	void setVertexBuffer(LLVertexBuffer* buffer);
@@ -259,6 +255,8 @@ public:
 	LLMatrix4*	mTextureMatrix;
 	LLDrawInfo* mDrawInfo;
 
+	bool		mShinyInAlpha;
+
 private:
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 		
@@ -295,11 +293,7 @@ private:
 	F32         mBoundingSphereRadius ;
 	bool        mHasMedia ;
 
-// [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
-	mutable bool                       mShowDiffTexture;
-	mutable LLPointer<LLViewerTexture> mOrigDiffTexture;
-// [/SL:KB]
-
+	
 protected:
 	static BOOL	sSafeRenderSelect;
 	

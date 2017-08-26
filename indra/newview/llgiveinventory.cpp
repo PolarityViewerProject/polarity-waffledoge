@@ -38,6 +38,7 @@
 #include "llagentdata.h"
 #include "llagentui.h"
 #include "llagentwearables.h"
+#include "llavatarnamecache.h"
 #include "llfloatertools.h" // for gFloaterTool
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
@@ -46,26 +47,21 @@
 #include "llinventoryfunctions.h"
 #include "llmutelist.h"
 #include "llrecentpeople.h"
+#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatarself.h"
-// [RLVa:KB] - Checked: RLVa-1.2.2
-#include "llavatarnamecache.h"
-#include "rlvactions.h"
-#include "rlvcommon.h"
-#include "rlvui.h"
-// [/RLVa:KB]
 
 // MAX ITEMS is based on (sizeof(uuid)+2) * count must be < MTUBYTES
 // or 18 * count < 1200 => count < 1200/18 => 66. I've cut it down a
 // bit from there to give some pad.
-const S32 MAX_ITEMS = 42;
+const size_t MAX_ITEMS = 50;
 
 class LLGiveable : public LLInventoryCollectFunctor
 {
 public:
 	LLGiveable() : mCountLosing(0) {}
 	virtual ~LLGiveable() {}
-	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+	bool operator()(LLInventoryCategory* cat, LLInventoryItem* item) override;
 
 	S32 countNoCopy() const { return mCountLosing; }
 protected:
@@ -102,7 +98,7 @@ class LLUncopyableItems : public LLInventoryCollectFunctor
 public:
 	LLUncopyableItems() {}
 	virtual ~LLUncopyableItems() {}
-	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+	bool operator()(LLInventoryCategory* cat, LLInventoryItem* item) override;
 };
 
 bool LLUncopyableItems::operator()(LLInventoryCategory* cat,
@@ -258,9 +254,9 @@ bool LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 		items,
 		LLInventoryModel::EXCLUDE_TRASH,
 		giveable);
-	S32 count = cats.size();
+	size_t count = cats.size();
 	bool complete = true;
-	for(S32 i = 0; i < count; ++i)
+	for(size_t i = 0; i < count; ++i)
 	{
 		if (!gInventory.isCategoryComplete(cats.at(i)->getUUID()))
 		{
@@ -314,45 +310,44 @@ bool LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 //////////////////////////////////////////////////////////////////////////
 
 //static
-void LLGiveInventory::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im_session_id)
+void LLGiveInventory::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im_session_id, const std::string& item_name, bool is_folder)
 {
 	// compute id of possible IM session with agent that has "to_agent" id
 	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, to_agent);
 	// If this item was given by drag-and-drop into an IM panel, log this action in the IM panel chat.
 	LLSD args;
 	args["user_id"] = to_agent;
+	args["ITEM_NAME"] = item_name;
+	std::string message_name = is_folder ? "inventory_folder_offered" : "inventory_item_offered";
 	if (im_session_id.notNull())
 	{
-		gIMMgr->addSystemMessage(im_session_id, "inventory_item_offered", args);
+		gIMMgr->addSystemMessage(im_session_id, message_name, args);
 	}
-// [RLVa:KB] - Checked: RLVa-1.2.0
-	else if ( (RlvActions::isRlvEnabled()) && (!RlvActions::canShowName(RlvActions::SNC_DEFAULT, to_agent)) && (RlvUtil::isNearbyAgent(to_agent)) && (!RlvUIEnabler::hasOpenProfile(to_agent)) )
-	{
-		// Log to chat history if the user didn't drop on an IM session or a profile to avoid revealing the name of the recipient
-		std::string strMsgName = "inventory_item_offered-im"; LLSD args; LLAvatarName avName;
-		if (LLAvatarNameCache::get(to_agent, &avName))
-		{
-			args["NAME"] = RlvStrings::getAnonym(avName);
-			strMsgName = "inventory_item_offered_rlv";
-		}
-		gIMMgr->addSystemMessage(LLUUID::null, strMsgName, args);
-	}
-// [/RLVa:KB]
 	// If this item was given by drag-and-drop on avatar while IM panel was open, log this action in the IM panel chat.
 	else if (LLIMModel::getInstance()->findIMSession(session_id))
 	{
-		gIMMgr->addSystemMessage(session_id, "inventory_item_offered", args);
+		gIMMgr->addSystemMessage(session_id, message_name, args);
 	}
 	// If this item was given by drag-and-drop on avatar while IM panel wasn't open, log this action to IM history.
 	else
 	{
-		std::string full_name;
-		if (gCacheName->getFullName(to_agent, full_name))
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(to_agent, &av_name))
 		{
 			// Build a new format username or firstname_lastname for legacy names
 			// to use it for a history log filename.
-			full_name = LLCacheName::buildUsername(full_name);
-			LLIMModel::instance().logToFile(full_name, LLTrans::getString("SECOND_LIFE"), im_session_id, LLTrans::getString("inventory_item_offered-im"));
+            std::string full_name;
+            if (gSavedSettings.getBOOL("UseLegacyLogNames"))
+            {
+                full_name = av_name.getUserName().substr(0, av_name.getUserName().find(" Resident"));
+            }
+            else
+            {
+                full_name = LLCacheName::buildUsername(av_name.getUserName());
+            }
+			LLUIString message = LLTrans::getString(message_name + "-im");
+			message.setArgs(args);
+			LLIMModel::instance().logToFile(full_name, LLTrans::getString("SECOND_LIFE"), im_session_id, message.getString());
 		}
 	}
 }
@@ -362,7 +357,7 @@ bool LLGiveInventory::handleCopyProtectedItem(const LLSD& notification, const LL
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLSD itmes = notification["payload"]["items"];
-	LLInventoryItem* item = NULL;
+	LLInventoryItem* item = nullptr;
 	bool give_successful = true;
 	switch(option)
 	{
@@ -406,6 +401,7 @@ void LLGiveInventory::commitGiveInventoryItem(const LLUUID& to_agent,
 {
 	if (!item) return;
 	std::string name;
+	std::string item_name = item->getName();
 	LLAgentUI::buildFullname(name);
 	LLUUID transaction_id;
 	transaction_id.generate();
@@ -420,7 +416,7 @@ void LLGiveInventory::commitGiveInventoryItem(const LLUUID& to_agent,
 		gAgentSessionID,
 		to_agent,
 		name,
-		item->getName(),
+		item_name,
 		IM_ONLINE,
 		IM_INVENTORY_OFFERED,
 		transaction_id,
@@ -442,25 +438,17 @@ void LLGiveInventory::commitGiveInventoryItem(const LLUUID& to_agent,
 
 	LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 
-	logInventoryOffer(to_agent, im_session_id);
+	logInventoryOffer(to_agent, im_session_id, item_name);
 
 	// add buddy to recent people list
-//	LLRecentPeople::instance().add(to_agent);
-// [RLVa:KB] - Checked: RLVa-2.0.0
-	// Block the recent activity update if this was an in-world drop on an avatar (as opposed to a drop on an IM session or on a profile)
-	if ( (!RlvActions::isRlvEnabled()) ||
-	     (RlvActions::canShowName(RlvActions::SNC_DEFAULT, to_agent)) || (im_session_id.notNull()) || (!RlvUtil::isNearbyAgent(to_agent)) || (RlvUIEnabler::hasOpenProfile(to_agent)) )
-	{
-		LLRecentPeople::instance().add(to_agent);
-	}
-// [/RLVa:KB]
+	LLRecentPeople::instance().add(to_agent);
 }
 
 // static
 bool LLGiveInventory::handleCopyProtectedCategory(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	LLInventoryCategory* cat = NULL;
+	LLInventoryCategory* cat = nullptr;
 	bool give_successful = true;
 	switch(option)
 	{
@@ -478,8 +466,8 @@ bool LLGiveInventory::handleCopyProtectedCategory(const LLSD& notification, cons
 				items,
 				LLInventoryModel::EXCLUDE_TRASH,
 				remove);
-			S32 count = items.size();
-			for(S32 i = 0; i < count; ++i)
+			size_t count = items.size();
+			for(size_t i = 0; i < count; ++i)
 			{
 				gInventory.deleteObject(items.at(i)->getUUID());
 			}
@@ -519,15 +507,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 		<< cat->getUUID() << LL_ENDL;
 
 	// add buddy to recent people list
-//	LLRecentPeople::instance().add(to_agent);
-// [RLVa:KB] - Checked: RLVa-2.0.0
-	// Block the recent activity update if this was an in-world drop on an avatar (as opposed to a drop on an IM session or on a profile)
-	if ( (!RlvActions::isRlvEnabled()) ||
-	     (RlvActions::canShowName(RlvActions::SNC_DEFAULT, to_agent)) || (im_session_id.notNull()) || (!RlvUtil::isNearbyAgent(to_agent)) || (RlvUIEnabler::hasOpenProfile(to_agent)) )
-	{
-		LLRecentPeople::instance().add(to_agent);
-	}
-// [/RLVa:KB]
+	LLRecentPeople::instance().add(to_agent);
 
 	// Test out how many items are being given.
 	LLViewerInventoryCategory::cat_array_t cats;
@@ -538,12 +518,12 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 		items,
 		LLInventoryModel::EXCLUDE_TRASH,
 		giveable);
-
+	std::string cat_name = cat->getName();
 	bool give_successful = true;
 	// MAX ITEMS is based on (sizeof(uuid)+2) * count must be <
 	// MTUBYTES or 18 * count < 1200 => count < 1200/18 =>
 	// 66. I've cut it down a bit from there to give some pad.
-	S32 count = items.size() + cats.size();
+	size_t count = items.size() + cats.size();
 	if (count > MAX_ITEMS)
 	{
 		LLNotificationsUtil::add("TooManyItems");
@@ -560,7 +540,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 		LLAgentUI::buildFullname(name);
 		LLUUID transaction_id;
 		transaction_id.generate();
-		S32 bucket_size = (sizeof(U8) + UUID_BYTES) * (count + 1);
+		size_t bucket_size = (sizeof(U8) + UUID_BYTES) * (count + 1);
 		U8* bucket = new U8[bucket_size];
 		U8* pos = bucket;
 		U8 type = (U8)cat->getType();
@@ -568,7 +548,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 		pos += sizeof(U8);
 		memcpy(pos, &(cat->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
 		pos += UUID_BYTES;
-		S32 i;
+		size_t i;
 		count = cats.size();
 		for(i = 0; i < count; ++i)
 		{
@@ -593,7 +573,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 			gAgent.getSessionID(),
 			to_agent,
 			name,
-			cat->getName(),
+			cat_name,
 			IM_ONLINE,
 			IM_INVENTORY_OFFERED,
 			transaction_id,
@@ -616,7 +596,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 
 		LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 
-		logInventoryOffer(to_agent, im_session_id);
+		logInventoryOffer(to_agent, im_session_id, cat_name, true);
 	}
 
 	return give_successful;

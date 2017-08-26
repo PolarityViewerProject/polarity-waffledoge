@@ -26,8 +26,6 @@
     <item name="Max" label="Max"/>
     <item name="Recent Max" label="Recent Max"/>
     <item name="100ms" label="100ms"/>
-    <item name="40ms" label="40ms"/>
-    <item name="20ms" label="20ms"/>
   </combo_box>
   <combo_box name="metric_combo"
              follows="left|top"
@@ -46,8 +44,7 @@
           width="180"
           height="40"
           label="Pause"
-          font="SansSerif"
-          font.size="Gigantic"/>
+          font="SansSerifHuge"/>
   <layout_stack name="legend_stack"
                 orientation="horizontal"
                 left="0"

@@ -33,7 +33,6 @@
 #include "llerrorcontrol.h"         // LLError::is_available()
 #include "lldependencies.h"
 #include "llcoro_get_id.h"
-#include <boost/foreach.hpp>
 #include <boost/unordered_map.hpp>
 #include <algorithm>
 #include <iostream>                 // std::cerr in dire emergency
@@ -222,6 +221,9 @@ void LLSingletonBase::capture_dependency(list_t& initializing, EInitState initSt
             std::find(initializing.begin(), initializing.end(), this);
         if (found != initializing.end())
         {
+            list_t::const_iterator it_next = found;
+            ++it_next;
+
             // Report the circularity. Requiring the coder to dig through the
             // logic to diagnose exactly how we got here is less than helpful.
             std::ostringstream out;
@@ -240,11 +242,30 @@ void LLSingletonBase::capture_dependency(list_t& initializing, EInitState initSt
             // otherwise we'd be returning a pointer to a partially-
             // constructed object! But from initSingleton() is okay: that
             // method exists specifically to support circularity.
-            // Decide which log helper to call based on initState. They have
-            // identical signatures.
-            ((initState == CONSTRUCTING)? logerrs : logwarns)
-                ("LLSingleton circularity: ", out.str().c_str(),
-                 demangle(typeid(*this).name()).c_str(), "");
+            // Decide which log helper to call.
+            if (initState == CONSTRUCTING)
+            {
+                logerrs("LLSingleton circularity in Constructor: ", out.str().c_str(),
+                    demangle(typeid(*this).name()).c_str(), "");
+            }
+            else if (it_next == initializing.end())
+            {
+                // Points to self after construction, but during initialization.
+                // Singletons can initialize other classes that depend onto them,
+                // so this is expected.
+                //
+                // Example: LLNotifications singleton initializes default channels.
+                // Channels register themselves with singleton once done.
+                logdebugs("LLSingleton circularity: ", out.str().c_str(),
+                    demangle(typeid(*this).name()).c_str(), "");
+            }
+            else
+            {
+                // Actual circularity with other singleton (or single singleton is used extensively).
+                // Dependency can be unclear.
+                logwarns("LLSingleton circularity: ", out.str().c_str(),
+                    demangle(typeid(*this).name()).c_str(), "");
+            }
         }
         else
         {
@@ -275,7 +296,7 @@ LLSingletonBase::vec_t LLSingletonBase::dep_sort()
     typedef LLDependencies<LLSingletonBase*> SingletonDeps;
     SingletonDeps sdeps;
     list_t& master(get_master());
-    BOOST_FOREACH(LLSingletonBase* sp, master)
+    for (LLSingletonBase* sp : master)
     {
         // Build the SingletonDeps structure by adding, for each
         // LLSingletonBase* sp in the master list, sp itself. It has no
@@ -292,7 +313,7 @@ LLSingletonBase::vec_t LLSingletonBase::dep_sort()
     // extracts just the first (key) element from each sorted_iterator, then
     // uses vec_t's range constructor... but frankly this is more
     // straightforward, as long as we remember the above reserve() call!
-    BOOST_FOREACH(SingletonDeps::sorted_iterator::value_type pair, sdeps.sort())
+    for (SingletonDeps::sorted_iterator::value_type pair : sdeps.sort())
     {
         ret.push_back(pair.first);
     }
@@ -307,7 +328,7 @@ LLSingletonBase::vec_t LLSingletonBase::dep_sort()
 void LLSingletonBase::cleanupAll()
 {
     // It's essential to traverse these in dependency order.
-    BOOST_FOREACH(LLSingletonBase* sp, dep_sort())
+    for (LLSingletonBase* sp : dep_sort())
     {
         // Call cleanupSingleton() only if we haven't already done so for this
         // instance.
@@ -339,7 +360,7 @@ void LLSingletonBase::cleanupAll()
 void LLSingletonBase::deleteAll()
 {
     // It's essential to traverse these in dependency order.
-    BOOST_FOREACH(LLSingletonBase* sp, dep_sort())
+    for (LLSingletonBase* sp : dep_sort())
     {
         // Capture the class name first: in case of exception, don't count on
         // being able to extract it later.

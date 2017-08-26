@@ -587,24 +587,9 @@ static void bilinear_scale(const U8 *src, U32 srcW, U32 srcH, U32 srcCh, U32 src
 
 //static
 std::string LLImage::sLastErrorMessage;
-LLMutex* LLImage::sMutex = NULL;
+LLMutex* LLImage::sMutex = nullptr;
 bool LLImage::sUseNewByteRange = false;
 S32  LLImage::sMinimalReverseByteRangePercent = 75;
-
-// <FS:ND> Report amount of failed buffer allocations
-
-U32 LLImageBase::mAllocationErrors;
-
-void LLImageBase::addAllocationError()
-{
-	++mAllocationErrors;
-}
-
-U32 LLImageBase::getAllocationErrors()
-{
-	return mAllocationErrors;
-}
-//</FS:ND>
 
 //static
 void LLImage::initClass(bool use_new_byte_range, S32 minimal_reverse_byte_range_percent)
@@ -618,7 +603,7 @@ void LLImage::initClass(bool use_new_byte_range, S32 minimal_reverse_byte_range_
 void LLImage::cleanupClass()
 {
 	delete sMutex;
-	sMutex = NULL;
+	sMutex = nullptr;
 }
 
 //static
@@ -641,7 +626,7 @@ void LLImage::setLastError(const std::string& message)
 
 LLImageBase::LLImageBase()
 :	LLTrace::MemTrackable<LLImageBase>("LLImage"),
-	mData(NULL),
+	mData(nullptr),
 	mDataSize(0),
 	mWidth(0),
 	mHeight(0),
@@ -676,8 +661,7 @@ void LLImageBase::sanityCheck()
 		|| mComponents > (S8)MAX_IMAGE_COMPONENTS
 		)
 	{
-		// I think this is dead code anyway. Need to investigate later -Zi
-		LL_WARNS() << "Failed LLImageBase::sanityCheck "
+		LL_ERRS() << "Failed LLImageBase::sanityCheck "
 			   << "width " << mWidth
 			   << "height " << mHeight
 			   << "datasize " << mDataSize
@@ -693,7 +677,7 @@ void LLImageBase::deleteData()
 	ll_aligned_free_16(mData) ;
 	disclaimMem(mDataSize);
 	mDataSize = 0;
-	mData = NULL;
+	mData = nullptr;
 }
 
 // virtual
@@ -730,7 +714,7 @@ U8* LLImageBase::allocateData(S32 size)
 	if (!mBadBufferAllocation && (!mData || size != mDataSize))
 	{
 		deleteData(); // virtual
-		mData = (U8*) ll_aligned_malloc_16(size);
+		mData = (U8*)ll_aligned_malloc_16(size);
 		if (!mData)
 		{
 			LL_WARNS() << "Failed to allocate image data size [" << size << "]" << LL_ENDL;
@@ -742,8 +726,7 @@ U8* LLImageBase::allocateData(S32 size)
 	{
 		size = 0;
 		mWidth = mHeight = 0;
-		mData = NULL;
-		addAllocationError();
+		mData = nullptr;
 	}
 	mDataSize = size;
 	claimMem(mDataSize);
@@ -754,11 +737,11 @@ U8* LLImageBase::allocateData(S32 size)
 // virtual
 U8* LLImageBase::reallocateData(S32 size)
 {
-	U8 *new_datap = (U8*) ll_aligned_malloc_16(size);
+	U8 *new_datap = (U8*)ll_aligned_malloc_16(size);
 	if (!new_datap)
 	{
-		LL_WARNS() << "Out of memory in LLImageBase::reallocateData, size: " << size << LL_ENDL;
-		return 0;
+		LL_WARNS() << "Out of memory in LLImageBase::reallocateData" << LL_ENDL;
+		return nullptr;
 	}
 	if (mData)
 	{
@@ -778,7 +761,7 @@ const U8* LLImageBase::getData() const
 	if(mBadBufferAllocation)
 	{
 		LL_WARNS() << "Bad memory allocation for the image buffer!" << LL_ENDL ;
-		return NULL;
+		return nullptr;
 	}
 
 	return mData; 
@@ -789,7 +772,7 @@ U8* LLImageBase::getData()
 	if(mBadBufferAllocation)
 	{
 		LL_WARNS() << "Bad memory allocation for the image buffer!" << LL_ENDL;
-		return NULL;
+		return nullptr;
 	}
 
 	return mData; 
@@ -797,7 +780,7 @@ U8* LLImageBase::getData()
 
 bool LLImageBase::isBufferInvalid() const
 {
-	return mBadBufferAllocation || mData == NULL ;
+	return mBadBufferAllocation || mData == nullptr ;
 }
 
 void LLImageBase::setSize(S32 width, S32 height, S32 ncomponents)
@@ -946,15 +929,12 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 {
 	llassert( getComponents() <= 4 );
 	// This is fairly bogus, but it'll do for now.
-
-#if LL_SNAPSHOT_BUFFER_CHECKS
-	// <polarity> This crashes us while we can take screenshots perfectly fine.
 	if (isBufferInvalid())
 	{
 		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
 		return;
 	}
-#endif
+
 	U8 *pos = getData();
 	U32 x, y;
 	for (x = 0; x < getWidth(); x++)
@@ -1081,12 +1061,12 @@ inline U8 LLImageRaw::fastFractionalMult( U8 a, U8 b )
 void LLImageRaw::composite( LLImageRaw* src )
 {
 	LLImageRaw* dst = this;  // Just for clarity.
-#if LL_SNAPSHOT_BUFFER_CHECKS
+
 	if (!validateSrcAndDst("LLImageRaw::composite", src, dst))
 	{
 		return;
 	}
-#endif
+
 	llassert(3 == src->getComponents());
 	llassert(3 == dst->getComponents());
 
@@ -1187,12 +1167,12 @@ void LLImageRaw::compositeUnscaled4onto3( LLImageRaw* src )
 void LLImageRaw::copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill)
 {
 	LLImageRaw* dst = this;  // Just for clarity.
-#if LL_SNAPSHOT_BUFFER_CHECKS
+
 	if (!validateSrcAndDst("LLImageRaw::copyUnscaledAlphaMask", src, dst))
 	{
 		return;
 	}
-#endif
+
 	llassert( 1 == src->getComponents() );
 	llassert( 4 == dst->getComponents() );
 	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
@@ -1215,21 +1195,20 @@ void LLImageRaw::copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill)
 // Fill the buffer with a constant color
 void LLImageRaw::fill( const LLColor4U& color )
 {
-#if LL_SNAPSHOT_BUFFER_CHECKS
 	if (isBufferInvalid())
 	{
 		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
 		return;
 	}
-#endif
+
 	S32 pixels = getWidth() * getHeight();
 	if( 4 == getComponents() )
 	{
 		U32* data = (U32*) getData();
-		U32 mColor = color.mAll;
-
 		for( S32 i = 0; i < pixels; i++ )
-			data[i] = mColor;
+		{
+			data[i] = color.mAll;
+		}
 	}
 	else
 	if( 3 == getComponents() )
@@ -1392,12 +1371,12 @@ void LLImageRaw::copyUnscaled3onto4( LLImageRaw* src )
 void LLImageRaw::copyScaled( LLImageRaw* src )
 {
 	LLImageRaw* dst = this;  // Just for clarity.
-#if LL_SNAPSHOT_BUFFER_CHECKS
+
 	if (!validateSrcAndDst("LLImageRaw::copyScaled", src, dst))
 	{
 		return;
 	}
-#endif
+
 	llassert_always( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
 	llassert_always( src->getComponents() == dst->getComponents() );
 
@@ -1441,13 +1420,11 @@ bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
         return false;
     }
 
-#if LL_SNAPSHOT_BUFFER_CHECKS
 	if (isBufferInvalid())
 	{
 		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
 		return false;
 	}
-#endif
 
 	S32 old_width = getWidth();
 	S32 old_height = getHeight();
@@ -1465,8 +1442,8 @@ bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
 
 		if (new_data_size > 0)
         {
-		U8 *new_data = (U8*) ll_aligned_malloc_16(new_data_size); 
-            if(NULL == new_data) 
+            U8 *new_data = (U8*)ll_aligned_malloc_16(new_data_size); 
+            if(nullptr == new_data) 
             {
                 return false; 
             }
@@ -1746,13 +1723,12 @@ bool LLImageRaw::validateSrcAndDst(std::string func, LLImageRaw* src, LLImageRaw
 
 //----------------------------------------------------------------------------
 
-static struct
+typedef struct
 {
 	const char* exten;
 	EImageCodec codec;
-}
-file_extensions[] =
-{
+} exten_codec_t;
+static std::array <exten_codec_t, 10> file_extensions{{
 	{ "bmp", IMG_CODEC_BMP },
 	{ "tga", IMG_CODEC_TGA },
 	{ "j2c", IMG_CODEC_J2C },
@@ -1763,22 +1739,21 @@ file_extensions[] =
 	{ "mip", IMG_CODEC_DXT },
 	{ "dxt", IMG_CODEC_DXT },
 	{ "png", IMG_CODEC_PNG }
-};
-#define NUM_FILE_EXTENSIONS LL_ARRAY_SIZE(file_extensions)
+}};
 #if 0
 static std::string find_file(std::string &name, S8 *codec)
 {
 	std::string tname;
-	for (int i=0; i<(int)(NUM_FILE_EXTENSIONS); i++)
+	for (exten_codec_t thingo : file_extensions)
 	{
-		tname = name + "." + std::string(file_extensions[i].exten);
+		tname = name + "." + std::string(thingo.exten);
 		llifstream ifs(tname.c_str(), llifstream::binary);
 		if (ifs.is_open())
 		{
 			ifs.close();
 			if (codec)
-				*codec = file_extensions[i].codec;
-			return std::string(file_extensions[i].exten);
+				*codec = thingo.codec;
+			return std::string(thingo.exten);
 		}
 	}
 	return std::string("");
@@ -1786,10 +1761,10 @@ static std::string find_file(std::string &name, S8 *codec)
 #endif
 EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
 {
-	for (int i=0; i<(int)(NUM_FILE_EXTENSIONS); i++)
+	for (const exten_codec_t item : file_extensions)
 	{
-		if (exten == file_extensions[i].exten)
-			return file_extensions[i].codec;
+		if (exten == item.exten)
+			return item.codec;
 	}
 	return IMG_CODEC_INVALID;
 }
@@ -1949,7 +1924,7 @@ LLImageFormatted* LLImageFormatted::createFromType(S8 codec)
 		image = new LLImageDXT();
 		break;
 	  default:
-		image = NULL;
+		image = nullptr;
 		break;
 	}
 	return image;
@@ -2004,7 +1979,7 @@ S32 LLImageFormatted::calcDiscardLevelBytes(S32 bytes)
 {
 	llassert(bytes >= 0);
 	S32 discard_level = 0;
-	while (1)
+	while (true)
 	{
 		S32 bytes_needed = calcDataSize(discard_level); // virtual
 		if (bytes_needed <= bytes)
@@ -2036,8 +2011,7 @@ bool LLImageFormatted::decodeChannels(LLImageRaw* raw_image,F32  decode_time, S3
 U8* LLImageFormatted::allocateData(S32 size)
 {
 	U8* res = LLImageBase::allocateData(size); // calls deleteData()
-	if(res)
-		sGlobalFormattedMemory += getDataSize();
+	sGlobalFormattedMemory += getDataSize();
 	return res;
 }
 
@@ -2046,8 +2020,7 @@ U8* LLImageFormatted::reallocateData(S32 size)
 {
 	sGlobalFormattedMemory -= getDataSize();
 	U8* res = LLImageBase::reallocateData(size);
-	if(res)
-		sGlobalFormattedMemory += getDataSize();
+	sGlobalFormattedMemory += getDataSize();
 	return res;
 }
 
@@ -2067,8 +2040,7 @@ void LLImageFormatted::sanityCheck()
 
 	if (mCodec >= IMG_CODEC_EOF)
 	{
-		// I think this is dead code anyway. Need to investigate later. -Zi
-		LL_WARNS() << "Failed LLImageFormatted::sanityCheck "
+		LL_ERRS() << "Failed LLImageFormatted::sanityCheck "
 			   << "decoding " << S32(mDecoding)
 			   << "decoded " << S32(mDecoded)
 			   << "codec " << S32(mCodec)
@@ -2126,11 +2098,10 @@ bool LLImageFormatted::load(const std::string &filename, int load_size)
 {
 	resetLastError();
 
-	S32 file_size = 0;
-	LLAPRFile infile ;
-	infile.open(filename, LL_APR_RB, NULL, &file_size);
-	apr_file_t* apr_file = infile.getFileHandle();
-	if (!apr_file)
+	apr_off_t file_size = 0;
+	LLAPRFile infile;
+	apr_status_t s = infile.open(filename, LL_APR_RB, nullptr, &file_size);
+	if (s != APR_SUCCESS)
 	{
 		setLastError("Unable to open file for reading", filename);
 		return false;
@@ -2148,9 +2119,8 @@ bool LLImageFormatted::load(const std::string &filename, int load_size)
 	}
 	bool res;
 	U8 *data = allocateData(load_size);
-	apr_size_t bytes_read = load_size;
-	apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read
-	if (s != APR_SUCCESS || (S32) bytes_read != load_size)
+	apr_size_t bytes_read = infile.read(data, load_size);
+	if (bytes_read == 0 ||  bytes_read != load_size)
 	{
 		deleteData();
 		setLastError("Unable to read file",filename);

@@ -61,7 +61,7 @@ public:
 	/*virtual*/ BOOL setPosition(LLCoordScreen position);
 	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size);
 	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size);
-	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, EVSyncSetting vsync_setting, const LLCoordScreen * const posp = NULL);
+	/*virtual*/ BOOL switchContext(U32 window_mode, const LLCoordScreen &size, U32 vsync_setting, const LLCoordScreen * const posp = NULL);
 	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position);
 	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position);
 	/*virtual*/ void showCursor();
@@ -77,6 +77,7 @@ public:
 	/*virtual*/ BOOL isClipboardTextAvailable();
 	/*virtual*/ BOOL pasteTextFromClipboard(LLWString &dst);
 	/*virtual*/ BOOL copyTextToClipboard(const LLWString & src);
+	/*virtual*/ void setWindowTitle(const std::string& title);
 	/*virtual*/ void flashIcon(F32 seconds);
 	/*virtual*/ F32 getGamma();
 	/*virtual*/ BOOL setGamma(const F32 gamma); // Set the gamma
@@ -112,7 +113,8 @@ public:
 	/*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b);
 	/*virtual*/ void interruptLanguageTextInput();
 	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
-	/*virtual*/ void setTitle(const std::string& title);
+	/*virtual*/ F32 getScaleFactor();
+	/*virtual*/ void updateUnreadCount(S32 num_conversations);
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 
@@ -123,8 +125,8 @@ public:
 	LLWindowCallbacks* getCallbacks() { return mCallbacks; }
 	LLPreeditor* getPreeditor() { return mPreeditor; }
 	
-	void updateMouseDeltas(float* deltas);
-	void getMouseDeltas(float* delta);
+	void updateMouseDeltas(double* deltas);
+	void getMouseDeltas(double* delta);
 	
 	void handleDragNDrop(std::string url, LLWindowCallbacks::DragNDropAction action);
     
@@ -133,7 +135,7 @@ public:
 protected:
 	LLWindowMacOSX(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
-		BOOL fullscreen, BOOL clearBg, EVSyncSetting vsync_setting, BOOL use_gl,
+		U32 window_mode, BOOL clearBg, U32 vsync_setting, BOOL use_gl,
 		BOOL ignore_pixel_depth,
 		U32 fsaa_samples);
 	~LLWindowMacOSX();
@@ -153,9 +155,6 @@ protected:
 	BOOL	resetDisplayResolution();
 
 	BOOL	shouldPostQuit() { return mPostQuit; }
-    
-    //Satisfy MAINT-3135 and MAINT-3288 with a flag.
-    /*virtual */ void setOldResize(bool oldresize) {setResizeMode(oldresize, mGLView); }
 
 private:
     void restoreGLContext();
@@ -166,7 +165,7 @@ protected:
 	//
 
 	// create or re-create the GL context/window.  Called from the constructor and switchContext().
-	BOOL createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, EVSyncSetting vsync_setting);
+	BOOL createContext(int x, int y, int width, int height, int bits, U32 window_mode, U32 vsync_setting);
 	void destroyContext();
 	void setupFailure(const std::string& text, const std::string& caption, U32 type);
 	void adjustCursorDecouple(bool warpingMouse = false);
@@ -220,6 +219,21 @@ protected:
 
 	friend class LLWindowManager;
 	
+};
+
+
+class LLSplashScreenMacOSX : public LLSplashScreen
+{
+public:
+	LLSplashScreenMacOSX();
+	virtual ~LLSplashScreenMacOSX();
+
+	/*virtual*/ void showImpl();
+	/*virtual*/ void updateImpl(const std::string& mesg);
+	/*virtual*/ void hideImpl();
+
+private:
+	WindowRef   mWindow;
 };
 
 S32 OSMessageBoxMacOSX(const std::string& text, const std::string& caption, U32 type);

@@ -76,6 +76,7 @@ class LLMaterialGetFunctor
 {
 public:
 	LLMaterialGetFunctor() {}
+	virtual ~LLMaterialGetFunctor() = default;
 	virtual DataType get(LLMaterialPtr& material) { return (material->*(MaterialGetFunc)); }
 };
 
@@ -86,6 +87,7 @@ class LLTEGetFunctor
 {
 public:
 	LLTEGetFunctor() {}
+	virtual ~LLTEGetFunctor() = default;
 	virtual DataType get(LLTextureEntry* entry) { return (entry*(TEGetFunc)); }
 };
 
@@ -97,8 +99,6 @@ public:
 	virtual ~LLPanelFace();
 
 	void			refresh();
-	void			setMediaURL(const std::string& url);
-	void			setMediaType(const std::string& mime_type);
 
 	LLMaterialPtr createDefaultMaterial(LLMaterialPtr current_material)
 	{
@@ -114,46 +114,33 @@ public:
 	LLRender::eTexIndex getTextureChannelToEdit();
 
 protected:
-	void			getState();
-
-	void			sendTexture();			// applies and sends texture
-	void			sendTextureInfo();		// applies and sends texture scale, offset, etc.
-	void			sendColor();			// applies and sends color
-	void			sendAlpha();			// applies and sends transparency
-	void			sendBump(U32 bumpiness);				// applies and sends bump map
-	void			sendTexGen();				// applies and sends bump map
-	void			sendShiny(U32 shininess);			// applies and sends shininess
-	void			sendFullbright();		// applies and sends full bright
-	void        sendGlow();
-	void			sendMedia();
+	void	sendTexture();							// applies and sends texture
+	void	sendTextureInfo();						// applies and sends texture scale, offset, etc.
+	void	sendColor();							// applies and sends color
+	void	sendGlow(const LLSD& userdata);			// applies and sends glow
+	void	sendAlpha(const LLSD& userdata);		// applies and sends transparency
+	void	sendTexGen(const LLSD& userdata);		// applies and sends bump map
+	void	sendFullbright(const LLSD& userdata);	// applies and sends full bright
+	void	sendBump(U32 bumpiness);				// applies and sends bump map
+	void	sendShiny(U32 shininess);				// applies and sends shininess
 
 	// this function is to return TRUE if the drag should succeed.
 	static BOOL onDragTexture(LLUICtrl* ctrl, LLInventoryItem* item);
 
-	void 	onCommitTexture(const LLSD& data);
-	void 	onCancelTexture(const LLSD& data);
-	void 	onSelectTexture(const LLSD& data);
-	void 	onCommitSpecularTexture(const LLSD& data);
-	void 	onCancelSpecularTexture(const LLSD& data);
-	void 	onSelectSpecularTexture(const LLSD& data);
-	void 	onCommitNormalTexture(const LLSD& data);
-	void 	onCancelNormalTexture(const LLSD& data);
-	void 	onSelectNormalTexture(const LLSD& data);
-	void 	onCommitColor(const LLSD& data);
-	void 	onCommitShinyColor(const LLSD& data);
-	void 	onCommitAlpha(const LLSD& data);
-	void 	onCancelColor(const LLSD& data);
-	void 	onCancelShinyColor(const LLSD& data);
-	void 	onSelectColor(const LLSD& data);
-	void 	onSelectShinyColor(const LLSD& data);
-
-	void 	onCloseTexturePicker(const LLSD& data);
-
-	// Make UI reflect state of currently selected material (refresh)
-	// and UI mode (e.g. editing normal map v diffuse map)
-	//
-	// @param force_set_values forces spinners to set value even if they are focused
-	void updateUI(bool force_set_values = false);
+	void 	onCommitTexture();
+	void 	onCancelTexture();
+	void 	onSelectTexture();
+	void 	onCommitSpecularTexture();
+	void 	onCancelSpecularTexture();
+	void 	onSelectSpecularTexture();
+	void 	onCommitNormalTexture();
+	void 	onCancelNormalTexture();
+	void 	onSelectNormalTexture();
+	void 	onCommitShinyColor(LLUICtrl* ctrl);
+	void 	onCancelColor();
+	void 	onCancelShinyColor();
+	void 	onSelectColor();
+	void 	onSelectShinyColor(LLUICtrl* ctrl);
 
 	// Convenience func to determine if all faces in selection have
 	// identical planar texgen settings during edits
@@ -162,8 +149,6 @@ protected:
 
 	// Callback funcs for individual controls
 	//
-	static void		onCommitTextureInfo( 	LLUICtrl* ctrl, void* userdata);
-
 	static void		onCommitMaterialBumpyScaleX(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialBumpyScaleY(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialBumpyRot(		LLUICtrl* ctrl, void* userdata);
@@ -180,36 +165,18 @@ protected:
 	static void		onCommitMaterialEnv(				LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialMaskCutoff(	LLUICtrl* ctrl, void* userdata);
 
-	static void		onCommitMaterialsMedia(	LLUICtrl* ctrl, void* userdata);
-	static void		onCommitMaterialType(	LLUICtrl* ctrl, void* userdata);
-	static void		onCommitBump(				LLUICtrl* ctrl, void* userdata);
-	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
-	static void		onCommitShiny(				LLUICtrl* ctrl, void* userdata);
-	static void		onCommitAlphaMode(		LLUICtrl* ctrl, void* userdata);
-	static void		onCommitFullbright(		LLUICtrl* ctrl, void* userdata);
-	static void    onCommitGlow(				LLUICtrl* ctrl, void *userdata);
-	static void		onCommitPlanarAlign(		LLUICtrl* ctrl, void* userdata);
-	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);
-	static void		onClickAutoFix(void*);
+	void		onCommitMaterialsMedia();
+	void		onCommitMaterialType();
+	void		onCommitBump(const LLSD& userdata);
+	void		onCommitShiny(const LLSD& userdata);
+	void		onCommitAlphaMode();
+	void		onCommitPlanarAlign();
+	void		onCommitRepeatsPerMeter(LLUICtrl* ctrl);
+	void		onClickAutoFix();
+	void		onClickAlignMats(const LLSD& userdata);
+	void		alignMaterialProperties();
 
 	static F32     valueGlow(LLViewerObject* object, S32 face);
-
-	LLTextureCtrl*	mTextureCtrl;
-	LLTextureCtrl*	mShinyTextureCtrl;
-	LLTextureCtrl*	mBumpyTextureCtrl;
-	LLColorSwatchCtrl*	mColorSwatch;
-	LLColorSwatchCtrl*	mShinyColorSwatch;
-
-	LLComboBox*		mComboTexGen;
-	LLComboBox*		mComboMatMedia;
-	LLComboBox*		mComboMatType;
-
-	LLCheckBoxCtrl	*mCheckFullbright;
-
-	LLTextBox*		mLabelColorTransp;
-	LLSpinCtrl*		mCtrlColorTransp;		// transparency = 1 - alpha
-
-	LLSpinCtrl*     mCtrlGlow;
 
 private:
 
@@ -217,14 +184,14 @@ private:
 
 	// Convenience funcs to keep the visual flack to a minimum
 	//
-	LLUUID	getCurrentNormalMap();
-	LLUUID	getCurrentSpecularMap();
+	const LLUUID&	getCurrentNormalMap();
+	const LLUUID&	getCurrentSpecularMap();
 	U32		getCurrentShininess();
 	U32		getCurrentBumpiness();
-	U8			getCurrentDiffuseAlphaMode();
-	U8			getCurrentAlphaMaskCutoff();
-	U8			getCurrentEnvIntensity();
-	U8			getCurrentGlossiness();
+	U8		getCurrentDiffuseAlphaMode();
+	U8		getCurrentAlphaMaskCutoff();
+	U8		getCurrentEnvIntensity();
+	U8		getCurrentGlossiness();
 	F32		getCurrentBumpyRot();
 	F32		getCurrentBumpyScaleU();
 	F32		getCurrentBumpyScaleV();
@@ -235,6 +202,11 @@ private:
 	F32		getCurrentShinyScaleV();
 	F32		getCurrentShinyOffsetU();
 	F32		getCurrentShinyOffsetV();
+	F32		getCurrentTextureRot();
+	F32		getCurrentTextureScaleU();
+	F32		getCurrentTextureScaleV();
+	F32		getCurrentTextureOffsetU();
+	F32		getCurrentTextureOffsetV();
 
 	// Update visibility of controls to match current UI mode
 	// (e.g. materials vs media editing)
@@ -242,10 +214,6 @@ private:
 	// Do NOT call updateUI from within this function.
 	//
 	void updateVisibility();
-
-	// Make material(s) reflect current state of UI (apply edit)
-	//
-	void updateMaterial();
 
 	// Hey look everyone, a type-safe alternative to copy and paste! :)
 	//
@@ -340,7 +308,7 @@ private:
 		ReturnType (LLMaterial::* const MaterialGetFunc)() const  >
 	static void getTEMaterialValue(DataType& data_to_return, bool& identical,DataType default_value)
 	{
-		DataType data_value;
+		DataType data_value = DataType();
 		struct GetTEMaterialVal : public LLSelectedTEGetFunctor<DataType>
 		{
 			GetTEMaterialVal(DataType default_value) : _default(default_value) {}
@@ -373,7 +341,7 @@ private:
 		ReturnType (LLTextureEntry::* const TEGetFunc)() const >
 	static void getTEValue(DataType& data_to_return, bool& identical, DataType default_value)
 	{
-		DataType data_value;
+		DataType data_value = DataType();
 		struct GetTEVal : public LLSelectedTEGetFunctor<DataType>
 		{
 			GetTEVal(DataType default_value) : _default(default_value) {}
@@ -388,6 +356,29 @@ private:
 		identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &GetTEValFunc, data_value );
 		data_to_return = data_value;
 	}
+
+// <alchemy>
+	// UI Widgets
+	LLTextureCtrl*	mTextureCtrl;
+	LLTextureCtrl*	mShinyTextureCtrl;
+	LLTextureCtrl*	mBumpyTextureCtrl;
+	LLColorSwatchCtrl*	mColorSwatch;
+	LLColorSwatchCtrl*	mShinyColorSwatch;
+
+	LLComboBox*		mComboAlphaMode = nullptr;
+	LLComboBox*		mComboBump = nullptr;
+	LLComboBox*		mComboShiny = nullptr;
+	LLComboBox*		mComboTexGen;
+	LLComboBox*		mComboMatMedia;
+	LLComboBox*		mComboMatType;
+
+	LLCheckBoxCtrl	*mCheckFullbright;
+
+	LLTextBox*		mLabelColorTransp;
+	LLSpinCtrl*		mCtrlColorTransp;		// transparency = 1 - alpha
+
+	LLSpinCtrl*     mCtrlGlow;
+// </alchemy>
 
 	// Update vis and enabling of specific subsets of controls based on material params
 	// (e.g. hide the spec controls if no spec texture is applied)

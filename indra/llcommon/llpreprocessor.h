@@ -28,30 +28,21 @@
 #ifndef LLPREPROCESSOR_H
 #define LLPREPROCESSOR_H
 
+#include "llcompilerfeatures.h"
+
 // Figure out endianness of platform
 #ifdef LL_LINUX
 #define __ENABLE_WSTRING
 #include <endian.h>
 #endif	//	LL_LINUX
 
-#if LL_SOLARIS
-#   ifdef  __sparc     // Since we're talking Solaris 10 and up, only 64 bit is supported.
-#      define LL_BIG_ENDIAN 1
-#      define LL_SOLARIS_ALIGNED_CPU 1     //  used to designate issues where SPARC alignment is addressed
-#      define LL_SOLARIS_NON_MESA_GL 1      //  The SPARC GL does not provide a MESA-based GL API
-#   endif
-#   include <sys/isa_defs.h> // ensure we know which end is up
-#endif // LL_SOLARIS
-
-#if (defined(LL_WINDOWS) || (defined(LL_LINUX) && (__BYTE_ORDER == __LITTLE_ENDIAN)) || (defined(LL_DARWIN) && defined(__LITTLE_ENDIAN__)) || (defined(LL_SOLARIS) && defined(__i386)))
+#if (defined(LL_WINDOWS) || (defined(LL_LINUX) && (__BYTE_ORDER == __LITTLE_ENDIAN)) || (defined(LL_DARWIN) && defined(__LITTLE_ENDIAN__)))
 #define LL_LITTLE_ENDIAN 1
 #else
 #define LL_BIG_ENDIAN 1
 #endif
 
-
 // Per-compiler switches
-
 #ifdef __GNUC__
 #define LL_FORCE_INLINE inline __attribute__((always_inline))
 #else
@@ -72,7 +63,18 @@
 
 
 // Figure out differences between compilers
-#if defined(__GNUC__)
+#if defined(__clang__)
+	#define CLANG_VERSION (__clang_major__ * 10000 \
+						  + __clang_minor__ * 100 \
+						  + __clang_patchlevel__)
+	#ifndef LL_CLANG
+		#define LL_CLANG 1
+	#endif
+#elif defined (__ICC)
+	#ifndef LL_INTELC
+		#define LL_INTELC 1
+	#endif
+#elif defined(__GNUC__)
 	#define GCC_VERSION (__GNUC__ * 10000 \
 						+ __GNUC_MINOR__ * 100 \
 						+ __GNUC_PATCHLEVEL__)
@@ -98,11 +100,6 @@
 
 #endif
 
-#if LL_WINDOWS
-# define LL_THREAD_LOCAL __declspec(thread)
-#else
-# define LL_THREAD_LOCAL __thread
-#endif
 
 // Static linking with apr on windows needs to be declared.
 #if LL_WINDOWS && !LL_COMMON_LINK_SHARED
@@ -122,7 +119,6 @@
 #endif
 #endif	//	LL_WINDOWS
 
-
 // Deal with VC6 problems
 #if LL_MSVC
 #pragma warning( 3	     : 4701 )	// "local variable used without being initialized"  Treat this as level 3, not level 4.
@@ -131,16 +127,13 @@
 //#pragma warning( 3	: 4018 )	// "signed/unsigned mismatch"  Treat this as level 3, not level 4.
 #pragma warning( 3      :  4263 )	// 'function' : member function does not override any base class virtual member function
 #pragma warning( 3      :  4264 )	// "'virtual_function' : no override available for virtual member function from base 'class'; function is hidden"
-#pragma warning( 3       : 4265 )	// "class has virtual functions, but destructor is not virtual"
+//#pragma warning( 3       : 4265 )	// "class has virtual functions, but destructor is not virtual"
 #pragma warning( 3      :  4266 )	// 'function' : no override available for virtual member function from base 'type'; function is hidden
 #pragma warning (disable : 4180)	// qualifier applied to function type has no meaning; ignored
-//#pragma warning( disable : 4284 )	// silly MS warning deep inside their <map> include file
-#pragma warning( disable : 4503 )	// 'decorated name length exceeded, name was truncated'. Does not seem to affect compilation.
 #pragma warning( disable : 4800 )	// 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
-#pragma warning( disable : 4996 )	// warning: deprecated
+//#pragma warning( disable : 4996 )	// warning: deprecated
 
 // Linker optimization with "extern template" generates these warnings
-#pragma warning( disable : 4231 )	// nonstandard extension used : 'extern' before template explicit instantiation
 #pragma warning( disable : 4506 )   // no definition for inline function
 
 // level 4 warnings that we need to disable:
@@ -187,13 +180,7 @@
 # define LL_COMMON_API
 #endif // LL_COMMON_LINK_SHARED
 
-#if LL_WINDOWS
-#define LL_TYPEOF(exp) decltype(exp)
-#elif LL_LINUX
-#define LL_TYPEOF(exp) typeof(exp)
-#elif LL_DARWIN
-#define LL_TYPEOF(exp) typeof(exp)
-#endif
+#define LL_TYPEOF(expr) decltype(expr)
 
 #define LL_TO_STRING_HELPER(x) #x
 #define LL_TO_STRING(x) LL_TO_STRING_HELPER(x)
@@ -206,22 +193,6 @@
 #else
 // no way to get gcc 4.2 to print a user-defined diagnostic message only when a macro is used
 #define LL_COMPILE_TIME_MESSAGE(msg)
-#endif
-
-// Automatically detect the viewer architecture.
-// Moved from llprocessor.cpp
-#if LL_MSVC && _M_X64
-#      define LL_X86_64 1
-#      define LL_X86 1
-#elif LL_MSVC && _M_IX86
-#      define LL_X86 1
-#elif LL_GNUC && ( defined(__amd64__) || defined(__x86_64__) )
-#      define LL_X86_64 1
-#      define LL_X86 1
-#elif LL_GNUC && ( defined(__i386__) )
-#      define LL_X86 1
-#elif LL_GNUC && ( defined(__powerpc__) || defined(__ppc__) )
-#      define LL_PPC 1
 #endif
 
 #endif	//	not LL_LINDEN_PREPROCESSOR_H

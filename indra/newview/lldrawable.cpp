@@ -101,7 +101,7 @@ LLDrawable::LLDrawable(LLViewerObject *vobj, bool new_entry)
 void LLDrawable::init(bool new_entry)
 {
 	// mXform
-	mParent = NULL;
+	mParent = nullptr;
 	mRenderType = 0;
 	mCurrentScale = LLVector3(1,1,1);
 	mDistanceWRTCamera = 0.0f;
@@ -110,11 +110,11 @@ void LLDrawable::init(bool new_entry)
 	// mFaces
 	mRadius = 0.f;
 	mGeneration = -1;	
-	mSpatialBridge = NULL;
+	mSpatialBridge = nullptr;
 
-	LLViewerOctreeEntry* entry = NULL;
-	LLVOCacheEntry* vo_entry = NULL;
-	if(!new_entry && mVObjp && getRegion() != NULL)
+	LLViewerOctreeEntry* entry = nullptr;
+	LLVOCacheEntry* vo_entry = nullptr;
+	if(!new_entry && mVObjp && getRegion() != nullptr)
 	{
 		vo_entry = getRegion()->getCacheEntryForOctree(mVObjp->getLocalID());
 		if(vo_entry)
@@ -134,7 +134,7 @@ void LLDrawable::init(bool new_entry)
 
 		if(vo_entry->getNumOfChildren() > 0)
 		{
-			getRegion()->addVisibleChildCacheEntry(vo_entry, NULL); //to load all children.
+			getRegion()->addVisibleChildCacheEntry(vo_entry, nullptr); //to load all children.
 		}		
 
 		llassert(!vo_entry->getGroup()); //not in the object cache octree.
@@ -197,7 +197,7 @@ void LLDrawable::markDead()
 	if (mSpatialBridge)
 	{
 		mSpatialBridge->markDead();
-		mSpatialBridge = NULL;
+		mSpatialBridge = nullptr;
 	}
 
 	sNumZombieDrawables++;
@@ -216,7 +216,7 @@ LLVOVolume* LLDrawable::getVOVolume() const
 	}
 	else
 	{
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -261,8 +261,8 @@ void LLDrawable::cleanupReferences()
 	{
 		LL_RECORD_BLOCK_TIME(FTM_DEREF_DRAWABLE);
 		// Cleanup references to other objects
-		mVObjp = NULL;
-		mParent = NULL;
+		mVObjp = nullptr;
+		mParent = nullptr;
 	}
 }
 
@@ -278,7 +278,7 @@ void LLDrawable::removeFromOctree()
 	{
 		getRegion()->removeActiveCacheEntry((LLVOCacheEntry*)mEntry->getVOCacheEntry(), this);
 	}
-	mEntry = NULL;
+	mEntry = nullptr;
 }
 
 void LLDrawable::cleanupDeadDrawables()
@@ -486,7 +486,7 @@ void LLDrawable::updateMaterial()
 
 void LLDrawable::makeActive()
 {		
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	if (mVObjp.notNull())
 	{
 		U32 pcode = mVObjp->getPCode();
@@ -583,7 +583,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 		if (mSpatialBridge)
 		{
 			mSpatialBridge->markDead();
-			setSpatialBridge(NULL);
+			setSpatialBridge(nullptr);
 		}
 		updatePartition();
 	}
@@ -1109,7 +1109,7 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
 
 LLSpatialPartition* LLDrawable::getSpatialPartition()
 { 
-	LLSpatialPartition* retval = NULL;
+	LLSpatialPartition* retval = nullptr;
 	
 	if (!mVObjp || 
 		!getVOVolume() ||
@@ -1123,7 +1123,7 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 		{
 			// remove obsolete bridge
 			mSpatialBridge->markDead();
-			setSpatialBridge(NULL);
+			setSpatialBridge(nullptr);
 		}
 		//must be an active volume
 		if (!mSpatialBridge)
@@ -1147,7 +1147,7 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 	if (retval && mSpatialBridge.notNull())
 	{
 		mSpatialBridge->markDead();
-		setSpatialBridge(NULL);
+		setSpatialBridge(nullptr);
 	}
 	
 	return retval;
@@ -1201,7 +1201,7 @@ LLSpatialBridge::~LLSpatialBridge()
 void LLSpatialBridge::destroyTree()
 {
 	delete mOctree;
-	mOctree = NULL;
+	mOctree = nullptr;
 }
 
 void LLSpatialBridge::updateSpatialExtents()
@@ -1353,15 +1353,15 @@ public:
 	LLCamera* mCamera;
 	
 	LLOctreeMarkNotCulled(LLCamera* camera_in) : mCamera(camera_in) { }
-	
-	virtual void traverse(const OctreeNode* node)
+
+	void traverse(const OctreeNode* node) override
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
 		group->setVisible();
 		OctreeTraveler::traverse(node);
 	}
 	
-	void visit(const OctreeNode* branch)
+	void visit(const OctreeNode* branch) override
 	{
 		gPipeline.markNotCulled((LLSpatialGroup*) branch->getListener(0), *mCamera);
 	}
@@ -1395,10 +1395,7 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 				LLVOAvatar* avatarp = (LLVOAvatar*) objparent;
 				if (avatarp->isVisible())
 				{
-					// <FS:Ansariel> Fix LL impostor hacking
-					//impostor = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isImpostor();
-					impostor = objparent->isAvatar() && avatarp->isImpostor() && !avatarp->needsImpostorUpdate();
-					// </FS:Ansariel>
+					impostor = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isImpostor();
 					loaded   = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isFullyLoaded();
 				}
 				else
@@ -1469,7 +1466,7 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 
 void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 {
-	if (mDrawable == NULL)
+	if (mDrawable == nullptr)
 	{
 		markDead();
 		return;
@@ -1488,10 +1485,7 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 			if (parent && parent->getVObj())
 			{
 				LLVOAvatar* av = parent->getVObj()->asAvatar();
-				// <FS:Ansariel> Fix LL impostor hacking
-				//if (av && av->isImpostor())
-				if (av && av->isImpostor() && !av->needsImpostorUpdate())
-				// </FS:Ansariel>
+				if (av && av->isImpostor())
 				{
 					return;
 				}
@@ -1558,7 +1552,7 @@ void LLSpatialBridge::cleanupReferences()
 	LLDrawable::cleanupReferences();
 	if (mDrawable)
 	{
-		mDrawable->setGroup(NULL);
+		mDrawable->setGroup(nullptr);
 
 		if (mDrawable->getVObj())
 		{
@@ -1570,20 +1564,14 @@ void LLSpatialBridge::cleanupReferences()
 				LLDrawable* drawable = child->mDrawable;					
 				if (drawable)
 				{
-					drawable->setGroup(NULL);				
+					drawable->setGroup(nullptr);				
 				}
 				}
 			}
 
-		// <FS:ND> setting the pointer to 0 can delete the drawable, referencing it with setSpatialBridge after that is illegal.
-
-		// LLDrawable* drawablep = mDrawable;
-		LLPointer< LLDrawable > drawablep = mDrawable;
-
-		// </FS:ND>
-
-		mDrawable = NULL;
-		drawablep->setSpatialBridge(NULL);
+		LLDrawable* drawablep = mDrawable;
+		mDrawable = nullptr;
+		drawablep->setSpatialBridge(nullptr);
 	}
 }
 

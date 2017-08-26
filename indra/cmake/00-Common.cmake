@@ -6,6 +6,7 @@ if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
 include(CheckCCompilerFlag)
+include(CheckPython)
 include(Variables)
 
 # Portable compilation flags.
@@ -44,13 +45,13 @@ if (WINDOWS)
     set (CXX_JOBS "/MP${COMPILER_JOBS}")
   endif (COMPILER_JOBS STREQUAL "1")
 
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /MDd ${CXX_JOBS} -D_SCL_SECURE_NO_WARNINGS=1"
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi /MDd ${CXX_JOBS} -D_SCL_SECURE_NO_WARNINGS=1"
       CACHE STRING "C++ compiler debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
       "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /MD ${CXX_JOBS} /Ob0 -D_ITERATOR_DEBUG_LEVEL=0"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Oi /Ot /Zo /MD ${CXX_JOBS} /Ob2 /Zc:inline -D_ITERATOR_DEBUG_LEVEL=0"
+      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Oi /Ot /Zi /Zo /MD ${CXX_JOBS} /Ob2 /Zc:inline -D_ITERATOR_DEBUG_LEVEL=0"
       CACHE STRING "C++ compiler release options" FORCE)
 
   if (WORD_SIZE EQUAL 32)
@@ -94,7 +95,7 @@ if (WINDOWS)
       /D_CRT_SECURE_NO_WARNINGS
       /D_CRT_NONSTDC_NO_DEPRECATE
       /D_WINSOCK_DEPRECATED_NO_WARNINGS
-      /DGLM_FORCE_SSE3 # Can be: /DGLM_FORCE_AVX, /DGLM_FORCE_SSE3, /DGLM_FORCE_SSE3,  /DGLM_FORCE_PURE
+      #/DGLM_FORCE_SSE3 # Can be: /DGLM_FORCE_AVX, /DGLM_FORCE_SSE3, /DGLM_FORCE_SSE3,  /DGLM_FORCE_PURE
       #/DGLM_MESSAGES=1 # Enable GLM Messages during compilation
       #/DGLM_FORCE_SWIZZLE=1
       )
@@ -107,9 +108,9 @@ if (WINDOWS)
       /Zc:wchar_t
       /Zc:forScope
       /Zc:rvalueCast
+      /Zc:throwingNew
       /nologo
       /Oy-
-      /Zi
       /fp:fast
       /Zm140
       )

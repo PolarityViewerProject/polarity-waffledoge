@@ -79,7 +79,7 @@ public:
 	void	setDirty();
 
 	void	idleUpdate(bool update_now = false);
-	void	updateGL();
+	void	updateGL() override;
 
 private:
 	// This is in parcel rows and columns, not grid rows and columns
@@ -102,6 +102,7 @@ private:
 	LLViewerRegion*	mRegion;
 
 	S32				mParcelGridsPerEdge;
+	S32				mRegionSize;
 
 	LLPointer<LLViewerTexture> mTexture;
 	LLPointer<LLImageRaw> mImageRaw;

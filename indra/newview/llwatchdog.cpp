@@ -30,13 +30,14 @@
 #include "llviewerprecompiledheaders.h"
 #include "llwatchdog.h"
 #include "llthread.h"
+#include "llwin32headerslean.h"
 
 const U32 WATCHDOG_SLEEP_TIME_USEC = 1000000;
 
 void default_killer_callback()
 {
 #ifdef LL_WINDOWS
-	RaiseException(0,0,0,0);
+	RaiseException(0,0,0,nullptr);
 #else
 	raise(SIGQUIT);
 #endif
@@ -62,7 +63,7 @@ public:
 		mSleepMsecs = 1;
 	}
     
-	/* virtual */ void run()
+	/* virtual */ void run() override
 	{
 		while(!mStopping)
 		{
@@ -97,9 +98,7 @@ void LLWatchdogEntry::stop()
 }
 
 // LLWatchdogTimeout
-// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
-// const std::string UNINIT_STRING = "uninitialized";
-const char *UNINIT_STRING = "uninitialized";
+const std::string UNINIT_STRING = "uninitialized";
 
 LLWatchdogTimeout::LLWatchdogTimeout() : 
 	mTimeout(0.0f),
@@ -126,10 +125,7 @@ void LLWatchdogTimeout::setTimeout(F32 d)
 	mTimeout = d;
 }
 
-// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
-// void LLWatchdogTimeout::start(const std::string& state) 
-void LLWatchdogTimeout::start(const char *state) 
-// </FS:ND>
+void LLWatchdogTimeout::start(const std::string& state) 
 {
     if (mTimeout == 0)
     {
@@ -151,12 +147,9 @@ void LLWatchdogTimeout::stop()
 	mTimer.stop();
 }
 
-// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
-// void LLWatchdogTimeout::ping(const std::string& state) 
-void LLWatchdogTimeout::ping(const char *state) 
-// </FS:ND>
+void LLWatchdogTimeout::ping(const std::string& state) 
 { 
-	if(state)
+	if(!state.empty())
 	{
 		mPingState = state;
 	}
@@ -165,8 +158,8 @@ void LLWatchdogTimeout::ping(const char *state)
 
 // LLWatchdog
 LLWatchdog::LLWatchdog() :
-	mSuspectsAccessMutex(NULL),
-	mTimer(NULL),
+	mSuspectsAccessMutex(nullptr),
+	mTimer(nullptr),
 	mLastClockCount(0),
 	mKillerCallback(&default_killer_callback)
 {
@@ -212,13 +205,13 @@ void LLWatchdog::cleanup()
 	{
 		mTimer->stop();
 		delete mTimer;
-		mTimer = NULL;
+		mTimer = nullptr;
 	}
 
 	if(mSuspectsAccessMutex)
 	{
 		delete mSuspectsAccessMutex;
-		mSuspectsAccessMutex = NULL;
+		mSuspectsAccessMutex = nullptr;
 	}
 
 	mLastClockCount = 0;
@@ -241,7 +234,7 @@ void LLWatchdog::run()
 		LL_INFOS() << "Watchdog thread delayed: resetting entries." << LL_ENDL;
 		std::for_each(mSuspects.begin(), 
 			mSuspects.end(), 
-			std::mem_fun(&LLWatchdogEntry::reset)
+			std::mem_fn(&LLWatchdogEntry::reset)
 			);
 	}
 	else
@@ -249,7 +242,7 @@ void LLWatchdog::run()
 		SuspectsRegistry::iterator result = 
 			std::find_if(mSuspects.begin(), 
 				mSuspects.end(), 
-				std::not1(std::mem_fun(&LLWatchdogEntry::isAlive))
+				std::not1(std::mem_fn(&LLWatchdogEntry::isAlive))
 				);
 		if(result != mSuspects.end())
 		{
@@ -270,7 +263,7 @@ void LLWatchdog::run()
 
 void LLWatchdog::lockThread()
 {
-	if(mSuspectsAccessMutex != NULL)
+	if(mSuspectsAccessMutex != nullptr)
 	{
 		mSuspectsAccessMutex->lock();
 	}
@@ -278,7 +271,7 @@ void LLWatchdog::lockThread()
 
 void LLWatchdog::unlockThread()
 {
-	if(mSuspectsAccessMutex != NULL)
+	if(mSuspectsAccessMutex != nullptr)
 	{
 		mSuspectsAccessMutex->unlock();
 	}

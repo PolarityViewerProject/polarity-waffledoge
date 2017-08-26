@@ -41,15 +41,7 @@
 #include "llavatariconctrl.h"
 #include "lloutputmonitorctrl.h"
 #include "lltooldraganddrop.h"
-
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-
-// [RLVa:KB] - Checked: RLVa-2.0.1
-#include "rlvactions.h"
-#include "rlvcommon.h"
-// [/RLVa:KB]
+#include "llviewercontrol.h" // <alchemy/>
 
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;
@@ -65,7 +57,6 @@ LLAvatarListItem::Params::Params()
 	voice_call_left_style("voice_call_left_style"),
 	online_style("online_style"),
 	offline_style("offline_style"),
-	color_style("color_style"),
 	name_right_pad("name_right_pad", 0)
 {};
 
@@ -73,27 +64,28 @@ LLAvatarListItem::Params::Params()
 LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	: LLPanel(),
 	LLFriendObserver(),
-	mAvatarIcon(NULL),
-	mAvatarName(NULL),
-	mLastInteractionTime(NULL),
-	mIconPermissionOnline(NULL),
-	mIconPermissionMap(NULL),
-	mIconPermissionEditMine(NULL),
-	mIconPermissionEditTheirs(NULL),
-	mSpeakingIndicator(NULL),
-	mInfoBtn(NULL),
-	mProfileBtn(NULL),
+	mSpeakingIndicator(nullptr),
+	mAvatarIcon(nullptr),
+	mIconPermissionOnline(nullptr),
+	mIconPermissionMap(nullptr),
+	mIconPermissionEditMine(nullptr),
+	mIconPermissionEditTheirs(nullptr),
+	mIconPermissionMapTheirs(nullptr),
+	mIconPermissionOnlineTheirs(nullptr),
+	mIconHovered(nullptr),
+	mAvatarName(nullptr),
+	mDistance(nullptr),
+	mLastInteractionTime(nullptr),
+	mInfoBtn(nullptr),
+	mProfileBtn(nullptr),
 	mOnlineStatus(E_UNKNOWN),
 	mShowInfoBtn(true),
 	mShowProfileBtn(true),
-// [RLVa:KB] - Checked: RLVa-1.2.0
-	mRlvCheckShowNames(false),
-// [/RLVa:KB]
 	mShowPermissions(false),
-	mShowCompleteName(false),
 	mHovered(false),
-	mAvatarNameCacheConnection(),
-	mGreyOutUsername("")
+	mShowCompleteName(false),
+	mGreyOutUsername(""),
+	mAvatarNameCacheConnection()
 {
 	if (not_from_ui_factory)
 	{
@@ -120,16 +112,23 @@ BOOL  LLAvatarListItem::postBuild()
 {
 	mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	mAvatarName = getChild<LLTextBox>("avatar_name");
+	mDistance = getChild<LLTextBox>("distance");
 	mLastInteractionTime = getChild<LLTextBox>("last_interaction");
 
 	mIconPermissionOnline = getChild<LLIconCtrl>("permission_online_icon");
 	mIconPermissionMap = getChild<LLIconCtrl>("permission_map_icon");
 	mIconPermissionEditMine = getChild<LLIconCtrl>("permission_edit_mine_icon");
 	mIconPermissionEditTheirs = getChild<LLIconCtrl>("permission_edit_theirs_icon");
-	mIconPermissionOnline->setVisible(false);
-	mIconPermissionMap->setVisible(false);
-	mIconPermissionEditMine->setVisible(false);
-	mIconPermissionEditTheirs->setVisible(false);
+	mIconPermissionMapTheirs = getChild<LLIconCtrl>("permission_map_theirs_icon");
+	mIconPermissionOnlineTheirs = getChild<LLIconCtrl>("permission_online_theirs_icon");
+	mIconPermissionOnline->setVisible(FALSE);
+	mIconPermissionMap->setVisible(FALSE);
+	mIconPermissionEditMine->setVisible(FALSE);
+	mIconPermissionEditTheirs->setVisible(FALSE);
+	mIconPermissionOnlineTheirs->setVisible(FALSE);
+	mIconPermissionMapTheirs->setVisible(FALSE);
+
+	mIconHovered = getChild<LLIconCtrl>("hovered_icon");
 
 	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
 	mInfoBtn = getChild<LLButton>("info_btn");
@@ -156,7 +155,7 @@ BOOL  LLAvatarListItem::postBuild()
 	return TRUE;
 }
 
-void LLAvatarListItem::handleVisibilityChange ( BOOL new_visibility )
+void LLAvatarListItem::onVisibilityChange ( BOOL new_visibility ) // <alchemy/>
 {
     //Adjust positions of icons (info button etc) when 
     //speaking indicator visibility was changed/toggled while panel was closed (not visible)
@@ -191,14 +190,9 @@ S32 LLAvatarListItem::notifyParent(const LLSD& info)
 
 void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	getChildView("hovered_icon")->setVisible( true);
-//	mInfoBtn->setVisible(mShowInfoBtn);
-//	mProfileBtn->setVisible(mShowProfileBtn);
-// [RLVa:KB] - Checked: RLVa-1.2.0
-	bool fRlvCanShowName = (!mRlvCheckShowNames) || (RlvActions::canShowName(RlvActions::SNC_DEFAULT, mAvatarId));
-	mInfoBtn->setVisible( (mShowInfoBtn) && (fRlvCanShowName) );
-	mProfileBtn->setVisible( (mShowProfileBtn) && (fRlvCanShowName) );
-// [/RLVa:KB]
+	mIconHovered->setVisible( true);
+	mInfoBtn->setVisible(mShowInfoBtn);
+	mProfileBtn->setVisible(mShowProfileBtn);
 
 	mHovered = true;
 	LLPanel::onMouseEnter(x, y, mask);
@@ -209,7 +203,7 @@ void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 
 void LLAvatarListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	getChildView("hovered_icon")->setVisible( false);
+	mIconHovered->setVisible( false);
 	mInfoBtn->setVisible(false);
 	mProfileBtn->setVisible(false);
 
@@ -233,16 +227,17 @@ void LLAvatarListItem::changed(U32 mask)
 	}
 }
 
-void LLAvatarListItem::setOnline(bool online, bool show_friend_color)
+void LLAvatarListItem::setOnline(bool online)
 {
 	// *FIX: setName() overrides font style set by setOnline(). Not an issue ATM.
 
-	if (mOnlineStatus != E_UNKNOWN /*&& (bool) mOnlineStatus == online*/) // <polarity> Friend list color bugs
+	if (mOnlineStatus != E_UNKNOWN && (bool) mOnlineStatus == online)
 		return;
 
+	mOnlineStatus = (EOnlineStatus) online;
+
 	// Change avatar name font style depending on the new online status.
-	setState(online ? IS_ONLINE : IS_OFFLINE, show_friend_color);
-	mOnlineStatus = (EOnlineStatus)online;
+	setState(online ? IS_ONLINE : IS_OFFLINE);
 }
 
 void LLAvatarListItem::setAvatarName(const std::string& name)
@@ -260,14 +255,16 @@ void LLAvatarListItem::setHighlight(const std::string& highlight)
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring = highlight);
 }
 
-void LLAvatarListItem::setState(EItemState item_style, bool show_friend_color_b)
+void LLAvatarListItem::setState(EItemState item_style)
 {
 	const LLAvatarListItem::Params& params = LLUICtrlFactory::getDefaultParams<LLAvatarListItem>();
 
-	auto static online_color = LLUIColorTable::getInstance()->getColor("AvatarListItemIconDefaultColor");
-
 	switch(item_style)
 	{
+	default:
+	case IS_DEFAULT:
+		mAvatarNameStyle = params.default_style();
+		break;
 	case IS_VOICE_INVITED:
 		mAvatarNameStyle = params.voice_call_invited_style();
 		break;
@@ -278,18 +275,8 @@ void LLAvatarListItem::setState(EItemState item_style, bool show_friend_color_b)
 		mAvatarNameStyle = params.voice_call_left_style();
 		break;
 	case IS_ONLINE:
-#ifdef PVDATA_SYSTEM
-		// <polarity> override online color if agent has a color
-		mAvatarNameStyle = params.color_style();
-		mAvatarNameStyle.color = PVAgent::getColor(mAvatarId, online_color, show_friend_color_b);
-		mAvatarNameStyle.override_link_style = true;
-#else
 		mAvatarNameStyle = params.online_style();
-#endif
 		break;
-	default:
-		//mAvatarNameStyle = params.default_style();
-		llassert(true == false); // Force assert so that I can figure what went wrong.
 	case IS_OFFLINE:
 		mAvatarNameStyle = params.offline_style();
 		break;
@@ -300,8 +287,8 @@ void LLAvatarListItem::setState(EItemState item_style, bool show_friend_color_b)
 	// hyperlinks, as their styles will be wrong.
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
 
-	//icon_color_map_t& item_icon_color_map = getItemIconColorMap();
-	//mAvatarIcon->setColor(item_icon_color_map[item_style]);
+	icon_color_map_t& item_icon_color_map = getItemIconColorMap();
+	mAvatarIcon->setColor(item_icon_color_map[item_style]);
 }
 
 void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes/* = false*/, bool is_resident/* = true*/)
@@ -323,6 +310,20 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, b
 		// Set avatar name.
 		fetchAvatarName();
 	}
+}
+
+void LLAvatarListItem::showDistance(bool show)
+{
+	mDistance->setVisible(show);
+	updateChildren();
+}
+
+void LLAvatarListItem::setDistance(F32 distance)
+{
+	if (distance == 0)
+		mDistance->setValue(LLStringUtil::null);
+	else
+		mDistance->setValue(llformat("%0.1fm", distance));
 }
 
 void LLAvatarListItem::showLastInteractionTime(bool show)
@@ -382,18 +383,12 @@ void LLAvatarListItem::onProfileBtnClick()
 
 BOOL LLAvatarListItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-//	if(mInfoBtn->getRect().pointInRect(x, y))
-// [RVLa:KB] - Checked: RLVa-1.2.2
-	if ( (mInfoBtn->getVisible()) && (mInfoBtn->getEnabled()) && (mInfoBtn->getRect().pointInRect(x, y)) )
-// [/SL:KB]
+	if(mInfoBtn->getRect().pointInRect(x, y))
 	{
 		onInfoBtnClick();
 		return TRUE;
 	}
-//	if(mProfileBtn->getRect().pointInRect(x, y))
-// [RLVa:KB] - Checked: RLVa-1.2.2
-	if ( (mProfileBtn->getVisible()) && (mProfileBtn->getEnabled()) && (mProfileBtn->getRect().pointInRect(x, y)) )
-// [/SL:KB]
+	if(mProfileBtn->getRect().pointInRect(x, y))
 	{
 		onProfileBtnClick();
 		return TRUE;
@@ -453,20 +448,32 @@ void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 	    mGreyOutUsername = "[ " + av_name.getUserName(true) + " ]";
 	    LLStringUtil::toLower(mGreyOutUsername);
 	}
-//	setAvatarName(name_string);
-//	setAvatarToolTip(av_name.getUserName());
-// [RLVa:KB] - Checked: RLVa-1.2.2
-	bool fRlvCanShowName = (!mRlvCheckShowNames) || (RlvActions::canShowName(RlvActions::SNC_DEFAULT, mAvatarId));
-
-	setAvatarName( (fRlvCanShowName) ?  name_string : RlvStrings::getAnonym(av_name) );
-	setAvatarToolTip( (fRlvCanShowName) ? av_name.getUserName() : RlvStrings::getAnonym(av_name) );
-	// TODO-RLVa: bit of a hack putting this here. Maybe find a better way?
-	mAvatarIcon->setDrawTooltip(fRlvCanShowName);
-// [/RLVa:KB]
+	setAvatarName(name_string);
+	setAvatarToolTip(av_name.getUserName());
 
 	//requesting the list to resort
 	notifyParent(LLSD().with("sort", LLSD()));
 }
+
+// <alchemy>
+// static
+std::string LLAvatarListItem::formatAvatarName(const LLAvatarName& av_name)
+{
+	static LLCachedControl<U32> control(gSavedSettings, "AlchemyAvatarListNameFormat", 0);
+	switch (control)
+	{
+	default:
+	case 0:
+		return av_name.getDisplayName();
+	case 1:
+		return av_name.getCompleteName();
+	case 2:
+		return av_name.getUserName();
+	case 3:
+		return av_name.getAccountName();
+	}
+}
+// </alchemy>
 
 // Convert given number of seconds to a string like "23 minutes", "15 hours" or "3 years",
 // taking i18n into account. The format string to use is taken from the panel XML.
@@ -523,6 +530,10 @@ LLAvatarListItem::icon_color_map_t& LLAvatarListItem::getItemIconColorMap()
 	if (!item_icon_color_map.empty()) return item_icon_color_map;
 
 	item_icon_color_map.insert(
+		std::make_pair(IS_DEFAULT,
+		LLUIColorTable::instance().getColor("AvatarListItemIconDefaultColor", LLColor4::white)));
+
+	item_icon_color_map.insert(
 		std::make_pair(IS_VOICE_INVITED,
 		LLUIColorTable::instance().getColor("AvatarListItemIconVoiceInvitedColor", LLColor4::white)));
 
@@ -569,8 +580,13 @@ void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
 	// edit their objects permission icon width + padding
 	S32 permission_edit_theirs_width = avatar_item->mIconPermissionEditMine->getRect().mLeft - avatar_item->mIconPermissionEditTheirs->getRect().mLeft;
 
+	S32 permission_map_theirs_width = avatar_item->mIconPermissionEditTheirs->getRect().mLeft - avatar_item->mIconPermissionMapTheirs->getRect().mLeft;
+	S32 permission_online_theirs_width = avatar_item->mIconPermissionMapTheirs->getRect().mLeft - avatar_item->mIconPermissionOnlineTheirs->getRect().mLeft;
+
 	// last interaction time textbox width + padding
-	S32 last_interaction_time_width = avatar_item->mIconPermissionEditTheirs->getRect().mLeft - avatar_item->mLastInteractionTime->getRect().mLeft;
+	S32 last_interaction_time_width = avatar_item->mIconPermissionOnlineTheirs->getRect().mLeft - avatar_item->mLastInteractionTime->getRect().mLeft;
+	
+	S32 distance_width = avatar_item->mIconPermissionOnlineTheirs->getRect().mLeft - avatar_item->mDistance->getRect().mLeft;
 
 	// avatar icon width + padding
 	S32 icon_width = avatar_item->mAvatarName->getRect().mLeft - avatar_item->mAvatarIcon->getRect().mLeft;
@@ -580,7 +596,10 @@ void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
 	S32 index = ALIC_COUNT;
 	sChildrenWidths[--index] = icon_width;
 	sChildrenWidths[--index] = 0; // for avatar name we don't need its width, it will be calculated as "left available space"
+	sChildrenWidths[--index] = distance_width;
 	sChildrenWidths[--index] = last_interaction_time_width;
+	sChildrenWidths[--index] = permission_online_theirs_width;
+	sChildrenWidths[--index] = permission_map_theirs_width;
 	sChildrenWidths[--index] = permission_edit_theirs_width;
 	sChildrenWidths[--index] = permission_edit_mine_width;
 	sChildrenWidths[--index] = permission_map_width;
@@ -676,6 +695,8 @@ bool LLAvatarListItem::showPermissions(bool visible)
 		mIconPermissionMap->setVisible(relation->isRightGrantedTo(LLRelationship::GRANT_MAP_LOCATION));
 		mIconPermissionEditMine->setVisible(relation->isRightGrantedTo(LLRelationship::GRANT_MODIFY_OBJECTS));
 		mIconPermissionEditTheirs->setVisible(relation->isRightGrantedFrom(LLRelationship::GRANT_MODIFY_OBJECTS));
+		mIconPermissionOnlineTheirs->setVisible(relation->isRightGrantedFrom(LLRelationship::GRANT_ONLINE_STATUS));
+		mIconPermissionMapTheirs->setVisible(relation->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION));
 	}
 	else
 	{
@@ -683,9 +704,11 @@ bool LLAvatarListItem::showPermissions(bool visible)
 		mIconPermissionMap->setVisible(false);
 		mIconPermissionEditMine->setVisible(false);
 		mIconPermissionEditTheirs->setVisible(false);
+		mIconPermissionOnlineTheirs->setVisible(false);
+		mIconPermissionMapTheirs->setVisible(false);
 	}
 
-	return NULL != relation;
+	return nullptr != relation;
 }
 
 LLView* LLAvatarListItem::getItemChildView(EAvatarListItemChildIndex child_view_index)
@@ -699,6 +722,9 @@ LLView* LLAvatarListItem::getItemChildView(EAvatarListItemChildIndex child_view_
 		break;
 	case ALIC_NAME:
 		child_view = mAvatarName;
+		break;
+	case ALIC_DISTANCE:
+		child_view = mDistance;
 		break;
 	case ALIC_INTERACTION_TIME:
 		child_view = mLastInteractionTime;
@@ -717,6 +743,12 @@ LLView* LLAvatarListItem::getItemChildView(EAvatarListItemChildIndex child_view_
 		break;
 	case ALIC_PERMISSION_EDIT_THEIRS:
 		child_view = mIconPermissionEditTheirs;
+		break;
+	case ALIC_PERMISSION_MAP_THEIRS:
+		child_view = mIconPermissionMapTheirs;
+		break;
+	case ALIC_PERMISSION_ONLINE_THEIRS:
+		child_view = mIconPermissionOnlineTheirs;
 		break;
 	case ALIC_INFO_BUTTON:
 		child_view = mInfoBtn;

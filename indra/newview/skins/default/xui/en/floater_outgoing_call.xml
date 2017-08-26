@@ -10,7 +10,7 @@
  help_topic="outgoing_call"
  sound_flags="0"
  save_dock_state="true"
- title="Calling"
+ title="CALLING"
  width="410">
     <floater.string
      name="lifetime">
@@ -49,8 +49,7 @@
      top="35"
      width="36" />
     <text
-     font="SansSerif"
-     font.size="Large"
+     font="SansSerifLarge"
      height="20"
      layout="topleft"
      left="77"
@@ -62,8 +61,7 @@
 Connecting to [CALLEE_NAME]
     </text>
     <text
-     font="SansSerif"
-     font.size="Large"
+     font="SansSerifLarge"
      height="20"
      layout="topleft"
      left="77"
@@ -74,8 +72,7 @@ Connecting to [CALLEE_NAME]
 Calling [CALLEE_NAME]
     </text>
     <text
-     font="SansSerif"
-     font.size="Large"
+     font="SansSerifLarge"
      height="20"
      layout="topleft"
      left="77"
@@ -86,8 +83,7 @@ Calling [CALLEE_NAME]
 No Answer.  Please try again later.
     </text>
   <text
-   font="SansSerif"
-   font.size="Large"
+   font="SansSerifLarge"
    height="40"
    layout="topleft"
    left="77"
@@ -98,8 +94,7 @@ No Answer.  Please try again later.
     You have been disconnected from [VOICE_CHANNEL_NAME].  [RECONNECT_NEARBY]
   </text>
   <text
-   font="SansSerif"
-   font.size="Large"
+   font="SansSerifLarge"
    height="40"
    layout="topleft"
    left="77"
@@ -110,8 +105,7 @@ No Answer.  Please try again later.
     Your call has ended.  [RECONNECT_NEARBY]
   </text>
   <text
-   font="SansSerif"
-   font.size="Large"
+   font="SansSerifLarge"
    height="40"
    layout="topleft"
    left="77"

@@ -54,14 +54,14 @@ public:
 		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(gAgent.getID());
 	}
 
-	typedef boost::function<void(LLAvatarPicks*)> server_respond_callback_t;
+	typedef std::function<void(LLAvatarPicks*)> server_respond_callback_t;
 
 	void setServerRespondCallback(const server_respond_callback_t& cb)
 	{
 		mServerRespondCallback = cb;
 	}
 
-	virtual void processProperties(void* data, EAvatarProcessorType type)
+	void processProperties(void* data, EAvatarProcessorType type) override
 	{
 		if(APT_PICKS == type)
 		{
@@ -86,7 +86,7 @@ private:
 //////////////////////////////////////////////////////////////////////////
 
 LLAgentPicksInfo::LLAgentPicksInfo()
- : mAgentPicksObserver(NULL)
+ : mAgentPicksObserver(nullptr)
  , mMaxNumberOfPicks(MAX_AVATAR_PICKS)
  // Disable Pick creation until we get number of Picks from server - in case 
  // avatar has maximum number of Picks.

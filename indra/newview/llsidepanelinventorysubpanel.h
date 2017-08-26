@@ -43,15 +43,16 @@ public:
 	LLSidepanelInventorySubpanel(const LLPanel::Params& p = getDefaultParams());
 	virtual ~LLSidepanelInventorySubpanel();
 
-	/*virtual*/ void setVisible(BOOL visible);
-	virtual BOOL postBuild();
-	virtual void draw();
+	void setVisible(BOOL visible) override;
+	BOOL postBuild() override;
+	void draw() override;
 	virtual void reset();
 
 	void dirty();
 	void setIsEditing(BOOL edit);
+
 protected:
-	virtual void refresh() = 0;
+	void refresh() override = 0;
 	virtual void save() = 0;
 	virtual void updateVerbs();
 	
@@ -60,7 +61,6 @@ protected:
 	//
 	// UI Elements
 	// 
-protected:
 	void 						onEditButtonClicked();
 	void 						onSaveButtonClicked();
 	void 						onCancelButtonClicked();

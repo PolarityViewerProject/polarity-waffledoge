@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+background_visible="true"
 default_tab_group="1"
 follows="all"
-height="555"
+height="570"
 label="Outfits"
 layout="topleft"
 min_height="350"
@@ -10,7 +11,7 @@ min_width="240"
 name="appearance panel"
 top="0"
 left="0"
-width="320">
+width="333">
    <string
    name="No Outfit"
    value="No Outfit" />
@@ -24,46 +25,63 @@ width="320">
    name="Changing outfits"
    value="Changing outfits" />
    <panel
+   background_opaque="true"
    background_visible="true"
    bg_opaque_color="DkGray2"
-   left="5"
-   top="0"
+   left="10"
+   top="5"
    follows="left|top|right"
    layout="topleft"
-   right="-2"
-   height="33"
+   width="303"
+   height="35"
    name="panel_currentlook"
    >
-      <loading_indicator
-      follows="top|right"
-      height="18"
+      <button
+      follows="left|top"
+      left="205" top="7" width="20" height="20"
+      label="E"
       layout="topleft"
-      left_delta="0"
-      name="wearables_loading_indicator"
+      name="editappearance_btn"
+      visible="false" />
+      <button
+      follows="left|top"
+      left="235" top="7" width="20" height="20"
+      label="O"
+      layout="topleft"
+      name="openoutfit_btn"
+      visible="false" />
+      <icon
+      follows="top|left"
+      height="31"
+      image_name="Shirt_Large"
+      name="outfit_icon"
+      mouse_opaque="false"
+      visible="true"
+      left="1"
       top="0"
-      width="18" />
+      width="31" />
       <text
-      font="SansSerif"
+      font="SansSerifSmall"
+      text_color="EmphasisColor"
       width="300"
-      height="15"
+      height="10"
       follows="top|left|right"
       layout="topleft"
-      left_pad="5"
-      top="3"
+      left="35"
+      top="1"
       mouse_opaque="false"
       name="currentlook_status" >
-      Unsaved Changes
+      (Status)
       </text>
       <text
-      font="SansSerif"
-      font.size="Small"
-      height="15"
-      left="2"
+      font="SansSerifLargeBold"
+      height="20"
+      left="35"
       parse_urls="false"
       text_color="White"
-      top_pad="0"
+      top="13"
       use_ellipses="true"
-      width="310"
+      width="230"
       follows="top|left|right"
       word_wrap="false"
       mouse_opaque="false"
@@ -76,48 +94,42 @@ width="320">
       image_overlay="Edit_Wrench"
       label=""
       layout="topleft"
+      left="265"
       name="edit_outfit_btn"
       tool_tip="Edit this outfit"
-      right="-2"
       top="3"
       width="28" />
-      <button
-      follows="left|top"
-      top_delta="0" width="28" height="28"
-      label="E"
+      <loading_indicator
+      follows="top|right"
+      height="24"
       layout="topleft"
-      name="editappearance_btn"
-      visible="false" />
-      <button
-      follows="left|top"
-      top_delta="0" width="28" height="28"
-      label="O"
-      layout="topleft"
-      name="openoutfit_btn"
-      visible="false" />
+      left="268"
+      name="wearables_loading_indicator"
+      top="6"
+      width="24" />
    </panel>
    <filter_editor
    height="23"
    follows="left|top|right"
    layout="topleft"
-   left="5"
+   left="10"
    label="Filter Outfits"
    max_length_chars="300"
    name="Filter"
-   right="-3"
    search_button_visible="true"
-   top_pad="1" />
+   top_pad="10"
+   width="303" />
    <panel
    class="panel_outfits_inventory"
    filename="panel_outfits_inventory.xml"
    name="panel_outfits_inventory"
    height="493"
    min_height="410"
+   width="320"
    visible="false"
    left="0"
-   right="-1"
    tab_group="1"
-   top_pad="0"
+   top_pad="6"
    follows="all" />
   <!--   <button
 	  follows="bottom|left"
@@ -131,11 +143,11 @@ width="320">
    <panel
    class="panel_outfit_edit"
    filename="panel_outfit_edit.xml"
-   height="552"
+   height="565"
    follows="all"
    layout="topleft"
    left="5"
-   min_height="420"
+   min_height="410"
    name="panel_outfit_edit"
    top="2"
    visible="false" 

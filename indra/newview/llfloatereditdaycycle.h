@@ -47,12 +47,10 @@ class LLFloaterEditDayCycle : public LLFloater
 public:
 	LLFloaterEditDayCycle(const LLSD &key);
 
-	/*virtual*/	BOOL	postBuild();
-	/*virtual*/ void	onOpen(const LLSD& key);
-	/*virtual*/ void	draw();
-	/// when user hits the delete preset button
-	void onDeletePreset();
-	void onDeleteDayCycleConfirmation();
+	/*virtual*/	BOOL	postBuild() override;
+	/*virtual*/ void	onOpen(const LLSD& key) override;
+	/*virtual*/ void	onClose(bool app_quitting) override;
+	/*virtual*/ void	draw() override;
 
 private:
 
@@ -131,7 +129,6 @@ private:
 	LLTimeCtrl*			mTimeCtrl;
 	LLCheckBoxCtrl*		mMakeDefaultCheckBox;
 	LLButton*			mSaveButton;
-	LLButton*		 mDeleteButton;
 
 	// map of sliders to parameters
 	std::map<std::string, SliderKey> mSliderToKey;

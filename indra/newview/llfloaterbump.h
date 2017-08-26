@@ -29,9 +29,9 @@
 #define LL_LLFLOATERBUMP_H
 
 #include "llfloater.h"
-#include "llmenugl.h"
 
 class LLMeanCollisionData;
+class LLMenuGL;
 class LLScrollListCtrl;
 
 class LLFloaterBump 
@@ -43,8 +43,8 @@ protected:
 	void onScrollListRightClicked(LLUICtrl* ctrl, S32 x, S32 y);
 
 public:
-	/*virtual*/	BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/	BOOL postBuild() override;
+	/*virtual*/ void onOpen(const LLSD& key) override;
 	
 	static LLFloaterBump* getInstance();
 
@@ -68,7 +68,7 @@ private:
 	virtual ~LLFloaterBump();
 
 	LLScrollListCtrl* mList;
-	LLMenuGL* mPopupMenu;
+	LLHandle<LLContextMenu> mPopupMenuHandle;
 	LLUUID mItemUUID;
 
 	typedef std::map<LLUUID, std::string> uuid_map_t;

@@ -12,6 +12,20 @@
  layout="topleft"
  name="volumepulldown_floater"
  width="225">
+    <button
+     left="200"
+     top_pad="9"
+     width="12"
+     height="12"
+     follows="top|left"
+     name="prefs_btn"
+     image_unselected="Icon_Gear_Foreground"
+     image_disabled="Icon_Gear_Background"
+     image_pressed="Icon_Gear_Press"
+     scale_image="false">
+     <button.commit_callback
+      function="Vol.GoAudioPrefs" />
+    </button> 
       <slider
      control_name="AudioLevelMaster"
      follows="top|left"
@@ -24,12 +38,12 @@
      left="10"
      width="160"
      layout="topleft"
-     name="System Volume"
+     name="mastervolume"
      show_text="false"
      top="10"
      volume="true">
         <slider.commit_callback
-         function="Pref.setControlFalse"
+         function="Vol.setControlFalse"
          parameter="MuteAudio" />
     </slider>
     <button
@@ -61,7 +75,7 @@
         top_pad="4"
         volume="true">
     <slider.commit_callback
-        function="Pref.setControlFalse"
+        function="Vol.setControlFalse"
         parameter="MuteUI" />
     </slider>
     <button
@@ -92,11 +106,7 @@
      name="Wind Volume"
      show_text="false"
      top_pad="4"
-     volume="true">
-        <slider.commit_callback
-         function="Pref.setControlFalse"
-         parameter="MuteAmbient" />
-    </slider>
+     volume="true"/>
     <button
      control_name="MuteAmbient"
      disabled_control="MuteAudio"
@@ -127,7 +137,7 @@
      top_pad="4"
      volume="true">
         <slider.commit_callback
-         function="Pref.setControlFalse"
+         function="Vol.setControlFalse"
          parameter="MuteSounds" />
     </slider>
     <button
@@ -144,11 +154,11 @@
      tab_stop="false"
      width="16">
       <button.commit_callback
-      function="Pref.SetSounds"/>
+      function="Vol.SetSounds"/>
     </button>
   <check_box
     name="gesture_audio_play_btn"
-		control_name="EnableGestureSounds"
+    control_name="EnableGestureSounds"
     disabled_control="MuteAudio"
     height="16"
     layout="topleft"
@@ -173,7 +183,7 @@
      top_pad="4"
      volume="true">
         <slider.commit_callback
-         function="Pref.setControlFalse"
+         function="Vol.setControlFalse"
          parameter="MuteMusic" />
     </slider>
     <button
@@ -197,10 +207,7 @@
         left_pad="5"
         name="enable_music"
         top_delta="2"
-        width="350">
-        <check_box.commit_callback
-            function="Pref.updateMediaAutoPlayCheckbox"/>
-    </check_box>
+        width="350"/>
     <slider
         control_name="AudioLevelMedia"
         disabled_control="MuteAudio"
@@ -218,7 +225,7 @@
         top_pad="4"
         volume="true">
       <slider.commit_callback
-        function="Pref.setControlFalse"
+        function="Vol.setControlFalse"
         parameter="MuteMedia" />
     </slider>
     <button
@@ -244,10 +251,7 @@
         top_delta="2"
         left_pad="5"
         name="enable_media"
-        width="110">
-        <check_box.commit_callback
-            function="Pref.updateMediaAutoPlayCheckbox"/>
-    </check_box>
+        width="110"/>
     <slider
         control_name="AudioLevelVoice"
         disabled_control="MuteAudio"
@@ -265,7 +269,7 @@
         show_text="false"
         volume="true">
     <slider.commit_callback
-        function="Pref.setControlFalse"
+        function="Vol.setControlFalse"
         parameter="MuteVoice" />
     </slider>
     <button

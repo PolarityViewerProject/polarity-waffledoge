@@ -51,10 +51,10 @@ class LLPanelSnapshotInventoryBase
 public:
     LLPanelSnapshotInventoryBase();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild() override;
 protected:
     void onSend();
-    /*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType();
+    /*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType() override;
 };
 
 class LLPanelSnapshotInventory
@@ -64,18 +64,18 @@ class LLPanelSnapshotInventory
 
 public:
 	LLPanelSnapshotInventory();
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void onOpen(const LLSD& key) override;
 
 	void onResolutionCommit(LLUICtrl* ctrl);
 
 private:
-	/*virtual*/ std::string getWidthSpinnerName() const		{ return "inventory_snapshot_width"; }
-	/*virtual*/ std::string getHeightSpinnerName() const	{ return "inventory_snapshot_height"; }
-	/*virtual*/ std::string getAspectRatioCBName() const	{ return "inventory_keep_aspect_check"; }
-	/*virtual*/ std::string getImageSizeComboName() const	{ return "texture_size_combo"; }
-	/*virtual*/ std::string getImageSizePanelName() const	{ return LLStringUtil::null; }
-	/*virtual*/ void updateControls(const LLSD& info);
+	/*virtual*/ std::string getWidthSpinnerName() const override { return "inventory_snapshot_width"; }
+	/*virtual*/ std::string getHeightSpinnerName() const override { return "inventory_snapshot_height"; }
+	/*virtual*/ std::string getAspectRatioCBName() const override { return "inventory_keep_aspect_check"; }
+	/*virtual*/ std::string getImageSizeComboName() const override { return "texture_size_combo"; }
+	/*virtual*/ std::string getImageSizePanelName() const override { return LLStringUtil::null; }
+	/*virtual*/ void updateControls(const LLSD& info) override;
 
 };
 
@@ -86,18 +86,18 @@ class LLPanelOutfitSnapshotInventory
 
 public:
     LLPanelOutfitSnapshotInventory();
-    	/*virtual*/ BOOL postBuild();
-    	/*virtual*/ void onOpen(const LLSD& key);
+    	/*virtual*/ BOOL postBuild() override;
+    	/*virtual*/ void onOpen(const LLSD& key) override;
         
 private:
-    /*virtual*/ std::string getWidthSpinnerName() const		{ return ""; }
-    /*virtual*/ std::string getHeightSpinnerName() const	{ return ""; }
-    /*virtual*/ std::string getAspectRatioCBName() const	{ return ""; }
-    /*virtual*/ std::string getImageSizeComboName() const	{ return "texture_size_combo"; }
-    /*virtual*/ std::string getImageSizePanelName() const	{ return LLStringUtil::null; }
-    /*virtual*/ void updateControls(const LLSD& info);
+    /*virtual*/ std::string getWidthSpinnerName() const override { return ""; }
+    /*virtual*/ std::string getHeightSpinnerName() const override { return ""; }
+    /*virtual*/ std::string getAspectRatioCBName() const override { return ""; }
+    /*virtual*/ std::string getImageSizeComboName() const override { return "texture_size_combo"; }
+    /*virtual*/ std::string getImageSizePanelName() const override { return LLStringUtil::null; }
+    /*virtual*/ void updateControls(const LLSD& info) override;
 
-    /*virtual*/ void cancel();
+    /*virtual*/ void cancel() override;
 };
 
 static LLPanelInjector<LLPanelSnapshotInventory> panel_class1("llpanelsnapshotinventory");
@@ -150,7 +150,7 @@ void LLPanelSnapshotInventory::updateControls(const LLSD& info)
 
 void LLPanelSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
 {
-	BOOL current_window_selected = (getChild<LLComboBox>(getImageSizeComboName())->getCurrentIndex() == 3);
+	BOOL current_window_selected = (getChild<LLComboBox>(getImageSizeComboName())->getCurrentIndex() == 4);
 	getChild<LLSpinCtrl>(getWidthSpinnerName())->setVisible(!current_window_selected);
 	getChild<LLSpinCtrl>(getHeightSpinnerName())->setVisible(!current_window_selected);
 }

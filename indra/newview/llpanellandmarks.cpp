@@ -3,6 +3,7 @@
 /**
  * @file llpanellandmarks.cpp
  * @brief Landmarks tab for Side Bar "Places" panel
+ * @note This panel is incredibly evil.
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -47,7 +48,6 @@
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
-#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "llinventoryfunctions.h"
 #include "lllandmarkactions.h"
@@ -58,16 +58,12 @@
 #include "lltoggleablemenu.h"
 #include "llviewermenu.h"
 #include "llviewerregion.h"
-// [RLVa:KB]
-#include "rlvhandler.h"
-// [/RLVa:KB]
 
 // Not yet implemented; need to remove buildPanel() from constructor when we switch
 //static LLRegisterPanelClassWrapper<LLLandmarksPanel> t_landmarks("panel_landmarks");
 
 static const std::string OPTIONS_BUTTON_NAME = "options_gear_btn";
 static const std::string ADD_BUTTON_NAME = "add_btn";
-static const std::string ADD_FOLDER_BUTTON_NAME = "add_folder_btn";
 static const std::string TRASH_BUTTON_NAME = "trash_btn";
 
 
@@ -92,8 +88,8 @@ public:
 		mExpandedFolders(0)
 	{}
 	virtual ~LLCheckFolderState() {}
-	virtual void doFolder(LLFolderViewFolder* folder);
-	virtual void doItem(LLFolderViewItem* item) {}
+	void doFolder(LLFolderViewFolder* folder) override;
+	void doItem(LLFolderViewItem* item) override {}
 	S32 getCollapsedFolders() { return mCollapsedFolders; }
 	S32 getExpandedFolders() { return mExpandedFolders; }
 
@@ -121,39 +117,6 @@ void LLCheckFolderState::doFolder(LLFolderViewFolder* folder)
 	}
 }
 
-// Functor searching and opening a folder specified by UUID
-// in a folder view tree.
-class LLOpenFolderByID : public LLFolderViewFunctor
-{
-public:
-	LLOpenFolderByID(const LLUUID& folder_id)
-	:	mFolderID(folder_id)
-	,	mIsFolderOpen(false)
-	{}
-	virtual ~LLOpenFolderByID() {}
-	/*virtual*/ void doFolder(LLFolderViewFolder* folder);
-	/*virtual*/ void doItem(LLFolderViewItem* item) {}
-
-	bool isFolderOpen() { return mIsFolderOpen; }
-
-private:
-	bool	mIsFolderOpen;
-	LLUUID	mFolderID;
-};
-
-// virtual
-void LLOpenFolderByID::doFolder(LLFolderViewFolder* folder)
-{
-	if (folder->getViewModelItem() && static_cast<LLFolderViewModelItemInventory*>(folder->getViewModelItem())->getUUID() == mFolderID)
-	{
-		if (!folder->isOpen())
-		{
-			folder->setOpen(TRUE);
-			mIsFolderOpen = true;
-		}
-	}
-}
-
 /**
  * Bridge to support knowing when the inventory has changed to update Landmarks tab
  * ShowFolderState filter setting to show all folders when the filter string is empty and
@@ -167,7 +130,7 @@ public:
 	:	mLP(lp)
 	{}
 	virtual ~LLLandmarksPanelObserver() {}
-	/*virtual*/ void changed(U32 mask);
+	/*virtual*/ void changed(U32 mask) override;
 
 private:
 	LLLandmarksPanel* mLP;
@@ -180,13 +143,14 @@ void LLLandmarksPanelObserver::changed(U32 mask)
 
 LLLandmarksPanel::LLLandmarksPanel()
 	:	LLPanelPlacesTab()
-	,	mFavoritesInventoryPanel(NULL)
-	,	mLandmarksInventoryPanel(NULL)
-	,	mCurrentSelectedList(NULL)
-	,	mListCommands(NULL)
-	,	mGearButton(NULL)
-	,	mGearFolderMenu(NULL)
-	,	mGearLandmarkMenu(NULL)
+	,	mFavoritesInventoryPanel(nullptr)
+	,	mLandmarksInventoryPanel(nullptr)
+	//,	mMyInventoryPanel(NULL)
+	,	mGearButton(nullptr)
+	,	mGearLandmarkMenu(nullptr)
+	,	mGearFolderMenu(nullptr)
+	,	mCurrentSelectedList(nullptr)
+	,	mListCommands(nullptr)
 {
 	mInventoryObserver = new LLLandmarksPanelObserver(this);
 	gInventory.addObserver(mInventoryObserver);
@@ -205,14 +169,12 @@ LLLandmarksPanel::~LLLandmarksPanel()
 
 BOOL LLLandmarksPanel::postBuild()
 {
-	if (!gInventory.isInventoryUsable())
-		return FALSE;
-
 	// mast be called before any other initXXX methods to init Gear menu
 	initListCommandsHandlers();
 
 	initFavoritesInventoryPanel();
 	initLandmarksInventoryPanel();
+	//initMyInventoryPanel();
 
 	return TRUE;
 }
@@ -233,7 +195,7 @@ void LLLandmarksPanel::onSearchEdit(const std::string& string)
 		}
 
 		LLPlacesInventoryPanel* inventory_list = dynamic_cast<LLPlacesInventoryPanel*>(tab->getAccordionView());
-		if (NULL == inventory_list) continue;
+		if (nullptr == inventory_list) continue;
 
 		filter_list(inventory_list, string);
 	}
@@ -249,7 +211,7 @@ void LLLandmarksPanel::onSearchEdit(const std::string& string)
 // virtual
 void LLLandmarksPanel::onShowOnMap()
 {
-	if (NULL == mCurrentSelectedList)
+	if (nullptr == mCurrentSelectedList)
 	{
 		LL_WARNS() << "There are no selected list. No actions are performed." << LL_ENDL;
 		return;
@@ -289,7 +251,7 @@ bool LLLandmarksPanel::isSingleItemSelected()
 {
 	bool result = false;
 
-	if (mCurrentSelectedList != NULL)
+	if (mCurrentSelectedList != nullptr)
 	{
 		LLFolderView* root_view = mCurrentSelectedList->getRootFolder();
 
@@ -373,6 +335,11 @@ void LLLandmarksPanel::setItemSelected(const LLUUID& obj_id, BOOL take_keyboard_
 	{
 		return;
 	}
+
+	//if (selectItemInAccordionTab(mMyInventoryPanel, "tab_inventory", obj_id, take_keyboard_focus))
+	//{
+	//	return;
+	//}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -428,7 +395,7 @@ LLFolderViewModelItemInventory* LLLandmarksPanel::getCurSelectedViewModelItem() 
 	{
 		return 	static_cast<LLFolderViewModelItemInventory*>(cur_item->getViewModelItem());
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -438,13 +405,13 @@ LLFolderViewItem* LLLandmarksPanel::selectItemInAccordionTab(LLPlacesInventoryPa
 															 BOOL take_keyboard_focus) const
 {
 	if (!inventory_list)
-		return NULL;
+		return nullptr;
 
 	LLFolderView* root = inventory_list->getRootFolder();
 
 	LLFolderViewItem* item = inventory_list->getItemByID(obj_id);
 	if (!item)
-		return NULL;
+		return nullptr;
 
 	LLAccordionCtrlTab* tab = getChild<LLAccordionCtrlTab>(tab_name);
 	if (!tab->isExpanded())
@@ -538,6 +505,15 @@ void LLLandmarksPanel::initLandmarksInventoryPanel()
 	mMyLandmarksAccordionTab = initAccordion("tab_landmarks", mLandmarksInventoryPanel, true);
 }
 
+//void LLLandmarksPanel::initMyInventoryPanel()
+//{
+//	mMyInventoryPanel= getChild<LLPlacesInventoryPanel>("my_inventory_list");
+//
+//	initLandmarksPanel(mMyInventoryPanel);
+//
+//	initAccordion("tab_inventory", mMyInventoryPanel, false);
+//}
+
 void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list)
 {
 	inventory_list->getFilter().setEmptyLookupMessage("PlacesNoMatchingItems");
@@ -579,24 +555,13 @@ void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLPlacesI
 	{
 		inventory_list->getRootFolder()->clearSelection();
 
-		mCurrentSelectedList = NULL;
+		mCurrentSelectedList = nullptr;
 		updateVerbs();
 	}
 
 	// Start background fetch, mostly for My Inventory and Library
 	if (expanded)
 	{
-		const LLUUID &cat_id = inventory_list->getRootFolderID();
-		// Just because the category itself has been fetched, doesn't mean its child folders have.
-		/*
-		  if (!gInventory.isCategoryComplete(cat_id))
-		*/
-		{
-			LLInventoryModelBackgroundFetch::instance().start(cat_id);
-		}
-
-		// Apply filter substring because it might have been changed
-		// while accordion was closed. See EXT-3714.
 		filter_list(inventory_list, sFilterSubString);
 	}
 }
@@ -612,6 +577,10 @@ void LLLandmarksPanel::deselectOtherThan(const LLPlacesInventoryPanel* inventory
 	{
 		mLandmarksInventoryPanel->clearSelection();
 	}
+	//if (inventory_list != mMyInventoryPanel)
+	//{
+	//	mMyInventoryPanel->clearSelection();
+	//}
 }
 
 // List Commands Handlers
@@ -651,11 +620,9 @@ void LLLandmarksPanel::initListCommandsHandlers()
 
 void LLLandmarksPanel::updateListCommands()
 {
-	bool add_folder_enabled = isActionEnabled("category");
 	bool trash_enabled = isActionEnabled("delete") && (isFolderSelected() || isLandmarkSelected());
 
 	// keep Options & Add Landmark buttons always enabled
-	mListCommands->getChildView(ADD_FOLDER_BUTTON_NAME)->setEnabled(add_folder_enabled);
 	mListCommands->getChildView(TRASH_BUTTON_NAME)->setEnabled(trash_enabled);
 }
 
@@ -714,28 +681,21 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 	std::string command_name = userdata.asString();
 	if("add_landmark" == command_name)
 	{
-// [RLVa:KB] - Checked: 2012-02-08 (RLVa-1.4.5) | Added: RLVa-1.4.5
-		if (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
+		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
+		if(landmark)
 		{
-// [/RLVa:KB]
-			LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
-			if(landmark)
-			{
-				LLNotificationsUtil::add("LandmarkAlreadyExists");
-			}
-			else
-			{
-				LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
-			}
-// [RLVa:KB] - Checked: 2012-02-08 (RLVa-1.4.5) | Added: RLVa-1.4.5
+			LLNotificationsUtil::add("LandmarkAlreadyExists");
 		}
-// [/RLVa:KB]
+		else
+		{
+			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
+		}
 	} 
 	else if ("category" == command_name)
 	{
 		if (item && mCurrentSelectedList == mLandmarksInventoryPanel)
 		{
-			LLFolderViewModelItem* folder_bridge = NULL;
+			LLFolderViewModelItem* folder_bridge = nullptr;
 
 			if (view_model->getInventoryType()
 					== LLInventoryType::IT_LANDMARK)
@@ -758,7 +718,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 		else
 		{
 			//in case My Landmarks tab is completely empty (thus cannot be determined as being selected)
-			menu_create_inventory_item(mLandmarksInventoryPanel, NULL,  LLSD("category"), 
+			menu_create_inventory_item(mLandmarksInventoryPanel, nullptr,  LLSD("category"), 
 				gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));
 
 			if (mMyLandmarksAccordionTab)
@@ -802,6 +762,7 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	{
 		expand_all_folders(mFavoritesInventoryPanel->getRootFolder());
 		expand_all_folders(mLandmarksInventoryPanel->getRootFolder());
+		//expand_all_folders(mMyInventoryPanel->getRootFolder());
 
 		for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
 		{
@@ -812,6 +773,7 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	{
 		collapse_all_folders(mFavoritesInventoryPanel->getRootFolder());
 		collapse_all_folders(mLandmarksInventoryPanel->getRootFolder());
+		//collapse_all_folders(mMyInventoryPanel->getRootFolder());
 
 		for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
 		{
@@ -824,6 +786,7 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 		sorting_order=!sorting_order;
 		gSavedSettings.setBOOL("LandmarksSortedByDate",sorting_order);
 		updateSortOrder(mLandmarksInventoryPanel, sorting_order);
+		//updateSortOrder(mMyInventoryPanel, sorting_order);
 	}
 	else
 	{
@@ -859,6 +822,7 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	{
 		bool disable_collapse_all =	!has_expanded_folders(mFavoritesInventoryPanel->getRootFolder())
 									&& !has_expanded_folders(mLandmarksInventoryPanel->getRootFolder());
+									/*&& !has_expanded_folders(mMyInventoryPanel->getRootFolder());*/
 		if (disable_collapse_all)
 		{
 			for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
@@ -877,6 +841,7 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	{
 		bool disable_expand_all = !has_collapsed_folders(mFavoritesInventoryPanel->getRootFolder())
 								  && !has_collapsed_folders(mLandmarksInventoryPanel->getRootFolder());
+								  /* && !has_collapsed_folders(mMyInventoryPanel->getRootFolder());*/
 		if (disable_expand_all)
 		{
 			for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
@@ -985,12 +950,6 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 		}
 		return false;
 	}
-// [RLVa:KB] - Checked: 2012-02-08 (RLVa-1.4.5) | Added: RLVa-1.4.5
-	else if("add_landmark" == command_name)
-	{
-		return !gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC);
-	}
-// [/RLVa:KB]
 	else
 	{
 		LL_WARNS() << "Unprocessed command has come: " << command_name << LL_ENDL;
@@ -1074,12 +1033,12 @@ void LLLandmarksPanel::onMenuVisibilityChange(LLUICtrl* ctrl, const LLSD& param)
 Processes such actions: cut/rename/delete/paste actions
 
 Rules:
- 1. For Landmarks we can:
+ 2. For Landmarks we can:
 	- cut/rename/delete in any other accordions
 	- paste - only in Favorites, Landmarks accordions
- 2. For Folders we can: perform any action in Landmarks accordion, except Received folder
- 3. We can paste folders from Clipboard (processed by LLFolderView::canPaste())
- 4. Check LLFolderView/Inventory Bridges rules
+ 3. For Folders we can: perform any action in Landmarks accordion, except Received folder
+ 4. We can paste folders from Clipboard (processed by LLFolderView::canPaste())
+ 5. Check LLFolderView/Inventory Bridges rules
  */
 bool LLLandmarksPanel::canItemBeModified(const std::string& command_name, LLFolderViewItem* item) const
 {
@@ -1093,6 +1052,12 @@ bool LLLandmarksPanel::canItemBeModified(const std::string& command_name, LLFold
 	if (static_cast<LLFolderViewModelItemInventory*>(item->getViewModelItem())->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		can_be_modified = true;
+
+		// we can modify landmarks anywhere except paste to My Inventory
+		//if ("paste" == command_name)
+		//{
+		//	can_be_modified = true (mCurrentSelectedList != mMyInventoryPanel);
+		//}
 	}
 	else
 	{
@@ -1158,7 +1123,7 @@ void LLLandmarksPanel::onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* own
 	LLRemoteParcelInfoProcessor::getInstance()->removeObserver(params["parcel_id"].asUUID(), this);
 
 	delete pick_panel;
-	pick_panel = NULL;
+	pick_panel = nullptr;
 }
 
 bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data , EAcceptance* accept)
@@ -1231,7 +1196,7 @@ void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,
 	landmark->getGlobalPos(landmark_global_pos);
 
 	// let's toggle pick panel into  panel places
-	LLPanel* panel_places = NULL;
+	LLPanel* panel_places = nullptr;
 	LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>("places");
 	if (floaterp)
 	{

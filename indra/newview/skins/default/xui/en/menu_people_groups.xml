@@ -23,26 +23,6 @@
      parameter="view_info" />
   </menu_item_call>
   <menu_item_call
-   label="Copy SLURL"
-   name="Copy SLURL">
-    <menu_item_call.on_click
-     function="People.Groups.Action"
-     parameter="copy_slurl" />
-    <menu_item_call.on_enable
-     function="People.Groups.Enable"
-     parameter="copy_slurl" />
-  </menu_item_call>
-  <menu_item_call
-   label="Copy Key"
-   name="Copy Key">
-    <menu_item_call.on_click
-     function="People.Groups.Action"
-     parameter="copy_uuid" />
-    <menu_item_call.on_enable
-     function="People.Groups.Enable"
-     parameter="copy_uuid" />
-  </menu_item_call>
-  <menu_item_call
    label="Chat"
    name="Chat">
     <menu_item_call.on_click
@@ -62,6 +42,29 @@
      function="People.Groups.Enable"
      parameter="call" />
   </menu_item_call>
+  <menu_item_separator />
+  <menu
+   label="Tools"
+   name="group_tools_menu">
+    <menu_item_call
+     label="Copy Name"
+     layout="topleft"
+     name="group_copy_name">
+      <on_click function="People.Groups.Action" parameter="copy_name" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy SLURL"
+     layout="topleft"
+     name="group_copy_slurl">
+      <on_click function="People.Groups.Action" parameter="copy_slurl" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy Key"
+     layout="topleft"
+     name="group_copy_uuid">
+      <on_click function="People.Groups.Action" parameter="copy_uuid" />
+    </menu_item_call>
+  </menu>
   <menu_item_separator />
   <menu_item_call
    label="Leave"

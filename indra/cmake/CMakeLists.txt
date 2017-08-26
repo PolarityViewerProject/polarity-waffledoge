@@ -11,6 +11,7 @@ set(cmake_SOURCE_FILES
     Boost.cmake
     BuildVersion.cmake
     CEFPlugin.cmake
+    CheckPython.cmake
     CMakeCopyIfDifferent.cmake
     ConfigurePkgConfig.cmake
     CURL.cmake
@@ -33,7 +34,6 @@ set(cmake_SOURCE_FILES
     FindZLIB.cmake
     FMODSTUDIO.cmake
     FreeType.cmake
-    GLEXT.cmake
     GLM.cmake
     GLOD.cmake
     GLEW.cmake
@@ -80,7 +80,6 @@ set(cmake_SOURCE_FILES
     PluginAPI.cmake
     Prebuilt.cmake
     PulseAudio.cmake
-    PVData.cmake
     Python.cmake
     TemplateCheck.cmake
     Tut.cmake

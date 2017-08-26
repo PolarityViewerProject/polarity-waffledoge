@@ -103,7 +103,7 @@ void LLVLComposition::setDetailTextureID(S32 corner, const LLUUID& id)
 	}
 	mDetailTextures[corner] = LLViewerTextureManager::getFetchedTexture(id);
 	mDetailTextures[corner]->setNoDelete() ;
-	mRawImages[corner] = NULL;
+	mRawImages[corner] = nullptr;
 }
 
 BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
@@ -156,7 +156,7 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
 	const F32 xyScaleInv = (1.f / xyScale);
 	const F32 zScaleInv = (1.f / zScale);
 
-	const F32 inv_width = 1.f/mWidth;
+	const F32 inv_width = 1.f / (F32)mWidth;
 
 	// OK, for now, just have the composition value equal the height at the point.
 	for (S32 j = y_begin; j < y_end; j++)
@@ -282,7 +282,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 				min_dim /= 2;
 			}
 
-			BOOL delete_raw = (mDetailTextures[i]->reloadRawImage(ddiscard) != NULL) ;
+			BOOL delete_raw = (mDetailTextures[i]->reloadRawImage(ddiscard) != nullptr) ;
 			if(mDetailTextures[i]->getRawImageLevel() != ddiscard)//raw iamge is not ready, will enter here again later.
 			{
 				if(delete_raw)

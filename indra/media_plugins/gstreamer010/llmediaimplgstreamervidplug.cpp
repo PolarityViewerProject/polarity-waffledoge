@@ -497,7 +497,7 @@ plugin_init (GstPlugin * plugin)
 	DEBUGMSG("PLUGIN INIT");
 
 	GST_DEBUG_CATEGORY_INIT (gst_slvideo_debug, (gchar*)"private-slvideo-plugin",
-				 0, (gchar*)"Polarity Viewer Video Sink");
+				 0, (gchar*)"Second Life Video Sink");
 
 	return llgst_element_register (plugin, "private-slvideo",
 				       GST_RANK_NONE, GST_TYPE_SLVIDEO);
@@ -516,8 +516,8 @@ GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
 		   (gchar*)"private-slvideoplugin", 
 		   (gchar*)"SL Video sink plugin",
 		   plugin_init, (gchar*)"1.0", (gchar*)"LGPL",
-		   (gchar*)"Polarity Viewer",
-		   (gchar*)PROJECT_HOMEPAGE);
+		   (gchar*)"Second Life",
+		   (gchar*)"http://www.secondlife.com/");
 #undef PACKAGE
 void gst_slvideo_init_class (void)
 {

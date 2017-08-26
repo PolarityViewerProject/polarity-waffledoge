@@ -50,6 +50,7 @@
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
 #include "llviewermenu.h"
+#include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
 #include "llviewerstats.h"
 #include "llviewerregion.h"
@@ -63,19 +64,6 @@
 #include "llsdserialize.h"
 #include "llcallstack.h"
 #include "llcorehttputil.h"
-// [RLVa:KB] - Checked: RLVa-2.0.2
-#include "rlvhandler.h"
-#include "rlvhelper.h"
-#include "rlvlocks.h"
-// [/RLVa:KB]
-// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
-#include "llviewerparcelmgr.h"
-extern BOOL gTeleportDisplay;
-// [/SL:KB]
-
-#include <boost/lexical_cast.hpp>
-
-#include "pvtl.h" // for vector_to_string
 
 LLPointer<LLVOAvatarSelf> gAgentAvatarp = NULL;
 
@@ -164,9 +152,6 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 							   const LLPCode pcode,
 							   LLViewerRegion* regionp) :
 	LLVOAvatar(id, pcode, regionp),
-// [RLVa:KB] - Checked: 2012-07-28 (RLVa-1.4.7)
-	mAttachmentSignal(NULL),
-// [/RLVa:KB]
 	mScreenp(NULL),
 	mLastRegionHandle(0),
 	mRegionCrossingCount(0),
@@ -176,6 +161,10 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
     mInitialMetric(true),
     mMetricSequence(0)
 {
+	if (!LLGridManager::getInstance()->isInSecondlife())
+	{
+		gAgentWearables.setAvatarObject(this);
+	}
 	mMotionController.mIsSelf = TRUE;
 
 	LL_DEBUGS() << "Marking avatar as self " << id << LL_ENDL;
@@ -200,6 +189,16 @@ bool update_avatar_rez_metrics()
 	gAgentAvatarp->updateAvatarRezMetrics(false);
 
 	return false;
+}
+
+bool check_for_unsupported_baked_appearance()
+{
+	if (!isAgentAvatarValid())
+		return true;
+
+	gAgentAvatarp->checkForUnsupportedServerBakeAppearance();
+	return false;
+
 }
 
 void LLVOAvatarSelf::initInstance()
@@ -228,10 +227,6 @@ void LLVOAvatarSelf::initInstance()
 		mDebugBakedTextureTimes[i][1] = -1.0f;
 	}
 
-// [RLVa:KB] - Checked: 2010-12-12 (RLVa-1.2.2c) | Added: RLVa-1.2.2c
-	RlvAttachPtLookup::initLookupTable();
-// [/RLVa:KB]
-
 	status &= buildMenus();
 	if (!status)
 	{
@@ -243,14 +238,16 @@ void LLVOAvatarSelf::initInstance()
 
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 	doPeriodically(update_avatar_rez_metrics, 5.0);
+	doPeriodically(check_for_unsupported_baked_appearance, 120.0);
 	doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
 }
 
 void LLVOAvatarSelf::setHoverIfRegionEnabled()
 {
-	if (getRegion() && getRegion()->simulatorFeaturesReceived())
+	LLViewerRegion* region = getRegion();
+	if (region && region->simulatorFeaturesReceived())
 	{
-		if (getRegion()->avatarHoverHeightEnabled())
+		if (region->avatarHoverHeightEnabled())
 		{
 			F32 hover_z = gSavedPerAccountSettings.getF32("AvatarHoverOffsetZ");
 			setHoverOffset(LLVector3(0.0, 0.0, llclamp(hover_z,MIN_HOVER_Z,MAX_HOVER_Z)));
@@ -265,9 +262,9 @@ void LLVOAvatarSelf::setHoverIfRegionEnabled()
 	else
 	{
 		LL_INFOS("Avatar") << avString() << " region or simulator features not known, no change on hover" << LL_ENDL;
-		if (getRegion())
+		if (region)
 		{
-			getRegion()->setSimulatorFeaturesReceivedCallback(boost::bind(&LLVOAvatarSelf::onSimulatorFeaturesReceived,this,_1));
+			region->setSimulatorFeaturesReceivedCallback(boost::bind(&LLVOAvatarSelf::onSimulatorFeaturesReceived, this, _1));
 		}
 
 	}
@@ -302,7 +299,7 @@ bool LLVOAvatarSelf::checkStuckAppearance()
 // virtual
 void LLVOAvatarSelf::markDead()
 {
-	mBeam = NULL;
+	for(int i = 0; i < 8; i++) mBeam[i] = NULL;
 	LLVOAvatar::markDead();
 }
 
@@ -457,7 +454,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 					item_params.name =(item_params.label );
 					item_params.on_click.function_name = "Object.AttachToAvatar";
 					item_params.on_click.parameter = iter->first;
-					// [RLVa:KB] - No changes, but we do need the parameter to always be idxAttachPt for object_selected_and_point_valid()
 					item_params.on_enable.function_name = "Object.EnableWear";
 					item_params.on_enable.parameter = iter->first;
 					LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
@@ -498,8 +494,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 					item_params.on_click.parameter = iter->first;
 					item_params.on_enable.function_name = "Attachment.PointFilled";
 					item_params.on_enable.parameter = iter->first;
-					item_params.on_visible.function_name = "Attachment.PointFilled";
-					item_params.on_visible.parameter = iter->first;
 					LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 
 					gDetachPieMenu->addChild(item);
@@ -531,7 +525,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 			item_params.name =(item_params.label );
 			item_params.on_click.function_name = "Object.AttachToAvatar";
 			item_params.on_click.parameter = iter->first;
-			// [RLVa:KB] - No changes, but we do need the parameter to always be idxAttachPt for object_selected_and_point_valid()
 			item_params.on_enable.function_name = "Object.EnableWear";
 			item_params.on_enable.parameter = iter->first;
 			LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
@@ -541,8 +534,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 			item_params.on_click.parameter = iter->first;
 			item_params.on_enable.function_name = "Attachment.PointFilled";
 			item_params.on_enable.parameter = iter->first;
-			item_params.on_visible.function_name = "Attachment.PointFilled";
-			item_params.on_visible.parameter = iter->first;
 			item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 			gDetachScreenPieMenu->addChild(item);
 		}
@@ -577,7 +568,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 			item_params.name =(item_params.label );
 			item_params.on_click.function_name = "Object.AttachToAvatar";
 			item_params.on_click.parameter = iter->first;
-			// [RLVa:KB] - No changes, but we do need the parameter to always be idxAttachPt for object_selected_and_point_valid()
 			item_params.on_enable.function_name = "Object.EnableWear";
 			item_params.on_enable.parameter = iter->first;
 			//* TODO: Skinning:
@@ -593,8 +583,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 			item_params.on_click.parameter = iter->first;
 			item_params.on_enable.function_name = "Attachment.PointFilled";
 			item_params.on_enable.parameter = iter->first;
-			item_params.on_visible.function_name = "Attachment.PointFilled";
-			item_params.on_visible.parameter = iter->first;
 			//* TODO: Skinning: item->addEventHandler("on_enable", LLMenuItemCallGL::MenuCallback().function_name("Attachment.Label").parameter(params));
 
 			item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
@@ -646,7 +634,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 				item_params.label = LLTrans::getString(attachment->getName());
 				item_params.on_click.function_name = "Object.AttachToAvatar";
 				item_params.on_click.parameter = attach_index;
-				// [RLVa:KB] - No changes, but we do need the parameter to always be idxAttachPt for object_selected_and_point_valid()
 				item_params.on_enable.function_name = "Object.EnableWear";
 				item_params.on_enable.parameter = attach_index;
 
@@ -657,8 +644,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 				item_params.on_click.parameter = attach_index;
 				item_params.on_enable.function_name = "Attachment.PointFilled";
 				item_params.on_enable.parameter = attach_index;
-				item_params.on_visible.function_name = "Attachment.PointFilled";
-				item_params.on_visible.parameter = attach_index;
 				item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 				gDetachBodyPartPieMenus[group]->addChild(item);
 			}
@@ -678,10 +663,6 @@ void LLVOAvatarSelf::cleanup()
 LLVOAvatarSelf::~LLVOAvatarSelf()
 {
 	cleanup();
-
-// [RLVa:KB] - Checked: 2012-07-28 (RLVa-1.4.7)
-	delete mAttachmentSignal;
-// [/RLVa:KB]
 }
 
 /**
@@ -743,35 +724,35 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 }
 
 // virtual
-BOOL LLVOAvatarSelf::setVisualParamWeight(const LLVisualParam *which_param, F32 weight)
+BOOL LLVOAvatarSelf::setVisualParamWeight(const LLVisualParam *which_param, F32 weight, BOOL upload_bake)
 {
 	if (!which_param)
 	{
 		return FALSE;
 	}
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(which_param->getID());
-	return setParamWeight(param,weight);
+	return setParamWeight(param,weight,upload_bake);
 }
 
 // virtual
-BOOL LLVOAvatarSelf::setVisualParamWeight(const char* param_name, F32 weight)
+BOOL LLVOAvatarSelf::setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake)
 {
 	if (!param_name)
 	{
 		return FALSE;
 	}
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(param_name);
-	return setParamWeight(param,weight);
+	return setParamWeight(param,weight,upload_bake);
 }
 
 // virtual
-BOOL LLVOAvatarSelf::setVisualParamWeight(S32 index, F32 weight)
+BOOL LLVOAvatarSelf::setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake)
 {
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(index);
-	return setParamWeight(param,weight);
+	return setParamWeight(param,weight,upload_bake);
 }
 
-BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight)
+BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight, BOOL upload_bake)
 {
 	if (!param)
 	{
@@ -787,12 +768,12 @@ BOOL LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight
 			LLViewerWearable *wearable = gAgentWearables.getViewerWearable(type,count);
 			if (wearable)
 			{
-				wearable->setVisualParamWeight(param->getID(), weight);
+				wearable->setVisualParamWeight(param->getID(), weight, upload_bake);
 			}
 		}
 	}
 
-	return LLCharacter::setVisualParamWeight(param,weight);
+	return LLCharacter::setVisualParamWeight(param,weight,upload_bake);
 }
 
 /*virtual*/ 
@@ -818,7 +799,7 @@ void LLVOAvatarSelf::writeWearablesToAvatar()
 void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
 {
 	// Animate all top-level wearable visual parameters
-	gAgentWearables.animateAllWearableParams(calcMorphAmount());
+	gAgentWearables.animateAllWearableParams(calcMorphAmount(), FALSE);
 
 	// Apply wearable visual params to avatar
 	writeWearablesToAvatar();
@@ -912,9 +893,13 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 		{
 			LLViewerTexLayerSet *layerset = getTexLayerSet(i);
 			layerset->setUpdatesEnabled(TRUE);
-			invalidateComposite(layerset);
+			invalidateComposite(layerset, FALSE);
 		}
 		updateMeshTextures();
+		if (getRegion() && !getRegion()->getCentralBakeVersion())
+		{
+			requestLayerSetUploads();
+		}
 	}
 }
 
@@ -981,69 +966,155 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 //virtual
 void LLVOAvatarSelf::idleUpdateTractorBeam()
 {
-	static LLCachedControl<bool> pointAtDisable(gSavedSettings, "PVPrivacy_HideEditBeam");
+	static LLCachedControl<bool> pointAtDisable(gSavedSettings, "AlchemyPointAtDisable");
 	if (pointAtDisable)
 	{
 		return;
 	}
+
 	// This is only done for yourself (maybe it should be in the agent?)
 	if (!needsRenderBeam() || !isBuilt())
 	{
-		mBeam = NULL;
+		for(int i = 0; i < 8; i++) mBeam[i] = NULL;
+		return;
 	}
-	else if (!mBeam || mBeam->isDead())
+
+	if (!mBeam[0] || mBeam[0]->isDead())
 	{
 		// VEFFECT: Tractor Beam
-		mBeam = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM);
-		mBeam->setColor(LLColor4U(gAgent.getEffectColor()));
-		mBeam->setSourceObject(this);
+		mBeam[0] = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM);
+		mBeam[0]->setColor(LLColor4U(gAgent.getEffectColor()));
+		mBeam[0]->setSourceObject(this);
+
 		mBeamTimer.reset();
 	}
 
-	if (!mBeam.isNull())
+	static LLCachedControl<bool> AlchemyBoundingBoxBeam(gSavedSettings, "AlchemyBoundingBoxBeam");
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	LLBBox bounding_box;
+
+	bool use_single_beam = true;
+	if(AlchemyBoundingBoxBeam)
 	{
-		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+		use_single_beam = false;
+		for(LLObjectSelection::iterator iter = selection->begin(), iter_end = selection->end(); iter != iter_end; iter++)
+		{
+			LLSelectNode* node = *iter;
+			LLViewerObject* object = node->getObject();
+			if (!object)
+				continue;
+			
+			LLViewerObject *root = object->getRootEdit();
+			if ( selection->getSelectType() != SELECT_TYPE_WORLD || // this is an attachment
+				root->isChild(gAgentAvatarp) || // this is the object you're sitting on
+				object->isAvatar()) // this is another avatar
+			{
+				use_single_beam = true;
+				break;
+			}
+			bounding_box.addBBoxAgent( object->getBoundingBoxAgent() );
+		}
+	}
+
+	if(!use_single_beam)
+	{
+		bool reset_timer = false;
+		for(int i = 1; i < 8; i++)
+		{
+			if (!mBeam[i] || mBeam[i]->isDead())
+			{
+				// VEFFECT: Tractor Beam
+				mBeam[i] = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM);
+				mBeam[i]->setColor(LLColor4U(gAgent.getEffectColor()));
+				mBeam[i]->setSourceObject(this);
+
+				reset_timer = true;
+			}
+		}
+
+		if(reset_timer)
+		{
+			mBeamTimer.reset();
+		}
+
+		LLMatrix4 transform;
+		transform.initAll(LLVector3(1.f, 1.f, 1.f), bounding_box.getRotation(), bounding_box.getPositionAgent());
+
+		LLVector3 min = bounding_box.getMinLocal();
+		LLVector3 max = bounding_box.getMaxLocal();
+			
+		LLVector3 manipbb[8] = {
+			min,
+			LLVector3(max.mV[VX], min.mV[VY], min.mV[VZ]),
+			LLVector3(min.mV[VX], max.mV[VY], min.mV[VZ]),
+			LLVector3(max.mV[VX], max.mV[VY], min.mV[VZ]),
+			LLVector3(max.mV[VX], min.mV[VY], max.mV[VZ]),
+			LLVector3(min.mV[VX], min.mV[VY], max.mV[VZ]),
+			LLVector3(min.mV[VX], max.mV[VY], max.mV[VZ]),
+			max
+		};
+
+
+		for(int i = 0; i < 8; i++)
+		{
+			mBeam[i]->setTargetObject(NULL);
+			mBeam[i]->setPositionAgent(manipbb[i] * transform);
+		}
+	}
+	else
+	{
+		// force other beams to null
+		if (mBeam[1].notNull()) for(int i = 1; i < 8; i++) { mBeam[i] = NULL; }
 
 		if (gAgentCamera.mPointAt.notNull())
 		{
 			// get point from pointat effect
-			mBeam->setPositionGlobal(gAgentCamera.mPointAt->getPointAtPosGlobal());
-			mBeam->triggerLocal();
-		}
-		else if (selection->getFirstRootObject() && 
-				selection->getSelectType() != SELECT_TYPE_HUD)
-		{
-			LLViewerObject* objectp = selection->getFirstRootObject();
-			mBeam->setTargetObject(objectp);
+			mBeam[0]->setPositionGlobal(gAgentCamera.mPointAt->getPointAtPosGlobal());
+			mBeam[0]->triggerLocal();
 		}
 		else
 		{
-			mBeam->setTargetObject(NULL);
-			LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
-			if (tool->isEditing())
+			if(selection->getFirstRootObject()
+				&& selection->getSelectType() != SELECT_TYPE_HUD)
 			{
-				if (tool->getEditingObject())
-				{
-					mBeam->setTargetObject(tool->getEditingObject());
-				}
-				else
-				{
-					mBeam->setPositionGlobal(tool->getEditingPointGlobal());
-				}
+				LLViewerObject* objectp = selection->getFirstRootObject();
+				mBeam[0]->setTargetObject(objectp);
 			}
 			else
 			{
-				const LLPickInfo& pick = gViewerWindow->getLastPick();
-				mBeam->setPositionGlobal(pick.mPosGlobal);
+				mBeam[0]->setTargetObject(NULL);
+				LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
+				if (tool->isEditing())
+				{
+					if (tool->getEditingObject())
+					{
+						mBeam[0]->setTargetObject(tool->getEditingObject());
+					}
+					else
+					{
+						mBeam[0]->setPositionGlobal(tool->getEditingPointGlobal());
+					}
+				}
+				else
+				{
+					const LLPickInfo& pick = gViewerWindow->getLastPick();
+					mBeam[0]->setPositionGlobal(pick.mPosGlobal);
+				}
 			}
+		}
+	}
 
-		}
-		if (mBeamTimer.getElapsedTimeF32() > 0.25f)
+	if (mBeamTimer.getElapsedTimeF32() > 0.25f)
+	{
+		LLColor4U effect_color(gAgent.getEffectColor());
+		for(int i = 0; i < 8; i++)
 		{
-			mBeam->setColor(LLColor4U(gAgent.getEffectColor()));
-			mBeam->setNeedsSendToSim(TRUE);
-			mBeamTimer.reset();
+			if(mBeam[i].isNull())
+				break;
+			mBeam[i]->setColor(effect_color);
+			mBeam[i]->setNeedsSendToSim(TRUE);
 		}
+		mBeamTimer.reset();
 	}
 }
 
@@ -1080,25 +1151,12 @@ void LLVOAvatarSelf::updateAttachmentVisibility(U32 camera_mode)
 		}
 		else
 		{
-// [RLVa:KB] - Checked: RLVa-2.0.2
-			bool fRlvCanShowAttachment = true;
-			if (rlv_handler_t::isEnabled())
-			{
-				fRlvCanShowAttachment =
-					(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWSELF)) &&
-					( (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWSELFHEAD)) || (RLV_ATTACHGROUP_HEAD != rlvAttachGroupFromIndex(attachment->getGroup())) );
-			}
-// [/RLVa:KB]
-
 			switch (camera_mode)
 			{
 				case CAMERA_MODE_MOUSELOOK:
 					if (LLVOAvatar::sVisibleInFirstPerson && attachment->getVisibleInFirstPerson())
 					{
-// [RLVa:KB] - Checked: RLVa-2.0.2
-						attachment->setAttachmentVisibility(fRlvCanShowAttachment);
-// [/RLVa:KB]
-//						attachment->setAttachmentVisibility(TRUE);
+						attachment->setAttachmentVisibility(TRUE);
 					}
 					else
 					{
@@ -1106,10 +1164,7 @@ void LLVOAvatarSelf::updateAttachmentVisibility(U32 camera_mode)
 					}
 					break;
 				default:
-// [RLVa:KB] - Checked: RLVa-2.0.2
-					attachment->setAttachmentVisibility(fRlvCanShowAttachment);
-// [/RLVa:KB]
-//					attachment->setAttachmentVisibility(TRUE);
+					attachment->setAttachmentVisibility(TRUE);
 					break;
 			}
 		}
@@ -1121,7 +1176,7 @@ void LLVOAvatarSelf::updateAttachmentVisibility(U32 camera_mode)
 // forces an update to any baked textures relevant to type.
 // will force an upload of the resulting bake if the second parameter is TRUE
 //-----------------------------------------------------------------------------
-void LLVOAvatarSelf::wearableUpdated(LLWearableType::EType type)
+void LLVOAvatarSelf::wearableUpdated(LLWearableType::EType type, BOOL upload_result)
 {
 	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
 		 baked_iter != LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
@@ -1143,12 +1198,19 @@ void LLVOAvatarSelf::wearableUpdated(LLWearableType::EType type)
 					if (layerset)
 					{
 						layerset->setUpdatesEnabled(true);
-						invalidateComposite(layerset);
+						invalidateComposite(layerset, upload_result);
 					}
 					break;
 				}
 			}
 		}
+	}
+
+	// Physics type has no associated baked textures, but change of params needs to be sent to
+	// other avatars.
+	if (type == LLWearableType::WT_PHYSICS)
+	{
+		gAgent.sendAgentSetAppearance();
 	}
 }
 
@@ -1189,28 +1251,6 @@ LLViewerObject* LLVOAvatarSelf::getWornAttachment(const LLUUID& inv_item_id)
 	}
 	return NULL;
 }
-
-// [RLVa:KB] - Checked: 2012-07-28 (RLVa-1.4.7)
-boost::signals2::connection LLVOAvatarSelf::setAttachmentCallback(const attachment_signal_t::slot_type& cb)
-{
-	if (!mAttachmentSignal)
-		mAttachmentSignal = new attachment_signal_t();
-	return mAttachmentSignal->connect(cb);
-}
-// [/RLVa:KB]
-// [RLVa:KB] - Checked: 2010-03-14 (RLVa-1.2.0a) | Modified: RLVa-1.2.0a
-LLViewerJointAttachment* LLVOAvatarSelf::getWornAttachmentPoint(const LLUUID& idItem) const
-{
-	const LLUUID& idItemBase = gInventory.getLinkedItemID(idItem);
-	for (attachment_map_t::const_iterator itAttachPt = mAttachmentPoints.begin(); itAttachPt != mAttachmentPoints.end(); ++itAttachPt)
-	{
-		LLViewerJointAttachment* pAttachPt = itAttachPt->second;
- 		if (pAttachPt->getAttachedObject(idItemBase))
-			return pAttachPt;
-	}
-	return NULL;
-}
-// [/RLVa:KB]
 
 bool LLVOAvatarSelf::getAttachedPointName(const LLUUID& inv_item_id, std::string& name) const
 {
@@ -1260,22 +1300,6 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 		const LLUUID& attachment_id = viewer_object->getAttachmentItemID();
 		LLAppearanceMgr::instance().registerAttachment(attachment_id);
 		updateLODRiggedAttachments();		
-
-// [RLVa:KB] - Checked: 2010-08-22 (RLVa-1.2.1a) | Modified: RLVa-1.2.1a
-		// NOTE: RLVa event handlers should be invoked *after* LLVOAvatar::attachObject() calls LLViewerJointAttachment::addObject()
-		if (mAttachmentSignal)
-		{
-			(*mAttachmentSignal)(viewer_object, attachment, ACTION_ATTACH);
-		}
-		if (rlv_handler_t::isEnabled())
-		{
-			RlvAttachmentLockWatchdog::instance().onAttach(viewer_object, attachment);
-			gRlvHandler.onAttach(viewer_object, attachment);
-
-			if ( (attachment->getIsHUDAttachment()) && (!gRlvAttachmentLocks.hasLockedHUD()) )
-				gRlvAttachmentLocks.updateLockedHUD();
-		}
-// [/RLVa:KB]
 	}
 
 	return attachment;
@@ -1285,27 +1309,6 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 {
 	const LLUUID attachment_id = viewer_object->getAttachmentItemID();
-
-// [RLVa:KB] - Checked: 2010-03-05 (RLVa-1.2.0a) | Added: RLVa-1.2.0a
-	// NOTE: RLVa event handlers should be invoked *before* LLVOAvatar::detachObject() calls LLViewerJointAttachment::removeObject()
-	if (rlv_handler_t::isEnabled())
-	{
-		for (attachment_map_t::const_iterator itAttachPt = mAttachmentPoints.begin(); itAttachPt != mAttachmentPoints.end(); ++itAttachPt)
-		{
-			const LLViewerJointAttachment* pAttachPt = itAttachPt->second;
-			if (pAttachPt->isObjectAttached(viewer_object))
-			{
-				RlvAttachmentLockWatchdog::instance().onDetach(viewer_object, pAttachPt);
-				gRlvHandler.onDetach(viewer_object, pAttachPt);
-			}
-			if (mAttachmentSignal)
-			{
-				(*mAttachmentSignal)(viewer_object, pAttachPt, ACTION_DETACH);
-			}
-		}
-	}
-// [/RLVa:KB]
-
 	if ( LLVOAvatar::detachObject(viewer_object) )
 	{
 		// the simulator should automatically handle permission revocation
@@ -1338,11 +1341,6 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 			LLAppearanceMgr::instance().unregisterAttachment(attachment_id);
 		}
 		
-// [RLVa:KB] - Checked: 2010-08-22 (RLVa-1.2.1a) | Added: RLVa-1.2.1a
-		if ( (rlv_handler_t::isEnabled()) && (viewer_object->isHUDAttachment()) && (gRlvAttachmentLocks.hasLockedHUD()) )
-			gRlvAttachmentLocks.updateLockedHUD();
-// [/RLVa:KB]
-
 		return TRUE;
 	}
 	return FALSE;
@@ -1352,10 +1350,7 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 BOOL LLVOAvatarSelf::detachAttachmentIntoInventory(const LLUUID &item_id)
 {
 	LLInventoryItem* item = gInventory.getItem(item_id);
-//	if (item)
-// [RLVa:KB] - Checked: 2010-09-04 (RLVa-1.2.1c) | Added: RLVa-1.2.1c
-	if ( (item) && ((!rlv_handler_t::isEnabled()) || (gRlvAttachmentLocks.canDetach(item))) )
-// [/RLVa:KB]
+	if (item)
 	{
 		gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
 		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
@@ -1536,8 +1531,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLViewerTexLayerSet* laye
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset) const
 {
-	static LLCachedControl<U32> sTextureDiscardLevel(gSavedSettings, "TextureDiscardLevel");
-	const U32 desired_tex_discard_level = sTextureDiscardLevel();
+	static LLCachedControl<U32> desired_tex_discard_level(gSavedSettings, "TextureDiscardLevel");
 	// const U32 desired_tex_discard_level = 0; // hack to not bake textures on lower discard levels.
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
@@ -1572,8 +1566,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset
 
 BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 {
-	static LLCachedControl<U32> sTextureDiscardLevel(gSavedSettings, "TextureDiscardLevel");
-	const U32 desired_tex_discard_level = sTextureDiscardLevel();
+	static LLCachedControl<U32> desired_tex_discard_level(gSavedSettings, "TextureDiscardLevel");
 	// const U32 desired_tex_discard_level = 0; // hack to not bake textures on lower discard levels
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
@@ -1598,6 +1591,15 @@ BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 		}
 	}
 	return TRUE;
+}
+
+BOOL LLVOAvatarSelf::isBakedTextureFinal(const LLAvatarAppearanceDefines::EBakedTextureIndex index) const
+{
+	const LLViewerTexLayerSet *layerset = getLayerSet(index);
+	if (!layerset) return FALSE;
+	const LLViewerTexLayerSetBuffer *layerset_buffer = layerset->getViewerComposite();
+	if (!layerset_buffer) return FALSE;
+	return !layerset_buffer->uploadNeeded();
 }
 
 BOOL LLVOAvatarSelf::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const
@@ -1639,18 +1641,9 @@ BOOL LLVOAvatarSelf::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex t
 	{
 		return LLVOAvatar::isTextureVisible(type, (U32)0);
 	}
-	// NaCl - Faster Avatar Shadows
-	if (LLPipeline::sShadowRender)
-	{
-		static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail");
-		if (3 > PVRender_AttachmentShadowDetail)
-		{
-			return TRUE;
-		}
-	}
 
 	LLUUID tex_id = getLocalTextureID(type,index);
-	return (tex_id != IMG_INVISIBLE)
+	return (tex_id != IMG_INVISIBLE) 
 			|| (LLDrawPoolAlpha::sShowDebugAlpha);
 }
 
@@ -1674,12 +1667,48 @@ BOOL LLVOAvatarSelf::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex t
 	}
 }
 
-bool LLVOAvatarSelf::areTexturesCurrent() const
+//-----------------------------------------------------------------------------
+// requestLayerSetUploads()
+//-----------------------------------------------------------------------------
+void LLVOAvatarSelf::requestLayerSetUploads()
 {
-	return gAgentWearables.areWearablesLoaded();
+	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
+	{
+		requestLayerSetUpload((EBakedTextureIndex)i);
+	}
 }
 
-void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset)
+void LLVOAvatarSelf::requestLayerSetUpload(LLAvatarAppearanceDefines::EBakedTextureIndex i)
+{
+	ETextureIndex tex_index = mBakedTextureDatas[i].mTextureIndex;
+	const BOOL layer_baked = isTextureDefined(tex_index, gAgentWearables.getWearableCount(tex_index));
+	LLViewerTexLayerSet *layerset = getLayerSet(i);
+	if (!layer_baked && layerset)
+	{
+		layerset->requestUpload();
+	}
+}
+
+bool LLVOAvatarSelf::areTexturesCurrent() const
+{
+	return !hasPendingBakedUploads() && gAgentWearables.areWearablesLoaded();
+}
+
+// virtual
+bool LLVOAvatarSelf::hasPendingBakedUploads() const
+{
+	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
+	{
+		LLViewerTexLayerSet* layerset = getTexLayerSet(i);
+		if (layerset && layerset->getViewerComposite() && layerset->getViewerComposite()->uploadPending())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_result)
 {
 	LLViewerTexLayerSet *layer_set = dynamic_cast<LLViewerTexLayerSet*>(layerset);
 	if( !layer_set || !layer_set->getUpdatesEnabled() )
@@ -1690,6 +1719,16 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset)
 
 	layer_set->requestUpdate();
 	layer_set->invalidateMorphMasks();
+
+	if( upload_result  && (getRegion() && !getRegion()->getCentralBakeVersion()))
+	{
+		llassert(isSelf());
+
+		ETextureIndex baked_te = getBakedTE( layer_set );
+		setTEImage( baked_te, LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR) );
+		layer_set->requestUpload();
+		updateMeshTextures();
+	}
 }
 
 void LLVOAvatarSelf::invalidateAll()
@@ -1697,7 +1736,7 @@ void LLVOAvatarSelf::invalidateAll()
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		LLViewerTexLayerSet *layerset = getTexLayerSet(i);
-		invalidateComposite(layerset);
+		invalidateComposite(layerset, TRUE);
 	}
 	//mDebugSelfLoadTimer.reset();
 }
@@ -1925,7 +1964,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 		// index is baked texture - index is not relevant. putting in 0 as placeholder
 		if (isTextureDefined(baked_equiv, 0))
 		{
-#ifdef LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_FOR_DOWNLOAD
 			// End users don't get to trivially see avatar texture IDs, makes textures
 			// easier to steal. JC
 			LL_INFOS() << "LocTex " << name << ": Baked " << LL_ENDL;
@@ -1946,7 +1985,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 				LL_INFOS() << "LocTex " << name << ": "
 						<< "Discard " << image->getDiscardLevel() << ", "
 						<< "(" << image->getWidth() << ", " << image->getHeight() << ") " 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 					// End users don't get to trivially see avatar texture IDs,
 					// makes textures easier to steal
 						<< image->getID() << " "
@@ -2028,8 +2067,6 @@ bool LLVOAvatarSelf::getIsCloud() const
 		do_warn = true;
 	}
 	
-	// <polarity> Inform the user more obviously of the reason they are clouded
-#if LL_GENERIC_CLOUD_REASON
 	// do we have our body parts?
 	S32 shape_count = gAgentWearables.getWearableCount(LLWearableType::WT_SHAPE);
 	S32 hair_count = gAgentWearables.getWearableCount(LLWearableType::WT_HAIR);
@@ -2048,40 +2085,6 @@ bool LLVOAvatarSelf::getIsCloud() const
 		}
 		return true;
 	}
-#else
-	std::vector<std::string> missing_parts;
-	if (!gAgentWearables.getWearableCount(LLWearableType::WT_SHAPE))
-	{
-		missing_parts.push_back("Shape");
-	}
-	if (!gAgentWearables.getWearableCount(LLWearableType::WT_HAIR))
-	{
-		missing_parts.push_back("Hair");
-	}
-	if (!gAgentWearables.getWearableCount(LLWearableType::WT_EYES))
-	{
-		missing_parts.push_back("Eyes");
-	}
-	if (!gAgentWearables.getWearableCount(LLWearableType::WT_SKIN))
-	{
-		missing_parts.push_back("Skin");
-	}
-	bool return_clouded = !missing_parts.empty();
-	if (do_warn && return_clouded)
-	{
-		std::ostringstream cloud_reason;
-		cloud_reason << "Self is clouded due to missing body part(s): ";
-		auto message = vector_to_string(cloud_reason, missing_parts.begin(), missing_parts.end()).str();
-		LL_WARNS("Cloud") << message << LL_ENDL;
-		LLSD arguments;
-		arguments["MESSAGE"] = message.c_str(); //@todo localize
-		LLNotificationsUtil::add("GenericNotify", arguments);
-	}
-	if(return_clouded)
-	{
-		return true;
-	}
-#endif
 
 	if (!isTextureDefined(TEX_HAIR, 0))
 	{
@@ -2405,7 +2408,7 @@ bool LLVOAvatarSelf::updateAvatarRezMetrics(bool force_send)
 {
 	const F32 AV_METRICS_INTERVAL_QA = 30.0;
 	F32 send_period = 300.0;
-	if (gSavedSettings.getBOOL("QAModeMetrics"))
+	if (gSavedSettings.getBool("QAModeMetrics"))
 	{
 		send_period = AV_METRICS_INTERVAL_QA;
 	}
@@ -2490,6 +2493,59 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
             boost::bind(&LLVOAvatarSelf::appearanceChangeMetricsCoro, this, caps_url));
 		mTimeSinceLastRezMessage.reset();
 	}
+}
+
+//class CheckAgentAppearanceServiceResponder: public LLHTTPClient::Responder
+//{
+//public:
+//	CheckAgentAppearanceServiceResponder() {}
+//	
+//	virtual ~CheckAgentAppearanceServiceResponder()	{}
+//
+//	/* virtual */ void httpSuccess()
+//	{
+//		LL_DEBUGS("Avatar") << "OK" << LL_ENDL;
+//	}
+//
+//	// Error
+//	/*virtual*/ void httpFailure()
+//	{
+//		if (isAgentAvatarValid())
+//		{
+//			LL_DEBUGS("Avatar") << "failed, will rebake "
+//					<< dumpResponse() << LL_ENDL;
+//			forceAppearanceUpdate();
+//		}
+//	}	
+//
+//	static void forceAppearanceUpdate()
+//	{
+//		// Trying to rebake immediately after crossing region boundary
+//		// seems to be failure prone; adding a delay factor. Yes, this
+//		// fix is ad-hoc and not guaranteed to work in all cases.
+//		doAfterInterval(boost::bind(&LLVOAvatarSelf::forceBakeAllTextures,
+//									gAgentAvatarp.get(), true), 5.0);
+//	}
+//};
+
+void LLVOAvatarSelf::checkForUnsupportedServerBakeAppearance()
+{
+	// Need to check only if we have a server baked appearance and are
+	// in a non-baking region.
+	if (!gAgentAvatarp->isUsingServerBakes())
+		return;
+	if (!gAgent.getRegion() || gAgent.getRegion()->getCentralBakeVersion()!=0)
+		return;
+
+	// if baked image service is unknown, need to refresh.
+	if (LLAppearanceMgr::instance().getAppearanceServiceURL().empty())
+	{
+		//CheckAgentAppearanceServiceResponder::forceAppearanceUpdate();
+	}
+	// query baked image service to check status.
+	//std::string image_url = gAgentAvatarp->getImageURL(TEX_HEAD_BAKED,
+	//												   getTE(TEX_HEAD_BAKED)->getID());
+	//LLHTTPClient::head(image_url, new CheckAgentAppearanceServiceResponder);
 }
 
 const LLUUID& LLVOAvatarSelf::grabBakedTexture(EBakedTextureIndex baked_index) const
@@ -2648,6 +2704,81 @@ ETextureIndex LLVOAvatarSelf::getBakedTE( const LLViewerTexLayerSet* layerset ) 
 	return TEX_HEAD_BAKED;
 }
 
+
+void LLVOAvatarSelf::setNewBakedTexture(LLAvatarAppearanceDefines::EBakedTextureIndex i, const LLUUID &uuid)
+{
+	ETextureIndex index = LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(i);
+	setNewBakedTexture(index, uuid);
+}
+
+
+//-----------------------------------------------------------------------------
+// setNewBakedTexture()
+// A new baked texture has been successfully uploaded and we can start using it now.
+//-----------------------------------------------------------------------------
+void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
+{
+	// Baked textures live on other sims.
+	LLHost target_host = getObjectHost();	
+	setTEImage( te, LLViewerTextureManager::getFetchedTextureFromHost( uuid, FTT_HOST_BAKE, target_host ) );
+	updateMeshTextures();
+	dirtyMesh();
+
+	LLVOAvatar::cullAvatarsByPixelArea();
+
+	/* switch(te)
+		case TEX_HEAD_BAKED:
+			LL_INFOS() << "New baked texture: HEAD" << LL_ENDL; */
+	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(te);
+	if (texture_dict->mIsBakedTexture)
+	{
+		debugBakedTextureUpload(texture_dict->mBakedTextureIndex, TRUE); // FALSE for start of upload, TRUE for finish.
+		LL_INFOS() << "New baked texture: " << texture_dict->mName << " UUID: " << uuid <<LL_ENDL;
+	}
+	else
+	{
+		LL_WARNS() << "New baked texture: unknown te " << te << LL_ENDL;
+	}
+	
+	//	dumpAvatarTEs( "setNewBakedTexture() send" );
+	// RN: throttle uploads
+	if (!hasPendingBakedUploads())
+	{
+		gAgent.sendAgentSetAppearance();
+
+		if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
+		{
+			LLSD args;
+			args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
+			args["TIME"] = llformat("%d",(U32)mDebugSelfLoadTimer.getElapsedTimeF32());
+			if (isAllLocalTextureDataFinal())
+			{
+				LLNotificationsUtil::add("AvatarRezSelfBakedDoneNotification",args);
+				LL_DEBUGS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
+						<< "sec ]"
+						<< avString() 
+						<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
+						<< " SelfLoadTimer " << (U32)mDebugSelfLoadTimer.getElapsedTimeF32()
+						<< " Notification " << "AvatarRezSelfBakedDoneNotification"
+						<< LL_ENDL;
+			}
+			else
+			{
+				args["STATUS"] = debugDumpAllLocalTextureDataInfo();
+				LLNotificationsUtil::add("AvatarRezSelfBakedUpdateNotification",args);
+				LL_DEBUGS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
+						<< "sec ]"
+						<< avString() 
+						<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
+						<< " SelfLoadTimer " << (U32)mDebugSelfLoadTimer.getElapsedTimeF32()
+						<< " Notification " << "AvatarRezSelfBakedUpdateNotification"
+						<< LL_ENDL;
+			}
+		}
+
+		outputRezDiagnostics();
+	}
+}
 // FIXME: This is not called consistently. Something may be broken.
 void LLVOAvatarSelf::outputRezDiagnostics() const
 {
@@ -2722,8 +2853,88 @@ void LLVOAvatarSelf::reportAvatarRezTime() const
 {
 	// TODO: report mDebugSelfLoadTimer.getElapsedTimeF32() somehow.
 }
+//-----------------------------------------------------------------------------
+// setCachedBakedTexture()
+// A baked texture id was received from a cache query, make it active
+//-----------------------------------------------------------------------------
+void LLVOAvatarSelf::setCachedBakedTexture( ETextureIndex te, const LLUUID& uuid )
+{
+	setTETexture( te, uuid );
 
-// SUNSHINE CLEANUP - not clear we need any of this, may be sufficient to request server appearance in llviewermenu.cpp:handle_rebake_textures()
+	/* switch(te)
+		case TEX_HEAD_BAKED:
+			if( mHeadLayerSet )
+				mHeadLayerSet->cancelUpload(); */
+	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
+	{
+		LLViewerTexLayerSet *layerset = getTexLayerSet(i);
+		if ( mBakedTextureDatas[i].mTextureIndex == te && layerset)
+		{
+			if (mInitialBakeIDs[i] != LLUUID::null)
+			{
+				if (mInitialBakeIDs[i] == uuid)
+				{
+					LL_INFOS() << "baked texture correctly loaded at login! " << i << LL_ENDL;
+				}
+				else
+				{
+					LL_WARNS() << "baked texture does not match id loaded at login!" << i << LL_ENDL;
+				}
+				mInitialBakeIDs[i] = LLUUID::null;
+			}
+			layerset->cancelUpload();
+		}
+	}
+}
+
+// static
+void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
+{
+	LLUUID texture_id;
+	msg->getUUID("TextureData", "TextureID", texture_id);
+	if (!isAgentAvatarValid()) return;
+
+	// If this is a texture corresponding to one of our baked entries, 
+	// just rebake that layer set.
+	BOOL found = FALSE;
+
+	/* ETextureIndex baked_texture_indices[BAKED_NUM_INDICES] =
+			TEX_HEAD_BAKED,
+			TEX_UPPER_BAKED, */
+	for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
+		 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+		 ++iter)
+	{
+		const ETextureIndex index = iter->first;
+		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
+		if (texture_dict->mIsBakedTexture)
+		{
+			if (texture_id == gAgentAvatarp->getTEImage(index)->getID())
+			{
+				LLViewerTexLayerSet* layer_set = gAgentAvatarp->getLayerSet(index);
+				if (layer_set)
+				{
+					LL_INFOS() << "TAT: rebake - matched entry " << (S32)index << LL_ENDL;
+					gAgentAvatarp->invalidateComposite(layer_set, TRUE);
+					found = TRUE;
+					add(LLStatViewer::TEX_REBAKES, 1);
+				}
+			}
+		}
+	}
+
+	// If texture not found, rebake all entries.
+	if (!found)
+	{
+		gAgentAvatarp->forceBakeAllTextures();
+	}
+	else
+	{
+		// Not sure if this is necessary, but forceBakeAllTextures() does it.
+		gAgentAvatarp->updateMeshTextures();
+	}
+}
+
 void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 {
 	LL_INFOS() << "TAT: forced full rebake. " << LL_ENDL;
@@ -2737,9 +2948,10 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 			if (slam_for_debug)
 			{
 				layer_set->setUpdatesEnabled(TRUE);
+				layer_set->cancelUpload();
 			}
 
-			invalidateComposite(layer_set);
+			invalidateComposite(layer_set, TRUE);
 			add(LLStatViewer::TEX_REBAKES, 1);
 		}
 		else
@@ -2839,9 +3051,15 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 	if (isAgentAvatarValid())
 	{
 		gAgentAvatarp->mIsEditingAppearance = false;
+		if (gAgentAvatarp->getRegion() && !gAgentAvatarp->getRegion()->getCentralBakeVersion())
+		{
+			// FIXME DRANO - move to sendAgentSetAppearance, make conditional on upload complete.
+			gAgentAvatarp->mUseLocalAppearance = false;
+		}
+
 		gAgentAvatarp->invalidateAll();
 
-		if (gSavedSettings.getBOOL("AppearanceCameraMovement") && !disable_camera_switch)
+		if (gAgentCamera.cameraCustomizeAvatar() && !disable_camera_switch)
 		{
 			gAgentCamera.changeCameraToDefault();
 			gAgentCamera.resetView();
@@ -2915,7 +3133,7 @@ void LLVOAvatarSelf::sendHoverHeight() const
         // class responder if nothing else gets added. 
         // (comment from removed Responder)
         LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, update, 
-            "Hover hight sent to sim", "Hover hight not sent to sim");
+            "Hover height sent to sim", "Hover height not sent to sim");
 		mLastHoverOffsetSent = hover_offset;
 	}
 }
@@ -3010,51 +3228,3 @@ void LLVOAvatarSelf::dumpWearableInfo(LLAPRFile& outfile)
 	}
 	apr_file_printf( file, "\n</wearable_info>\n" );
 }
-
-//// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
-#if 0
-void LLVOAvatarSelf::addPendingDetach(const LLUUID& idObject)
-{
-	if (mPendingObjectDetach.end() == std::find(mPendingObjectDetach.begin(), mPendingObjectDetach.end(), idObject))
-		mPendingObjectDetach.push_back(idObject);
-	if ((!mPendingObjectDetach.empty()) && (!mTeleportDoneConn.connected()))
-		mTeleportDoneConn = LLViewerParcelMgr::instance().setTeleportDoneCallback(boost::bind(&LLVOAvatarSelf::onTeleportDone, this));
-}
-bool LLVOAvatarSelf::isPendingDetach(const LLUUID& idObject) const
-{
-	return mPendingObjectDetach.end() != std::find(mPendingObjectDetach.begin(), mPendingObjectDetach.end(), idObject);
-}
-void LLVOAvatarSelf::removePendingDetach(const LLUUID& idObject)
-{
-	auto itPendingDetach = std::find(mPendingObjectDetach.begin(), mPendingObjectDetach.end(), idObject);
-	if (mPendingObjectDetach.end() != itPendingDetach)
-		mPendingObjectDetach.erase(itPendingDetach);
-	if (mPendingObjectDetach.empty())
-		mTeleportDoneConn.disconnect();
-}
-void LLVOAvatarSelf::onTeleportDone()
-{
-	mTeleportDoneConn.disconnect();
-	doAfterInterval(boost::bind(&LLVOAvatarSelf::checkPendingDetach, this), 30.f);
-}
-void LLVOAvatarSelf::checkPendingDetach()
-{
-	if (gTeleportDisplay)
-		return;
-	for (const LLUUID& idObj : mPendingObjectDetach)
-	{
-		LLViewerObject* pObject = gObjectList.findObject(idObj);
-		if (pObject)
-		{
-			gObjectList.killObject(pObject);
-			if (gShowObjectUpdates)
-			{
-				LLColor4 color(0.f, 1.f, 0.f, 1.f);
-				gPipeline.addDebugBlip(pObject->getPositionAgent(), color);
-			}
-			LLSelectMgr::getInstance()->removeObjectFromSelections(idObj);
-		}
-	}
-	mPendingObjectDetach.clear();
-}
-#endif

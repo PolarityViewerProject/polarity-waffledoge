@@ -48,12 +48,16 @@
 // Linden library includes
 #include "llwindow.h"			// setMouseClipping()
 
+#include "alavatarcolormgr.h"
+#include "llavatarnamecache.h"
+#include "llnetmap.h"
+#include "llworld.h"
+
 LLToolGun::LLToolGun( LLToolComposite* composite )
 :	LLTool( std::string("gun"), composite ),
 		mIsSelected(FALSE)
 {
-	// <FS:Ansariel> Performance tweak
-	mCrosshairp = LLUI::getUIImage("crosshairs.tga");
+	mCrosshairp = LLUI::getUIImage("crosshairs.tga"); // <alchemy/> - UI Caching
 }
 
 void LLToolGun::handleSelect()
@@ -86,12 +90,8 @@ BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 	{
 		const F32 NOMINAL_MOUSE_SENSITIVITY = 0.0025f;
 
-		// <FS:Ansariel> Use faster LLCachedControl
-		//F32 mouse_sensitivity = gSavedSettings.getF32("MouseSensitivity");
-		static LLCachedControl<F32> mouseSensitivity(gSavedSettings, "MouseSensitivity");
-		F32 mouse_sensitivity = (F32)mouseSensitivity;
-		// </FS:Ansariel> Use faster LLCachedControl
-		mouse_sensitivity = clamp_rescale(mouse_sensitivity, 0.f, 15.f, 0.5f, 2.75f) * NOMINAL_MOUSE_SENSITIVITY;
+		static LLCachedControl<F32> mouse_sensitivity_setting(gSavedSettings, "MouseSensitivity");
+		F32 mouse_sensitivity = clamp_rescale(mouse_sensitivity_setting, 0.f, 15.f, 0.5f, 2.75f) * NOMINAL_MOUSE_SENSITIVITY;
 
 		// ...move the view with the mouse
 
@@ -102,24 +102,21 @@ BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 		if (dx != 0 || dy != 0)
 		{
 			// ...actually moved off center
-			// <FS:Ansariel> Use faster LLCachedControl
-			//if (gSavedSettings.getBOOL("InvertMouse"))
-			static LLCachedControl<bool> invertMouse(gSavedSettings, "InvertMouse");
-			if (invertMouse)
+			const F32 fov = LLViewerCamera::getInstance()->getView() / DEFAULT_FIELD_OF_VIEW;
+			static LLCachedControl<bool> invert_mouse(gSavedSettings, "InvertMouse");
+			if (invert_mouse)
 			{
-				gAgent.pitch(mouse_sensitivity * -dy);
+				gAgent.pitch(mouse_sensitivity * fov * -dy);
 			}
 			else
 			{
-				gAgent.pitch(mouse_sensitivity * dy);
+				gAgent.pitch(mouse_sensitivity * fov * dy);
 			}
 			LLVector3 skyward = gAgent.getReferenceUpVector();
-			gAgent.rotate(mouse_sensitivity * dx, skyward.mV[VX], skyward.mV[VY], skyward.mV[VZ]);
+			gAgent.rotate(mouse_sensitivity * fov * dx, skyward.mV[VX], skyward.mV[VY], skyward.mV[VZ]);
 
-			// <FS:Ansariel> Use faster LLCachedControl
-			//if (gSavedSettings.getBOOL("MouseSun"))
-			static LLCachedControl<bool> mouseSun(gSavedSettings, "MouseSun");
-			if (mouseSun)
+			static LLCachedControl<bool> mouse_sun(gSavedSettings, "MouseSun");
+			if (mouse_sun)
 			{
 				gSky.setSunDirection(LLViewerCamera::getInstance()->getAtAxis(), LLVector3(0.f, 0.f, 0.f));
 				gSky.setOverrideSun(TRUE);
@@ -145,19 +142,53 @@ BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 
 void LLToolGun::draw()
 {
-	// <FS:Ansariel> Use faster LLCachedControl
-	//if( gSavedSettings.getBOOL("ShowCrosshairs") )
-	static LLCachedControl<bool> showCrosshairs(gSavedSettings, "ShowCrosshairs");
-	if (showCrosshairs)
+	static LLCachedControl<bool> show_crosshairs(gSavedSettings, "ShowCrosshairs");
+	static LLCachedControl<bool> show_iff(gSavedSettings, "AlchemyMouselookIFF", true);
+	static LLCachedControl<F32> iff_range(gSavedSettings, "AlchemyMouselookIFFRange", 380.f);
+	if (show_crosshairs)
 	{
-		// <FS:Ansariel> Performance tweak
-		//LLUIImagePtr crosshair = LLUI::getUIImage("crosshairs.tga");
-		//crosshair->draw(
-		//	( gViewerWindow->getWorldViewRectScaled().getWidth() - crosshair->getWidth() ) / 2,
-		//	( gViewerWindow->getWorldViewRectScaled().getHeight() - crosshair->getHeight() ) / 2);
+		const S32 windowWidth = gViewerWindow->getWorldViewRectScaled().getWidth();
+		const S32 windowHeight = gViewerWindow->getWorldViewRectScaled().getHeight();
+		LLColor4 targetColor = LLColor4::white;
+		targetColor.mV[VALPHA] = 0.5f;
+		if (show_iff)
+		{
+			LLVector3d myPosition = gAgentCamera.getCameraPositionGlobal();
+			LLQuaternion myRotation = LLViewerCamera::getInstance()->getQuaternion();
+			myRotation.set(-myRotation.mQ[VX], -myRotation.mQ[VY], -myRotation.mQ[VZ], myRotation.mQ[VW]);
+
+			LLWorld::pos_map_t positions;
+			LLWorld::getInstance()->getAvatars(&positions, gAgent.getPositionGlobal(), iff_range);
+			for (auto iter = positions.cbegin(), iter_end = positions.cend(); iter != iter_end; ++iter)
+			{
+				const auto& id = iter->first;
+				const auto& targetPosition = iter->second;
+				if (id == gAgentID || targetPosition.isNull())
+				{
+					continue;
+				}
+
+				LLVector3d magicVector = (targetPosition - myPosition) * myRotation;
+				magicVector.setVec(-magicVector.mdV[VY], magicVector.mdV[VZ], magicVector.mdV[VX]);
+				if (magicVector.mdV[VX] > -0.75 && magicVector.mdV[VX] < 0.75 && magicVector.mdV[VZ] > 0.0 && magicVector.mdV[VY] > -1.5 && magicVector.mdV[VY] < 1.5) // Do not fuck with these, cheater. :(
+				{
+					LLAvatarName avatarName;
+					LLAvatarNameCache::get(id, &avatarName);
+					targetColor = ALAvatarColorMgr::instance().getColor(id);
+					targetColor.mV[VALPHA] = 0.5f;
+					LLFontGL::getFontSansSerifBold()->renderUTF8(
+						llformat("%s : %.2fm", avatarName.getCompleteName().c_str(), (targetPosition - myPosition).magVec()),
+						0, (windowWidth / 2.f), (windowHeight / 2.f) - 25.f, targetColor,
+						LLFontGL::HCENTER, LLFontGL::TOP, LLFontGL::BOLD, LLFontGL::NO_SHADOW
+						);
+
+					break;
+				}
+			}
+		}
+
 		mCrosshairp->draw(
-			( gViewerWindow->getWorldViewRectScaled().getWidth() - mCrosshairp->getWidth() ) / 2,
-			( gViewerWindow->getWorldViewRectScaled().getHeight() - mCrosshairp->getHeight() ) / 2);
-		// </FS:Ansariel> Performance tweak
+			(windowWidth - mCrosshairp->getWidth()) / 2,
+			(windowHeight - mCrosshairp->getHeight()) / 2, targetColor);
 	}
 }

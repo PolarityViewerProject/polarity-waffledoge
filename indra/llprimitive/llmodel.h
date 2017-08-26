@@ -32,8 +32,7 @@
 #include "v4math.h"
 #include "m4math.h"
 #include <queue>
-
-#include "lljoint.h"
+#include <boost/align/aligned_allocator.hpp>
 
 class daeElement;
 class domMesh;
@@ -52,8 +51,7 @@ public:
 	LLUUID mMeshID;
 	std::vector<std::string> mJointNames;
     mutable std::vector<S32> mJointNums;
-
-	std::vector<LLMatrix4> mInvBindMatrix;
+	std::vector<LLMatrix4a, boost::alignment::aligned_allocator<LLMatrix4a, 64>> mInvBindMatrix;
 	std::vector<LLMatrix4> mAlternateBindMatrix;
 
 	LLMatrix4 mBindShapeMatrix;
@@ -179,7 +177,6 @@ public:
 	void addFace(const LLVolumeFace& face);
 
 	void sortVolumeFacesByMaterialName();
-	static void normalizeModels(std::vector<LLPointer<LLModel > > model_list);
 	void normalizeVolumeFaces();
 	void trimVolumeFacesToSize(U32 new_count = LL_SCULPT_MESH_MAX_FACES, LLVolume::face_list_t* remainder = NULL);
 	void optimizeVolumeFaces();
@@ -321,7 +318,7 @@ public:
     
     bool operator<(const LLImportMaterial &params) const;
     
-    LLImportMaterial() : LLModelMaterialBase()
+    LLImportMaterial() : LLModelMaterialBase(), mOpaqueData(nullptr)
     {
         mDiffuseColor.set(1,1,1,1);
     }

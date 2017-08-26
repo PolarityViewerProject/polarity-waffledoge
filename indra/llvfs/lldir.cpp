@@ -58,10 +58,6 @@ LLDir_Mac gDirUtil;
 LLDir_Linux gDirUtil;
 #endif
 
-#include "pvconstants.h"
-
-using namespace std::placeholders;
-
 LLDir *gDirUtilp = (LLDir *)&gDirUtil;
 
 /// Values for findSkinnedFilenames(subdir) parameter
@@ -82,12 +78,13 @@ LLDir::LLDir()
 	mOSUserDir(""),
 	mOSUserAppDir(""),
 	mLindenUserDir(""),
-	mOSCacheDir(""),
 	mCAFile(""),
-	mTempDir(""),
+    mTempDir(""),
+    mOSCacheDir(""),
 	mDirDelimiter("/"), // fallback to forward slash if not overridden
 	mLanguage("en"),
-	mUserName("undefined")
+	mUserName("undefined"),
+	mGrid("")
 {
 }
 
@@ -100,9 +97,9 @@ std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
     //Returns a vector of fullpath filenames.
     
 #if LL_WINDOWS
-    boost::filesystem::path p (utf8str_to_utf16str(dirname).c_str());
+	boost::filesystem::path p(utf8str_to_utf16str(dirname).c_str());
 #else
-    boost::filesystem::path p (dirname);
+	boost::filesystem::path p(dirname);
 #endif
     std::vector<std::string> v;
     
@@ -192,9 +189,9 @@ U32 LLDir::deleteDirAndContents(const std::string& dir_name)
 	try
 	{
 #if LL_WINDOWS
-	   boost::filesystem::path dir_path(utf8str_to_utf16str(dir_name).c_str());
+		boost::filesystem::path dir_path(utf8str_to_utf16str(dir_name).c_str());
 #else
-	   boost::filesystem::path dir_path(dir_name);
+		boost::filesystem::path dir_path(dir_name);
 #endif
 	   if (boost::filesystem::exists (dir_path))
 	   {
@@ -376,11 +373,10 @@ std::string LLDir::buildSLOSCacheDir() const
 	}
 	else
 	{
-		static const std::string app_name_str = APP_NAME;
 #if !defined(LL_DARWIN) && (defined(_WIN64) || defined(__amd64__) || defined(__x86_64__))
-		res = add(getOSCacheDir(), app_name_str + "64");
+		res = add(getOSCacheDir(), "Polarity64");
 #else
-		res = add(getOSCacheDir(), app_name_str);
+		res = add(getOSCacheDir(), "Polarity");
 #endif
 	}
 	return res;
@@ -390,7 +386,6 @@ std::string LLDir::buildSLOSCacheDir() const
 
 const std::string &LLDir::getOSCacheDir() const
 {
-	llassert_always(!mOSCacheDir.empty());
 	return mOSCacheDir;
 }
 
@@ -728,6 +723,16 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 					   << ((constraint == CURRENT_SKIN)? "CURRENT_SKIN" : "ALL_SKINS")
 					   << LL_ENDL;
 
+	// Build results vector.
+	std::vector<std::string> results;
+
+	// Disallow filenames that may escape subdir
+	if (filename.find("..") != std::string::npos)
+	{
+		LL_WARNS("LLDir") << "Ignoring potentially relative filename '" << filename << "'" << LL_ENDL;
+		return results;
+	}
+
 	// Cache the default language directory for each subdir we've encountered.
 	// A cache entry whose value is the empty string means "not localized,
 	// don't bother checking again."
@@ -792,8 +797,6 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 		}
 	}
 
-	// Build results vector.
-	std::vector<std::string> results;
 	// The process we use depends on 'constraint'.
 	if (constraint != CURRENT_SKIN) // meaning ALL_SKINS
 	{
@@ -868,8 +871,8 @@ std::string LLDir::getScrubbedFileName(const std::string uncleanFileName)
 	// replace any illegal file chars with and underscore '_'
 	for( unsigned int i = 0; i < illegalChars.length(); i++ )
 	{
-		size_t j = std::string::npos;
-		while ((j = name.find(illegalChars[i])) != std::string::npos)
+		size_t j;
+		while((j = name.find(illegalChars[i])) != std::string::npos)
 		{
 			name[j] = '_';
 		}
@@ -883,7 +886,7 @@ std::string LLDir::getForbiddenFileChars()
 	return "\\/:*?\"<>|";
 }
 
-void LLDir::setLindenUserDir(const std::string &username)
+void LLDir::setLindenUserDir(const std::string &username, const std::string &gridname)
 {
 	// if the username isn't set, that's bad
 	if (!username.empty())
@@ -893,7 +896,13 @@ void LLDir::setLindenUserDir(const std::string &username)
 		std::string userlower(username);
 		LLStringUtil::toLower(userlower);
 		LLStringUtil::replaceChar(userlower, ' ', '_');
-		mLindenUserDir = add(getOSUserAppDir(), userlower);
+		std::string gridlower(gridname);
+		LLStringUtil::toLower(gridlower);
+		LLStringUtil::replaceChar(gridlower, ' ', '_');
+		const std::string& logname = (gridlower.empty())
+			? userlower : userlower.append(".").append(gridlower);
+		
+		mLindenUserDir = add(getOSUserAppDir(), logname);
 	}
 	else
 	{
@@ -917,10 +926,12 @@ void LLDir::setChatLogsDir(const std::string &path)
 
 void LLDir::updatePerAccountChatLogsDir()
 {
-	mPerAccountChatLogsDir = add(getChatLogsDir(), mUserName);
+	const std::string& logname = (mGrid.empty())
+		? mUserName : mUserName.append(".").append(mGrid);
+	mPerAccountChatLogsDir = add(getChatLogsDir(), logname);
 }
 
-void LLDir::setPerAccountChatLogsDir(const std::string &username)
+void LLDir::setPerAccountChatLogsDir(const std::string &username, const std::string &gridname)
 {
 	// if both first and last aren't set, assume we're grabbing the cached dir
 	if (!username.empty())
@@ -930,8 +941,12 @@ void LLDir::setPerAccountChatLogsDir(const std::string &username)
 		std::string userlower(username);
 		LLStringUtil::toLower(userlower);
 		LLStringUtil::replaceChar(userlower, ' ', '_');
-
+		std::string gridlower(gridname);
+		LLStringUtil::toLower(gridlower);
+		LLStringUtil::replaceChar(gridlower, ' ', '_');
+		
 		mUserName = userlower;
+		mGrid = gridlower;
 		updatePerAccountChatLogsDir();
 	}
 	else
@@ -1037,6 +1052,7 @@ void LLDir::dumpCurrentDirectories()
 	LL_DEBUGS("AppInit","Directories") << "  CAFile:				 " << getCAFile() << LL_ENDL;
 	LL_DEBUGS("AppInit","Directories") << "  SkinBaseDir:           " << getSkinBaseDir() << LL_ENDL;
 	LL_DEBUGS("AppInit","Directories") << "  SkinDir:               " << getSkinDir() << LL_ENDL;
+	LL_DEBUGS("AppInit","Directories") << "  UserSkinDir:           " << getUserSkinDir() << LL_ENDL;
 }
 
 std::string LLDir::add(const std::string& path, const std::string& name) const
@@ -1083,7 +1099,7 @@ LLDir::SepOff LLDir::needSep(const std::string& path, const std::string& name) c
 	{
 		// But if BOTH path and name bring a separator, we need not add one.
 		// Moreover, we should actually skip the leading separator of 'name'.
-		return SepOff(false, static_cast<U8>(seplen));
+		return SepOff(false, (unsigned short)seplen);
 	}
 	// Here we know that either path_ends_sep or name_starts_sep is true --
 	// but not both. So don't add a separator, and don't skip any characters:

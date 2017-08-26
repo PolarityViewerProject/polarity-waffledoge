@@ -62,7 +62,7 @@ class LLFloaterGestureObserver : public LLGestureManagerObserver
 public:
 	LLFloaterGestureObserver(LLFloaterGesture* floater) : mFloater(floater) {}
 	virtual ~LLFloaterGestureObserver() {}
-	virtual void changed() { mFloater->refreshAll(); }
+	void changed() override { mFloater->refreshAll(); }
 
 private:
 	LLFloaterGesture* mFloater;
@@ -74,7 +74,7 @@ private:
 class GestureShowCallback : public LLInventoryCallback
 {
 public:
-	void fire(const LLUUID &inv_item)
+	void fire(const LLUUID &inv_item) override
 	{
 		LLPreviewGesture::show(inv_item, LLUUID::null);
 		
@@ -99,11 +99,11 @@ private:
 public:
 	GestureCopiedCallback(LLFloaterGesture* floater): mFloater(floater)
 	{}
-	void fire(const LLUUID &inv_item)
+	void fire(const LLUUID &inv_item) override
 	{
 		if(mFloater)
 		{
-			mFloater->addGesture(inv_item,NULL,mFloater->getChild<LLScrollListCtrl>("gesture_list"));
+			mFloater->addGesture(inv_item, nullptr,mFloater->getChild<LLScrollListCtrl>("gesture_list"));
 
 			// EXP-1909 (Pasted gesture displayed twice)
 			// The problem is that addGesture is called here for the second time for the same item (which is copied)
@@ -119,6 +119,7 @@ public:
 //---------------------------------------------------------------------------
 LLFloaterGesture::LLFloaterGesture(const LLSD& key)
 	: LLFloater(key)
+	, mGestureList(nullptr)
 {
 	mObserver = new LLFloaterGestureObserver(this);
 	LLGestureMgr::instance().addObserver(mObserver);
@@ -183,7 +184,7 @@ LLFloaterGesture::~LLFloaterGesture()
 {
 	LLGestureMgr::instance().removeObserver(mObserver);
 	delete mObserver;
-	mObserver = NULL;
+	mObserver = nullptr;
 	gInventory.removeObserver(this);
 }
 
@@ -288,7 +289,7 @@ void LLFloaterGesture::buildGestureList()
 			if (active_gestures.find(item->getUUID()) == active_gestures.end())
 			{
 				// if gesture wasn't loaded yet, we can display only name
-				addGesture(item->getUUID(), NULL, mGestureList);
+				addGesture(item->getUUID(), nullptr, mGestureList);
 			}
 		}
 	}
@@ -583,6 +584,7 @@ void LLFloaterGesture::onClickEdit()
 
 void LLFloaterGesture::onCommitList()
 {
+	if (!mGestureList) return;
 	const LLUUID& item_id = mGestureList->getCurrentID();
 
 	mSelectedID = item_id;

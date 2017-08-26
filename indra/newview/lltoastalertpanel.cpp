@@ -30,8 +30,6 @@
 
 #include "linden_common.h"
 
-#include "llboost.h"
-
 #include "lltoastalertpanel.h"
 #include "llfontgl.h"
 #include "lltextbox.h"
@@ -42,7 +40,6 @@
 #include "lliconctrl.h"
 #include "llui.h"
 #include "lllineeditor.h"
-#include "lluictrlfactory.h"
 #include "llnotifications.h"
 #include "llrootview.h"
 #include "lltransientfloatermgr.h"
@@ -51,7 +48,7 @@
 const S32 MAX_ALLOWED_MSG_WIDTH = 400;
 const F32 DEFAULT_BUTTON_DELAY = 0.5f;
 
-/*static*/ LLControlGroup* LLToastAlertPanel::sSettings = NULL;
+/*static*/ LLControlGroup* LLToastAlertPanel::sSettings = nullptr;
 /*static*/ LLToastAlertPanel::URLLoader* LLToastAlertPanel::sURLLoader;
 
 //-----------------------------------------------------------------------------
@@ -64,10 +61,10 @@ static const S32 BTN_HPAD = 8;
 LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal)
 	  : LLToastPanel(notification),
 		mDefaultOption( 0 ),
-		mCheck(NULL),
+		mCheck(nullptr),
 		mCaution(notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH),
 		mLabel(notification->getName()),
-		mLineEditor(NULL)
+		mLineEditor(nullptr)
 {
     // EXP-1822
     // save currently focused view, so that return focus to it
@@ -291,8 +288,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 
 			setEditTextArgs(notification->getSubstitutions());
 
-			mLineEditor->setFollowsLeft();
-			mLineEditor->setFollowsRight();
+			mLineEditor->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT);
 
 			// find form text input field
 			LLSD form_text;
@@ -548,7 +544,7 @@ void LLToastAlertPanel::onButtonPressed( const LLSD& data, S32 button )
 	response[button_data->mButton->getName()] = true;
 
 	// If we declared a URL and chose the URL option, go to the url
-	if (!button_data->mURL.empty() && sURLLoader != NULL)
+	if (!button_data->mURL.empty() && sURLLoader != nullptr)
 	{
 		sURLLoader->load(button_data->mURL, button_data->mURLExternal);
 	}

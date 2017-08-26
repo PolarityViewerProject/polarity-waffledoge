@@ -39,13 +39,13 @@
 
 LLXmlParser::LLXmlParser()
 	:
-	mParser( NULL ),
+	mParser(nullptr ),
 	mDepth( 0 )
 {
 	mAuxErrorString = "no error";
 
 	// Override the document's declared encoding.
-	mParser = XML_ParserCreate(NULL);
+	mParser = XML_ParserCreate(nullptr);
 
 	XML_SetUserData(mParser, this);
 	XML_SetElementHandler(					mParser,	startElementHandler, endElementHandler);
@@ -85,7 +85,7 @@ BOOL LLXmlParser::parseFile(const std::string &path)
 		S32 bytes_read = 0;
 		
 		fseek(file, 0L, SEEK_END);
-		S32 buffer_size = ftell(file);
+		size_t buffer_size = ftell(file);
 		fseek(file, 0L, SEEK_SET);
 
 		void* buffer = XML_GetBuffer(mParser, buffer_size);

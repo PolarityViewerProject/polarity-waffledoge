@@ -28,10 +28,8 @@
 #define LL_LLIMAGE_H
 
 #include "lluuid.h"
-#include "llstring.h"
 #include "llpointer.h"
 #include "lltrace.h"
-#include "llerror.h"
 
 const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_MIP = 11; // 2048x2048
@@ -52,8 +50,6 @@ const S32 MIN_BLOCK_SIZE = 4;				// Min block dim is 4 according to jpeg2000 spe
 const S32 MIN_LAYER_SIZE = 2000;			// Size of the first quality layer (after header). Must be > to FIRST_PACKET_SIZE!!
 const S32 MAX_NB_LAYERS = 64;				// Max number of layers we'll entertain in SL (practical limit)
 
-// Note: Arithmetic left shifts are equivalent to multiplication by a (positive, integral) power of the radix
-// (e.g., a multiplication by a power of 2 for binary numbers).
 const S32 MIN_IMAGE_SIZE = (1<<MIN_IMAGE_MIP); // 4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_SIZE = (1<<MAX_IMAGE_MIP); // 2048
 const S32 MIN_IMAGE_AREA = MIN_IMAGE_SIZE * MIN_IMAGE_SIZE;
@@ -123,7 +119,6 @@ protected:
 public:
 	LLImageBase();
 
-	LOG_CLASS(LLImageBase);
 	enum
 	{
 		TYPE_NORMAL = 0,
@@ -148,15 +143,8 @@ public:
 
 	void setSize(S32 width, S32 height, S32 ncomponents);
 	U8* allocateDataSize(S32 width, S32 height, S32 ncomponents, S32 size = -1); // setSize() + allocateData()
-	void enableOverSize() {
-		LL_WARNS() << "Oversize enabled!" << LL_ENDL;
-		mAllowOverSize = true;
-	}
-	void disableOverSize()
-	{
-		LL_WARNS() << "Oversize disabled!" << LL_ENDL; 
-		mAllowOverSize = false;
-	}
+	void enableOverSize() {mAllowOverSize = true ;}
+	void disableOverSize() {mAllowOverSize = false; }
 
 protected:
 	// special accessor to allow direct setting of mData and mDataSize by LLImageFormatted
@@ -184,13 +172,6 @@ private:
 
 	bool mBadBufferAllocation ;
 	bool mAllowOverSize ;
-public:
-	// <FS:ND> Report amount of failed buffer allocations
-	static void addAllocationError();
-	static U32 getAllocationErrors();
-private:
-	static U32 mAllocationErrors;
-	// </FS:ND>
 };
 
 // Raw representation of an image (used for textures, and other uncompressed formats
@@ -206,9 +187,9 @@ public:
 	// Construct using createFromFile (used by tools)
 	//LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only = false);
 
-	/*virtual*/ void deleteData();
-	/*virtual*/ U8* allocateData(S32 size = -1);
-	/*virtual*/ U8* reallocateData(S32 size);
+	/*virtual*/ void deleteData() override;
+	/*virtual*/ U8* allocateData(S32 size = -1) override;
+	/*virtual*/ U8* reallocateData(S32 size) override;
 	
 	bool resize(U16 width, U16 height, S8 components);
 
@@ -273,6 +254,9 @@ public:
 
 	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
 	void compositeUnscaled4onto3( LLImageRaw* src );
+	
+	std::string getComment() const { return mComment; }
+	std::string mComment;
 
 protected:
 	// Create an image from a local file (generally used in tools)
@@ -308,12 +292,12 @@ public:
 	LLImageFormatted(S8 codec);
 
 	// LLImageBase
-	/*virtual*/ void deleteData();
-	/*virtual*/ U8* allocateData(S32 size = -1);
-	/*virtual*/ U8* reallocateData(S32 size);
+	/*virtual*/ void deleteData() override;
+	/*virtual*/ U8* allocateData(S32 size = -1) override;
+	/*virtual*/ U8* reallocateData(S32 size) override;
 	
-	/*virtual*/ void dump();
-	/*virtual*/ void sanityCheck();
+	/*virtual*/ void dump() override;
+	/*virtual*/ void sanityCheck() override;
 
 	// New methods
 	// subclasses must return a prefered file extension (lowercase without a leading dot)

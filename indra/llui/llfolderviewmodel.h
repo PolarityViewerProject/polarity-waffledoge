@@ -136,18 +136,6 @@ public:
 class LLFolderViewModelItem : public LLRefCount, public LLTrace::MemTrackable<LLFolderViewModelItem>
 {
 public:
-// <FS:ND> Reintegrate search by uuid/creator/descripting from Zi Ree after CHUI Merge
-// Interface to query extended object attributes,
-	virtual std::string getSearchableCreator( void ) const
-	{ return ""; }
-	virtual std::string getSearchableDescription( void ) const
-	{ return ""; }
-	virtual std::string getSearchableUUID( void ) const
-	{ return ""; }
-	virtual std::string getSearchableAll( void ) const
-	{ return ""; }
-// </FS:ND>
-
 	LLFolderViewModelItem() 
 	:	LLTrace::MemTrackable<LLFolderViewModelItem>("LLFolderViewModelItem") 
 	{}
@@ -245,13 +233,13 @@ public:
 		mPassedFolderFilter(true),
 		mStringMatchOffsetFilter(std::string::npos),
 		mStringFilterSize(0),
-		mFolderViewItem(NULL),
 		mLastFilterGeneration(-1),
 		mLastFolderFilterGeneration(-1),
-		mMarkedDirtyGeneration(-1),
 		mMostFilteredDescendantGeneration(-1),
-		mParent(NULL),
-		mRootViewModel(root_view_model)
+		mMarkedDirtyGeneration(-1),
+		mParent(nullptr),
+		mRootViewModel(root_view_model),
+		mFolderViewItem(nullptr)
 	{
 		mChildren.clear();
 	}
@@ -296,8 +284,8 @@ public:
 	{ 
 		// Avoid duplicates: bail out if that child is already present in the list
 		// Note: this happens when models are created before views
-		child_list_t::const_iterator iter;
-		for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+		for (auto iter = mChildren.cbegin(),
+			end_iter = mChildren.cend(); iter != end_iter; ++iter)
 		{
 			if (child == *iter)
 			{

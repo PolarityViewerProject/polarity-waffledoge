@@ -65,16 +65,6 @@
 #include "llautoreplace.h"
 #include "llcorehttputil.h"
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-#include "pvcommon.h" // For MuPose and AutoCloseOOC
-
-// [RLVa:KB] - Checked: 2013-05-10 (RLVa-1.4.9)
-#include "rlvactions.h"
-#include "rlvcommon.h"
-// [/RLVa:KB]
-
 const F32 ME_TYPING_TIMEOUT = 4.0f;
 const F32 OTHER_TYPING_TIMEOUT = 9.0f;
 
@@ -84,17 +74,17 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
   : LLFloaterIMSessionTab(session_id),
 	mLastMessageIndex(-1),
 	mDialog(IM_NOTHING_SPECIAL),
+	mPositioned(false),
 	mTypingStart(),
-	mShouldSendTypingState(false),
 	mMeTyping(false),
 	mOtherTyping(false),
-	mSessionNameUpdatedForTyping(false),
+	mShouldSendTypingState(false),
 	mTypingTimer(),
 	mTypingTimeoutTimer(),
-	mPositioned(false),
-	mSessionInitialized(false),
+	mSessionNameUpdatedForTyping(false),
 	mMeTypingTimer(),
 	mOtherTypingTimer(),
+	mSessionInitialized(false),
 	mImInfo()
 {
 	mIsNearbyChat = false;
@@ -154,14 +144,14 @@ void LLFloaterIMSession::onClickCloseBtn(bool)
 {
 	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
 
-	if (session != NULL)
+	if (session != nullptr)
 	{
 		bool is_call_with_chat = session->isGroupSessionType()
 				|| session->isAdHocSessionType() || session->isP2PSessionType();
 
 		LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
 
-		if (is_call_with_chat && voice_channel != NULL
+		if (is_call_with_chat && voice_channel != nullptr
 				&& voice_channel->isActive())
 		{
 			LLSD payload;
@@ -265,9 +255,7 @@ void LLFloaterIMSession::sendMsgFromInputEditor()
 			{
 				// Truncate and convert to UTF8 for transport
 				std::string utf8_text = wstring_to_utf8str(text);
-				// <polarity> Apply OOC and Mu Pose stuff
-				utf8_text = applyAutoCloseOoc(utf8_text);
-				utf8_text = applyMuPose(utf8_text);
+				applyMUPose(utf8_text);
 
 				sendMsg(utf8_text);
 
@@ -283,60 +271,7 @@ void LLFloaterIMSession::sendMsgFromInputEditor()
 
 void LLFloaterIMSession::sendMsg(const std::string& msg)
 {
-//	const std::string utf8_text = utf8str_truncate(msg, MAX_MSG_BUF_SIZE - 1);
-// [RLVa:KB] - Checked: 2010-11-30 (RLVa-1.3.0)
-	std::string utf8_text = utf8str_truncate(msg, MAX_MSG_BUF_SIZE - 1);
-
-	if ( (RlvActions::hasBehaviour(RLV_BHVR_SENDIM)) || (RlvActions::hasBehaviour(RLV_BHVR_SENDIMTO)) )
-	{
-		const LLIMModel::LLIMSession* pIMSession = LLIMModel::instance().findIMSession(mSessionID);
-		RLV_ASSERT(pIMSession);
-
-		bool fRlvFilter = !pIMSession;
-		if (pIMSession)
-		{
-			switch (pIMSession->mSessionType)
-			{
-				case LLIMModel::LLIMSession::P2P_SESSION:	// One-on-one IM
-					fRlvFilter = !RlvActions::canSendIM(mOtherParticipantUUID);
-					break;
-				case LLIMModel::LLIMSession::GROUP_SESSION:	// Group chat
-					fRlvFilter = !RlvActions::canSendIM(mSessionID);
-					break;
-				case LLIMModel::LLIMSession::ADHOC_SESSION:	// Conference chat: allow if all participants can be sent an IM
-					{
-						if (!pIMSession->mSpeakers)
-						{
-							fRlvFilter = true;
-							break;
-						}
-
-						LLSpeakerMgr::speaker_list_t speakers;
-						pIMSession->mSpeakers->getSpeakerList(&speakers, TRUE);
-						for (LLSpeakerMgr::speaker_list_t::const_iterator itSpeaker = speakers.begin(); 
-								itSpeaker != speakers.end(); ++itSpeaker)
-						{
-							const LLSpeaker* pSpeaker = *itSpeaker;
-							if ( (gAgent.getID() != pSpeaker->mID) && (!RlvActions::canSendIM(pSpeaker->mID)) )
-							{
-								fRlvFilter = true;
-								break;
-							}
-						}
-					}
-					break;
-				default:
-					fRlvFilter = true;
-					break;
-			}
-		}
-
-		if (fRlvFilter)
-		{
-			utf8_text = RlvStrings::getString(RLV_STRING_BLOCKED_SENDIM);
-		}
-	}
-// [/RLVa:KB]
+	const std::string utf8_text = utf8str_truncate(msg, MAX_MSG_BUF_SIZE - 1);
 
 	if (mSessionInitialized)
 	{
@@ -436,11 +371,6 @@ BOOL LLFloaterIMSession::postBuild()
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
 
-#ifdef PVDATA_SYSTEM
-	BOOL is_support_group = gPVOldAPI->isSupportGroup(mSessionID);
-	getChild<LLUICtrl>("support_group_ribbon")->setVisible(is_support_group);
-#endif
-
 	initIMFloater();
 
 	return result;
@@ -467,9 +397,10 @@ void LLFloaterIMSession::onAddButtonClicked()
 
 bool LLFloaterIMSession::canAddSelectedToChat(const uuid_vec_t& uuids)
 {
+	// <alchemy/> - MERGENOTE - LL different ()
 	if (!mSession
-		|| mDialog == IM_SESSION_GROUP_START
-		|| (mDialog == IM_SESSION_INVITE && gAgent.isInGroup(mSessionID)))
+		|| ((mDialog == IM_SESSION_GROUP_START
+		|| mDialog == IM_SESSION_INVITE) && gAgent.isInGroup(mSessionID)))
 	{
 		return false;
 	}
@@ -550,7 +481,7 @@ void LLFloaterIMSession::addP2PSessionParticipants(const LLSD& notification, con
 	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
 
 	// first check whether this is a voice session
-	bool is_voice_call = voice_channel != NULL && voice_channel->isActive();
+	bool is_voice_call = voice_channel != nullptr && voice_channel->isActive();
 
 	uuid_vec_t temp_ids;
 
@@ -657,7 +588,7 @@ LLFloaterIMSession* LLFloaterIMSession::show(const LLUUID& session_id)
 	closeHiddenIMToasts();
 
 	if (!gIMMgr->hasSession(session_id))
-		return NULL;
+		return nullptr;
 
 	// Test the existence of the floater before we try to create it
 	bool exist = findInstance(session_id);
@@ -665,7 +596,7 @@ LLFloaterIMSession* LLFloaterIMSession::show(const LLUUID& session_id)
 	// Get the floater: this will create the instance if it didn't exist
 	LLFloaterIMSession* floater = getInstance(session_id);
 	if (!floater)
-		return NULL;
+		return nullptr;
 
 	LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
 
@@ -776,10 +707,10 @@ void LLFloaterIMSession::setVisible(BOOL visible)
 	if(!visible)
 	{
 		LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
-		if (NULL != chiclet_panelp)
+		if (nullptr != chiclet_panelp)
 		{
 			LLIMChiclet * chicletp = chiclet_panelp->findChiclet<LLIMChiclet>(mSessionID);
-			if(NULL != chicletp)
+			if(nullptr != chicletp)
 			{
 				chicletp->setToggleState(false);
 			}
@@ -852,7 +783,8 @@ bool LLFloaterIMSession::toggle(const LLUUID& session_id)
 			floater->setVisible(false);
 			return false;
 		}
-		else if(floater && ((!floater->isDocked() || floater->getVisible()) && !floater->hasFocus()))
+		// <alchemy/> - MERGENOTE - LL different ()
+		else if(floater && (!floater->isDocked() || (floater->getVisible() && !floater->hasFocus())))
 		{
 			floater->setVisible(TRUE);
 			floater->setFocus(TRUE);
@@ -934,7 +866,7 @@ void LLFloaterIMSession::updateMessages()
 			{
 				chat.mNotifId = msg["notification_id"].asUUID();
 				// if notification exists - embed it
-				if (LLNotificationsUtil::find(chat.mNotifId) != NULL)
+				if (LLNotificationsUtil::find(chat.mNotifId) != nullptr)
 				{
 					// remove embedded notification from channel
 					LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
@@ -963,7 +895,7 @@ void LLFloaterIMSession::updateMessages()
 			mLastMessageIndex = msg["index"].asInteger();
 
 			// if it is a notification - next message is a notification history log, so skip it
-			if (chat.mNotifId.notNull() && LLNotificationsUtil::find(chat.mNotifId) != NULL)
+			if (chat.mNotifId.notNull() && LLNotificationsUtil::find(chat.mNotifId) != nullptr)
 			{
 				if (++iter == iter_end)
 				{
@@ -984,7 +916,7 @@ void LLFloaterIMSession::reloadMessages(bool clean_messages/* = false*/)
 	{
 		LLIMModel::LLIMSession * sessionp = LLIMModel::instance().findIMSession(mSessionID);
 
-		if (NULL != sessionp)
+		if (nullptr != sessionp)
 		{
 			sessionp->loadHistory();
 		}
@@ -1166,8 +1098,8 @@ void LLFloaterIMSession::processAgentListUpdates(const LLSD& body)
 void LLFloaterIMSession::processSessionUpdate(const LLSD& session_update)
 {
 	// *TODO : verify following code when moderated mode will be implemented
-	if ( false && session_update.has("moderated_mode") &&
-		 session_update["moderated_mode"].has("voice") )
+	/*if (session_update.has("moderated_mode")
+		&& session_update["moderated_mode"].has("voice"))
 	{
 		BOOL voice_moderated = session_update["moderated_mode"]["voice"];
 		const std::string session_label = LLIMModel::instance().getName(mSessionID);
@@ -1185,7 +1117,7 @@ void LLFloaterIMSession::processSessionUpdate(const LLSD& session_update)
 		// *TODO : uncomment this when/if LLPanelActiveSpeakers panel will be added
 		//update the speakers dropdown too
 		//mSpeakerPanel->setVoiceModerationCtrlMode(voice_moderated);
-	}
+	}*/
 }
 
 // virtual
@@ -1258,7 +1190,7 @@ BOOL LLFloaterIMSession::isInviteAllowed() const
 BOOL LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 {
 	LLViewerRegion* region = gAgent.getRegion();
-	bool is_region_exist = region != NULL;
+	bool is_region_exist = region != nullptr;
 
 	if (is_region_exist)
 	{
@@ -1332,6 +1264,10 @@ Note: OTHER_TYPING_TIMEOUT must be > ME_TYPING_TIMEOUT for proper operation of t
 		// Save im_info so that removeTypingIndicator can be properly called because a timeout has occurred
 		mImInfo = im_info;
 
+		LLFloaterIMContainer* im_container = LLFloaterIMContainer::getInstance();
+		if (im_container)
+			im_container->updateTypingState(mSessionID, true);
+
 		// Update speaker
 		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
 		if ( speaker_mgr )
@@ -1346,6 +1282,10 @@ void LLFloaterIMSession::removeTypingIndicator(const LLIMInfo* im_info)
 	if (mOtherTyping)
 	{
 		mOtherTyping = false;
+
+		LLFloaterIMContainer* im_container = LLFloaterIMContainer::getInstance();
+		if (im_container)
+			im_container->updateTypingState(mSessionID, false);
 
 		if (im_info)
 		{
@@ -1365,7 +1305,7 @@ void LLFloaterIMSession::closeHiddenIMToasts()
 	class IMToastMatcher: public LLNotificationsUI::LLScreenChannel::Matcher
 	{
 	public:
-		bool matches(const LLNotificationPtr notification) const
+		bool matches(const LLNotificationPtr notification) const override
 		{
 			// "notifytoast" type of notifications is reserved for IM notifications
 			return "notifytoast" == notification->getType();
@@ -1374,7 +1314,7 @@ void LLFloaterIMSession::closeHiddenIMToasts()
 
 	LLNotificationsUI::LLScreenChannel* channel =
 			LLNotificationsUI::LLChannelManager::getNotificationScreenChannel();
-	if (channel != NULL)
+	if (channel != nullptr)
 	{
 		channel->closeHiddenToasts(IMToastMatcher());
 	}
@@ -1387,7 +1327,7 @@ void LLFloaterIMSession::confirmLeaveCallCallback(const LLSD& notification, cons
 	LLUUID session_id = payload["session_id"];
 
 	LLFloater* im_floater = findInstance(session_id);
-	if (option == 0 && im_floater != NULL)
+	if (option == 0 && im_floater != nullptr)
 	{
 		im_floater->closeFloater();
 	}

@@ -40,29 +40,22 @@ class LLGroupList;
 class LLMenuButton;
 class LLTabContainer;
 class LLNetMap;
+class LLDragAndDropButton;
+class LLAccordionCtrlTab;
 
 class LLPanelPeople 
 	: public LLPanel
-	, public LLVoiceClientStatusObserver
 {
 	LOG_CLASS(LLPanelPeople);
 public:
 	LLPanelPeople();
 	virtual ~LLPanelPeople();
 
-	/*virtual*/ BOOL 	postBuild();
-	/*virtual*/ void	onOpen(const LLSD& key);
-	/*virtual*/ bool	notifyChildren(const LLSD& info);
-	// Implements LLVoiceClientStatusObserver::onChange() to enable call buttons
-	// when voice is available
-	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+	/*virtual*/ BOOL 	postBuild() override;
+	/*virtual*/ void	onOpen(const LLSD& key) override;
+	/*virtual*/ bool	notifyChildren(const LLSD& info) override;
 
     bool mTryToConnectToFacebook;
-
-// [RLVa:KB] - Checked: RLVa-1.2.0
-	LLAvatarList* getNearbyList() { return mNearbyList; }
-	void          updateNearbyList();
-// [/RLVa:KB]
 
 	// internals
 	class Updater;
@@ -77,13 +70,20 @@ private:
 		E_SORT_BY_RECENT_SPEAKERS = 4,
 	} ESortOrder;
 
+	enum ENearbyClickOrder {
+		E_CLICK_TO_IM = 0,
+		E_CLICK_TO_PROFILE,
+		E_CLICK_TO_ZOOM,
+		E_CLICK_TO_TELEPORT
+	};
+
     void				    removePicker();
 
 	// methods indirectly called by the updaters
 	void					updateFriendListHelpText();
 	void					updateFriendList();
 	bool					updateSuggestedFriendList();
-//	void					updateNearbyList();
+	void					updateNearbyList();
 	void					updateRecentList();
 	void					updateFacebookList(bool visible);
 
@@ -98,7 +98,6 @@ private:
 
 	// UI callbacks
 	void					onFilterEdit(const std::string& search_string);
-	void					onGroupLimitInfo();
 	void					onTabSelected(const LLSD& param);
 	void					onAddFriendButtonClicked();
 	void					onAddFriendWizButtonClicked();
@@ -117,6 +116,7 @@ private:
 	void					onNearbyViewSortMenuItemClicked(const LLSD& userdata);
 	void					onGroupsViewSortMenuItemClicked(const LLSD& userdata);
 	void					onRecentViewSortMenuItemClicked(const LLSD& userdata);
+	void					onRecentViewClearHistoryMenuItemClicked();
 
 	bool					onFriendsViewSortMenuItemCheck(const LLSD& userdata);
 	bool					onRecentViewSortMenuItemCheck(const LLSD& userdata);
@@ -127,7 +127,7 @@ private:
 
 	void					onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LLSD& param, LLAvatarList* avatar_list);
 
-	void					showAccordion(const std::string name, bool show);
+	void					showAccordion(LLAccordionCtrlTab* tab, bool show);
 
 	void					showFriendsAccordionsIfNeeded();
 
@@ -136,18 +136,37 @@ private:
 	bool					onConnectedToFacebook(const LLSD& data);
 
 	void					setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed);
-	void					setAccordionCollapsedByUser(const std::string& name, bool collapsed);
 	bool					isAccordionCollapsedByUser(LLUICtrl* acc_tab);
-	bool					isAccordionCollapsedByUser(const std::string& name);
 
 	LLTabContainer*			mTabContainer;
+
+	// Nearby
+	LLButton*				mNearbyGearBtn;
+	LLButton*				mNearbyAddFriendBtn;
+	LLButton*				mNearbyDelFriendBtn;
+	LLNetMap*				mMiniMap;
+	LLAvatarList*			mNearbyList;
+
+	// Friends
+	LLButton*				mFriendGearBtn;
+	LLButton*				mFriendsDelFriendBtn;
+	LLAccordionCtrlTab*		mAccordianTabOnlineFriends;
+	LLAccordionCtrlTab*		mAccordianTabAllFriends;
+	LLAccordionCtrlTab*		mAccordianTabSuggestFriends;
 	LLAvatarList*			mOnlineFriendList;
 	LLAvatarList*			mAllFriendList;
 	LLAvatarList*			mSuggestedFriends;
-	LLAvatarList*			mNearbyList;
-	LLAvatarList*			mRecentList;
+
+	// Groups
+	LLDragAndDropButton*	mGroupMinusBtn;
+	LLTextBox*				mGroupCountText;
 	LLGroupList*			mGroupList;
-	LLNetMap*				mMiniMap;
+
+	// Recent
+	LLButton*				mRecentGearBtn;
+	LLButton*				mRecentAddFriendBtn;
+	LLButton*				mRecentDelFriendBtn;
+	LLAvatarList*			mRecentList;
 
 	std::vector<std::string> mSavedOriginalFilters;
 	std::vector<std::string> mSavedFilters;

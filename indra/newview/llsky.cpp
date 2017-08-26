@@ -53,6 +53,7 @@
 #include "llvosky.h"
 #include "llcubemap.h"
 #include "llviewercontrol.h"
+#include "llenvmanager.h"
 
 #include "llvowlsky.h"
 
@@ -89,9 +90,9 @@ LLSky::~LLSky()
 
 void LLSky::cleanup()
 {
-	mVOSkyp = NULL;
-	mVOWLSkyp = NULL;
-	mVOGroundp = NULL;
+	mVOSkyp = nullptr;
+	mVOWLSkyp = nullptr;
+	mVOGroundp = nullptr;
 }
 
 void LLSky::destroyGL()
@@ -286,14 +287,14 @@ void LLSky::init(const LLVector3 &sun_direction)
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
-	mVOWLSkyp = static_cast<LLVOWLSky*>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_WL_SKY, NULL));
+	mVOWLSkyp = static_cast<LLVOWLSky*>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_WL_SKY, nullptr));
 	mVOWLSkyp->initSunDirection(sun_direction, LLVector3::zero);
 	gPipeline.createObject(mVOWLSkyp.get());
 
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
-	mVOSkyp = (LLVOSky *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_SKY, NULL);
+	mVOSkyp = (LLVOSky *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_SKY, nullptr);
 
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
@@ -308,7 +309,7 @@ void LLSky::init(const LLVector3 &sun_direction)
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
-	mVOGroundp = (LLVOGround*)gObjectList.createObjectViewer(LLViewerObject::LL_VO_GROUND, NULL);
+	mVOGroundp = (LLVOGround*)gObjectList.createObjectViewer(LLViewerObject::LL_VO_GROUND, nullptr);
 	LLVOGround *groundp = mVOGroundp;
 	gPipeline.createObject((LLViewerObject *)groundp);
 

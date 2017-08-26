@@ -28,20 +28,13 @@
 #define LL_LLFLOATERIMNEARBYCHAT_H
 
 #include "llfloaterimsessiontab.h"
-#include "llcombobox.h"
 #include "llgesturemgr.h"
 #include "llchat.h"
-#include "llvoiceclient.h"
-#include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
-#include "llscrollbar.h"
-#include "llviewerchat.h"
-#include "llpanel.h"
 
 class LLResizeBar;
 
-class LLFloaterIMNearbyChat
-	:	public LLFloaterIMSessionTab
+class LLFloaterIMNearbyChat : public LLFloaterIMSessionTab
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
@@ -50,42 +43,40 @@ public:
 
 	static LLFloaterIMNearbyChat* buildFloater(const LLSD& key);
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
-	/*virtual*/ void setVisible(BOOL visible);
-	/*virtual*/ void setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
-	/*virtual*/ void closeHostedFloater();
+	BOOL postBuild() override;
+	void onOpen(const LLSD& key) override;
+	void onClose(bool app_quitting) override;
+	void setVisible(BOOL visible) override;
+	void setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD()) override;
+	void closeHostedFloater() override;
 
 	void loadHistory();
     void reloadMessages(bool clean_messages = false);
 	void removeScreenChat();
 
 	void show();
-	bool isChatVisible() const;
+	bool isMessagePanelVisible();
+	bool isChatVisible();
 
 	/** @param archive true - to save a message to the chat history log */
 	void	addMessage			(const LLChat& message,bool archive = true, const LLSD &args = LLSD());
 
-	LLChatEntry* getChatBox() { return mInputEditor; }
+	LLChatEntry* getChatBox() const { return mInputEditor; }
 
-	std::string getCurrentChat();
-	S32 getMessageArchiveLength() {return mMessageArchive.size();}
+	std::string getCurrentChat() const;
+	S32 getMessageArchiveLength() const {return mMessageArchive.size();}
 
-	virtual BOOL handleKeyHere( KEY key, MASK mask );
+	BOOL handleKeyHere( KEY key, MASK mask ) override;
 
 	static void startChat(const char* line);
 	static void stopChat();
 
-	static void sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
-	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
-
 	static bool isWordsName(const std::string& name);
 
 	void showHistory();
+	void changeChannelLabel(S32 channel);
 
 protected:
-	static BOOL matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
 	void onChatBoxKeystroke();
 	void onChatBoxFocusLost();
 	void onChatBoxFocusReceived();
@@ -94,24 +85,20 @@ protected:
 	void onChatBoxCommit();
 	void onChatFontChange(LLFontGL* fontp);
 
-	/*virtual*/ void onTearOffClicked();
-	/*virtual*/ void onClickCloseBtn(bool app_qutting = false);
-
-	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
-	EChatType processChatTypeTriggers(EChatType type, std::string &str);
+	void onTearOffClicked() override;
+	void onClickCloseBtn(bool app_qutting = false) override;
 
 	void displaySpeakingIndicator();
 
 	// Which non-zero channel did we last chat on?
 	static S32 sLastSpecialChatChannel;
 
-	LLOutputMonitorCtrl*	mOutputMonitor;
 	LLLocalSpeakerMgr*		mSpeakerMgr;
 
 	S32 mExpandedHeight;
 
 private:
-	/*virtual*/ void refresh();
+	void refresh() override;
 
 	std::vector<LLChat> mMessageArchive;
 };

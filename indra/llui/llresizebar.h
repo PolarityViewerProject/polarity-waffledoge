@@ -53,16 +53,16 @@ protected:
 
 public:
 
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
+	BOOL	handleHover(S32 x, S32 y, MASK mask) override;
+	BOOL	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	BOOL	handleDoubleClick(S32 x, S32 y, MASK mask) override;
 
 	void			setResizeLimits( S32 min_size, S32 max_size ) { mMinSize = min_size; mMaxSize = max_size; }
 	void			setEnableSnapping(BOOL enable) { mSnappingEnabled = enable; }
 	void			setAllowDoubleClickSnapping(BOOL allow) { mAllowDoubleClickSnapping = allow; }
 	bool			canResize() { return getEnabled() && mMaxSize > mMinSize; }
-	void            setResizeListener(boost::function<void(void*)> listener) {mResizeListener = listener;}
+	void            setResizeListener(std::function<void(void*)> listener) {mResizeListener = listener;}
 	void			setImagePanel(LLPanel * panelp);
 	LLPanel *		getImagePanel() const;
 
@@ -78,7 +78,7 @@ private:
 	bool							mSnappingEnabled,
 									mAllowDoubleClickSnapping;
 	LLView*							mResizingView;
-	boost::function<void(void*)>	mResizeListener;
+	std::function<void(void*)>		mResizeListener;
 	LLPointer<LLUIImage>			mDragHandleImage;
 	LLPanel *						mImagePanel;
 };

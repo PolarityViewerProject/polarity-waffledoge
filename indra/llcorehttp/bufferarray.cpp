@@ -61,7 +61,7 @@ protected:
 	Block(size_t len);
 
 	Block(const Block &) = delete;						// Not defined
-	void operator=(const Block &) = delete;				// Not defined
+	Block& operator=(const Block &) = delete;				// Not defined
 
 	// Allocate the block with the additional space for the
 	// buffered data at the end of the object.
@@ -104,7 +104,7 @@ BufferArray::~BufferArray()
 		 ++it)
 	{
 		delete *it;
-		*it = NULL;
+		*it = nullptr;
 	}
 	mBlocks.clear();
 }

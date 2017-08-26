@@ -32,7 +32,6 @@
 
 // llcommon
 #include "llevents.h"
-#include "stringize.h"
 
 // llmessage (!)
 #include "llfiltersd2xmlrpc.h" // for xml_escape_string()
@@ -52,7 +51,7 @@
 #include "llwindow.h"
 #include "llviewerwindow.h"
 #include "llprogressview.h"
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 #include "lltrans.h"
 #endif
 #include "llsecapi.h"
@@ -92,7 +91,7 @@ namespace {
 		class StartingUpdaterService;
 		class WaitingForDownload;
 
-		boost::scoped_ptr<State> mState;
+		std::unique_ptr<State> mState;
 		LLLoginInstance &  mLoginInstance;
 		LLUpdaterService & mUpdaterService;
 		
@@ -113,9 +112,9 @@ namespace {
 	{
 	public:
 		CheckingForUpdate(MandatoryUpdateMachine & machine);
-		
-		virtual void enter(void);
-		virtual void exit(void);
+
+		void enter(void) override;
+		void exit(void) override;
 		
 	private:
 		LLTempBoundListener mConnection;
@@ -131,9 +130,9 @@ namespace {
 	{
 	public:
 		Error(MandatoryUpdateMachine & machine);
-		
-		virtual void enter(void);
-		virtual void exit(void);
+
+		void enter(void) override;
+		void exit(void) override;
 		void onButtonClicked(const LLSD &, const LLSD &);
 		
 	private:
@@ -146,9 +145,9 @@ namespace {
 	{
 	public:
 		ReadyToInstall(MandatoryUpdateMachine & machine);
-		
-		virtual void enter(void);
-		virtual void exit(void);
+
+		void enter(void) override;
+		void exit(void) override;
 		
 	private:
 		//MandatoryUpdateMachine & mMachine;
@@ -160,9 +159,9 @@ namespace {
 	{
 	public:
 		StartingUpdaterService(MandatoryUpdateMachine & machine);
-		
-		virtual void enter(void);
-		virtual void exit(void);
+
+		void enter(void) override;
+		void exit(void) override;
 		void onButtonClicked(const LLSD & uiform, const LLSD & result);
 	private:
 		MandatoryUpdateMachine & mMachine;
@@ -174,9 +173,9 @@ namespace {
 	{
 	public:
 		WaitingForDownload(MandatoryUpdateMachine & machine);
-		
-		virtual void enter(void);
-		virtual void exit(void);
+
+		void enter(void) override;
+		void exit(void) override;
 		
 	private:
 		LLTempBoundListener mConnection;
@@ -249,14 +248,14 @@ void MandatoryUpdateMachine::start(void)
 void MandatoryUpdateMachine::setCurrentState(State * newStatePointer)
 {
 	{
-		boost::scoped_ptr<State> newState(newStatePointer);
-		if(mState != 0) mState->exit();
+		std::unique_ptr<State> newState(newStatePointer);
+		if(mState != nullptr) mState->exit();
 		mState.swap(newState);
 		
 		// Old state will be deleted on exit from this block before the new state
 		// is entered.
 	}
-	if(mState != 0) mState->enter();
+	if(mState != nullptr) mState->enter();
 }
 
 
@@ -266,9 +265,9 @@ void MandatoryUpdateMachine::setCurrentState(State * newStatePointer)
 
 
 MandatoryUpdateMachine::CheckingForUpdate::CheckingForUpdate(MandatoryUpdateMachine & machine):
-	mMachine(machine)
+	mMachine(machine),
+	mProgressView(nullptr)
 {
-	; // No op.
 }
 
 
@@ -278,7 +277,7 @@ void MandatoryUpdateMachine::CheckingForUpdate::enter(void)
 	
 	mProgressView = gViewerWindow->getProgressView();
 	mProgressView->setMessage("Looking for update...");
-	mProgressView->setText("There is a required update for your Polarity Viewer installation.");
+	mProgressView->setText("There is a required update for your viewer installation.");
 	mProgressView->setPercent(0);
 	mProgressView->setVisible(true);
 	mConnection = LLEventPumps::instance().obtain(LLUpdaterService::pumpName()).
@@ -346,7 +345,7 @@ void MandatoryUpdateMachine::Error::exit(void)
 
 void MandatoryUpdateMachine::Error::onButtonClicked(const LLSD &, const LLSD &)
 {
-	mMachine.setCurrentState(0);
+	mMachine.setCurrentState(nullptr);
 }
 
 
@@ -418,7 +417,7 @@ void MandatoryUpdateMachine::StartingUpdaterService::onButtonClicked(const LLSD 
 
 MandatoryUpdateMachine::WaitingForDownload::WaitingForDownload(MandatoryUpdateMachine & machine):
 	mMachine(machine),
-	mProgressView(0)
+	mProgressView(nullptr)
 {
 	; // No op.
 }
@@ -430,7 +429,7 @@ void MandatoryUpdateMachine::WaitingForDownload::enter(void)
 	mProgressView = gViewerWindow->getProgressView();
 	mProgressView->setMessage("Downloading update...");
 	std::ostringstream stream;
-	stream << "There is a required update for your Polarity Viewer installation." << std::endl <<
+	stream << "There is a required update for your viewer installation." << std::endl <<
 		"Version " << mMachine.mUpdaterService.updatedVersion();
 	mProgressView->setText(stream.str());
 	mProgressView->setPercent(0);
@@ -473,17 +472,16 @@ bool MandatoryUpdateMachine::WaitingForDownload::onEvent(LLSD const & event)
 // LLLoginInstance
 //-----------------------------------------------------------------------------
 
-LLAtomic32<bool>login_failure_lock(false);
 
 LLLoginInstance::LLLoginInstance() :
 	mLoginModule(new LLLogin()),
-	mNotifications(NULL),
+	mNotifications(nullptr),
 	mLoginState("offline"),
 	mSkipOptionalUpdate(false),
 	mAttemptComplete(false),
 	mTransferRate(0.0f),
 	mDispatcher("LLLoginInstance", "change"),
-	mUpdaterService(0)
+	mUpdaterService(nullptr)
 {
 	mLoginModule->getEventPump().listen("lllogininstance", 
 		boost::bind(&LLLoginInstance::handleLoginEvent, this, _1));
@@ -493,8 +491,6 @@ LLLoginInstance::LLLoginInstance() :
 	mDispatcher.add("connect",    "", boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
 	mDispatcher.add("disconnect", "", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
 	mDispatcher.add("indeterminate", "", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
-
-	login_failure_lock = false;
 }
 
 void LLLoginInstance::setPlatformInfo(const std::string platform,
@@ -591,7 +587,19 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 		gSavedSettings.setBOOL("UseDebugMenus", TRUE);
 		requested_options.append("god-connect");
 	}
-	
+
+	// Hey guys, let's stuff all the opensim options right here, ok?
+	if (LLGridManager::getInstance()->isInOpenSim())
+	{
+		requested_options.append("avatar_picker_url");
+		requested_options.append("classified_fee");
+		requested_options.append("currency");
+		requested_options.append("destination_guide_url");
+		requested_options.append("max_groups");
+		requested_options.append("profile-server-url");
+		requested_options.append("search");
+	}
+
 	// (re)initialize the request params with creds.
 	LLSD request_params = user_credential->getLoginParams();
 
@@ -651,15 +659,6 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 
 void LLLoginInstance::handleLoginFailure(const LLSD& event)
 {
-	// <polarity> Make sure we don't try to process login failure twice
-	if (login_failure_lock)
-	{
-		LL_ERRS() << "Login Failure attempted to be processed twice!" << LL_ENDL;
-	}
-	else
-	{
-		login_failure_lock = true;
-	}
 	// Login has failed. 
 	// Figure out why and respond...
 	LLSD response = event["data"];
@@ -727,8 +726,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 	{	
 		LL_INFOS() << "LLLoginInstance::handleLoginFailure attemptComplete" << LL_ENDL;
 		attemptComplete();
-	}
-	login_failure_lock = false;
+	}	
 }
 
 void LLLoginInstance::handleLoginSuccess(const LLSD& event)
@@ -800,6 +798,11 @@ bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 	return true;
 }
 
+void LLLoginInstance::attemptComplete()
+{
+	mAttemptComplete = true;
+	LLGridManager::getInstance()->setLoggedIn(mLoginState == LLStringExplicit("online")); 
+}
 
 void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 {
@@ -813,7 +816,7 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	}
 	
 	// store off config state, as we might quit soon
-	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"));
+	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);	
 	LLUIColorTable::instance().saveUserSettings();
 
 	std::string msg;
@@ -858,7 +861,7 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	}
 	else
 	{
-#ifdef LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_FOR_DOWNLOAD
 		notification_name += "ReleaseForDownload";
 #endif
 	}
@@ -877,7 +880,7 @@ bool LLLoginInstance::updateDialogCallback(const LLSD& notification, const LLSD&
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	bool mandatory = notification["payload"]["mandatory"].asBoolean();
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	if (option == 2)
 	{
 		// This condition attempts to skip the 
@@ -937,13 +940,13 @@ std::string construct_start_string()
 		{
 			// a startup URL was specified
 			LLVector3 position = start_slurl.getPosition();
-			std::string unescaped_start = 
-			STRINGIZE(  "uri:" 
-					  << start_slurl.getRegion() << "&" 
-						<< position[VX] << "&" 
-						<< position[VY] << "&" 
-						<< position[VZ]);
-			start = xml_escape_string(unescaped_start);
+			std::ostringstream unescaped_start;
+			unescaped_start << "uri:"
+							<< start_slurl.getRegion() << "&"
+							<< position[VX] << "&"
+							<< position[VY] << "&"
+							<< position[VZ];
+			start = xml_escape_string(unescaped_start.str());
 			break;
 		}
 		case LLSLURL::HOME_LOCATION:

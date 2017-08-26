@@ -29,7 +29,6 @@
 
 #include "v3dmath.h"
 #include "llframetimer.h"
-#include "llsingleton.h"
 #include "llparcelselection.h"
 #include "llui.h"
 
@@ -76,15 +75,12 @@ class LLViewerParcelMgr : public LLSingleton<LLViewerParcelMgr>
 	~LLViewerParcelMgr();
 
 public:
-	typedef boost::function<void (const LLVector3d&, const bool& local)> teleport_finished_callback_t;
+	typedef std::function<void (const LLVector3d&, const bool& local)> teleport_finished_callback_t;
 	typedef boost::signals2::signal<void (const LLVector3d&, const bool&)> teleport_finished_signal_t;
-	typedef boost::function<void()> teleport_failed_callback_t;
+	typedef std::function<void()> teleport_failed_callback_t;
 	typedef boost::signals2::signal<void()> teleport_failed_signal_t;
-// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
-	typedef boost::function<void()> teleport_done_callback_t;
-	typedef boost::signals2::signal<void()> teleport_done_signal_t;
-// [/SL:KB]
 
+	void init(F32 region_size);
 	static void cleanupGlobals();
 
 	BOOL	selectionEmpty() const;
@@ -131,6 +127,10 @@ public:
 	void addObserver(LLParcelObserver* observer);
 	void removeObserver(LLParcelObserver* observer);
 	void notifyObservers();
+	
+	typedef boost::signals2::signal<void()> parcel_msg_signal_t;
+	boost::signals2::connection addParcelMsgCallback(const parcel_msg_signal_t::slot_type& cb)
+		{ return mParcelMsgSignal.connect(cb); }
 
 	void setSelectionVisible(BOOL visible) { mRenderSelection = visible; }
 
@@ -201,10 +201,7 @@ public:
 
 	void	renderRect(	const LLVector3d &west_south_bottom, 
 						const LLVector3d &east_north_top );
-	// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
-	//void	renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 height, U8 direction, LLViewerRegion* regionp);
-	void	renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 height, U8 direction, LLViewerRegion* regionp, bool absolute_height = false);
-	// </FS:Ansariel>
+	void	renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 height, U8 direction, LLViewerRegion* regionp);
 	void	renderHighlightSegments(const U8* segments, LLViewerRegion* regionp);
 	void	renderCollisionSegments(U8* segments, BOOL use_pass, LLViewerRegion* regionp);
 
@@ -287,14 +284,8 @@ public:
 
 	boost::signals2::connection setTeleportFinishedCallback(teleport_finished_callback_t cb);
 	boost::signals2::connection setTeleportFailedCallback(teleport_failed_callback_t cb);
-// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
-	boost::signals2::connection setTeleportDoneCallback(teleport_done_callback_t cb);
-// [/SL:KB]
 	void onTeleportFinished(bool local, const LLVector3d& new_pos);
 	void onTeleportFailed();
-// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
-	void onTeleportDone();
-// [/SL:KB]
 
 	static BOOL isParcelOwnedByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 	static BOOL isParcelModifiableByAgent(const LLParcel* parcelp, U64 group_proxy_power);
@@ -344,14 +335,13 @@ private:
 	LLVector3d					mHoverEastNorth;
 
 	std::vector<LLParcelObserver*> mObservers;
+	
+	parcel_msg_signal_t mParcelMsgSignal;
 
 	BOOL						mTeleportInProgress;
 	LLVector3d					mTeleportInProgressPosition;
 	teleport_finished_signal_t	mTeleportFinishedSignal;
 	teleport_failed_signal_t	mTeleportFailedSignal;
-// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
-	teleport_done_signal_t		mTeleportDoneSignal;
-// [/SL:KB]
 
 	// Array of pieces of parcel edges to potentially draw
 	// Has (parcels_per_edge + 1) * (parcels_per_edge + 1) elements so

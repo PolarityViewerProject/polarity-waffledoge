@@ -40,9 +40,8 @@
 #include "v4color.h"
 
 #if LL_WINDOWS
-#	define WIN32_LEAN_AND_MEAN
-#	include <winsock2.h>	// for htonl
-#elif LL_LINUX || LL_SOLARIS
+#include "llwin32headerslean.h"
+#elif LL_LINUX
 #	include <netinet/in.h>
 #elif LL_DARWIN
 #	include <arpa/inet.h>

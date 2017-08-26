@@ -207,8 +207,8 @@ S32 LLSkyTex::sCurrent = 0;
 
 
 LLSkyTex::LLSkyTex() :
-	mSkyData(NULL),
-	mSkyDirs(NULL)
+	mSkyData(nullptr),
+	mSkyDirs(nullptr)
 {
 }
 
@@ -229,8 +229,8 @@ void LLSkyTex::init()
 
 void LLSkyTex::cleanupGL()
 {
-	mTexture[0] = NULL;
-	mTexture[1] = NULL;
+	mTexture[0] = nullptr;
+	mTexture[1] = nullptr;
 }
 
 void LLSkyTex::restoreGL()
@@ -245,10 +245,10 @@ void LLSkyTex::restoreGL()
 LLSkyTex::~LLSkyTex()
 {
 	delete[] mSkyData;
-	mSkyData = NULL;
+	mSkyData = nullptr;
 
 	delete[] mSkyDirs;
-	mSkyDirs = NULL;
+	mSkyDirs = nullptr;
 }
 
 
@@ -317,7 +317,8 @@ S32 LLVOSky::sTileResY = sResolution/NUM_TILES_Y;
 
 LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 :	LLStaticViewerObject(id, pcode, regionp, TRUE),
-	mSun(SUN_DISK_RADIUS), mMoon(MOON_DISK_RADIUS),
+	mBumpSunDir(0.f, 0.f, 1.f), mSun(SUN_DISK_RADIUS),
+	mMoon(MOON_DISK_RADIUS),
 	mBrightnessScale(1.f),
 	mBrightnessScaleNew(0.f),
 	mBrightnessScaleGuess(1.f),
@@ -325,8 +326,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mCloudDensity(0.2f),
 	mWind(0.f),
 	mForceUpdate(FALSE),
-	mWorldScale(1.f),
-	mBumpSunDir(0.f, 0.f, 1.f)
+	mWorldScale(1.f)
 {
 	bool error = false;
 	
@@ -361,7 +361,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	}
 	for (S32 i=0; i<FACE_COUNT; i++)
 	{
-		mFace[i] = NULL;
+		mFace[i] = nullptr;
 	}
 	
 	mCameraPosAgent = gAgentCamera.getCameraPositionAgent();
@@ -403,7 +403,7 @@ LLVOSky::~LLVOSky()
 	// Don't delete images - it'll get deleted by gTextureList on shutdown
 	// This needs to be done for each texture
 
-	mCubeMap = NULL;
+	mCubeMap = nullptr;
 }
 
 void LLVOSky::init()
@@ -1009,7 +1009,8 @@ void LLVOSky::calcAtmospherics(void)
 
 	// Since WL scales everything by 2, there should always be at least a 2:1 brightness ratio
 	// between sunlight and point lights in windlight to normalize point lights.
-	F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
+	static LLCachedControl<F32> sun_dyn_range_ss(gSavedSettings, "RenderSunDynamicRange");
+	F32 sun_dynamic_range = llmax(static_cast<F32>(sun_dyn_range_ss), 0.0001f);
 	LLWLParamManager::getInstance()->mSceneLightStrength = 2.0f * (1.0f + sun_dynamic_range * dp);
 
 	mSunDiffuse = vary_SunlightColor;
@@ -1020,7 +1021,7 @@ void LLVOSky::calcAtmospherics(void)
 	mTotalAmbient = vary_AmbientColor;
 	mTotalAmbient.setAlpha(1);
 	
-	mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
+	mFadeColor = LLColor4U(mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f);
 	mFadeColor.setAlpha(0);
 }
 
@@ -1186,7 +1187,7 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 	
 	for (S32 i = 0; i < 6; ++i)
 	{
-		mFace[FACE_SIDE0 + i] = mDrawable->addFace(poolp, NULL);
+		mFace[FACE_SIDE0 + i] = mDrawable->addFace(poolp, nullptr);
 	}
 
 	mFace[FACE_SUN] = mDrawable->addFace(poolp, mSunTexturep);
@@ -1206,7 +1207,7 @@ void LLVOSky::createDummyVertexBuffer()
 	if(!mFace[FACE_DUMMY])
 	{
 		LLDrawPoolSky *poolp = (LLDrawPoolSky*) gPipeline.getPool(LLDrawPool::POOL_SKY);
-		mFace[FACE_DUMMY] = mDrawable->addFace(poolp, NULL);
+		mFace[FACE_DUMMY] = mDrawable->addFace(poolp, nullptr);
 	}
 
 	if(!mFace[FACE_DUMMY]->getVertexBuffer())
@@ -1248,12 +1249,12 @@ static LLTrace::BlockTimerStatHandle FTM_GEO_SKY("Sky Geometry");
 BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 {
 	LL_RECORD_BLOCK_TIME(FTM_GEO_SKY);
-	if (mFace[FACE_REFLECTION] == NULL)
+	if (mFace[FACE_REFLECTION] == nullptr)
 	{
 		LLDrawPoolWater *poolp = (LLDrawPoolWater*) gPipeline.getPool(LLDrawPool::POOL_WATER);
 		if (gPipeline.getPool(LLDrawPool::POOL_WATER)->getVertexShaderLevel() != 0)
 		{
-			mFace[FACE_REFLECTION] = drawable->addFace(poolp, NULL);
+			mFace[FACE_REFLECTION] = drawable->addFace(poolp, nullptr);
 		}
 	}
 
@@ -1453,7 +1454,7 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 	if (!facep->getVertexBuffer())
 	{
 		facep->setSize(4, 6);	
-		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB); // NOTE: Using LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK on purpose.
 		buff->allocateBuffer(facep->getGeomCount(), facep->getIndicesCount(), TRUE);
 		facep->setGeomIndex(0);
 		facep->setIndicesIndex(0);

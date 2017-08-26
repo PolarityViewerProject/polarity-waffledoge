@@ -36,7 +36,7 @@ class LLWorldMapMessage : public LLSingleton<LLWorldMapMessage>
 	~LLWorldMapMessage();
 
 public:
-	typedef boost::function<void(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)>
+	typedef std::function<void(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)>
 		url_callback_t;
 
 	// Process incoming answers to map stuff requests

@@ -41,7 +41,7 @@
 #include "lltransactionflags.h"
 #include "llsdutil_math.h"
 #include "message.h"
-//#include "u64.h"
+#include "u64.h"
 #include "llregionflags.h"
 #include <boost/range/adaptor/map.hpp>
 
@@ -462,13 +462,13 @@ BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entr
         }
         else if ("time" == keyword)
         {
-            S32 when;
+            S32 when = 0;
             LLStringUtil::convertToS32(value, when);
             entry->mTime = when;
         }
         else if ("flags" == keyword)
         {
-            U32 setting;
+            U32 setting = 0;
             LLStringUtil::convertToU32(value, setting);
             entry->mFlags = setting;
         }
@@ -992,7 +992,7 @@ void LLParcel::startSale(const LLUUID& buyer_id, BOOL is_buyer_group)
 	mSaleTimerExpires.start();
 	mSaleTimerExpires.setTimerExpirySec(U64Microseconds(DEFAULT_USEC_SALE_TIMEOUT));
 	mStatus = OS_LEASE_PENDING;
-	mClaimDate = time(NULL);
+	mClaimDate = time(nullptr);
 	setAuctionID(0);
 	// clear the autoreturn whenever land changes hands
 	setCleanOtherTime(0);

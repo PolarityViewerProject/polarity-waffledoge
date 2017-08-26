@@ -32,6 +32,7 @@
 #include "lluuid.h"
 #include "lltransactionflags.h"
 #include "lltransactiontypes.h"
+#include "llcurrencywrapper.h"
  
 const U8 TRANSACTION_FLAGS_NONE = 0;
 const U8 TRANSACTION_FLAG_SOURCE_GROUP = 1;
@@ -113,7 +114,8 @@ std::string build_transfer_message_to_source(
 		// *NOTE: Do not change these strings!  The viewer matches
 		// them in llviewermessage.cpp to perform localization.
 		// If you need to make changes, add a new, localizable message. JC
-		ostr << "You paid L$" << amount;
+		// *NOTE: https://www.youtube.com/watch?v=mgpzbygnQvU CR
+		ostr << LLCurrencyWrapper::wrapCurrency("You paid L$") << amount;
 		switch(transaction_type)
 		{
 		case TRANS_GROUP_CREATE:
@@ -131,7 +133,7 @@ std::string build_transfer_message_to_source(
 	}
 	else
 	{
-		ostr << "You paid " << dest_name << " L$" << amount;
+		ostr << "You paid " << dest_name << LLCurrencyWrapper::wrapCurrency(" L$") << amount;
 		append_reason(ostr, transaction_type, description);
 	}
 	ostr << ".";
@@ -162,7 +164,7 @@ std::string build_transfer_message_to_destination(
 	// *NOTE: Do not change these strings!  The viewer matches
 	// them in llviewermessage.cpp to perform localization.
 	// If you need to make changes, add a new, localizable message. JC
-	ostr << source_name << " paid you L$" << amount;
+	ostr << source_name << LLCurrencyWrapper::wrapCurrency(" paid you L$") << amount;
 	append_reason(ostr, transaction_type, description);
 	ostr << ".";
 	return ostr.str();

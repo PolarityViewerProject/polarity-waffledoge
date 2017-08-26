@@ -28,8 +28,6 @@
 #define LL_LLTEXTURECACHE_H
 
 #include "lldir.h"
-#include "llstl.h"
-#include "llstring.h"
 #include "lluuid.h"
 
 #include "llworkerthread.h"
@@ -55,8 +53,8 @@ private:
 	struct Entry
 	{
         	Entry() :
-		        mBodySize(0),
-			mImageSize(0),
+		        mImageSize(0),
+			mBodySize(0),
 			mTime(0)
 		{
 		}
@@ -83,7 +81,7 @@ public:
 	{
 	public:
 		ReadResponder();
-		void setData(U8* data, S32 datasize, S32 imagesize, S32 imageformat, BOOL imagelocal);
+		void setData(U8* data, S32 datasize, S32 imagesize, S32 imageformat, BOOL imagelocal) override;
 		void setImage(LLImageFormatted* image) { mFormattedImage = image; }
 	protected:
 		LLPointer<LLImageFormatted> mFormattedImage;
@@ -93,7 +91,7 @@ public:
 
 	class WriteResponder : public Responder
 	{
-		void setData(U8* data, S32 datasize, S32 imagesize, S32 imageformat, BOOL imagelocal)
+		void setData(U8* data, S32 datasize, S32 imagesize, S32 imageformat, BOOL imagelocal) override
 		{
 			// not used
 		}
@@ -102,11 +100,11 @@ public:
 	LLTextureCache(bool threaded);
 	~LLTextureCache();
 
-	/*virtual*/ S32 update(F32 max_time_ms);	
+	/*virtual*/ S32 update(F32 max_time_ms) override;	
 	
 	void purgeCache(ELLPath location, bool remove_dir = true);
 	void setReadOnly(BOOL read_only) ;
-	S64 initCache(ELLPath location, S64 maxsize, BOOL texture_cache_mismatch);
+	U64 initCache(ELLPath location, U64 maxsize, BOOL texture_cache_mismatch);
 
 	handle_t readFromCache(const std::string& local_filename, const LLUUID& id, U32 priority, S32 offset, S32 size,
 						   ReadResponder* responder);

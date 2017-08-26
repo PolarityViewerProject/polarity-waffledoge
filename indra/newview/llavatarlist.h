@@ -51,6 +51,7 @@ public:
 	{
 		Optional<bool>	ignore_online_status, // show all items as online
 						show_last_interaction_time, // show most recent interaction time. *HACK: move this to a derived class
+						show_distance,	// *HACK: my sinuses hurt and i want pizza.
 						show_info_btn,
 						show_profile_btn,
 						show_speaking_indicator,
@@ -61,20 +62,20 @@ public:
 	LLAvatarList(const Params&);
 	virtual	~LLAvatarList();
 
-	virtual void draw(); // from LLView
+	void draw() override; // from LLView
 
-	virtual void clear();
+	void clear() override;
 
-	virtual void setVisible(BOOL visible);
+	void setVisible(BOOL visible) override;
 
 	void setNameFilter(const std::string& filter);
 	void setDirty(bool val = true, bool force_refresh = false);
-	uuid_vec_t& getIDs() 							{ return mIDs; }
+	uuid_vec_t& getIDs() { return mIDs; }
 	bool contains(const LLUUID& id);
 
 	void setContextMenu(LLListContextMenu* menu) { mContextMenu = menu; }
 	void setSessionID(const LLUUID& session_id) { mSessionID = session_id; }
-	const LLUUID& getSessionID() { return mSessionID; }
+	const LLUUID& getSessionID() const { return mSessionID; }
 
 	void toggleIcons();
 	void setSpeakingIndicatorsVisible(bool visible);
@@ -82,34 +83,26 @@ public:
 	void sortByName();
 	void setShowIcons(std::string param_name);
 	bool getIconsVisible() const { return mShowIcons; }
-	const std::string getIconParamName() const{return mIconParamName;}
+	const std::string getIconParamName() const {return mIconParamName;}
 	std::string getAvatarName(LLAvatarName av_name);
-	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL handleMouseDown( S32 x, S32 y, MASK mask ) override;
+	BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
+	BOOL handleHover(S32 x, S32 y, MASK mask) override;
 
 	// Return true if filter has at least one match.
 	bool filterHasMatches();
-
-// [RLVa:KB] - Checked: RLVa-1.2.0
-	void setRlvCheckShowNames(bool fRlvCheckShowNames) { mRlvCheckShowNames = fRlvCheckShowNames; }
-	// We need this to be public since we call it from RlvUIEnabler::onToggleShowNames()
-	void updateAvatarNames();
-// [/RLVa:KB]
 
 	boost::signals2::connection setRefreshCompleteCallback(const commit_signal_t::slot_type& cb);
 
 	boost::signals2::connection setItemDoubleClickCallback(const mouse_signal_t::slot_type& cb);
 
-	virtual S32 notifyParent(const LLSD& info);
+	S32 notifyParent(const LLSD& info) override;
 
 	void addAvalineItem(const LLUUID& item_id, const LLUUID& session_id, const std::string& item_name);
 	void handleDisplayNamesOptionChanged();
 
-	void setShowCompleteName(bool show) { mShowCompleteName = show;};
-
-	void setShowFriendColor(const bool& show_friend_color = false);
+	void setShowCompleteName(bool show) { mShowCompleteName = show;}
 
 protected:
 	void refresh();
@@ -118,18 +111,19 @@ protected:
 	void computeDifference(
 		const uuid_vec_t& vnew,
 		uuid_vec_t& vadded,
-		uuid_vec_t& vremoved);
-	void updateLastInteractionTimes();	
-	void rebuildNames();
+		uuid_vec_t& vremoved) const;
+	void updateLastInteractionTimes();
+	void updateDistances();
 	void onItemDoubleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask);
-//	void updateAvatarNames();
+	void updateAvatarNames();
 
 private:
 
-	bool isAvalineItemSelected();
+	bool isAvalineItemSelected() const;
 
 	bool mIgnoreOnlineStatus;
 	bool mShowLastInteractionTime;
+	bool mShowDistance;
 	bool mDirty;
 	bool mNeedUpdateNames;
 	bool mShowIcons;
@@ -138,9 +132,6 @@ private:
 	bool mShowSpeakingIndicator;
 	bool mShowPermissions;
 	bool mShowCompleteName;
-// [RLVa:KB] - RLVa-1.2.0
-	bool mRlvCheckShowNames;
-// [/RLVa:KB]
 
 	LLTimer*				mLITUpdateTimer; // last interaction time update timer
 	std::string				mIconParamName;
@@ -152,8 +143,6 @@ private:
 
 	commit_signal_t mRefreshCompleteSignal;
 	mouse_signal_t mItemDoubleClickSignal;
-
-	bool mShowFriendColor;
 };
 
 /** Abstract comparator for avatar items */
@@ -165,7 +154,7 @@ public:
 	LLAvatarItemComparator() {};
 	virtual ~LLAvatarItemComparator() {};
 
-	virtual bool compare(const LLPanel* item1, const LLPanel* item2) const;
+	bool compare(const LLPanel* item1, const LLPanel* item2) const override;
 
 protected:
 
@@ -187,7 +176,7 @@ public:
 	virtual ~LLAvatarItemNameComparator() {};
 
 protected:
-	virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;
+	bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const override;
 };
 
 class LLAvatarItemAgentOnTopComparator : public LLAvatarItemNameComparator
@@ -199,7 +188,7 @@ public:
 	virtual ~LLAvatarItemAgentOnTopComparator() {};
 
 protected:
-	virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;
+	bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const override;
 };
 
 /**
@@ -217,7 +206,7 @@ public:
 	 */
 	LLAvalineListItem(bool hide_number = true);
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild() override;
 
 	/*virtual*/ void setName(const std::string& name);
 

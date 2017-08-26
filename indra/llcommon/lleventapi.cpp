@@ -47,7 +47,6 @@ LLEventAPI::LLEventAPI(const std::string& name, const std::string& desc, const s
 
 LLEventAPI::~LLEventAPI()
 {
-	// FIXME: shutdown crash here
 }
 
 LLEventAPI::Response::Response(const LLSD& seed, const LLSD& request, const LLSD::String& replyKey):

@@ -237,4 +237,35 @@ source_group("CMake Rules" FILES CMakeLists.txt)
 
 mark_as_advanced(AUTOBUILD_PLATFORM_NAME)
 
+# <polarity> automatically get APP_NAME from ROOT_PROJECT_NAME
+# add_definitions(/DAPP_NAME=${ROOT_PROJECT_NAME})
+
+MESSAGE(STATUS "")
+MESSAGE(STATUS "======== *Configuration* ========")
+MESSAGE(STATUS "ROOT_PROJECT_NAME      ${ROOT_PROJECT_NAME}")
+MESSAGE(STATUS "Build No.              ${BUILD_NUMBER}")
+MESSAGE(STATUS "Target Platform        ${AUTOBUILD_PLATFORM_NAME}")
+MESSAGE(STATUS "Incremental Link       ${INCREMENTAL_LINK}")
+MESSAGE(STATUS "Link-Time CodeGen      ${USE_LTO}")
+MESSAGE(STATUS "Internal Build         ${INTERNAL_BUILD}")
+MESSAGE(STATUS "Unattended             ${UNATTENDED}")
+MESSAGE(STATUS "========== *Libraries* ==========")
+MESSAGE(STATUS "FMOD Studio            ${FMODSTUDIO}")
+MESSAGE(STATUS "NVIDIA API             ${NVAPI}")
+MESSAGE(STATUS "Intel Building Blocks  ${USE_TBBMALLOC}")
+MESSAGE(STATUS "Licensed VLC Plugin    ${LIBVLCPLUGIN}")
+MESSAGE(STATUS "Media Plugins          ${ENABLE_MEDIA_PLUGINS}")
+MESSAGE(STATUS "========== *PVData* =============")
+MESSAGE(STATUS "PVData System          ${PVDATA_SYSTEM}")
+MESSAGE(STATUS "=================================")
+# Add these CMake flags to the C++ preprocessor to toggle code that way, or at least Intellisense to detect them.
+add_definitions(
+  /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
+  /DUSE_LTO=${USE_LTO}
+  /DINTERNAL_BUILD=${INTERNAL_BUILD}
+  /DLIBVLCPLUGIN=${LIBVLCPLUGIN}
+  /DBUILD_NUMBER=${BUILD_NUMBER}
+  /DENABLE_MEDIA_PLUGINS=${ENABLE_MEDIA_PLUGINS}
+  )
+
 endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

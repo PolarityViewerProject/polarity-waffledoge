@@ -62,7 +62,7 @@ public:
 	class TFRequest;
 	
     // Threads:  Tmain
-	/*virtual*/ S32 update(F32 max_time_ms);
+	/*virtual*/ S32 update(F32 max_time_ms) override;
 	
 	// called in the main thread after the TextureCacheThread shuts down.
     // Threads:  Tmain
@@ -133,7 +133,7 @@ public:
 	U32 getTotalNumHTTPRequests();
 	
     // Threads:  T*
-    S32 getPending();
+    S32 getPending() override;
 
     // Threads:  T*
 	void lockQueue() { mQueueMutex.lock(); }
@@ -157,7 +157,7 @@ public:
 	void commandSendMetrics(const std::string & caps_url,
 							const LLUUID & session_id,
 							const LLUUID & agent_id,
-							LLViewerAssetStats * main_stats);
+							LLSD& stats_sd);
 
 	// Threads:  T*
 	void commandDataBreak();
@@ -244,20 +244,20 @@ protected:
 	
 	// Overrides from the LLThread tree
 	// Locks:  Ct
-	bool runCondition();
+	bool runCondition() override;
 
 private:
     // Threads:  Tmain
 	void sendRequestListToSimulators();
 	
 	// Threads:  Ttf
-	/*virtual*/ void startThread(void);
+	/*virtual*/ void startThread(void) override;
 	
 	// Threads:  Ttf
-	/*virtual*/ void endThread(void);
+	/*virtual*/ void endThread(void) override;
 	
 	// Threads:  Ttf
-	/*virtual*/ void threadedUpdate(void);
+	/*virtual*/ void threadedUpdate(void) override;
 
 	// Threads:  Ttf
 	void commonUpdate();
@@ -371,7 +371,7 @@ private:
 	// Originally implemented as a traditional semaphore (heading towards
 	// zero), it now is an outstanding request count that is allowed to
 	// exceed the high water level (but not go below zero).
-	LLAtomic32<S32>							mHttpSemaphore;					// Ttf
+	LLAtomicS32							mHttpSemaphore;					// Ttf
 	
 	typedef std::set<LLUUID> wait_http_res_queue_t;
 	wait_http_res_queue_t				mHttpWaitResource;				// Mfnq
@@ -478,9 +478,6 @@ private:
 			mFetchedSize(f_size),
 			mDecodedSize(d_size),
 			mNeedsAux(false),
-			mCacheHandle(0),
-			mCurlState(),
-			mCurlReceivedSize(0),
 			mHttpHandle(LLCORE_HTTP_HANDLE_INVALID)
 			{}
 	};
@@ -553,7 +550,7 @@ public:
 	
 	// Inherited from LLCore::HttpHandler
 	// Threads:  Ttf
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+	void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response) override;
 
 	void startWork(e_debug_state state);
 	void setStopDebug() {mStopDebug = TRUE;}

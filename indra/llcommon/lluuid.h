@@ -33,14 +33,12 @@
 #include <boost/functional/hash.hpp>
 #include "stdtypes.h"
 #include "llpreprocessor.h"
-#include "llerror.h"
 
 class LLMutex;
 
 const S32 UUID_BYTES = 16;
-const S32 UUID_WORDS = 4; //-V112
-const S32 UUID_WRONG_FORMAT= 35;
-const S32 UUID_STR_LENGTH = 36;	// 36
+const S32 UUID_WORDS = 4;
+const S32 UUID_STR_LENGTH = 37;	// actually wrong, should be 36 and use size below
 const S32 UUID_STR_SIZE = 37;
 const S32 UUID_BASE85_LENGTH = 21; // including the trailing NULL.
 
@@ -62,7 +60,6 @@ public:
 	LLUUID &operator=(const LLUUID &rhs);
 
 	~LLUUID();
-	LOG_CLASS(LLUUID);
 
 	//
 	// MANIPULATORS
@@ -126,14 +123,12 @@ public:
 	inline size_t hash() const
 	{
 		size_t seed = 0;
-		// I have a feeling that making this number memsize-type will break LLUUID
-		constexpr auto kMagicConstant = 0x9e3779b9; //-V104
-		for (U8 i = 0; i < 4; ++i) //-V112
+		for (U8 i = 0; i < 4; ++i)
 		{
-			seed ^= static_cast<size_t>(mData[i * 4]) + kMagicConstant + (seed << 6) + (seed >> 2);
-			seed ^= static_cast<size_t>(mData[i * 4 + 1]) + kMagicConstant + (seed << 6) + (seed >> 2);
-			seed ^= static_cast<size_t>(mData[i * 4 + 2]) + kMagicConstant + (seed << 6) + (seed >> 2);
-			seed ^= static_cast<size_t>(mData[i * 4 + 3]) + kMagicConstant + (seed << 6) + (seed >> 2);
+			seed ^= static_cast<size_t>(mData[i * 4]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+			seed ^= static_cast<size_t>(mData[i * 4 + 1]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+			seed ^= static_cast<size_t>(mData[i * 4 + 2]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+			seed ^= static_cast<size_t>(mData[i * 4 + 3]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 		}
 		return seed;
 	}
@@ -169,6 +164,8 @@ struct lluuid_less
 };
 
 typedef std::set<LLUUID, lluuid_less> uuid_list_t;
+
+
 namespace std {
 	template <> struct hash<LLUUID>
 	{
@@ -179,6 +176,7 @@ namespace std {
 		}
 	};
 }
+
 namespace boost {
 	template<> class hash<LLUUID>
 	{
@@ -189,6 +187,7 @@ namespace boost {
 		}
 	};
 }
+
 /*
  * Sub-classes for keeping transaction IDs and asset IDs
  * straight.

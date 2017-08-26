@@ -42,6 +42,7 @@
 // This is why LL_CHARACTER_MAX_ANIMATED_JOINTS needs to be a multiple of 4.
 const S32 NUM_JOINT_SIGNATURE_STRIDES = LL_CHARACTER_MAX_ANIMATED_JOINTS / 4;
 const U32 MAX_MOTION_INSTANCES = 32;
+constexpr size_t JOINT_SIGNATURE_STRIDE_SIZE = 4;
 
 //-----------------------------------------------------------------------------
 // Constants and statics
@@ -80,6 +81,7 @@ LLMotionRegistry::~LLMotionRegistry()
 //-----------------------------------------------------------------------------
 BOOL LLMotionRegistry::registerMotion( const LLUUID& id, LLMotionConstructor constructor )
 {
+#if USE_LL_APPEARANCE_CODE
 	//	LL_INFOS() << "Registering motion: " << name << LL_ENDL;
 	if (!is_in_map(mMotionTable, id))
 	{
@@ -88,6 +90,9 @@ BOOL LLMotionRegistry::registerMotion( const LLUUID& id, LLMotionConstructor con
 	}
 	
 	return FALSE;
+#else
+	return mMotionTable.emplace(id, constructor).second;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -95,7 +100,7 @@ BOOL LLMotionRegistry::registerMotion( const LLUUID& id, LLMotionConstructor con
 //-----------------------------------------------------------------------------
 void LLMotionRegistry::markBad( const LLUUID& id )
 {
-	mMotionTable[id] = LLMotionConstructor(NULL);
+	mMotionTable[id] = LLMotionConstructor(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -103,10 +108,10 @@ void LLMotionRegistry::markBad( const LLUUID& id )
 //-----------------------------------------------------------------------------
 LLMotion *LLMotionRegistry::createMotion( const LLUUID &id )
 {
-	LLMotionConstructor constructor = get_if_there(mMotionTable, id, LLMotionConstructor(NULL));
-	LLMotion* motion = NULL;
+	LLMotionConstructor constructor = get_if_there(mMotionTable, id, LLMotionConstructor(nullptr));
+	LLMotion* motion = nullptr;
 
-	if ( constructor == NULL )
+	if ( constructor == nullptr )
 	{
 		// *FIX: need to replace with a better default scheme. RN
 		motion = LLKeyframeMotion::create(id);
@@ -130,18 +135,18 @@ LLMotion *LLMotionRegistry::createMotion( const LLUUID &id )
 // Class Constructor
 //-----------------------------------------------------------------------------
 LLMotionController::LLMotionController()
-	: mTimeFactor(sCurrentTimeFactor),
-	  mCharacter(NULL),
-	  mAnimTime(0.f),
+	: mIsSelf(FALSE),
+	  mTimeFactor(sCurrentTimeFactor),
+	  mCharacter(nullptr),
 	  mPrevTimerElapsed(0.f),
+	  mAnimTime(0.f),
 	  mLastTime(0.0f),
 	  mHasRunOnce(FALSE),
 	  mPaused(FALSE),
 	  mPauseTime(0.f),
 	  mTimeStep(0.f),
 	  mTimeStepCount(0),
-	  mLastInterp(0.f),
-	  mIsSelf(FALSE)
+	  mLastInterp(0.f)
 {
 }
 
@@ -242,7 +247,7 @@ void LLMotionController::purgeExcessMotions()
 
 	if (mLoadedMotions.size() > 2*MAX_MOTION_INSTANCES)
 	{
-		LL_WARNS_ONCE("Animation") << "> " << 2*MAX_MOTION_INSTANCES << " Loaded Motions" << LL_ENDL;
+		LL_WARNS_ONCE("Animation") << mLoadedMotions.size() << "> " << 2 * MAX_MOTION_INSTANCES << " Loaded Motions" << LL_ENDL;
 	}
 }
 
@@ -355,7 +360,7 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 		motion = sRegistry.createMotion(id);
 		if (!motion)
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		// look up name for default motions
@@ -373,7 +378,7 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 			LL_INFOS() << "Motion " << id << " init failed." << LL_ENDL;
 			sRegistry.markBad(id);
 			delete motion;
-			return NULL;
+			return nullptr;
 		case LLMotion::STATUS_HOLD:
 			mLoadingMotions.insert(motion);
 			break;
@@ -409,7 +414,7 @@ BOOL LLMotionController::startMotion(const LLUUID &id, F32 start_offset)
 	{
 		deprecateMotionInstance(motion);
 		// force creation of new instance
-		motion = NULL;
+		motion = nullptr;
 	}
 
 	// create new motion instance
@@ -556,9 +561,7 @@ static LLTrace::BlockTimerStatHandle FTM_MOTION_ON_UPDATE("Motion onUpdate");
 void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_type)
 {
 	BOOL update_result = TRUE;
-	U8 last_joint_signature[LL_CHARACTER_MAX_ANIMATED_JOINTS];
-
-	memset(&last_joint_signature, 0, sizeof(U8) * LL_CHARACTER_MAX_ANIMATED_JOINTS);
+	U8 last_joint_signature[LL_CHARACTER_MAX_ANIMATED_JOINTS] = {0};
 
 	// iterate through active motions in chronological order
 	for (motion_list_t::iterator iter = mActiveMotions.begin();
@@ -581,22 +584,25 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 		{
 			for (S32 i = 0; i < NUM_JOINT_SIGNATURE_STRIDES; i++)
 			{
-		 		U32 *current_signature = (U32*)&(mJointSignature[0][i * 4]);
-				U32 test_signature = *(U32*)&(motionp->mJointSignature[0][i * 4]);
+				const size_t current_joint_stride = i * JOINT_SIGNATURE_STRIDE_SIZE;
+		 		U32 current_signature, test_signature;
+				memcpy(&current_signature, &mJointSignature[0][current_joint_stride], sizeof(current_signature));
+				memcpy(&test_signature, &motionp->mJointSignature[0][current_joint_stride], sizeof(test_signature));
 				
-				if ((*current_signature | test_signature) > (*current_signature))
+				if ((current_signature | test_signature) > (current_signature))
 				{
-					*current_signature |= test_signature;
+					current_signature |= test_signature;
 					update_motion = TRUE;
 				}
 
-				*((U32*)&last_joint_signature[i * 4]) = *(U32*)&(mJointSignature[1][i * 4]);
-				current_signature = (U32*)&(mJointSignature[1][i * 4]);
-				test_signature = *(U32*)&(motionp->mJointSignature[1][i * 4]);
 
-				if ((*current_signature | test_signature) > (*current_signature))
+				memcpy(&last_joint_signature[current_joint_stride], &mJointSignature[1][current_joint_stride], JOINT_SIGNATURE_STRIDE_SIZE);
+				memcpy(&current_signature, &mJointSignature[1][current_joint_stride], sizeof(current_signature));
+				memcpy(&test_signature, &motionp->mJointSignature[1][current_joint_stride], sizeof(test_signature));
+
+				if ((current_signature | test_signature) > (current_signature))
 				{
-					*current_signature |= test_signature;
+					current_signature |= test_signature;
 					update_motion = TRUE;
 				}
 			}
@@ -859,7 +865,7 @@ void LLMotionController::updateMotions(bool force_update)
 		}
 		else
 		{
-			mAnimTime = update_time;
+			mAnimTime = llmax(mAnimTime, update_time);
 		}
 	}
 
@@ -920,7 +926,7 @@ BOOL LLMotionController::activateMotionInstance(LLMotion *motion, F32 time)
 {
 	// It's not clear why the getWeight() line seems to be crashing this, but
 	// hopefully this fixes it.
-	if (motion == NULL || motion->getPose() == NULL)
+	if (motion == nullptr || motion->getPose() == nullptr)
 	{
 		return FALSE;	
 	}
@@ -1035,7 +1041,7 @@ LLMotion* LLMotionController::findMotion(const LLUUID& id) const
 	motion_map_t::const_iterator iter = mAllMotions.find(id);
 	if(iter == mAllMotions.end())
 	{
-		return NULL;
+		return nullptr;
 	}
 	else
 	{

@@ -27,8 +27,9 @@
 #ifndef LL_LLVIEWEROBJECTLIST_H
 #define LL_LLVIEWEROBJECTLIST_H
 
+#include <boost/unordered_map.hpp>
+
 // common includes
-#include "llstring.h"
 #include "lltrace.h"
 
 // project includes
@@ -41,15 +42,15 @@ class LLNetMap;
 class LLDebugBeacon;
 class LLVOCacheEntry;
 
-const U32 CLOSE_BIN_SIZE = 10;
-const U32 NUM_BINS = 128;
+constexpr U32 CLOSE_BIN_SIZE = 10;
+constexpr U32 NUM_BINS = 128;
 
 // GL name = position in object list + GL_NAME_INDEX_OFFSET so that
 // we can have special numbers like zero.
-const U32 GL_NAME_LAND = 0;
-const U32 GL_NAME_PARCEL_WALL = 1;
+constexpr U32 GL_NAME_LAND = 0;
+constexpr U32 GL_NAME_PARCEL_WALL = 1;
 
-const U32 GL_NAME_INDEX_OFFSET = 10;
+constexpr U32 GL_NAME_INDEX_OFFSET = 10;
 
 class LLViewerObjectList
 {
@@ -74,20 +75,6 @@ public:
 	BOOL killObject(LLViewerObject *objectp);
 	void killObjects(LLViewerRegion *regionp); // Kill all objects owned by a particular region.
 	void killAllObjects();
-
-//	//BD - Fullbright Toggle
-	void killAllFullbrights();
-
-//	//BD - Alpha Toggle
-	void killAllAlphas();
-
-//	//BD - De/ReAlpha
-	void killAlpha(LLViewerObject *objectp);
-	void restoreAlpha(LLViewerObject *objectp);
-
-//	//BD - DeBright
-	void killFullbright(LLViewerObject *objectp);
-
 	void removeDrawable(LLDrawable* drawablep);
 
 	void cleanDeadObjects(const BOOL use_timer = TRUE);	// Clean up the dead object list.
@@ -134,9 +121,6 @@ public:
 	void resetObjectBeacons();
 
 	void dirtyAllObjectInventory();
-// [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
-	void setAllObjectDefaultTextures(U32 nChannel, bool fShowDefault);
-// [/SL:KB]
 
 	void removeFromActiveList(LLViewerObject* objectp);
 	void updateActive(LLViewerObject *objectp);
@@ -221,7 +205,7 @@ protected:
 
     uuid_set_t   mDeadObjects;
 
-	std::map<LLUUID, LLPointer<LLViewerObject> > mUUIDObjectMap;
+	boost::unordered_map<LLUUID, LLPointer<LLViewerObject> > mUUIDObjectMap;
 
 	//set of objects that need to update their cost
     uuid_set_t   mStaleObjectCost;
@@ -251,15 +235,6 @@ private:
     static void reportPhysicsFlagFailure(LLSD &obejectList);
     void fetchPhisicsFlagsCoro(std::string url);
 
-// <FS:ND> Remember objects we did derender. We might get object updates for them that create new instances. In those cases we kill them again.
-private:
-	std::map< LLUUID, bool > mDerendered;
-public:
-	void resetDerenderList(bool force = false);
-	void addDerenderedItem( LLUUID const &, bool );
-	void removeDerenderedItem( LLUUID const & );
-// </FS:ND>
-
 };
 
 
@@ -288,14 +263,14 @@ extern LLViewerObjectList gObjectList;
  */
 inline LLViewerObject *LLViewerObjectList::findObject(const LLUUID &id)
 {
-	std::map<LLUUID, LLPointer<LLViewerObject> >::iterator iter = mUUIDObjectMap.find(id);
+	boost::unordered_map<LLUUID, LLPointer<LLViewerObject> >::const_iterator iter = mUUIDObjectMap.find(id);
 	if(iter != mUUIDObjectMap.end())
 	{
 		return iter->second;
 	}
 	else
 	{
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -306,7 +281,7 @@ inline LLViewerObject *LLViewerObjectList::getObject(const S32 index)
 	if (objectp->isDead())
 	{
 		//LL_WARNS() << "Dead object " << objectp->mID << " in getObject" << LL_ENDL;
-		return NULL;
+		return nullptr;
 	}
 	return objectp;
 }

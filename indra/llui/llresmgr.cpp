@@ -50,63 +50,23 @@ void LLResMgr::setLocale( LLLOCALE_ID locale_id )
 }
 
 char LLResMgr::getDecimalPoint() const					
-{ 
-	char decimal = localeconv()->decimal_point[0]; 
-
-#if LL_DARWIN
-	// On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
-	if(decimal == 0)
-	{
-		decimal = '.';
-	}
-#endif
-
-	return decimal;
+{
+	return localeconv()->decimal_point[0];
 }
 
 char LLResMgr::getThousandsSeparator() const			
 {
-	char separator = localeconv()->thousands_sep[0]; 
-
-#if LL_DARWIN
-	// On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
-	if(separator == 0)
-	{
-		separator = ',';
-	}
-#endif
-
-	return separator;
+	return localeconv()->thousands_sep[0];
 }
 
 char LLResMgr::getMonetaryDecimalPoint() const
 {
-	char decimal = localeconv()->mon_decimal_point[0]; 
-
-#if LL_DARWIN
-	// On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
-	if(decimal == 0)
-	{
-		decimal = '.';
-	}
-#endif
-
-	return decimal;
+	return localeconv()->mon_decimal_point[0];
 }
 
 char LLResMgr::getMonetaryThousandsSeparator() const	
 {
-	char separator = localeconv()->mon_thousands_sep[0]; 
-
-#if LL_DARWIN
-	// On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
-	if(separator == 0)
-	{
-		separator = ',';
-	}
-#endif
-
-	return separator;
+	return localeconv()->mon_thousands_sep[0];
 }
 
 
@@ -117,30 +77,6 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
 
 	LLLocale locale(LLLocale::USER_LOCALE);
 	struct lconv *conv = localeconv();
-	
-#if LL_DARWIN
-	// On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
-	// Fake up a conv structure with some reasonable values for the fields this function uses.
-	struct lconv fakeconv;
-	char fake_neg[2] = "-";
-	char fake_mon_group[4] = "\x03\x03\x00"; // commas every 3 digits
-	if(conv->negative_sign[0] == 0)	// Real locales all seem to have something here...
-	{
-		fakeconv = *conv;	// start with what's there.
-		switch(mLocale)
-		{
-			default:  			// Unknown -- use the US defaults.
-			case LLLOCALE_USA: 
-			case LLLOCALE_UK:	// UK ends up being the same as US for the items used here.
-				fakeconv.negative_sign = fake_neg;
-				fakeconv.mon_grouping = fake_mon_group;
-				fakeconv.n_sign_posn = 1; // negative sign before the string
-			break;
-		}
-		conv = &fakeconv;
-	}
-#endif
-
 	char* negative_sign = conv->negative_sign;
 	char separator = getMonetaryThousandsSeparator();
 	char* grouping = conv->mon_grouping;
@@ -297,9 +233,6 @@ const std::string LLLocale::SYSTEM_LOCALE("English_United States.1252");
 #elif LL_DARWIN
 const std::string LLLocale::USER_LOCALE("en_US.iso8859-1");// = LLStringUtil::null;
 const std::string LLLocale::SYSTEM_LOCALE("en_US.iso8859-1");
-#elif LL_SOLARIS
-const std::string LLLocale::USER_LOCALE("en_US.ISO8859-1");
-const std::string LLLocale::SYSTEM_LOCALE("C");
 #else // LL_LINUX likes this
 const std::string LLLocale::USER_LOCALE("en_US.utf8");
 const std::string LLLocale::SYSTEM_LOCALE("C");
@@ -308,9 +241,9 @@ const std::string LLLocale::SYSTEM_LOCALE("C");
 
 LLLocale::LLLocale(const std::string& locale_string)
 {
-	mPrevLocaleString = setlocale( LC_ALL, NULL );
+	mPrevLocaleString = setlocale( LC_ALL, nullptr );
 	char* new_locale_string = setlocale( LC_ALL, locale_string.c_str());
-	if ( new_locale_string == NULL)
+	if ( new_locale_string == nullptr)
 	{
 		LL_WARNS_ONCE("LLLocale") << "Failed to set locale " << locale_string << LL_ENDL;
 		setlocale(LC_ALL, SYSTEM_LOCALE.c_str());

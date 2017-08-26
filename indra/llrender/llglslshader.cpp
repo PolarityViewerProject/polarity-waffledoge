@@ -45,14 +45,8 @@
 #define UNIFORM_ERRS LL_ERRS("Shader")
 #endif
 
-// Lots of STL stuff in here, using namespace std to keep things more readable
-using std::vector;
-using std::pair;
-using std::make_pair;
-using std::string;
-
 GLuint LLGLSLShader::sCurBoundShader = 0;
-LLGLSLShader* LLGLSLShader::sCurBoundShaderPtr = NULL;
+LLGLSLShader* LLGLSLShader::sCurBoundShaderPtr = nullptr;
 S32 LLGLSLShader::sIndexedTextureChannels = 0;
 bool LLGLSLShader::sNoFixedFunction = false;
 bool LLGLSLShader::sProfileEnabled = false;
@@ -307,19 +301,19 @@ void LLGLSLShader::readProfileQuery(U32 count, U32 mode)
 
 
 LLGLSLShader::LLGLSLShader()
-    : mProgramObject(0), 
+    : mLightHash(0), 
+      mProgramObject(0),
       mAttributeMask(0),
-      mTotalUniformSize(0),
+      mTotalUniformSize(0), 
       mActiveTextureChannels(0), 
       mShaderLevel(0), 
-      mShaderGroup(SG_DEFAULT), 
+      mShaderGroup(SG_DEFAULT),
       mUniformsDirty(FALSE),
       mTimerQuery(0),
-      mLightHash(0),
+      mSamplesQuery(0),
       mTimeElapsed(0),
       mTrianglesDrawn(0),
       mSamplesDrawn(0),
-      mSamplesQuery(0),
       mDrawCalls(0),
       mTextureStateFetched(false)
 
@@ -350,10 +344,7 @@ void LLGLSLShader::unloadInternal()
 
     if (mProgramObject)
     {
-
-
         glDeleteProgram(mProgramObject);
-
         mProgramObject = 0;
     }
 
@@ -407,7 +398,7 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
 #endif
     
     //compile new source
-    vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
+    std::vector< std::pair<std::string,GLenum> >::iterator fileIter = mShaderFiles.begin();
     for ( ; fileIter != mShaderFiles.end(); ++fileIter )
     {
         GLuint shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, &mDefines, mFeatures.mIndexedTextureChannels);
@@ -507,21 +498,21 @@ BOOL LLGLSLShader::attachShader(const std::string& object)
 {
 	const auto& shader_objects = LLShaderMgr::instance()->mShaderObjects;
 	for (auto it = shader_objects.begin(); it != shader_objects.end(); it++)
-    {
+	{
 		if (it->first == object)
 		{
 			if (glIsShader(it->second.mHandle))
 			{
 				glAttachShader(mProgramObject, it->second.mHandle);
-            stop_glerror();
-            return TRUE;
-        }
+				stop_glerror();
+				return TRUE;
+			}
 		}
 	}
 
     {
         LL_WARNS("ShaderLoading") << "Attempting to attach shader object that hasn't been compiled: " << object << LL_ENDL;
-    return FALSE;
+        return FALSE;
     }
 }
 
@@ -543,13 +534,13 @@ void LLGLSLShader::attachShader(GLuint object)
 		{
 			LL_WARNS("ShaderLoading") << "Attached unknown shader!" << LL_ENDL;
 		}
-            stop_glerror();
+        stop_glerror();
         glAttachShader(mProgramObject, object);
-            stop_glerror();
-        }
+        stop_glerror();
+    }
     else
     {
-    LL_WARNS("ShaderLoading") << "Attempting to attach non existing shader object. " << LL_ENDL;
+        LL_WARNS("ShaderLoading") << "Attempting to attach non existing shader object. " << LL_ENDL;
     }
 }
 
@@ -563,7 +554,7 @@ void LLGLSLShader::attachShaders(GLuint* objects, S32 count)
 
 BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attributes)
 {
-        const auto& shader_mgr = LLShaderMgr::instance();
+	const auto& shader_mgr = LLShaderMgr::instance();
     //before linking, make sure reserved attributes always have consistent locations
     for (U32 i = 0; i < shader_mgr->mReservedAttribs.size(); i++)
     {
@@ -575,7 +566,7 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
     BOOL res = link();
 
     mAttribute.clear();
-    U32 numAttributes = (attributes == NULL) ? 0 : attributes->size();
+    U32 numAttributes = (attributes == nullptr) ? 0 : attributes->size();
     mAttribute.resize(shader_mgr->mReservedAttribs.size() + numAttributes, -1);
     
     if (res)
@@ -595,7 +586,7 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
                 LL_DEBUGS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
             }
         }
-        if (attributes != NULL)
+        if (attributes != nullptr)
         {
             for (U32 i = 0; i < numAttributes; i++)
             {
@@ -615,7 +606,7 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
     return FALSE;
 }
 
-void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * uniforms)
+void LLGLSLShader::mapUniform(GLint index, const std::vector<LLStaticHashedString> * uniforms)
 {
     if (index == -1)
     {
@@ -706,7 +697,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
             }
         }
 
-        if (uniforms != NULL)
+        if (uniforms != nullptr)
         {
             for (U32 i = 0; i < uniforms->size(); i++)
             {
@@ -744,7 +735,7 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
     return -1;
 }
 
-BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
+BOOL LLGLSLShader::mapUniforms(const std::vector<LLStaticHashedString> * uniforms)
 {
 	BOOL res = TRUE;
 
@@ -756,7 +747,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 	mTexture.clear();
 	mValue.clear();
 	//initialize arrays
-	U32 numUniforms = (uniforms == NULL) ? 0 : uniforms->size();
+	U32 numUniforms = (uniforms == nullptr) ? 0 : uniforms->size();
 	mUniform.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
 	mTexture.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
 
@@ -924,7 +915,7 @@ void LLGLSLShader::unbind()
         LLVertexBuffer::unbind();
         glUseProgram(0);
         sCurBoundShader = 0;
-        sCurBoundShaderPtr = NULL;
+        sCurBoundShaderPtr = nullptr;
         stop_glerror();
     }
 }
@@ -936,7 +927,7 @@ void LLGLSLShader::bindNoShader(void)
     {
         glUseProgram(0);
         sCurBoundShader = 0;
-        sCurBoundShaderPtr = NULL;
+        sCurBoundShaderPtr = nullptr;
     }
 }
 

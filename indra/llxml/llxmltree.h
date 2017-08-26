@@ -40,8 +40,6 @@ class LLVector3;
 class LLVector3d;
 class LLXmlTreeNode;
 class LLXmlTreeParser;
-// <Black Dragon:NiranV> Vector4
-class LLVector4;
 
 //////////////////////////////////////////////////////////////
 // LLXmlTree
@@ -123,9 +121,6 @@ public:
 	BOOL			getFastAttributeUUID(		LLStdStringHandle cannonical_name, LLUUID& value );
 	BOOL			getFastAttributeString(		LLStdStringHandle cannonical_name, std::string& value );
 
-	// <Black Dragon:NiranV> Vector4
-	BOOL			getFastAttributeVector4(	LLStdStringHandle cannonical_name, LLVector4& value);
-
 	// Normal versions find 'name' in LLXmlTree::sAttributeKeys then call fast versions
 	virtual BOOL		getAttributeBOOL(		const std::string& name, BOOL& value );
 	virtual BOOL		getAttributeU8(			const std::string& name, U8& value );
@@ -144,9 +139,6 @@ public:
 	virtual BOOL		getAttributeQuat(		const std::string& name, LLQuaternion& value );
 	virtual BOOL		getAttributeUUID(		const std::string& name, LLUUID& value );
 	virtual BOOL		getAttributeString(		const std::string& name, std::string& value );
-
-	// <Black Dragon:NiranV> Vector4
-	virtual BOOL		getAttributeVector4(	const std::string& name, LLVector4& value);
 
 	const std::string& getContents()
 	{
@@ -211,20 +203,20 @@ protected:
 	const std::string& tabs();
 
 	// Overrides from LLXmlParser
-	virtual void	startElement(const char *name, const char **attributes); 
-	virtual void	endElement(const char *name);
-	virtual void	characterData(const char *s, int len);
-	virtual void	processingInstruction(const char *target, const char *data);
-	virtual void	comment(const char *data);
-	virtual void	startCdataSection();
-	virtual void	endCdataSection();
-	virtual void	defaultData(const char *s, int len);
-	virtual void	unparsedEntityDecl(
+	void	startElement(const char *name, const char **attributes) override;
+	void	endElement(const char *name) override;
+	void	characterData(const char *s, int len) override;
+	void	processingInstruction(const char *target, const char *data) override;
+	void	comment(const char *data) override;
+	void	startCdataSection() override;
+	void	endCdataSection() override;
+	void	defaultData(const char *s, int len) override;
+	void	unparsedEntityDecl(
 		const char* entity_name,
 		const char* base,
 		const char* system_id,
 		const char* public_id,
-		const char* notation_name);
+		const char* notation_name) override;
 
 	//template method pattern
 	virtual LLXmlTreeNode* CreateXmlTreeNode(const std::string& name, LLXmlTreeNode* parent);

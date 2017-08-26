@@ -42,9 +42,8 @@
 #include "lltracker.h"
 #include "llviewercamera.h"
 #include "llui.h"
-#include "lluictrlfactory.h"
 
-LLHUDView *gHUDView = NULL;
+LLHUDView *gHUDView = nullptr;
 
 LLHUDView::LLHUDView(const LLRect& r)
 {
@@ -59,14 +58,14 @@ LLHUDView::~LLHUDView()
 // virtual
 void LLHUDView::draw()
 {
-	LLTracker::drawHUDArrow();
+	LLTracker::getInstance()->drawHUDArrow();
 	LLView::draw();
 }
 
 /*virtual*/
 BOOL LLHUDView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (LLTracker::handleMouseDown(x, y))
+	if (LLTracker::getInstance()->handleMouseDown(x, y))
 	{
 		return TRUE;
 	}

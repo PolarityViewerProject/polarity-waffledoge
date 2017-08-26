@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="llsd.xsd">
+<map>
+  <key>SimOnAStick</key>
+  <map>
+    <key>keyname</key>
+    <string>SimOnAStick</string>
+    <key>label</key>
+    <string>Sim On A Stick</string>
+    <key>grid_login_id</key>
+    <string>simonastick</string>
+    <key>login_uri</key>
+      <array>
+        <string>http://localhost:9100/</string>
+      </array>
+    <key>update_query_url_base</key>
+    <string />
+    <key>login_page</key>
+    <string>http://localhost/wifi/welcome.html</string>
+    <key>login_identifier_types</key>
+      <array>
+        <string>agent</string>
+        <string>account</string>
+      </array>
+  </map>
+</map>
+</llsd>

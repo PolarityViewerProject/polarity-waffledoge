@@ -36,8 +36,6 @@
 #include "llfloaterimnearbychathandler.h"
 #include "llnotifications.h"
 
-#include <boost/foreach.hpp>
-
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
@@ -64,7 +62,7 @@ void LLNotificationManager::init()
 	mChannels.push_back(new LLBrowserNotification());
 	mChannels.push_back(new LLIMHandler());
   
-	mChatHandler = std::shared_ptr<LLFloaterIMNearbyChatHandler>(new LLFloaterIMNearbyChatHandler());
+	mChatHandler = std::make_shared<LLFloaterIMNearbyChatHandler>();
 }
 
 //--------------------------------------------------------------------------

@@ -26,8 +26,7 @@
  */
 
 #include "linden_common.h"
-#include <apr_pools.h>
-#include <apr_queue.h>
+#include "llapr.h"
 #include "llthreadsafequeue.h"
 #include "llexception.h"
 
@@ -38,12 +37,12 @@
 
 
 LLThreadSafeQueueImplementation::LLThreadSafeQueueImplementation(apr_pool_t * pool, unsigned int capacity):
-	mOwnsPool(pool == 0),
+	mOwnsPool(pool == nullptr),
 	mPool(pool),
-	mQueue(0)
+	mQueue(nullptr)
 {
 	if(mOwnsPool) {
-		apr_status_t status = apr_pool_create(&mPool, 0);
+		apr_status_t status = apr_pool_create(&mPool, nullptr);
 		if(status != APR_SUCCESS) LLTHROW(LLThreadSafeQueueError("failed to allocate pool"));
 	} else {
 		; // No op.
@@ -56,13 +55,13 @@ LLThreadSafeQueueImplementation::LLThreadSafeQueueImplementation(apr_pool_t * po
 
 LLThreadSafeQueueImplementation::~LLThreadSafeQueueImplementation()
 {
-	if(mQueue != 0) {
+	if(mQueue != nullptr) {
 		if(apr_queue_size(mQueue) != 0) LL_WARNS() << 
 			"terminating queue which still contains " << apr_queue_size(mQueue) <<
 			" elements;" << "memory will be leaked" << LL_ENDL;
 		apr_queue_term(mQueue);
 	}
-	if(mOwnsPool && (mPool != 0)) apr_pool_destroy(mPool);
+	if(mOwnsPool && (mPool != nullptr)) apr_pool_destroy(mPool);
 }
 
 
@@ -93,7 +92,7 @@ void * LLThreadSafeQueueImplementation::popBack(void)
 	if(status == APR_EINTR) {
 		LLTHROW(LLThreadSafeQueueInterrupt());
 	}
-        else if (status != APR_SUCCESS) {
+	else if (status != APR_SUCCESS) {
 		LLTHROW(LLThreadSafeQueueError("pop failed"));
 	}
 	return element;

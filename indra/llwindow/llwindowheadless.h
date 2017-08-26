@@ -32,85 +32,88 @@
 class LLWindowHeadless : public LLWindow
 {
 public:
-	/*virtual*/ void show() {};
-	/*virtual*/ void hide() {};
-	/*virtual*/ void close() {};
-	/*virtual*/ BOOL getVisible() {return FALSE;};
-	/*virtual*/ BOOL getMinimized() {return FALSE;};
-	/*virtual*/ BOOL getMaximized() {return FALSE;};
-	/*virtual*/ BOOL maximize() {return FALSE;};
-	/*virtual*/ void minimize() {};
-	/*virtual*/ void restore() {};
-	/*virtual*/ BOOL getFullscreen() {return FALSE;};
-// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-04-13 (Catznip-2.1.2a) | Added: Catznip-2.0.0a
-	/*virtual*/ BOOL getFullscreenWindow() { return FALSE; };
-	/*virtual*/ void setFullscreenWindow(BOOL fFullscreen) {};
-// [/SL:KB]
-	/*virtual*/ BOOL getPosition(LLCoordScreen *position) {return FALSE;};
-// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-08-26 (Catznip-2.1.2a) | Added: Catznip-2.1.2a
-	/*virtual*/ BOOL getRestoredPosition(LLCoordScreen *position) { return FALSE; };
-// [/SL:KB]
-	/*virtual*/ BOOL getSize(LLCoordScreen *size) {return FALSE;};
-	/*virtual*/ BOOL getSize(LLCoordWindow *size) {return FALSE;};
-// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-08-26 (Catznip-2.1.2a) | Added: Catznip-2.1.2a
-	/*virtual*/ BOOL getRestoredSize(LLCoordScreen *size) { return FALSE; };
-// [/SL:KB]
-	/*virtual*/ BOOL setPosition(LLCoordScreen position) {return FALSE;};
-	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size) {return FALSE;};
-	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size) {return FALSE;};
-	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, EVSyncSetting vsync_setting, const LLCoordScreen * const posp = NULL) { return FALSE; };
-	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position) {return FALSE;};
-	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position) {return FALSE;};
-	/*virtual*/ void showCursor() {};
-	/*virtual*/ void hideCursor() {};
-	/*virtual*/ void showCursorFromMouseMove() {};
-	/*virtual*/ void hideCursorUntilMouseMove() {};
-	/*virtual*/ BOOL isCursorHidden() {return FALSE;};
-	/*virtual*/ void updateCursor() {};
+	/*virtual*/ void show() override {};
+	/*virtual*/ void hide() override {};
+	/*virtual*/ void close() override {};
+	/*virtual*/ BOOL getVisible() override {return FALSE;};
+	/*virtual*/ BOOL getMinimized() override {return FALSE;};
+	/*virtual*/ BOOL getMaximized() override {return FALSE;};
+	/*virtual*/ BOOL maximize() override {return FALSE;};
+	/*virtual*/ void minimize() override {};
+	/*virtual*/ void restore() override {};
+	/*virtual*/ BOOL getFullscreen() override {return FALSE;};
+	/*virtual*/ BOOL getPosition(LLCoordScreen *position) override {return FALSE;};
+	/*virtual*/ BOOL getSize(LLCoordScreen *size) override {return FALSE;};
+	/*virtual*/ BOOL getSize(LLCoordWindow *size) override {return FALSE;};
+	/*virtual*/ BOOL setPosition(LLCoordScreen position) override {return FALSE;};
+	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size) override {return FALSE;};
+	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size) override {return FALSE;};
+	/*virtual*/ BOOL switchContext(U32 windows_mode, const LLCoordScreen &size, U32 vsync_setting, const LLCoordScreen * const posp = nullptr) override { return FALSE; };
+	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position) override {return FALSE;};
+	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position) override {return FALSE;};
+	/*virtual*/ void showCursor() override {};
+	/*virtual*/ void hideCursor() override {};
+	/*virtual*/ void showCursorFromMouseMove() override {};
+	/*virtual*/ void hideCursorUntilMouseMove() override {};
+	/*virtual*/ BOOL isCursorHidden() override {return FALSE;};
+	/*virtual*/ void updateCursor() override {};
 	//virtual ECursorType getCursor() { return mCurrentCursor; };
-	/*virtual*/ void captureMouse() {};
-	/*virtual*/ void releaseMouse() {};
-	/*virtual*/ void setMouseClipping( BOOL b ) {};
-	/*virtual*/ BOOL isClipboardTextAvailable() {return FALSE; };
-	/*virtual*/ BOOL pasteTextFromClipboard(LLWString &dst) {return FALSE; };
-	/*virtual*/ BOOL copyTextToClipboard(const LLWString &src) {return FALSE; };
-	/*virtual*/ void flashIcon(F32 seconds) {};
-	/*virtual*/ F32 getGamma() {return 1.0f; };
-	/*virtual*/ BOOL setGamma(const F32 gamma) {return FALSE; }; // Set the gamma
-	/*virtual*/ void setFSAASamples(const U32 fsaa_samples) { }
-	/*virtual*/ U32 getFSAASamples() { return 0; }
-	/*virtual*/ BOOL restoreGamma() {return FALSE; };	// Restore original gamma table (before updating gamma)
+	/*virtual*/ void captureMouse() override {};
+	/*virtual*/ void releaseMouse() override {};
+	/*virtual*/ void setMouseClipping( BOOL b ) override {};
+	/*virtual*/ BOOL isClipboardTextAvailable() override {return FALSE; };
+	/*virtual*/ BOOL pasteTextFromClipboard(LLWString &dst) override {return FALSE; };
+	/*virtual*/ void setWindowTitle(const std::string& title) override {}
+	/*virtual*/ BOOL copyTextToClipboard(const LLWString &src) override {return FALSE; };
+	/*virtual*/ void flashIcon(F32 seconds) override {};
+	/*virtual*/ F32 getGamma() override {return 1.0f; };
+	/*virtual*/ BOOL setGamma(const F32 gamma) override {return FALSE; }; // Set the gamma
+	/*virtual*/ void setFSAASamples(const U32 fsaa_samples) override { }
+	/*virtual*/ U32 getFSAASamples() override { return 0; }
+	/*virtual*/ BOOL restoreGamma() override {return FALSE; };	// Restore original gamma table (before updating gamma)
 	//virtual ESwapMethod getSwapMethod() { return mSwapMethod; }
-	/*virtual*/ void gatherInput() {};
-	/*virtual*/ void delayInputProcessing() {};
-	/*virtual*/ void swapBuffers();
+	/*virtual*/ void gatherInput() override {};
+	/*virtual*/ void delayInputProcessing() override {};
+	/*virtual*/ void swapBuffers() override;
 
 	
     // handy coordinate space conversion routines
-	/*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to) { return FALSE; };
-	/*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to) { return FALSE; };
-	/*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordGL *to) { return FALSE; };
-	/*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordWindow *to) { return FALSE; };
-	/*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordGL *to) { return FALSE; };
-	/*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordScreen *to) { return FALSE; };
+	/*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to) override { return FALSE; };
+	/*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to) override { return FALSE; };
+	/*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordGL *to) override { return FALSE; };
+	/*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordWindow *to) override { return FALSE; };
+	/*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordGL *to) override { return FALSE; };
+	/*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordScreen *to) override { return FALSE; };
 
-	/*virtual*/ LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) { return NULL; };
-	/*virtual*/ F32	getNativeAspectRatio() { return 1.0f; };
-	/*virtual*/ F32 getPixelAspectRatio() { return 1.0f; };
-	/*virtual*/ void setNativeAspectRatio(F32 ratio) {}
+	/*virtual*/ LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override { return nullptr; };
+	/*virtual*/ F32	getNativeAspectRatio() override { return 1.0f; };
+	/*virtual*/ F32 getPixelAspectRatio() override { return 1.0f; };
+	/*virtual*/ void setNativeAspectRatio(F32 ratio) override {}
 
-	/*virtual*/ void *getPlatformWindow() { return 0; };
-	/*virtual*/ void bringToFront() {};
+	/*virtual*/ void *getPlatformWindow() override { return nullptr; };
+	/*virtual*/ void bringToFront() override {};
 	
 	LLWindowHeadless(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name,
 		S32 x, S32 y, 
 		S32 width, S32 height,
-		U32 flags,  BOOL fullscreen, BOOL clear_background,
-		EVSyncSetting vsync_setting, BOOL use_gl, BOOL ignore_pixel_depth);
+		U32 flags,  U32 window_mode, BOOL clear_background,
+		U32 vsync_setting, BOOL use_gl, BOOL ignore_pixel_depth);
 	virtual ~LLWindowHeadless();
 
 private:
+};
+
+class LLSplashScreenHeadless : public LLSplashScreen
+{
+public:
+	LLSplashScreenHeadless() {};
+	virtual ~LLSplashScreenHeadless() {};
+
+	/*virtual*/ void showImpl() override {};
+	/*virtual*/ void updateImpl(const std::string& mesg) override {};
+	/*virtual*/ void hideImpl() override {};
+
 };
 
 #endif //LL_LLWINDOWHEADLESS_H

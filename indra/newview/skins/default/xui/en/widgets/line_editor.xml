@@ -14,6 +14,5 @@
 			 preedit_bg_color="White"
              mouse_opaque="true"
              name="line_editor"
-             font="SansSerif"
-             font.size="Small">
+             font="SansSerifSmall">
 </line_editor>

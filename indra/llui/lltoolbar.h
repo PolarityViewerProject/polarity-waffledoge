@@ -39,9 +39,9 @@ class LLToolBar;
 class LLToolBarButton;
 class LLIconCtrl;
 
-typedef boost::function<void (S32 x, S32 y, LLToolBarButton* button)> tool_startdrag_callback_t;
-typedef boost::function<BOOL (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)> tool_handledrag_callback_t;
-typedef boost::function<BOOL (void* data, S32 x, S32 y, LLToolBar* toolbar)> tool_handledrop_callback_t;
+typedef std::function<void (S32 x, S32 y, LLToolBarButton* button)> tool_startdrag_callback_t;
+typedef std::function<BOOL (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)> tool_handledrag_callback_t;
+typedef std::function<BOOL (void* data, S32 x, S32 y, LLToolBar* toolbar)> tool_handledrop_callback_t;
 
 class LLToolBarButton : public LLButton
 {
@@ -62,24 +62,24 @@ public:
 	LLToolBarButton(const Params& p);
 	~LLToolBarButton();
 
-	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	BOOL handleHover(S32 x, S32 y, MASK mask);
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL handleHover(S32 x, S32 y, MASK mask) override;
 
-	void reshape(S32 width, S32 height, BOOL called_from_parent = true);
-	void setEnabled(BOOL enabled);
+	void reshape(S32 width, S32 height, BOOL called_from_parent = true) override;
+	void setEnabled(BOOL enabled) override;
 	void setCommandId(const LLCommandId& id) { mId = id; }
 	LLCommandId getCommandId() { return mId; }
 
 	void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; }
 	void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
 
-	void onMouseEnter(S32 x, S32 y, MASK mask);
-	void onMouseLeave(S32 x, S32 y, MASK mask);
-	void onMouseCaptureLost();
+	void onMouseEnter(S32 x, S32 y, MASK mask) override;
+	void onMouseLeave(S32 x, S32 y, MASK mask) override;
+	void onMouseCaptureLost() override;
 
-	void onCommit();
+	void onCommit() override;
 
-	virtual const std::string getToolTip() const;		
+	const std::string getToolTip() const override;		
 
 private:
 	void callIfEnabled(LLUICtrl::commit_callback_t commit, LLUICtrl* ctrl, const LLSD& param );
@@ -126,12 +126,11 @@ namespace LLToolBarEnums
 		SIDE_RIGHT,
 		SIDE_TOP,
 	};
-
-	enum AlignmentType
+	
+	enum LayoutType
 	{
-		ALIGN_TOP_LEFT,
-		ALIGN_CENTER,
-		ALIGN_BOTTOM_RIGHT,
+		LAYOUT_NONE,
+		LAYOUT_FILL
 	};
 
 	enum EToolBarLocation
@@ -165,9 +164,9 @@ namespace LLInitParam
 	{
 		static void declareValues();
 	};
-
+	
 	template<>
-	struct TypeValues<LLToolBarEnums::AlignmentType> : public TypeValuesHelper<LLToolBarEnums::AlignmentType>
+	struct TypeValues<LLToolBarEnums::LayoutType> : public TypeValuesHelper<LLToolBarEnums::LayoutType>
 	{
 		static void declareValues();
 	};
@@ -183,10 +182,10 @@ public:
 	class LLCenterLayoutPanel : public LLLayoutPanel
 	{
 	public:
-		typedef boost::function<void(LLToolBarEnums::EToolBarLocation tb, const LLRect& rect)> reshape_callback_t;
+		typedef std::function<void(LLToolBarEnums::EToolBarLocation tb, const LLRect& rect)> reshape_callback_t;
 
 		virtual ~LLCenterLayoutPanel() {}
-		/*virtual*/ void handleReshape(const LLRect& rect, bool by_user);
+		/*virtual*/ void handleReshape(const LLRect& rect, bool by_user) override;
 
 		void setLocationId(LLToolBarEnums::EToolBarLocation id) { mLocationId = id; }
 		void setReshapeCallback(reshape_callback_t cb) { mReshapeCallback = cb; }
@@ -194,7 +193,7 @@ public:
 
 	protected:
 		friend class LLUICtrlFactory;
-		LLCenterLayoutPanel(const Params& params) : LLLayoutPanel(params), mButtonPanel(NULL) {}
+		LLCenterLayoutPanel(const Params& params) : LLLayoutPanel(params), mLocationId(LLToolBarEnums::TOOLBAR_NONE), mButtonPanel(nullptr) {}
 
 	private:
 		reshape_callback_t					mReshapeCallback;
@@ -206,13 +205,14 @@ public:
 	{
 		Mandatory<LLToolBarEnums::ButtonType>	button_display_mode;
 		Mandatory<LLToolBarEnums::SideType>		side;
-		Optional<LLToolBarEnums::AlignmentType>	button_alignment;
+		
+		Optional<LLToolBarEnums::LayoutType>	button_layout_mode;
 
 		Optional<LLToolBarButton::Params>		button_icon,
 												button_icon_small,
 												button_icon_and_text,
 												button_text;
-
+		
 		Optional<bool>							read_only,
 												wrap;
 
@@ -232,14 +232,14 @@ public:
 	};
 
 	// virtuals
-	void draw();
-	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	void draw() override;
+	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
-								   std::string& tooltip_msg);
+								   std::string& tooltip_msg) override;
 	
 	static const int RANK_NONE = -1;
 	bool addCommand(const LLCommandId& commandId, int rank = RANK_NONE);
@@ -269,15 +269,16 @@ public:
 	LLToolBarEnums::SideType getSideType() const { return mSideType; }
 	bool hasButtons() const { return !mButtons.empty(); }
 	bool isModified() const { return mModified; }
+	BOOL checkOrientation(const LLSD& userdata) const;
 
 	int  getRankFromPosition(S32 x, S32 y);	
 	int  getRankFromPosition(const LLCommandId& id);	
 
 	// Methods used in loading and saving toolbar settings
 	void setButtonType(LLToolBarEnums::ButtonType button_type);
-	LLToolBarEnums::ButtonType getButtonType() { return mButtonType; }
-	void setButtonAlignment(LLToolBarEnums::AlignmentType button_align);
-	LLToolBarEnums::AlignmentType getAlignmentType() const { return mButtonAlignment; }
+	void setLayoutType(LLToolBarEnums::LayoutType layout_type);
+	LLToolBarEnums::ButtonType getButtonType() const { return mButtonType; }
+	LLToolBarEnums::LayoutType getLayoutType() const { return mLayoutType; }
 	command_id_list_t& getCommandsList() { return mButtonCommands; }
 	void clearCommandsList();
 
@@ -286,13 +287,15 @@ private:
 	LLToolBar(const Params&);
 	~LLToolBar();
 
-	void initFromParams(const Params& p);
+	void initFromParams(const Params&);
 	void createContextMenu();
 	void updateLayoutAsNeeded();
 	void createButtons();
 	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
-	BOOL isSettingChecked(const LLSD& userdata);
-	void onSettingEnable(const LLSD& userdata);
+	BOOL isButtonTypeChecked(const LLSD& userdata);
+	void onButtonTypeChanged(const LLSD& userdata);
+	BOOL isLayoutChecked(const LLSD& userdata);
+	void onLayoutChanged(const LLSD& userdata);
 	void onRemoveSelectedCommand();
 
 private:
@@ -324,16 +327,13 @@ private:
 	command_id_map					mButtonMap;
 
 	LLToolBarEnums::ButtonType		mButtonType;
+	LLToolBarEnums::LayoutType		mLayoutType;
 	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
-
-	LLToolBarEnums::AlignmentType	mButtonAlignment;
 
 	// related widgets
 	LLLayoutStack*					mCenteringStack;
-	LLLayoutPanel*					mLeftTopPanel;
 	LLCenterLayoutPanel*			mCenterPanel;
 	LLPanel*						mButtonPanel;
-	LLLayoutPanel*					mRightBottomPanel;
 	LLHandle<class LLContextMenu>	mPopupMenuHandle;
 	LLHandle<class LLView>			mRemoveButtonHandle;
 

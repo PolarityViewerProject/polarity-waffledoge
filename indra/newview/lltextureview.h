@@ -39,17 +39,16 @@ class LLTextureView : public LLContainerView
 	friend class LLTextureBar;
 	friend class LLGLTexMemBar;
 	friend class LLAvatarTexBar;
-	LOG_CLASS(LLTextureView); // Enable Logging Macros
 protected:
 	LLTextureView(const Params&);
 	friend class LLUICtrlFactory;
 public:
 	~LLTextureView();
 
-	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	/*virtual*/ void draw() override;
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
 
 	static void addDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
 	static void removeDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
@@ -64,8 +63,6 @@ private:
 	BOOL mOrderFetch;
 	BOOL mPrintList;
 	
-	LLTextBox *mInfoTextp;
-
 	std::vector<LLTextureBar*> mTextureBars;
 	U32 mNumTextureBars;
 

@@ -31,6 +31,7 @@
 #include "llspeakers.h"
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llappviewer.h"
 #include "llimview.h"
 #include "llgroupmgr.h"
@@ -41,8 +42,8 @@
 #include "llvoavatar.h"
 #include "llworld.h"
 #include "llcorehttputil.h"
-#include "llviewercontrol.h"
 #include "roles_constants.h"
+#include "llviewercontrol.h"
 
 const LLColor4 INACTIVE_COLOR(0.3f, 0.3f, 0.3f, 0.5f);
 const LLColor4 ACTIVE_COLOR(0.5f, 0.5f, 0.5f, 1.f);
@@ -77,13 +78,13 @@ void LLSpeaker::lookupName()
 {
 	if (mDisplayName.empty())
 	{
-		gCacheName->get(mID, false, boost::bind(&LLSpeaker::onNameCache, this, _1, _2, _3));
+		LLAvatarNameCache::get(mID, boost::bind(&LLSpeaker::onNameCache, this, _1, _2)); // todo: can be group???
 	}
 }
 
-void LLSpeaker::onNameCache(const LLUUID& id, const std::string& full_name, bool is_group)
+void LLSpeaker::onNameCache(const LLUUID& id, const LLAvatarName& av_name)
 {
-	mDisplayName = full_name;
+	mDisplayName = av_name.getUserName();
 }
 
 bool LLSpeaker::isInVoiceChannel()
@@ -193,7 +194,7 @@ BOOL LLSpeakerActionTimer::tick()
 
 void LLSpeakerActionTimer::unset()
 {
-	mActionCallback = 0;
+	mActionCallback = nullptr;
 }
 
 LLSpeakersDelayActionsStorage::LLSpeakersDelayActionsStorage(LLSpeakerActionTimer::action_callback_t action_cb, F32 action_delay)
@@ -375,7 +376,7 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 
 	// update status of all current speakers
 	BOOL voice_channel_active = (!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel && mVoiceChannel->isActive());
-	for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end(); speaker_it++)
+	for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end(); ++speaker_it)
 	{
 		LLUUID speaker_id = speaker_it->first;
 		LLSpeaker* speakerp = speaker_it->second;
@@ -457,9 +458,9 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 
 	S32 recent_speaker_count = 0;
 	S32 sort_index = 0;
-	speaker_list_t::iterator sorted_speaker_it;
-	for(sorted_speaker_it = mSpeakersSorted.begin(); 
-		sorted_speaker_it != mSpeakersSorted.end(); ++sorted_speaker_it)
+	for(speaker_list_t::iterator sorted_speaker_it = mSpeakersSorted.begin(); 
+		sorted_speaker_it != mSpeakersSorted.end(); 
+		++sorted_speaker_it)
 	{
 		LLPointer<LLSpeaker> speakerp = *sorted_speaker_it;
 		
@@ -494,7 +495,7 @@ void LLSpeakerMgr::updateSpeakerList()
 	else 
 	{
 		// If not, check if the list is empty, except if it's Nearby Chat (session_id NULL).
-		LLUUID session_id = getSessionID();
+		LLUUID const& session_id = getSessionID();
 		if (!session_id.isNull() && !mSpeakerListUpdated)
 		{
 			// If the list is empty, we update it with whatever we have locally so that it doesn't stay empty too long.
@@ -594,11 +595,11 @@ LLPointer<LLSpeaker> LLSpeakerMgr::findSpeaker(const LLUUID& speaker_id)
 {
 	//In some conditions map causes crash if it is empty(Windows only), adding check (EK)
 	if (mSpeakers.size() == 0)
-		return NULL;
+		return nullptr;
 	speaker_map_t::iterator found_it = mSpeakers.find(speaker_id);
 	if (found_it == mSpeakers.end())
 	{
-		return NULL;
+		return nullptr;
 	}
 	return found_it->second;
 }
@@ -617,12 +618,12 @@ void LLSpeakerMgr::getSpeakerList(speaker_list_t* speaker_list, BOOL include_tex
 	}
 }
 
-const LLUUID LLSpeakerMgr::getSessionID() 
+const LLUUID LLSpeakerMgr::getSessionID() const
 { 
 	return mVoiceChannel->getSessionID(); 
 }
 
-bool LLSpeakerMgr::isSpeakerToBeRemoved(const LLUUID& speaker_id)
+bool LLSpeakerMgr::isSpeakerToBeRemoved(const LLUUID& speaker_id) const
 {
 	return mSpeakerDelayRemover && mSpeakerDelayRemover->isTimerStarted(speaker_id);
 }
@@ -648,7 +649,7 @@ void LLSpeakerMgr::speakerChatted(const LLUUID& speaker_id)
 	}
 }
 
-BOOL LLSpeakerMgr::isVoiceActive()
+BOOL LLSpeakerMgr::isVoiceActive() const
 {
 	// mVoiceChannel = NULL means current voice channel, whatever it is
 	return LLVoiceClient::getInstance()->voiceEnabled() && mVoiceChannel && mVoiceChannel->isActive();
@@ -679,8 +680,7 @@ void LLIMSpeakerMgr::setSpeakers(const LLSD& speakers)
 
 	if ( speakers.has("agent_info") && speakers["agent_info"].isMap() )
 	{
-		LLSD::map_const_iterator speaker_it;
-		for(speaker_it = speakers["agent_info"].beginMap();
+		for(LLSD::map_const_iterator speaker_it = speakers["agent_info"].beginMap();
 			speaker_it != speakers["agent_info"].endMap();
 			++speaker_it)
 		{
@@ -708,10 +708,7 @@ void LLIMSpeakerMgr::setSpeakers(const LLSD& speakers)
 	}
 	else if ( speakers.has("agents" ) && speakers["agents"].isArray() )
 	{
-		//older, more decprecated way.  Need here for
-		//using older version of servers
-		LLSD::array_const_iterator speaker_it;
-		for(speaker_it = speakers["agents"].beginArray();
+		for(LLSD::array_const_iterator speaker_it = speakers["agents"].beginArray();
 			speaker_it != speakers["agents"].endArray();
 			++speaker_it)
 		{
@@ -731,9 +728,7 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 
 	if ( update.has("agent_updates") && update["agent_updates"].isMap() )
 	{
-		LLSD::map_const_iterator update_it;
-		for(
-			update_it = update["agent_updates"].beginMap();
+		for(LLSD::map_const_iterator update_it = update["agent_updates"].beginMap();
 			update_it != update["agent_updates"].endMap();
 			++update_it)
 		{
@@ -787,11 +782,9 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 	}
 	else if ( update.has("updates") && update["updates"].isMap() )
 	{
-		LLSD::map_const_iterator update_it;
-		for (
-			update_it = update["updates"].beginMap();
-			update_it != update["updates"].endMap();
-			++update_it)
+		for (LLSD::map_const_iterator update_it = update["updates"].beginMap();
+			 update_it != update["updates"].endMap();
+			 ++update_it)
 		{
 			LLUUID agent_id(update_it->first);
 			LLPointer<LLSpeaker> speakerp = findSpeaker(agent_id);
@@ -896,7 +889,6 @@ void LLIMSpeakerMgr::moderationActionCoro(std::string url, LLSD action)
                     sessionId);
             }
         }
-        return;
     }
 }
 
@@ -1020,11 +1012,10 @@ void LLLocalSpeakerMgr::updateSpeakerList()
 
 	// pick up non-voice speakers in chat range
 	uuid_vec_t avatar_ids;
-	std::vector<LLVector3d> positions;
-	LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgent.getPositionGlobal(), CHAT_NORMAL_RADIUS);
-	for(U32 i=0; i<avatar_ids.size(); i++)
+	LLWorld::getInstance()->getAvatars(&avatar_ids, nullptr, gAgent.getPositionGlobal(), CHAT_NORMAL_RADIUS);
+	for (const auto& id : avatar_ids)
 	{
-		setSpeaker(avatar_ids[i]);
+		setSpeaker(id);
 	}
 
 	// check if text only speakers have moved out of chat range

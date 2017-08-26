@@ -98,7 +98,7 @@ LLCharacter::~LLCharacter()
 //-----------------------------------------------------------------------------
 LLJoint *LLCharacter::getJoint( const std::string &name )
 {
-	LLJoint* joint = NULL;
+	LLJoint* joint = nullptr;
 
 	LLJoint *root = getRootJoint();
 	if (root)
@@ -242,7 +242,7 @@ void LLCharacter::flushAllMotions()
 void LLCharacter::dumpCharacter( LLJoint* joint )
 {
 	// handle top level entry into recursion
-	if (joint == NULL)
+	if (joint == nullptr)
 	{
 		LL_INFOS() << "DEBUG: Dumping Character @" << this << LL_ENDL;
 		dumpCharacter( getRootJoint() );
@@ -275,7 +275,7 @@ void LLCharacter::setAnimationData(const std::string& name, void *data)
 //-----------------------------------------------------------------------------
 void* LLCharacter::getAnimationData(const std::string& name)
 {
-	return get_if_there(mAnimationData, name, (void*)NULL);
+	return get_if_there(mAnimationData, name, (void*)nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -289,13 +289,13 @@ void LLCharacter::removeAnimationData(const std::string& name)
 //-----------------------------------------------------------------------------
 // setVisualParamWeight()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::setVisualParamWeight(const LLVisualParam* which_param, F32 weight)
+BOOL LLCharacter::setVisualParamWeight(const LLVisualParam* which_param, F32 weight, BOOL upload_bake)
 {
 	S32 index = which_param->getID();
 	visual_param_index_map_t::iterator index_iter = mVisualParamIndexMap.find(index);
 	if (index_iter != mVisualParamIndexMap.end())
 	{
-		index_iter->second->setWeight(weight);
+		index_iter->second->setWeight(weight, upload_bake);
 		return TRUE;
 	}
 	return FALSE;
@@ -304,7 +304,7 @@ BOOL LLCharacter::setVisualParamWeight(const LLVisualParam* which_param, F32 wei
 //-----------------------------------------------------------------------------
 // setVisualParamWeight()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight)
+BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake)
 {
 	std::string tname(param_name);
 	LLStringUtil::toLower(tname);
@@ -312,7 +312,7 @@ BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight)
 	visual_param_name_map_t::iterator name_iter = mVisualParamNameMap.find(tableptr);
 	if (name_iter != mVisualParamNameMap.end())
 	{
-		name_iter->second->setWeight(weight);
+		name_iter->second->setWeight(weight, upload_bake);
 		return TRUE;
 	}
 	LL_WARNS() << "LLCharacter::setVisualParamWeight() Invalid visual parameter: " << param_name << LL_ENDL;
@@ -322,12 +322,12 @@ BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight)
 //-----------------------------------------------------------------------------
 // setVisualParamWeight()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::setVisualParamWeight(S32 index, F32 weight)
+BOOL LLCharacter::setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake)
 {
 	visual_param_index_map_t::iterator index_iter = mVisualParamIndexMap.find(index);
 	if (index_iter != mVisualParamIndexMap.end())
 	{
-		index_iter->second->setWeight(weight);
+		index_iter->second->setWeight(weight, upload_bake);
 		return TRUE;
 	}
 	LL_WARNS() << "LLCharacter::setVisualParamWeight() Invalid visual parameter index: " << index << LL_ENDL;
@@ -397,7 +397,7 @@ void LLCharacter::clearVisualParamWeights()
 	{
 		if (param->isTweakable())
 		{
-			param->setWeight( param->getDefaultWeight());
+			param->setWeight( param->getDefaultWeight(), FALSE);
 		}
 	}
 }
@@ -410,19 +410,13 @@ LLVisualParam*	LLCharacter::getVisualParam(const char *param_name)
 	std::string tname(param_name);
 	LLStringUtil::toLower(tname);
 	char *tableptr = sVisualParamNames.checkString(tname);
-
-	// <FS:ND> Protect against crashes later on
-	if( !tableptr )
-		return 0;
-	// </FS:ND>
-
 	visual_param_name_map_t::iterator name_iter = mVisualParamNameMap.find(tableptr);
 	if (name_iter != mVisualParamNameMap.end())
 	{
 		return name_iter->second;
 	}
 	LL_WARNS() << "LLCharacter::getVisualParam() Invalid visual parameter: " << param_name << LL_ENDL;
-	return NULL;
+	return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -432,7 +426,7 @@ void LLCharacter::addSharedVisualParam(LLVisualParam *param)
 {
 	S32 index = param->getID();
 	visual_param_index_map_t::iterator index_iter = mVisualParamIndexMap.find(index);
-	LLVisualParam* current_param = 0;
+	LLVisualParam* current_param = nullptr;
 	if (index_iter != mVisualParamIndexMap.end())
 		current_param = index_iter->second;
 	if( current_param )
@@ -467,6 +461,9 @@ void LLCharacter::addVisualParam(LLVisualParam *param)
 		visual_param_index_map_t::iterator index_iter = idxres.first;
 		index_iter->second = param;
 	}
+#if !USE_LL_APPEARANCE_CODE
+	mVisualParamSortedVector[index] = param;
+#endif
 
 	if (param->getInfo())
 	{

@@ -33,7 +33,6 @@
 
 #include "llsechandler_basic.h"
 #include "llexception.h"
-#include "stringize.h"
 
 std::map<std::string, LLPointer<LLSecAPIHandler> > gHandlerMap;
 LLPointer<LLSecAPIHandler> gSecAPIHandler;
@@ -51,10 +50,10 @@ void initializeSecHandler()
 
 	// initialize all SecAPIHandlers
 	std::string exception_msg;
-	std::map<std::string, LLPointer<LLSecAPIHandler> >::const_iterator itr;
-	for(itr = gHandlerMap.begin(); itr != gHandlerMap.end(); ++itr)
+	for(std::map<std::string, LLPointer<LLSecAPIHandler> >::const_iterator itr = gHandlerMap.begin();
+		itr != gHandlerMap.end(); ++itr)
 	{
-		LLPointer<LLSecAPIHandler> handler = (*itr).second;
+		auto handler = (*itr).second;
 		try 
 		{
 			handler->init();
@@ -87,7 +86,7 @@ LLPointer<LLSecAPIHandler> getSecHandler(const std::string& handler_type)
 	}
 	else
 	{
-		return LLPointer<LLSecAPIHandler>(NULL);
+		return LLPointer<LLSecAPIHandler>(nullptr);
 	}
 }
 // register a handler
@@ -99,7 +98,7 @@ void registerSecHandler(const std::string& handler_type,
 
 std::ostream& operator <<(std::ostream& s, const LLCredential& cred)
 {
-	return s << (std::string)cred;
+	return s << static_cast<std::string>(cred);
 }
 
 LLSD LLCredential::getLoginParams()
@@ -126,7 +125,7 @@ LLSD LLCredential::getLoginParams()
 	catch (...)
 	{
 		// nat 2016-08-18: not clear what exceptions the above COULD throw?!
-		LOG_UNHANDLED_EXCEPTION(STRINGIZE("for '" << username << "'"));
+		LOG_UNHANDLED_EXCEPTION(std::string("for '" + username + "'"));
 		// we could have corrupt data, so simply return a null login param if so
 		LL_WARNS("AppInit") << "Invalid credential" << LL_ENDL;
 	}
@@ -155,4 +154,53 @@ void LLCredential::authenticatorType(std::string &idType)
 		idType = std::string();
 		
 	}
+}
+
+LLSD LLCredential::asLLSD(bool save_authenticator)
+{
+	LLSD credential = LLSD::emptyMap();
+	credential["identifier"] = getIdentifier(); 
+	if (save_authenticator)
+		credential["authenticator"] = getAuthenticator();
+	return credential;
+}
+
+// static
+std::string LLCredential::userIDFromIdentifier(const LLSD& identifier)
+{
+    if (!identifier.isMap())
+    {
+        return "(null)";
+    }
+    else if (identifier["type"].asString() == "agent")
+    {
+        return identifier["first_name"].asString() + "_" + identifier["last_name"].asString();
+    }
+    else if (identifier["type"].asString() == "account")
+    {
+        return identifier["account_name"].asString();
+    }
+    return "unknown";
+}
+
+// static
+std::string LLCredential::usernameFromIdentifier(const LLSD& identifier)
+{
+    if (!identifier.isMap())
+    {
+        return "(null)";
+    }
+    else if (identifier["type"].asString() == "agent")
+    {
+        const std::string first_name = identifier["first_name"].asString();
+        const std::string last_name = identifier["last_name"].asString();
+        if ( (!last_name.empty()) && (last_name != "Resident") )
+            return first_name + " " + last_name;
+        return first_name;
+    }
+    else if (identifier["type"].asString() == "account")
+    {
+        return identifier["account_name"].asString();
+    }
+    return "unknown";
 }

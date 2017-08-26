@@ -31,14 +31,12 @@
 #include "llagentdata.h"
 #include "llcommandhandler.h"
 #include "llfloater.h"
-#include "lluictrlfactory.h"
 #include "llagent.h"
 #include "llpanel.h"
 #include "llbutton.h"
 #include "llcolorswatch.h"
 #include "llcombobox.h"
 #include "llview.h"
-#include "llbufferstream.h"
 #include "llcheckboxctrl.h"
 #include "llviewercontrol.h"
 
@@ -70,11 +68,11 @@
 LLFloaterAutoReplaceSettings::LLFloaterAutoReplaceSettings(const LLSD& key)
  : LLFloater(key)
  , mSelectedListName("")
- , mListNames(NULL)
- , mReplacementsList(NULL)
- , mKeyword(NULL)
+ , mListNames(nullptr)
+ , mReplacementsList(nullptr)
+ , mKeyword(nullptr)
  , mPreviousKeyword("")
- , mReplacement(NULL)
+ , mReplacement(nullptr)
 {
 }
 

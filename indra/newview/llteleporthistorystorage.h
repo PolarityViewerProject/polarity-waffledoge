@@ -27,9 +27,6 @@
 #ifndef LL_LLTELEPORTHISTORYSTORAGE_H
 #define LL_LLTELEPORTHISTORYSTORAGE_H
 
-#include <vector>
-
-#include "llsingleton.h"
 #include "lldate.h"
 #include "v3dmath.h"
 
@@ -77,7 +74,7 @@ public:
 	typedef std::vector<LLTeleportHistoryPersistentItem> slurl_list_t;
 
 	// removed_index is index of removed item, which replaced by more recent
-	typedef boost::function<void(S32 removed_index)>		history_callback_t;
+	typedef std::function<void(S32 removed_index)>		history_callback_t;
 	typedef boost::signals2::signal<void(S32 removed_index)>	history_signal_t;
 
 	/**
@@ -107,11 +104,7 @@ public:
 	 */
 	void					goToItem(S32 idx);
 
-//private:
-// [RLVa:KB] - Checked: 2010-09-03 (RLVa-1.2.1b) | Added: RLVa-1.2.1b
-protected:
-	friend class RlvUIEnabler;
-// [/RLVa:KB]
+private:
 
 	void load();
 	void dump() const;

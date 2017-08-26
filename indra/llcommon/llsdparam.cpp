@@ -32,7 +32,6 @@
 // Project includes
 #include "llsdparam.h"
 #include "llsdutil.h"
-#include "boost/bind.hpp"
 
 static 	LLInitParam::Parser::parser_read_func_map_t sReadFuncs;
 static 	LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;
@@ -45,10 +44,9 @@ LLTrace::BlockTimerStatHandle FTM_SD_PARAM_ADAPTOR("LLSD to LLInitParam conversi
 // LLParamSDParser
 //
 LLParamSDParser::LLParamSDParser()
-: Parser(sReadFuncs, sWriteFuncs, sInspectFuncs)
+: Parser(sReadFuncs, sWriteFuncs, sInspectFuncs),
+  mCurReadSD(nullptr), mWriteRootSD(nullptr)
 {
-	using boost::bind;
-
 	if (sReadFuncs.empty())
 	{
 		registerParserFuncs<LLInitParam::Flag>(readFlag, &LLParamSDParser::writeFlag);
@@ -97,11 +95,11 @@ void LLParamSDParser::submit(LLInitParam::BaseBlock& block, const LLSD& sd, LLIn
 
 void LLParamSDParser::readSD(const LLSD& sd, LLInitParam::BaseBlock& block, bool silent)
 {
-	mCurReadSD = NULL;
+	mCurReadSD = nullptr;
 	mNameStack.clear();
 	setParseSilently(silent);
 
-	LLParamSDParserUtilities::readSDValues(boost::bind(&LLParamSDParser::submit, this, boost::ref(block), _1, _2), sd, mNameStack);
+	LLParamSDParserUtilities::readSDValues(std::bind(&LLParamSDParser::submit, this, std::ref(block), std::placeholders::_1, std::placeholders::_2), sd, mNameStack);
 	//readSDValues(sd, block);
 }
 
@@ -282,14 +280,14 @@ void LLParamSDParserUtilities::readSDValues(read_sd_cb_t cb, const LLSD& sd, LLI
 	}
 	else if (sd.isUndefined())
 	{
-		if (!cb.empty())
+		if (cb)
 		{
 			cb(NO_VALUE_MARKER, stack);
 		}
 	}
 	else
 	{
-		if (!cb.empty())
+		if (cb)
 		{
 			cb(sd, stack);
 		}
@@ -339,7 +337,7 @@ namespace LLInitParam
 		if (!p.writeValue<LLSD>(mValue, name_stack_range))
 		{
 			// otherwise read from LLSD value and serialize out to parser (which could be LLSD, XUI, etc)
-			LLParamSDParserUtilities::readSDValues(boost::bind(&serializeElement, boost::ref(p), _1, _2), mValue, name_stack_range);
+			LLParamSDParserUtilities::readSDValues(std::bind(&serializeElement, std::ref(p), std::placeholders::_1, std::placeholders::_2), mValue, name_stack_range);
 		}
 		return true;
 	}

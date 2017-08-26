@@ -31,12 +31,12 @@
 #include "llpanelgrouplandmoney.h"
 
 #include "lluiconstants.h"
-#include "roles_constants.h"
 
 #include "llparcel.h"
 #include "llqueryflags.h"
 
 #include "llagent.h"
+#include "llcurrencywrapper.h"
 #include "lldateutil.h"
 #include "lliconctrl.h"
 #include "llfloaterreg.h"
@@ -50,8 +50,6 @@
 #include "lltexteditor.h"
 #include "lltrans.h"
 #include "lltransactiontypes.h"
-#include "lltrans.h"
-#include "lluictrlfactory.h"
 
 #include "llstatusbar.h"
 #include "llfloaterworldmap.h"
@@ -151,8 +149,8 @@ public:
 									   );
 	virtual ~LLGroupMoneyDetailsTabEventHandler();
 
-	virtual void requestData(LLMessageSystem* msg);
-	virtual void processReply(LLMessageSystem* msg, void** data);
+	void requestData(LLMessageSystem* msg) override;
+	void processReply(LLMessageSystem* msg, void** data) override;
 };
 
 
@@ -168,8 +166,8 @@ public:
 									 );
 	virtual ~LLGroupMoneySalesTabEventHandler();
 
-	virtual void requestData(LLMessageSystem* msg);
-	virtual void processReply(LLMessageSystem* msg, void** data);
+	void requestData(LLMessageSystem* msg) override;
+	void processReply(LLMessageSystem* msg, void** data) override;
 };
 
 class LLGroupMoneyPlanningTabEventHandler : public LLGroupMoneyTabEventHandler
@@ -182,8 +180,8 @@ public:
 										);
 	virtual ~LLGroupMoneyPlanningTabEventHandler();
 
-	virtual void requestData(LLMessageSystem* msg);
-	virtual void processReply(LLMessageSystem* msg, void** data);
+	void requestData(LLMessageSystem* msg) override;
+	void processReply(LLMessageSystem* msg, void** data) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -196,9 +194,9 @@ public:
 
 	void requestGroupLandInfo();
 
-	int getStoredContribution();
-	void setYourContributionTextField(int contrib);
-	void setYourMaxContributionTextBox(int max);
+	S32 getStoredContribution();
+	void setYourContributionTextField(S32 contrib);
+	void setYourMaxContributionTextBox(S32 max);
 
 	virtual void onMapButton();
 	virtual bool applyContribution();
@@ -248,15 +246,15 @@ LLPanelGroupLandMoney::impl::impl(LLPanelGroupLandMoney& panel)
 	mNeedsSendGroupLandRequest = true;
 	mNeedsApply = false;
 
-	mYourContributionEditorp = NULL;
-	mMapButtonp = NULL;
-	mGroupParcelsp = NULL;
-	mGroupOverLimitTextp = NULL;
-	mGroupOverLimitIconp = NULL;
+	mYourContributionEditorp = nullptr;
+	mMapButtonp = nullptr;
+	mGroupParcelsp = nullptr;
+	mGroupOverLimitTextp = nullptr;
+	mGroupOverLimitIconp = nullptr;
 
-	mMoneySalesTabEHp    = NULL;
-	mMoneyPlanningTabEHp = NULL;
-	mMoneyDetailsTabEHp  = NULL;
+	mMoneySalesTabEHp    = nullptr;
+	mMoneyPlanningTabEHp = nullptr;
+	mMoneyDetailsTabEHp  = nullptr;
 }
 
 LLPanelGroupLandMoney::impl::~impl()
@@ -304,11 +302,8 @@ void LLPanelGroupLandMoney::impl::onMapButton()
 bool LLPanelGroupLandMoney::impl::applyContribution()
 {
 	// calculate max donation, which is sum of available and current.
-	S32 your_contribution = 0;
-	S32 sqm_avail;
-
-	your_contribution = getStoredContribution();
-	sqm_avail = your_contribution;
+	S32 your_contribution = getStoredContribution();
+	S32 sqm_avail = your_contribution;
 	
 	if(gStatusBar)
 	{
@@ -316,7 +311,7 @@ bool LLPanelGroupLandMoney::impl::applyContribution()
 	}
 
 	// get new contribution and compare to available
-	S32 new_contribution = atoi(mYourContributionEditorp->getText().c_str());
+	S32 new_contribution = std::stoi(mYourContributionEditorp->getText());
 
 	if( new_contribution != your_contribution &&
 		new_contribution >= 0 && 
@@ -345,20 +340,20 @@ bool LLPanelGroupLandMoney::impl::applyContribution()
 
 // Retrieves the land contribution for this agent that is currently
 // stored in the database, NOT what is currently entered in the text field
-int LLPanelGroupLandMoney::impl::getStoredContribution()
+S32 LLPanelGroupLandMoney::impl::getStoredContribution()
 {
 	LLGroupData group_data;
 
 	group_data.mContribution = 0;
-	gAgent.getGroupData(mPanel.mGroupID, group_data);
+	bool found_group = gAgent.getGroupData(mPanel.mGroupID, group_data);
 
-	return group_data.mContribution;
+    return found_group ? group_data.mContribution : 0;
 }
 
 // Fills in the text field with the contribution, contrib
-void LLPanelGroupLandMoney::impl::setYourContributionTextField(int contrib)
+void LLPanelGroupLandMoney::impl::setYourContributionTextField(S32 contrib)
 {
-	std::string buffer = llformat("%d", contrib);
+	std::string buffer = std::to_string(contrib);
 
 	if ( mYourContributionEditorp )
 	{
@@ -366,9 +361,9 @@ void LLPanelGroupLandMoney::impl::setYourContributionTextField(int contrib)
 	}
 }
 
-void LLPanelGroupLandMoney::impl::setYourMaxContributionTextBox(int max)
+void LLPanelGroupLandMoney::impl::setYourMaxContributionTextBox(S32 max)
 {
-	mPanel.getChild<LLUICtrl>("your_contribution_max_value")->setTextArg("[AMOUNT]", llformat("%d", max));
+	mPanel.getChild<LLUICtrl>("your_contribution_max_value")->setTextArg("[AMOUNT]", std::to_string(max));
 }
 
 //static
@@ -383,16 +378,13 @@ void LLPanelGroupLandMoney::impl::contributionCommitCallback(LLUICtrl* ctrl,
 															 void* userdata)
 {
 	LLPanelGroupLandMoney* tabp    = (LLPanelGroupLandMoney*) userdata;
-	LLLineEditor*          editorp = (LLLineEditor*) ctrl;
 
-	if ( tabp && editorp )
+	if ( tabp && ctrl )
 	{
 		impl* self = tabp->mImplementationp;
-		int your_contribution = 0;
-		int new_contribution = 0;
 
-		new_contribution= atoi(editorp->getText().c_str());
-		your_contribution = self->getStoredContribution();
+		S32 new_contribution = ctrl->getValue().asInteger();
+		S32 your_contribution = self->getStoredContribution();
 
 		//reset their junk data to be "good" data to us
 		self->setYourContributionTextField(new_contribution);
@@ -638,7 +630,7 @@ void LLPanelGroupLandMoney::update(LLGroupChange gc)
 		{
 			eh = get_if_there(LLGroupMoneyTabEventHandler::sTabsToHandlers,
 							  panelp,
-							  (LLGroupMoneyTabEventHandler*)NULL);
+							  (LLGroupMoneyTabEventHandler*)nullptr);
 			if ( eh ) eh->onClickTab();
 		}
 	}
@@ -719,7 +711,7 @@ BOOL LLPanelGroupLandMoney::postBuild()
 	
 	if ( mImplementationp->mMapButtonp )
 	{
-		mImplementationp->mMapButtonp->setClickedCallback(LLPanelGroupLandMoney::impl::mapCallback, mImplementationp);
+		mImplementationp->mMapButtonp->setCommitCallback(boost::bind(LLPanelGroupLandMoney::impl::mapCallback, mImplementationp));
 	}
 
 	if ( mImplementationp->mGroupOverLimitTextp )
@@ -846,7 +838,7 @@ void LLPanelGroupLandMoney::processPlacesReply(LLMessageSystem* msg, void**)
 	group_id_map_t::iterator found_it = sGroupIDs.find(group_id);
 	if(found_it == sGroupIDs.end())
 	{
-		LL_INFOS() << "Group Panel Land L$ " << group_id << " no longer in existence."
+		LL_INFOS() << LLCurrencyWrapper::wrapCurrency("Group Panel Land L$ ") << group_id << " no longer in existence."
 				<< LL_ENDL;
 		return;
 	}
@@ -929,12 +921,12 @@ LLGroupMoneyTabEventHandler::LLGroupMoneyTabEventHandler(LLButton* earlier_butto
 
 	if ( earlier_buttonp )
 	{
-		earlier_buttonp->setClickedCallback(clickEarlierCallback, this);
+		earlier_buttonp->setCommitCallback(boost::bind(&LLGroupMoneyTabEventHandler::clickEarlierCallback, this));
 	}
 
 	if ( later_buttonp )
 	{
-		later_buttonp->setClickedCallback(clickLaterCallback, this);
+		later_buttonp->setCommitCallback(boost::bind(&LLGroupMoneyTabEventHandler::clickLaterCallback, this));
 	}
 
 	mImplementationp->updateButtons();
@@ -1138,7 +1130,7 @@ void LLPanelGroupLandMoney::processGroupAccountDetailsReply(LLMessageSystem* msg
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		LL_WARNS() << "Got group L$ history reply for another agent!" << LL_ENDL;
+		LL_WARNS() << LLCurrencyWrapper::wrapCurrency("Got group L$ history reply for another agent!") << LL_ENDL;
 		return;
 	}
 
@@ -1315,7 +1307,7 @@ void LLPanelGroupLandMoney::processGroupAccountTransactionsReply(LLMessageSystem
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		LL_WARNS() << "Got group L$ history reply for another agent!" << LL_ENDL;
+		LL_WARNS() << LLCurrencyWrapper::wrapCurrency("Got group L$ history reply for another agent!") << LL_ENDL;
 		return;
 	}
 
@@ -1342,8 +1334,8 @@ LLGroupMoneyPlanningTabEventHandler::LLGroupMoneyPlanningTabEventHandler(LLTextE
 																		 LLTabContainer* tab_containerp,
 																		 LLPanel* panelp,
 																		 const std::string& loading_text)
-	: LLGroupMoneyTabEventHandler(NULL,
-								  NULL,
+	: LLGroupMoneyTabEventHandler(nullptr,
+								  nullptr,
 								  text_editorp,
 								  tab_containerp,
 								  panelp,
@@ -1554,7 +1546,7 @@ void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
 	
 	if ( mImplementationp->mMapButtonp )
 	{
-		mImplementationp->mMapButtonp->setClickedCallback(LLPanelGroupLandMoney::impl::mapCallback, mImplementationp);
+		mImplementationp->mMapButtonp->setCommitCallback(boost::bind(&LLPanelGroupLandMoney::impl::mapCallback, mImplementationp));
 	}
 
 	if ( mImplementationp->mGroupOverLimitTextp )
@@ -1609,7 +1601,7 @@ void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
 	}
 	else
 	{
-		if(mImplementationp->mMoneyDetailsTabEHp == 0)
+		if(mImplementationp->mMoneyDetailsTabEHp == nullptr)
 			mImplementationp->mMoneyDetailsTabEHp = new LLGroupMoneyDetailsTabEventHandler(earlierp,laterp,textp,tabcp,panelp,loading_text);
 		mImplementationp->mMoneyDetailsTabEHp->setGroupID(mGroupID);
 	}
@@ -1624,7 +1616,7 @@ void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
 	else
 	{
 		panelp = getChild<LLPanel>("group_money_planning_tab", true);
-		if(mImplementationp->mMoneyPlanningTabEHp == 0)
+		if(mImplementationp->mMoneyPlanningTabEHp == nullptr)
 			mImplementationp->mMoneyPlanningTabEHp = new LLGroupMoneyPlanningTabEventHandler(textp,tabcp,panelp,loading_text);
 		mImplementationp->mMoneyPlanningTabEHp->setGroupID(mGroupID);
 	}
@@ -1642,7 +1634,7 @@ void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
 		earlierp = getChild<LLButton>("earlier_sales_button", true);
 		laterp = getChild<LLButton>("later_sales_button", true);
 		panelp = getChild<LLPanel>("group_money_sales_tab", true);
-		if(mImplementationp->mMoneySalesTabEHp == NULL) 
+		if(mImplementationp->mMoneySalesTabEHp == nullptr) 
 			mImplementationp->mMoneySalesTabEHp = new LLGroupMoneySalesTabEventHandler(earlierp,laterp,textp,tabcp,panelp,loading_text);
 		mImplementationp->mMoneySalesTabEHp->setGroupID(mGroupID);
 	}

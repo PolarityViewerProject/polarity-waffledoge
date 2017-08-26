@@ -61,7 +61,12 @@ public:
 	 */
 	void setForceRefresh(bool force_refresh){ mForceRefresh = force_refresh; }
 
-	virtual bool selectItemByValue(const LLSD& value, bool select = true);
+	/**
+	* If refreshes when invisible.
+	*/
+	bool getForceRefresh(){ return mForceRefresh;  }
+
+	bool selectItemByValue(const LLSD& value, bool select = true) override;
 
 	void updateSelection();
 

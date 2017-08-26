@@ -189,9 +189,9 @@ void LLInventoryItemsList::refresh()
             while(mAddedItems.size() > 0 && nadded < ADD_LIMIT)
             {
                 LLViewerInventoryItem* item = gInventory.getItem(*it);
-#if PV_ASSERT_UNTIL_UNUSABLE
+//#if PV_ASSERT_UNTIL_UNUSABLE
                 llassert(item);
-#endif
+//#endif
                 if (item)
                 {
                     LLPanel *list_item = createNewItem(item);
@@ -222,7 +222,7 @@ void LLInventoryItemsList::refresh()
             for (; pair_it != panel_list.end(); ++pair_it)
             {
                 item_pair_t* item_pair = *pair_it;
-                if (item_pair->first->getParent() != NULL)
+                if (item_pair->first->getParent() != nullptr)
                 {
                     updateItemVisibility(item_pair->first, action);
                 }
@@ -290,7 +290,7 @@ LLPanel* LLInventoryItemsList::createNewItem(LLViewerInventoryItem* item)
     {
         LL_WARNS() << "No inventory item. Couldn't create flat list item." << LL_ENDL;
         llassert(item != NULL);
-        return NULL;
+        return nullptr;
     }
     return LLPanelInventoryListItemBase::create(item);
 }

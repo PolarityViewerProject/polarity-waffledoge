@@ -48,7 +48,6 @@
 #include "lltracker.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
-#include "lluictrlfactory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -86,8 +85,9 @@ const S32 FAKE_AVAILABLE_MEMORY = 895577;
 const S32 SIZE_OF_ONE_KB = 1024;
 
 LLFloaterScriptLimits::LLFloaterScriptLimits(const LLSD& seed)
-	: LLFloater(seed),
-	  mTab(nullptr)
+	: LLFloater(seed)
+	, mTab(nullptr)
+	, mInfoPanels()
 {
 }
 
@@ -394,6 +394,14 @@ void LLPanelScriptLimitsRegionMemory::setErrorStatus(S32 status, const std::stri
 }
 
 // callback from the name cache with an owner name to add to the list
+void LLPanelScriptLimitsRegionMemory::onAvatarNameCache(
+    const LLUUID& id,
+    const LLAvatarName& av_name)
+{
+    onNameCache(id, av_name.getUserName());
+}
+
+// callback from the name cache with an owner name to add to the list
 void LLPanelScriptLimitsRegionMemory::onNameCache(
 						 const LLUUID& id,
 						 const std::string& full_name)
@@ -506,7 +514,9 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 				}
 				else
 				{
-					name_is_cached = gCacheName->getFullName(owner_id, owner_buf);  // username
+					LLAvatarName av_name;
+					name_is_cached = LLAvatarNameCache::get(owner_id, &av_name);
+					owner_buf = av_name.getUserName();
 					owner_buf = LLCacheName::buildUsername(owner_buf);
 				}
 				if(!name_is_cached)
@@ -514,9 +524,18 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 					if(std::find(names_requested.begin(), names_requested.end(), owner_id) == names_requested.end())
 					{
 						names_requested.push_back(owner_id);
-						gCacheName->get(owner_id, is_group_owned,  // username
-							boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
-							    this, _1, _2));
+						if (is_group_owned)
+						{
+							gCacheName->getGroup(owner_id,
+								boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
+								    this, _1, _2));
+						}
+						else
+						{
+							LLAvatarNameCache::get(owner_id,
+								boost::bind(&LLPanelScriptLimitsRegionMemory::onAvatarNameCache,
+								    this, _1, _2));
+						}
 					}
 				}
 			}
@@ -836,7 +855,7 @@ void LLPanelScriptLimitsRegionMemory::showBeacon()
 	LLVector3d pos_global = gAgent.getPosGlobalFromAgent(pos_agent);
 
 	std::string tooltip("");
-	LLTracker::trackLocation(pos_global, name, tooltip, LLTracker::LOCATION_ITEM);
+	LLTracker::getInstance()->trackLocation(pos_global, name, tooltip, LLTracker::LOCATION_ITEM);
 }
 
 // static
@@ -940,7 +959,7 @@ void LLPanelScriptLimitsRegionMemory::returnObjects()
 		}
 	}
 
-	onClickRefresh(NULL);
+	onClickRefresh(nullptr);
 }
 
 
@@ -1052,22 +1071,13 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 	
 	S32 number_attachments = content["attachments"].size();
 
-	bool has_attachment_point_data = false;
 	for(int i = 0; i < number_attachments; i++)
 	{
 		std::string humanReadableLocation = "";
 		if(content["attachments"][i].has("location"))
 		{
 			std::string actualLocation = content["attachments"][i]["location"];
-			// BUG-100781 The server sends "location", but pairs it with an empty string. - Xenhat Liamano
-			if(actualLocation != "")
-			{
-				if(!has_attachment_point_data)
-				{
-					has_attachment_point_data = true;
-				}
-				humanReadableLocation = LLTrans::getString(actualLocation.c_str());
-			}
+			humanReadableLocation = LLTrans::getString(actualLocation.c_str());
 		}
 		
 		S32 number_objects = content["attachments"][i]["objects"].size();
@@ -1102,48 +1112,18 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 			element["columns"][2]["column"] = "name";
 			element["columns"][2]["value"] = name;
 			element["columns"][2]["font"] = "SANSSERIF";
-
-			if(has_attachment_point_data)
-			{
-				element["columns"][3]["column"] = "location";
-				element["columns"][3]["value"] = humanReadableLocation;
-				element["columns"][3]["font"] = "SANSSERIF";
-			}
+			
+			element["columns"][3]["column"] = "location";
+			element["columns"][3]["value"] = humanReadableLocation;
+			element["columns"][3]["font"] = "SANSSERIF";
 
 			list->addElement(element);
 		}
 	}
 	
-	static LLCachedControl<bool> show_location_col(gSavedSettings, "PVUI_ShowScriptsAttachmentPoint", true);
-	if (!has_attachment_point_data || !show_location_col)
-	{
-		LLScrollListColumn* location_col = list->getColumn("location");
-		if (location_col)
-		{
-			location_col->mHeader->setVisible(FALSE);
-			location_col->setWidth(0);
-			location_col->mDynamicWidth = FALSE;
-			location_col->mMaxContentWidth = 0;
-			location_col->mRelWidth = 0;
-		}
-		LLScrollListColumn* name_col = list->getColumn("name");
-		if (name_col)
-		{
-			name_col->setWidth(-1);
-			name_col->mMaxContentWidth = -1;
-			name_col->mDynamicWidth = TRUE;
-		}
-		list->dirtyColumns();
-		list->updateColumns(true);
-	}
-	
 	setAttachmentSummary(content);
 
-	auto loading_text = getChild<LLUICtrl>("loading_text");
-	if (loading_text)
-	{
-		loading_text->setValue(LLSD(std::string("")));
-	}
+	getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
 
 	LLButton* btn = getChild<LLButton>("refresh_list_btn");
 	if(btn)
@@ -1217,12 +1197,13 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 		LLStringUtil::format_map_t args_attachment_memory;
 		args_attachment_memory["[COUNT]"] = llformat ("%d", mAttachmentMemoryUsed);
 		std::string translate_message = "ScriptLimitsMemoryUsedSimple";
+
 		if (0 < mAttachmentMemoryMax)
 		{
 			S32 attachment_memory_available = mAttachmentMemoryMax - mAttachmentMemoryUsed;
 
-		args_attachment_memory["[MAX]"] = llformat ("%d", mAttachmentMemoryMax);
-		args_attachment_memory["[AVAILABLE]"] = llformat ("%d", attachment_memory_available);
+			args_attachment_memory["[MAX]"] = llformat ("%d", mAttachmentMemoryMax);
+			args_attachment_memory["[AVAILABLE]"] = llformat ("%d", attachment_memory_available);
 			translate_message = "ScriptLimitsMemoryUsed";
 		}
 

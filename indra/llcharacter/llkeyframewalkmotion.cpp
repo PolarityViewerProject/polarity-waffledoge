@@ -56,7 +56,7 @@ const F32 SPEED_ADJUST_TIME_CONSTANT = 0.1f; 	// time constant for speed adjustm
 //-----------------------------------------------------------------------------
 LLKeyframeWalkMotion::LLKeyframeWalkMotion(const LLUUID &id)
 :	LLKeyframeMotion(id),
-    mCharacter(NULL),
+    mCharacter(nullptr),
     mCyclePhase(0.0f),
     mRealTimeLast(0.0f),
     mAdjTimeLast(0.0f),
@@ -139,14 +139,19 @@ BOOL LLKeyframeWalkMotion::onUpdate(F32 time, U8* joint_mask)
 //-----------------------------------------------------------------------------
 LLWalkAdjustMotion::LLWalkAdjustMotion(const LLUUID &id) :
 	LLMotion(id),
+	mCharacter(nullptr),
+	mLeftAnkleJoint(nullptr),
+	mRightAnkleJoint(nullptr),
+	mPelvisState(new LLJointState),
+	mPelvisJoint(nullptr),
 	mLastTime(0.f),
-	mAnimSpeed(0.f),
 	mAdjustedSpeed(0.f),
+	mAnimSpeed(0.f),
 	mRelativeDir(0.f),
+	// LLPointer<LLJointState>
 	mAnkleOffset(0.f)
 {
 	mName = "walk_adjust";
-	mPelvisState = new LLJointState;
 }
 
 //-----------------------------------------------------------------------------
@@ -280,9 +285,6 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 
 		// planted foot speed is avatar velocity - foot slip amount along avatar movement direction
 		F32 foot_speed = speed - ((foot_slip_vector * avatar_movement_dir) / delta_time);
-// <FS:CR> Prevent slow walking animation bug
-		if(foot_speed < 0.0f) foot_speed = 0.0f;
-// </FS:CR>
 
 		// multiply animation playback rate so that foot speed matches avatar speed
 		F32 min_speed_multiplier = clamp_rescale(speed, 0.f, 1.f, 0.f, 0.1f);
@@ -334,6 +336,7 @@ void LLWalkAdjustMotion::onDeactivate()
 //-----------------------------------------------------------------------------
 LLFlyAdjustMotion::LLFlyAdjustMotion(const LLUUID &id)
 	: LLMotion(id),
+	  mCharacter(nullptr),
 	  mRoll(0.f)
 {
 	mName = "fly_adjust";

@@ -26,14 +26,11 @@
  */
 
 #include "linden_common.h"
-#include "llapr.h"
 #include "llprocess.h"
 #include "llupdateinstaller.h"
 #include "lldir.h" 
-//#include "llsd.h"
+#include "llsd.h"
 #include "llexception.h"
-
-#include <boost/lexical_cast.hpp>
 
 namespace {
 	struct RelocateError: public LLException
@@ -45,7 +42,7 @@ namespace {
 	{
 		std::string scriptFile = gDirUtilp->getBaseFileName(path);
 		std::string newPath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, scriptFile);
-		if(!LLFile::copy(path, newPath)) throw RelocateError();
+		if(!LLFile::copy(path, newPath)) LLTHROW(RelocateError());
 		
 		return newPath;
 	}
@@ -54,6 +51,8 @@ namespace {
 
 int ll_install_update(std::string const & script,
 					  std::string const & updatePath,
+					  std::string const & updateChannel,
+					  std::string const & viewerChannel,
 					  bool required,
 					  LLInstallScriptMode mode)
 {
@@ -81,7 +80,17 @@ int ll_install_update(std::string const & script,
 	params.executable = actualScriptPath;
 	params.args.add(updatePath);
 	params.args.add(ll_install_failed_marker_path());
-	params.args.add(boost::lexical_cast<std::string>(required));
+	params.args.add(std::to_string(required));
+#if LL_WINDOWS
+	if (updateChannel != viewerChannel)
+	{
+		params.args.add("/UPDATE");
+		params.args.add("/OLDCHANNEL");
+		std::string viewer_channel = viewerChannel;
+		viewer_channel.erase(std::remove_if(viewer_channel.begin(), viewer_channel.end(), isspace), viewer_channel.end());
+		params.args.add(viewer_channel);
+	}
+#endif
 	params.autokill = false;
 	return LLProcess::create(params)? 0 : -1;
 }

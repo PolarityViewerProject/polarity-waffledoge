@@ -39,7 +39,7 @@
 #include "lldaycyclemanager.h"
 #include "llwaterparammanager.h"
 
-static bool confirmation_callback(const LLSD& notification, const LLSD& response, boost::function<void()> cb)
+static bool confirmation_callback(const LLSD& notification, const LLSD& response, std::function<void()> cb)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
@@ -52,7 +52,7 @@ static bool confirmation_callback(const LLSD& notification, const LLSD& response
 
 LLFloaterDeleteEnvPreset::LLFloaterDeleteEnvPreset(const LLSD &key)
 :	LLFloater(key)
-,	mPresetCombo(NULL)
+,	mPresetCombo(nullptr)
 {
 }
 
@@ -98,7 +98,7 @@ void LLFloaterDeleteEnvPreset::onBtnDelete()
 {
 	std::string param = mKey.asString();
 	std::string preset_name = mPresetCombo->getValue().asString();
-	boost::function<void()> confirm_cb;
+	std::function<void()> confirm_cb;
 
 	if (param == "water")
 	{

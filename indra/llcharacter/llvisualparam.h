@@ -30,7 +30,6 @@
 #include "v3math.h"
 #include "llstring.h"
 #include "llxmltree.h"
-#include <boost/function.hpp>
 
 class LLPolyMesh;
 class LLXmlTreeNode;
@@ -104,10 +103,22 @@ LL_ALIGN_PREFIX(16)
 class LLVisualParam
 {
 public:
-	typedef	boost::function<LLVisualParam*(S32)> visual_param_mapper;
+	typedef	std::function<LLVisualParam*(S32)> visual_param_mapper;
 
 	LLVisualParam();
 	virtual ~LLVisualParam();
+
+	// <alchemy>
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+	// </alchemy>
 
 	// Special: These functions are overridden by child classes
 	// (They can not be virtual because they use specific derived Info classes)
@@ -120,10 +131,10 @@ public:
 	//virtual BOOL			parseData( LLXmlTreeNode *node ) = 0;
 	virtual void			apply( ESex avatar_sex ) = 0;
 	//  Default functions
-	virtual void			setWeight(F32 weight);
-	virtual void			setAnimationTarget( F32 target_value);
-	virtual void			animate(F32 delta);
-	virtual void			stopAnimating();
+	virtual void			setWeight(F32 weight, BOOL upload_bake);
+	virtual void			setAnimationTarget( F32 target_value, BOOL upload_bake);
+	virtual void			animate(F32 delta, BOOL upload_bake);
+	virtual void			stopAnimating(BOOL upload_bake);
 
 	virtual BOOL			linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params);
 	virtual void			resetDrivenParams();

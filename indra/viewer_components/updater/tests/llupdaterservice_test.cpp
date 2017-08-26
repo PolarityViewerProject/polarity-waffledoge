@@ -46,24 +46,16 @@
 *****************************************************************************/
 LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client)
 {}
-void LLUpdateChecker::checkVersion(const std::string & urlBase, 
-								   const std::string & channel,
-								   const std::string & version,
-								   const std::string & platform,
-								   const std::string & platform_version,
-								   const bool&         willing_to_test,
-								   const unsigned char       uniqueid[MD5HEX_STR_SIZE],
-								   const std::string & auth_token
-) const
+void LLUpdateChecker::checkVersion(std::string const & urlBase, 
+								   std::string const & channel,
+								   std::string const & version,
+								   std::string const & platform,
+								   std::string const & platform_version,
+								   unsigned char       uniqueid[MD5HEX_STR_SIZE],
+								   bool                willing_to_test)
 {}
 LLUpdateDownloader::LLUpdateDownloader(Client & ) {}
-void LLUpdateDownloader::download(LLURI const & uri,
-	std::string const & hash,
-	std::string const &	updateChannel,
-	std::string const & updateVersion,
-	std::string const & info_url,
-	bool required) const
-{}
+void LLUpdateDownloader::download(LLURI const & , std::string const &, std::string const &, std::string const &, std::string const &, bool){}
 
 class LLDir_Mock : public LLDir
 {
@@ -91,8 +83,8 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname,
 { return 0; }
 
 void LLDir::setChatLogsDir(const std::string &path){}		
-void LLDir::setPerAccountChatLogsDir(const std::string &username){}
-void LLDir::setLindenUserDir(const std::string &username){}		
+void LLDir::setPerAccountChatLogsDir(const std::string &username, const std::string &gridname){}
+void LLDir::setLindenUserDir(const std::string &username, const std::string &gridname){}
 void LLDir::setSkinFolder(const std::string &skin_folder, const std::string& language){}
 std::string LLDir::getSkinFolder() const { return "default"; }
 std::string LLDir::getLanguage() const { return "en"; }
@@ -103,12 +95,12 @@ void LLDir::updatePerAccountChatLogsDir() {}
 #include "llviewernetwork.h"
 LLGridManager::LLGridManager() :
 	mGrid("test.grid.lindenlab.com"),
-	mIsInProductionGrid(false)
+	mPlatform(NOPLATFORM)
 {
 }
-std::string LLGridManager::getUpdateServiceURL()
+std::string LLGridManager::getUpdateServiceURL() const
 {
-	return "https://update.polarityviewer.org/update";
+	return "https://update.secondlife.com/update";
 }
 LLGridManager::~LLGridManager()
 {
@@ -126,11 +118,11 @@ std::string LLUpdateDownloader::downloadMarkerPath(void)
 	return "";
 }
 
-void LLUpdateDownloader::resume(void) const {}
-void LLUpdateDownloader::cancel(void) const {}
-void LLUpdateDownloader::setBandwidthLimit(U64 bytesPerSecond) const {}
+void LLUpdateDownloader::resume(void) {}
+void LLUpdateDownloader::cancel(void) {}
+void LLUpdateDownloader::setBandwidthLimit(U64 bytesPerSecond) {}
 
-int ll_install_update(std::string const &, std::string const &, bool, LLInstallScriptMode)
+int ll_install_update(std::string const &, std::string const &, std::string const &, std::string const &, bool, LLInstallScriptMode)
 {
 	return 0;
 }
@@ -203,11 +195,10 @@ namespace tut
 		try
 		{
 			unsigned char id1[MD5HEX_STR_SIZE] = "11111111111111111111111111111111";
-			std::string tok1n = "abcd1ef2-abc1-1a23-av1c-12345678a901";
-			updater.initialize(test_channel, test_version, "win", "1.2.3", true, id1, tok1n);
+			updater.initialize(test_channel, test_version, "win", "1.2.3", id1, true);
 			updater.startChecking();
 			unsigned char id2[MD5HEX_STR_SIZE] = "22222222222222222222222222222222";
-			updater.initialize(test_channel, test_version, "win", "4.5.6", true, id2, tok1n);
+			updater.initialize(test_channel, test_version, "win", "4.5.6", id2, true);
 		}
 		catch(LLUpdaterService::UsageError)
 		{
@@ -222,8 +213,7 @@ namespace tut
         DEBUG;
 		LLUpdaterService updater;
 		unsigned char id[MD5HEX_STR_SIZE] = "33333333333333333333333333333333";
-		std::string tok1n = "abcd1ef2-abc1-1a23-av1c-12345678a901";
-		updater.initialize(test_channel, test_version, "win", "7.8.9", true, id, tok1n);
+		updater.initialize(test_channel, test_version, "win", "7.8.9", id, true);
 		updater.startChecking();
 		ensure(updater.isChecking());
 		updater.stopChecking();

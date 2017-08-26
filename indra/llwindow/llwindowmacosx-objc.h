@@ -92,11 +92,10 @@ void setCrossCursor();
 void setNotAllowedCursor();
 void hideNSCursor();
 void showNSCursor();
-bool isCGCursorVisible();
 void hideNSCursorTillMove(bool hide);
 void requestUserAttention();
 long showAlert(std::string title, std::string text, int type);
-void setResizeMode(bool oldresize, void* glview);
+float getScaleFactor(GLViewRef view); //[CR:Retina]
 
 NSWindowRef createNSWindow(int x, int y, int width, int height);
 
@@ -106,13 +105,13 @@ void glSwapBuffers(void* context);
 CGLContextObj getCGLContextObj(GLViewRef view);
 unsigned long getVramSize(GLViewRef view);
 void getContentViewBounds(NSWindowRef window, float* bounds);
+void getScaledContentViewBounds(NSWindowRef window, GLViewRef view, float* bounds);
 void getWindowSize(NSWindowRef window, float* size);
 void setWindowSize(NSWindowRef window, int width, int height);
 void getCursorPos(NSWindowRef window, float* pos);
 void makeWindowOrderFront(NSWindowRef window);
 void convertScreenToWindow(NSWindowRef window, float *coord);
 void convertWindowToScreen(NSWindowRef window, float *coord);
-void convertScreenToView(NSWindowRef window, float *coord);
 void convertRectToScreen(NSWindowRef window, float *coord);
 void convertRectFromScreen(NSWindowRef window, float *coord);
 void setWindowPos(NSWindowRef window, float* pos);
@@ -134,14 +133,13 @@ void callLeftMouseUp(float *pos, unsigned int mask);
 void callDoubleClick(float *pos, unsigned int mask);
 void callResize(unsigned int width, unsigned int height);
 void callMouseMoved(float *pos, unsigned int mask);
-void callMouseDragged(float *pos, unsigned int mask);
 void callScrollMoved(float delta);
 void callMouseExit();
 void callWindowFocus();
 void callWindowUnfocus();
 void callWindowHide();
 void callWindowUnhide();
-void callDeltaUpdate(float *delta, unsigned int mask);
+void callDeltaUpdate(double *delta, unsigned int mask);
 void callMiddleMouseDown(float *pos, unsigned int mask);
 void callMiddleMouseUp(float *pos, unsigned int mask);
 void callFocus();
@@ -165,7 +163,7 @@ void updatePreeditor(unsigned short *str);
 void setPreeditMarkedRange(int position, int length);
 void resetPreedit();
 int wstring_length(const std::basic_string<wchar_t> & wstr, const int woffset, const int utf16_length, int *unaligned);
-void setMarkedText(unsigned short *text, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, attributedStringInfo segments);
+void setMarkedText(unsigned short *text, unsigned int *replacementRange, long text_len, attributedStringInfo segments);
 void getPreeditLocation(float *location, unsigned int length);
 void allowDirectMarkedTextInput(bool allow, GLViewRef glView);
 
@@ -173,5 +171,7 @@ NSWindowRef getMainAppWindow();
 GLViewRef getGLView();
 
 unsigned int getModifiers();
+void updateBadge(int count);
+void setTitle(const std::string& title);
 
 #endif // LL_LLWINDOWMACOSX_OBJC_H

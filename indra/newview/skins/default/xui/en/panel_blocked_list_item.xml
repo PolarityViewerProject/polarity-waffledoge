@@ -59,8 +59,7 @@
      width="16" />
     <text
      follows="left|right"
-     font="SansSerif"
-     font.size="Small"
+     font="SansSerifSmall"
      height="15"
      layout="topleft"
      left_pad="5"

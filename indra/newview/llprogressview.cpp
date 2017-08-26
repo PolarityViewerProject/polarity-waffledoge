@@ -55,11 +55,7 @@
 #include "lluictrlfactory.h"
 #include "llpanellogin.h"
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-
-LLProgressView* LLProgressView::sInstance = NULL;
+LLProgressView* LLProgressView::sInstance = nullptr;
 
 S32 gStartImageWidth = 1;
 S32 gStartImageHeight = 1;
@@ -70,13 +66,16 @@ static LLPanelInjector<LLProgressView> r("progress_view");
 // XUI: Translate
 LLProgressView::LLProgressView() 
 :	LLPanel(),
-	mPercentDone( 0.f ),
-	mMediaCtrl( NULL ),
-	mMouseDownInActiveArea( false ),
-	mUpdateEvents("LLProgressView"),
+	mMediaCtrl(nullptr ),
+	mPercentDone(0.f),
+	mProgressText(nullptr),
+	mMessageText(nullptr),
+	mCancelBtn(nullptr),
 	mFadeToWorldTimer(),
 	mFadeFromLoginTimer(),
-	mStartupComplete(false)
+	mMouseDownInActiveArea( false ),
+	mStartupComplete(false),
+	mUpdateEvents("LLProgressView")
 {
 	mUpdateEvents.listen("self", boost::bind(&LLProgressView::handleUpdate, this, _1));
 	mFadeToWorldTimer.stop();
@@ -95,11 +94,14 @@ BOOL LLProgressView::postBuild()
 	LLViewerMedia::setOnlyAudibleMediaTextureID(mMediaCtrl->getTextureID());
 
 	mCancelBtn = getChild<LLButton>("cancel_btn");
-	mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked, NULL );
+	mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked, nullptr );
 
-	// getChild<LLTextBox>("title_text")->setText(LLStringExplicit(LLAppViewer::instance()->getSecondLifeTitle()));
+	getChild<LLTextBox>("title_text")->setText(LLStringExplicit(LLAppViewer::instance()->getSecondLifeTitle()));
 
-	getChild<LLTextBox>("message_text")->setClickedCallback(onClickMessage, this);
+	mMessageText = getChild<LLTextBox>("message_text");
+	mMessageText->setClickedCallback(onClickMessage, this);
+
+	mProgressText = getChild<LLTextBox>("progress_text");
 
 	// hidden initially, until we need it
 	setVisible(FALSE);
@@ -118,12 +120,12 @@ LLProgressView::~LLProgressView()
 
 	gFocusMgr.releaseFocusIfNeeded( this );
 
-	sInstance = NULL;
+	sInstance = nullptr;
 }
 
 BOOL LLProgressView::handleHover(S32 x, S32 y, MASK mask)
 {
-	if( childrenHandleHover( x, y, mask ) == NULL )
+	if( childrenHandleHover( x, y, mask ) == nullptr )
 	{
 		gViewerWindow->setCursor(UI_CURSOR_WAIT);
 	}
@@ -188,7 +190,6 @@ void LLProgressView::setVisible(BOOL visible)
 	// hiding progress view
 	if (getVisible() && !visible)
 	{
-		// <polarity> NOTE: Do not stop timer here otherwise progress messages breaks.
 		LLPanel::setVisible(FALSE);
 	}
 	// showing progress view
@@ -197,7 +198,7 @@ void LLProgressView::setVisible(BOOL visible)
 		setFocus(TRUE);
 		mFadeToWorldTimer.stop();
 		LLPanel::setVisible(TRUE);
-	}
+	} 
 }
 
 
@@ -235,6 +236,7 @@ void LLProgressView::drawStartTexture(F32 alpha)
 	}
 	gGL.popMatrix();
 }
+
 
 void LLProgressView::draw()
 {
@@ -289,7 +291,7 @@ void LLProgressView::draw()
 			// FIXME: this causes a crash that i haven't been able to fix
 			mMediaCtrl->unloadMediaSource();	
 
-			gStartTexture = NULL;
+			gStartTexture = nullptr;
 		}
 		return;
 	}
@@ -301,7 +303,7 @@ void LLProgressView::draw()
 
 void LLProgressView::setText(const std::string& text)
 {
-	getChild<LLUICtrl>("progress_text")->setValue(text);
+	mProgressText->setValue(text);
 }
 
 void LLProgressView::setPercent(const F32 percent)
@@ -311,17 +313,8 @@ void LLProgressView::setPercent(const F32 percent)
 
 void LLProgressView::setMessage(const std::string& msg)
 {
-	llassert(!msg.empty());
-	if (!msg.empty())
-	{
-		mMessage = msg;
-	}
-	if (mMessage != msg)
-	{
-		mMessage = msg;
-	}
-	static auto message_text = getChild<LLUICtrl>("message_text");
-	message_text->setValue(mMessage);
+	mMessage = msg;
+	mMessageText->setValue(mMessage);
 }
 
 void LLProgressView::setCancelButtonVisible(BOOL b, const std::string& label)
@@ -354,7 +347,7 @@ void LLProgressView::onCancelButtonClicked(void*)
 void LLProgressView::onClickMessage(void* data)
 {
 	LLProgressView* viewp = (LLProgressView*)data;
-	if ( viewp != NULL && ! viewp->mMessage.empty() )
+	if ( viewp != nullptr && ! viewp->mMessage.empty() )
 	{
 		std::string url_to_open( "" );
 

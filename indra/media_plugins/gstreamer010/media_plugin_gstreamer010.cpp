@@ -50,6 +50,8 @@ extern "C" {
 
 #include "llmediaimplgstreamer_syms.h"
 
+const double MIN_LOOP_SEC = 1.0;
+
 //////////////////////////////////////////////////////////////////////////////
 //
 class MediaPluginGStreamer010 : public MediaPluginBase
@@ -77,8 +79,6 @@ private:
 	bool stop();
 	bool play(double rate);
 	bool getTimePos(double &sec_out);
-
-	static const double MIN_LOOP_SEC = 1.0F;
 
 	bool mIsLooping;
 
@@ -149,6 +149,7 @@ MediaPluginGStreamer010::MediaPluginGStreamer010(
 	LLPluginInstance::sendMessageFunction host_send_func,
 	void *host_user_data ) :
 	MediaPluginBase(host_send_func, host_user_data),
+	mCommand ( COMMAND_NONE ),
 	mBusWatchID ( 0 ),
 	mCurrentRowbytes ( 4 ),
 	mTextureFormatPrimary ( GL_RGBA ),
@@ -158,8 +159,7 @@ MediaPluginGStreamer010::MediaPluginGStreamer010(
 	mPump ( NULL ),
 	mPlaybin ( NULL ),
 	mVisualizer ( NULL ),
-	mVideoSink ( NULL ),
-	mCommand ( COMMAND_NONE )
+	mVideoSink ( NULL )
 {
 	std::ostringstream str;
 	INFOMSG("MediaPluginGStreamer010 constructor - my PID=%u", U32(getpid()));
@@ -800,10 +800,14 @@ MediaPluginGStreamer010::startup()
 	// only do global GStreamer initialization once.
 	if (!mDoneInit)
 	{
+#if !GLIB_CHECK_VERSION(2, 32, 0)
 		g_thread_init(NULL);
+#endif
 
+#if !GLIB_CHECK_VERSION(2, 36, 0)
 		// Init the glib type system - we need it.
 		g_type_init();
+#endif
 
 		// Get symbols!
 #if LL_DARWIN

@@ -52,35 +52,34 @@
 #include "llviewermedia.h"
 #include "lltabcontainer.h"
 #include "llviewerparcelmgr.h"
+#include "llviewernetwork.h"
 #include "llviewerregion.h"
 #include <boost/regex.hpp>
-#include "pvconstants.h"
 
 static LLPanelInjector<LLFlickrPhotoPanel> t_panel_photo("llflickrphotopanel");
 static LLPanelInjector<LLFlickrAccountPanel> t_panel_account("llflickraccountpanel");
 
-const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=flickr&utm_medium=photo&utm_campaign=slshare";
-static const std::string project_str = PROJECT_STRING;
-const std::string DEFAULT_TAG_TEXT = "secondlife " + project_str;
-const std::string FLICKR_MACHINE_TAGS_NAMESPACE = "secondlife";
+const char* FLICKR_MACHINE_TAGS_NAMESPACE = "secondlife";
 
 ///////////////////////////
 //LLFlickrPhotoPanel///////
 ///////////////////////////
 
 LLFlickrPhotoPanel::LLFlickrPhotoPanel() :
-mResolutionComboBox(NULL),
-mRefreshBtn(NULL),
-mBtnPreview(NULL),
-mWorkingLabel(NULL),
-mThumbnailPlaceholder(NULL),
-mTitleTextBox(NULL),
-mDescriptionTextBox(NULL),
-mLocationCheckbox(NULL),
-mTagsTextBox(NULL),
-mRatingComboBox(NULL),
-mBigPreviewFloater(NULL),
-mPostButton(NULL)
+mResolutionComboBox(nullptr),
+mFilterComboBox(nullptr),
+mRefreshBtn(nullptr),
+mWorkingLabel(nullptr),
+mThumbnailPlaceholder(nullptr),
+mTitleTextBox(nullptr),
+mDescriptionTextBox(nullptr),
+mLocationCheckbox(nullptr),
+mTagsTextBox(nullptr),
+mRatingComboBox(nullptr),
+mPostButton(nullptr),
+mCancelButton(nullptr),
+mBtnPreview(nullptr),
+mBigPreviewFloater(nullptr)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLFlickrPhotoPanel::onSend, this));
 	mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLFlickrPhotoPanel::onClickNewSnapshot, this));
@@ -111,7 +110,7 @@ BOOL LLFlickrPhotoPanel::postBuild()
 	mDescriptionTextBox = getChild<LLUICtrl>("photo_description");
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
 	mTagsTextBox = getChild<LLUICtrl>("photo_tags");
-	mTagsTextBox->setValue(DEFAULT_TAG_TEXT);
+	mTagsTextBox->setValue(LLGridManager::getInstance()->getGridLabel());
 	mRatingComboBox = getChild<LLUICtrl>("rating_combobox");
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
@@ -342,14 +341,11 @@ void LLFlickrPhotoPanel::sendPhoto()
 		LLAgentUI::buildSLURL(slurl);
 		std::string slurl_string = slurl.getSLURLString();
 
-		// Add query parameters so Google Analytics can track incoming clicks!
-		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
-
 		std::string photo_link_text = "Visit this location";// at [] in Second Life";
 		std::string parcel_name = LLViewerParcelMgr::getInstance()->getAgentParcelName();
 		if (!parcel_name.empty())
 		{
-			boost::regex pattern = boost::regex("\\S\\.[a-zA-Z]{2,}");
+			static const boost::regex pattern = boost::regex("\\S\\.[a-zA-Z]{2,}");
 			boost::match_results<std::string::const_iterator> matches;
 			if(!boost::regex_search(parcel_name, matches, pattern))
 			{
@@ -381,15 +377,15 @@ void LLFlickrPhotoPanel::sendPhoto()
 			
 			if (!region_name.empty())
 			{
-				tags += llformat(" \"%s:region=%s\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), region_name.c_str());
+				tags += llformat(" \"%s:region=%s\"", FLICKR_MACHINE_TAGS_NAMESPACE, region_name.c_str());
 			}
 			if (!parcel_name.empty())
 			{
-				tags += llformat(" \"%s:parcel=%s\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), parcel_name.c_str());
+				tags += llformat(" \"%s:parcel=%s\"", FLICKR_MACHINE_TAGS_NAMESPACE, parcel_name.c_str());
 			}
-			tags += llformat(" \"%s:x=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), pos_x);
-			tags += llformat(" \"%s:y=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), pos_y);
-			tags += llformat(" \"%s:z=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE.c_str(), pos_z);
+			tags += llformat(" \"%s:x=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE, pos_x);
+			tags += llformat(" \"%s:y=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE, pos_y);
+			tags += llformat(" \"%s:z=%d\"", FLICKR_MACHINE_TAGS_NAMESPACE, pos_z);
 		}
 	}
 
@@ -524,11 +520,11 @@ LLUICtrl* LLFlickrPhotoPanel::getRefreshBtn()
 ///////////////////////////
 
 LLFlickrAccountPanel::LLFlickrAccountPanel() : 
-mAccountCaptionLabel(NULL),
-mAccountNameLabel(NULL),
-mPanelButtons(NULL),
-mConnectButton(NULL),
-mDisconnectButton(NULL)
+mAccountCaptionLabel(nullptr),
+mAccountNameLabel(nullptr),
+mPanelButtons(nullptr),
+mConnectButton(nullptr),
+mDisconnectButton(nullptr)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.Connect", boost::bind(&LLFlickrAccountPanel::onConnect, this));
 	mCommitCallbackRegistrar.add("SocialSharing.Disconnect", boost::bind(&LLFlickrAccountPanel::onDisconnect, this));
@@ -682,10 +678,10 @@ void LLFlickrAccountPanel::onDisconnect()
 ////////////////////////
 
 LLFloaterFlickr::LLFloaterFlickr(const LLSD& key) : LLFloater(key),
-    mFlickrPhotoPanel(NULL),
-    mStatusErrorText(NULL),
-    mStatusLoadingText(NULL),
-    mStatusLoadingIndicator(NULL)
+    mFlickrPhotoPanel(nullptr),
+    mStatusErrorText(nullptr),
+    mStatusLoadingText(nullptr),
+    mStatusLoadingIndicator(nullptr)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterFlickr::onCancel, this));
 }

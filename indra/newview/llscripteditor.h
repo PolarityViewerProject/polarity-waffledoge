@@ -44,7 +44,7 @@ public:
 	virtual ~LLScriptEditor() {};
 	
 	// LLView override
-	virtual void	draw();
+	void	draw() override;
 	
 	void	initKeywords();
 	void	loadKeywords();
@@ -52,21 +52,14 @@ public:
 	LLKeywords::keyword_iterator_t keywordsBegin()	{ return mKeywords.begin(); }
 	LLKeywords::keyword_iterator_t keywordsEnd()	{ return mKeywords.end(); }
 	
-	// <FS:Ansariel> Re-add legacy format support
-	void	loadKeywords(const std::string& filename,
-						 const std::vector<std::string>& funcs,
-						 const std::vector<std::string>& tooltips,
-						 const LLColor3& func_color);
-	// </FS:Ansariel>
-
 protected:
 	friend class LLUICtrlFactory;
 	LLScriptEditor(const Params& p);
 	
 private:
 	void	drawLineNumbers();
-	/* virtual */ void	updateSegments();
-	/* virtual */ void	drawSelectionBackground();
+	/* virtual */ void	updateSegments() override;
+	/* virtual */ void	drawSelectionBackground() override;
 	void	loadKeywords(const std::string& filename_keywords,
 						 const std::string& filename_colors);
 	

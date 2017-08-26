@@ -48,14 +48,12 @@
 #include "llexception.h"
 #include "stringize.h"
 
+#include <map>
+#include <set>
+
 namespace LLAvatarNameCache
 {
 	use_display_name_signal_t mUseDisplayNamesSignal;
-
-// [RLVa:KB] - Checked: 2010-12-08 (RLVa-1.4.0a) | Added: RLVa-1.2.2c
-	// RLVa override for display names
-	bool sForceDisplayNames = false;
-// [/RLVa:KB]
 
 	// Cache starts in a paused state until we can determine if the
 	// current region supports display names.
@@ -261,18 +259,18 @@ void LLAvatarNameCache::handleAvNameCacheSuccess(const LLSD &data, const LLSD &h
         const LLSD& row = *it;
         LLUUID agent_id = row["id"].asUUID();
 
-        LLAvatarName av_name;
-        av_name.fromLLSD(row);
+			LLAvatarName av_name;
+			av_name.fromLLSD(row);
 
-        // Use expiration time from header
-        av_name.mExpires = expires;
+			// Use expiration time from header
+			av_name.mExpires = expires;
 
-        LL_DEBUGS("AvNameCache") << "LLAvatarNameResponder::result for " << agent_id << LL_ENDL;
-        av_name.dump();
-
-        // cache it and fire signals
-        LLAvatarNameCache::processName(agent_id, av_name);
-    }
+			LL_DEBUGS("AvNameCache") << "LLAvatarNameResponder::result for " << agent_id << LL_ENDL;
+			av_name.dump();
+			
+			// cache it and fire signals
+			LLAvatarNameCache::processName(agent_id, av_name);
+		}
 
     // Same logic as error response case
     const LLSD& unresolved_agents = data["bad_ids"];
@@ -287,9 +285,9 @@ void LLAvatarNameCache::handleAvNameCacheSuccess(const LLSD &data, const LLSD &h
         {
             const LLUUID& agent_id = *it;
 
-            LL_WARNS("AvNameCache") << "LLAvatarNameResponder::result "
-                << "failed id " << agent_id
-                << LL_ENDL;
+				LL_WARNS("AvNameCache") << "LLAvatarNameResponder::result "
+                                        << "failed id " << agent_id
+                                        << LL_ENDL;
 
             LLAvatarNameCache::handleAgentError(agent_id);
         }
@@ -346,7 +344,7 @@ void LLAvatarNameCache::processName(const LLUUID& agent_id, const LLAvatarName& 
 		sSignalMap.erase(agent_id);
 
 		delete signal;
-		signal = NULL;
+		signal = nullptr;
 	}
 }
 
@@ -471,9 +469,9 @@ void LLAvatarNameCache::initClass(bool running, bool usePeopleAPI)
 	sRunning = running;
 	sUsePeopleAPI = usePeopleAPI;
 
-    sHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
-    sHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
-    sHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
+    sHttpRequest = boost::make_shared<LLCore::HttpRequest>();
+    sHttpHeaders = boost::make_shared<LLCore::HttpHeaders>();
+    sHttpOptions = boost::make_shared<LLCore::HttpOptions>();
     sHttpPolicy = LLCore::HttpRequest::DEFAULT_POLICY_ID;
     sHttpPriority = 0;
 }
@@ -485,13 +483,6 @@ void LLAvatarNameCache::cleanupClass()
     sHttpOptions.reset();
     sCache.clear();
 }
-
-// <FS:Ansariel> Clear name cache
-void LLAvatarNameCache::clearCache()
-{
-	sCache.clear();
-}
-// </FS:Ansariel>
 
 bool LLAvatarNameCache::importFile(std::istream& istr)
 {
@@ -735,30 +726,10 @@ LLAvatarNameCache::callback_connection_t LLAvatarNameCache::get(const LLUUID& ag
 	return connection;
 }
 
-// [RLVa:KB] - Checked: 2010-12-08 (RLVa-1.4.0a) | Added: RLVa-1.2.2c
-bool LLAvatarNameCache::getForceDisplayNames()
-{
-	return sForceDisplayNames;
-}
-
-void LLAvatarNameCache::setForceDisplayNames(bool force)
-{
-	sForceDisplayNames = force;
-	if ( (!LLAvatarName::useDisplayNames()) && (force) )
-	{
-		LLAvatarName::setUseDisplayNames(true);
-	}
-}
-// [/RLVa:KB]
 
 void LLAvatarNameCache::setUseDisplayNames(bool use)
 {
-// [RLVa:KB] - Checked: 2010-12-08 (RLVa-1.4.0a) | Added: RLVa-1.2.2c
-	// We need to force the use of the "display names" cache when @shownames=n restricted (and disallow toggling it)
-	use |= getForceDisplayNames();
-// [/RLVa:KB]
 	if (use != LLAvatarName::useDisplayNames())
-
 	{
 		LLAvatarName::setUseDisplayNames(use);
 		mUseDisplayNamesSignal();
@@ -783,6 +754,28 @@ void LLAvatarNameCache::insert(const LLUUID& agent_id, const LLAvatarName& av_na
 {
 	// *TODO: update timestamp if zero?
 	sCache[agent_id] = av_name;
+}
+
+LLUUID LLAvatarNameCache::findIdByName(const std::string& name)
+{
+    std::map<LLUUID, LLAvatarName>::iterator it;
+    std::map<LLUUID, LLAvatarName>::iterator end = sCache.end();
+    for (it = sCache.begin(); it != end; ++it)
+    {
+        if (it->second.getUserName() == name)
+        {
+            return it->first;
+        }
+    }
+
+    // Legacy method
+    LLUUID id;
+    if (gCacheName->getUUID(name, id))
+    {
+        return id;
+    }
+
+    return LLUUID::null;
 }
 
 #if 0
@@ -917,23 +910,25 @@ bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age)
 			if (subtoken_it == subtokens.end()) return false;
 			subtoken = *subtoken_it;
 
-			// Must be a valid integer
-			// *NOTE: atoi() returns 0 for invalid values, so we have to
-			// check the string first.
-			// *TODO: Do servers ever send "0000" for zero?  We don't handle it
 			LLStringUtil::trim(subtoken);
-			if (subtoken == "0")
+
+			try
 			{
-				*max_age = 0;
-				return true;
+				S32 val = std::stoi(subtoken);
+				if (val >= 0 && val < S32_MAX)
+				{
+					*max_age = val;
+					return true;
+				}
 			}
-			S32 val = atoi( subtoken.c_str() );
-			if (val > 0 && val < S32_MAX)
+			catch (const std::invalid_argument&)
 			{
-				*max_age = val;
-				return true;
+				LL_WARNS("AvNameCache") << "Could not convert '" << subtoken << "' to integer" << LL_ENDL;
 			}
-			return false;
+			catch (const std::out_of_range&)
+			{
+				LL_WARNS("AvNameCache") << "Could not convert '" << subtoken << "' to integer" << LL_ENDL;
+			}
 		}
 	}
 	return false;

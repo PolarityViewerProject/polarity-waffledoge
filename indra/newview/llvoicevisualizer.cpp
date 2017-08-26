@@ -79,15 +79,15 @@ const LLVector3 WORLD_UPWARD_DIRECTION = LLVector3( 0.0f, 0.0f, 1.0f ); // Z is 
 //------------------------------------------------------------------
 bool LLVoiceVisualizer::sPrefsInitialized	= false;
 BOOL LLVoiceVisualizer::sLipSyncEnabled		= FALSE;
-F32* LLVoiceVisualizer::sOoh				= NULL;
-F32* LLVoiceVisualizer::sAah				= NULL;
+F32* LLVoiceVisualizer::sOoh				= nullptr;
+F32* LLVoiceVisualizer::sAah				= nullptr;
 U32	 LLVoiceVisualizer::sOohs				= 0;
 U32	 LLVoiceVisualizer::sAahs				= 0;
 F32	 LLVoiceVisualizer::sOohAahRate			= 0.0f;
-F32* LLVoiceVisualizer::sOohPowerTransfer	= NULL;
+F32* LLVoiceVisualizer::sOohPowerTransfer	= nullptr;
 U32	 LLVoiceVisualizer::sOohPowerTransfers	= 0;
 F32	 LLVoiceVisualizer::sOohPowerTransfersf = 0.0f;
-F32* LLVoiceVisualizer::sAahPowerTransfer	= NULL;
+F32* LLVoiceVisualizer::sAahPowerTransfer	= nullptr;
 U32	 LLVoiceVisualizer::sAahPowerTransfers	= 0;
 F32	 LLVoiceVisualizer::sAahPowerTransfersf = 0.0f;
 
@@ -343,19 +343,6 @@ void LLVoiceVisualizer::render()
 		return;
 	}
 	
-	// <polarity> PLVR-3: Quantum voice dot
-	// 0 = completely disable indicator
-	// 1 = waves only when avatar talks.
-	// 2 = show dot while voice chat is available, no waves while talking
-	// 3 = LL behavior (show dot visible while voice chat is available, waves while talking)
-	static LLCachedControl<U32> voice_indicator_behavior(gSavedSettings, "PVUI_VoiceIndicatorBehavior", 0);
-	if ( voice_indicator_behavior < 0  || voice_indicator_behavior > 3)
-	{
-		gSavedSettings.setU32( "PVUI_VoiceIndicatorBehavior", 1);
-		return;
-	}
-	// </polarity>
-	
 	if ( mSoundSymbol.mActive ) 
 	{				
 		mPreviousTime = mCurrentTime;
@@ -372,12 +359,10 @@ void LLVoiceVisualizer::render()
 		LLGLSPipelineAlpha alpha_blend;
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 		
-		LLViewerCamera* camera = LLViewerCamera::getInstance();
-		if ( voice_indicator_behavior  > 1 ) // <polarity>
-		{
 		//-------------------------------------------------------------
 		// create coordinates of the geometry for the dot
 		//-------------------------------------------------------------
+		LLViewerCamera* camera = LLViewerCamera::getInstance();
 		LLVector3 l	= camera->getLeftAxis() * DOT_SIZE;
 		LLVector3 u	= camera->getUpAxis()   * DOT_SIZE;
 
@@ -407,7 +392,6 @@ void LLVoiceVisualizer::render()
 			gGL.texCoord2i( 1,	1	); gGL.vertex3fv( topRight.mV );
 			gGL.texCoord2i( 0,	1	); gGL.vertex3fv( topLeft.mV );
 		gGL.end();
-		}
 		
 		
 		
@@ -437,8 +421,6 @@ void LLVoiceVisualizer::render()
 			
 		} // if currently speaking
 								
-		if ( voice_indicator_behavior == 1 || voice_indicator_behavior == 3 ) // <polarity>
-		{
 		//---------------------------------------------------
 		// determine color
 		//---------------------------------------------------
@@ -538,7 +520,6 @@ void LLVoiceVisualizer::render()
 			} //if ( mSoundSymbol.mWaveActive[i] ) 
 			
 		}// for loop
-		}
 											
 	}//if ( mSoundSymbol.mActive ) 
 

@@ -30,27 +30,19 @@
 
 // libs
 #include "llmenugl.h"
-#include "lluictrlfactory.h"
 
 #include "llpanelpeoplemenus.h"
 
 // newview
+#include "alavatarcolormgr.h"
 #include "llagent.h"
 #include "llagentdata.h"			// for gAgentID
 #include "llavataractions.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "lllogchat.h"
-#include "llparcel.h"
 #include "llviewermenu.h"			// for gMenuHolder
 #include "llconversationmodel.h"
 #include "llviewerobjectlist.h"
-#include "llviewerparcelmgr.h"
-#include "llviewerregion.h"
-#include "llvoavatarself.h"
-#include "roles_constants.h"
-// [RLVa:KB] - Checked: RLVa-2.0.1
-#include "rlvactions.h"
-// [/RLVa:KB]
 
 namespace LLPanelPeopleMenus
 {
@@ -78,24 +70,44 @@ LLContextMenu* PeopleContextMenu::createMenu()
 		registrar.add("Avatar.RemoveFriend",	boost::bind(&LLAvatarActions::removeFriendDialog, 		id));
 		registrar.add("Avatar.IM",				boost::bind(&LLAvatarActions::startIM,					id));
 		registrar.add("Avatar.Call",			boost::bind(&LLAvatarActions::startCall,				id));
-		registrar.add("Avatar.OfferTeleport",	boost::bind(&PeopleContextMenu::offerTeleport,			this));
+		registrar.add("Avatar.OfferTeleport",	boost::bind(static_cast<void(*)(const LLUUID&)>
+			(&LLAvatarActions::offerTeleport),			id));
 		registrar.add("Avatar.ZoomIn",			boost::bind(&handle_zoom_to_object,						id));
 		registrar.add("Avatar.ShowOnMap",		boost::bind(&LLAvatarActions::showOnMap,				id));
 		registrar.add("Avatar.Share",			boost::bind(&LLAvatarActions::share,					id));
 		registrar.add("Avatar.Pay",				boost::bind(&LLAvatarActions::pay,						id));
 		registrar.add("Avatar.BlockUnblock",	boost::bind(&LLAvatarActions::toggleBlock,				id));
 		registrar.add("Avatar.InviteToGroup",	boost::bind(&LLAvatarActions::inviteToGroup,			id));
-		registrar.add("Avatar.TeleportRequest",	boost::bind(&PeopleContextMenu::requestTeleport,		this));
+		registrar.add("Avatar.TeleportRequest",	boost::bind(&LLAvatarActions::teleportRequest,		id));
 		registrar.add("Avatar.Calllog",			boost::bind(&LLAvatarActions::viewChatHistory,			id));
-		registrar.add("Avatar.Freeze",			boost::bind(&LLAvatarActions::freezeAvatar,					id));
-		registrar.add("Avatar.Eject",			boost::bind(&PeopleContextMenu::eject,					this));
-
-		registrar.add("Polarity.Avatar.TextureRefresh", boost::bind(&LLAvatarActions::refreshAppearance, id)); // <polarity> PLVR-32 Refresh texture on objects and avatars
-		registrar.add("Polarity.Common.CopyData", boost::bind(&PeopleContextMenu::copyData, this, _2));
+		registrar.add("Avatar.Freeze",			boost::bind(static_cast<void(*)(const LLUUID&)>
+			(&LLAvatarActions::parcelFreeze),					id));
+		registrar.add("Avatar.Eject",			boost::bind(static_cast<void(*)(const LLUUID&)>
+			(&LLAvatarActions::parcelEject),					id));
+		registrar.add("Avatar.EstateTPHome",	boost::bind(static_cast<void(*)(const LLUUID&)>
+			(&LLAvatarActions::estateTeleportHome), id));
+		registrar.add("Avatar.EstateKick",		boost::bind(static_cast<void(*)(const LLUUID&)>
+			(&LLAvatarActions::estateKick), id));
+		registrar.add("Avatar.EstateBan", boost::bind(static_cast<void(*)(const LLUUID&)>
+			(&LLAvatarActions::estateBan), id));
+		registrar.add("Avatar.GodFreeze", boost::bind(&LLAvatarActions::godFreeze, id));
+		registrar.add("Avatar.GodUnfreeze", boost::bind(&LLAvatarActions::godUnfreeze, id));
+		registrar.add("Avatar.GodKick", boost::bind(&LLAvatarActions::godKick, id));
+		registrar.add("Avatar.CopyName",		boost::bind(static_cast<void(*)(const LLUUID&, 
+			LLAvatarActions::ECopyDataType)>(&LLAvatarActions::copyData), id, LLAvatarActions::E_DATA_NAME));
+		registrar.add("Avatar.CopySLURL",		boost::bind(static_cast<void(*)(const LLUUID&,
+			LLAvatarActions::ECopyDataType)>(&LLAvatarActions::copyData), id, LLAvatarActions::E_DATA_SLURL));
+		registrar.add("Avatar.CopyKey",			boost::bind(static_cast<void(*)(const LLUUID&,
+			LLAvatarActions::ECopyDataType)>(&LLAvatarActions::copyData), id, LLAvatarActions::E_DATA_UUID));
+		registrar.add("Avatar.TeleportTo",		boost::bind(&LLAvatarActions::teleportTo, id));
+		registrar.add("Avatar.Colorize",		boost::bind(&PeopleContextMenu::colorize, this, _2));
 
 		enable_registrar.add("Avatar.EnableItem", boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
 		enable_registrar.add("Avatar.CheckItem",  boost::bind(&PeopleContextMenu::checkContextMenuItem,	this, _2));
-		enable_registrar.add("Avatar.EnableFreezeEject", boost::bind(&PeopleContextMenu::enableFreezeEject, this, _2));
+		enable_registrar.add("Avatar.EnableFreezeEject", boost::bind(static_cast<bool(*)(const LLUUID&)>
+			(&LLAvatarActions::canFreezeEject), id));
+		enable_registrar.add("Avatar.EnableEstateManage", boost::bind(static_cast<bool(*)(const LLUUID&)>
+			(&LLAvatarActions::canManageAvatarsEstate), id));
 
 		// create the context menu from the XUI
 		menu = createFromFile("menu_people_nearby.xml");
@@ -108,16 +120,34 @@ LLContextMenu* PeopleContextMenu::createMenu()
 		// registrar.add("Avatar.AddFriend",	boost::bind(&LLAvatarActions::requestFriendshipDialog,	mUUIDs)); // *TODO: unimplemented
 		registrar.add("Avatar.IM",				boost::bind(&PeopleContextMenu::startConference,		this));
 		registrar.add("Avatar.Call",			boost::bind(&LLAvatarActions::startAdhocCall,			mUUIDs, LLUUID::null));
-		registrar.add("Avatar.OfferTeleport",	boost::bind(&PeopleContextMenu::offerTeleport,			this));
+		registrar.add("Avatar.OfferTeleport",	boost::bind(static_cast<void(*)(const uuid_vec_t&)>
+			(&LLAvatarActions::offerTeleport), mUUIDs));
 		registrar.add("Avatar.RemoveFriend",	boost::bind(&LLAvatarActions::removeFriendsDialog,		mUUIDs));
 		// registrar.add("Avatar.Share",		boost::bind(&LLAvatarActions::startIM,					mUUIDs)); // *TODO: unimplemented
 		// registrar.add("Avatar.Pay",			boost::bind(&LLAvatarActions::pay,						mUUIDs)); // *TODO: unimplemented
+		registrar.add("Avatar.Freeze", boost::bind(static_cast<void(*)(const uuid_vec_t&)>
+			(&LLAvatarActions::parcelFreeze), mUUIDs));
+		registrar.add("Avatar.Eject", boost::bind(static_cast<void(*)(const uuid_vec_t&)>
+			(&LLAvatarActions::parcelEject), mUUIDs));
+		registrar.add("Avatar.EstateTPHome", boost::bind(static_cast<void(*)(const uuid_vec_t&)>
+			(&LLAvatarActions::estateTeleportHome), mUUIDs));
+		registrar.add("Avatar.EstateKick", boost::bind(static_cast<void(*)(const uuid_vec_t&)>
+			(&LLAvatarActions::estateKick), mUUIDs));
+		registrar.add("Avatar.EstateBan", boost::bind(static_cast<void(*)(const uuid_vec_t&)>
+			(&LLAvatarActions::estateBan), mUUIDs));
+		registrar.add("Avatar.CopyName",		boost::bind(static_cast<void(*)(const uuid_vec_t&, LLAvatarActions::ECopyDataType)>
+			(&LLAvatarActions::copyData), mUUIDs, LLAvatarActions::E_DATA_NAME));
+		registrar.add("Avatar.CopySLURL",		boost::bind(static_cast<void(*)(const uuid_vec_t&, LLAvatarActions::ECopyDataType)>
+			(&LLAvatarActions::copyData), mUUIDs, LLAvatarActions::E_DATA_SLURL));
+		registrar.add("Avatar.CopyKey",			boost::bind(static_cast<void(*)(const uuid_vec_t&, LLAvatarActions::ECopyDataType)>
+			(&LLAvatarActions::copyData), mUUIDs, LLAvatarActions::E_DATA_UUID));
+		registrar.add("Avatar.Colorize", boost::bind(&PeopleContextMenu::colorize, this, _2));
 		
-		registrar.add("Polarity.Avatar.TextureRefresh", boost::bind(&LLAvatarActions::refreshAppearances, mUUIDs)); // <polarity> PLVR-32 Refresh texture on objects and avatars
-		// TODO: Make work
-		//registrar.add("Polarity.Common.CopyData", boost::bind(&PeopleContextMenu::copyData, mUUIDs));
-
 		enable_registrar.add("Avatar.EnableItem",	boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
+		enable_registrar.add("Avatar.EnableFreezeEject", boost::bind(static_cast<bool(*)(const uuid_vec_t&)>
+			(&LLAvatarActions::canFreezeEject), mUUIDs));
+		enable_registrar.add("Avatar.EnableEstateManage", boost::bind(static_cast<bool(*)(const uuid_vec_t&)>
+			(&LLAvatarActions::canManageAvatarsEstate), mUUIDs));
 
 		// create the context menu from the XUI
 		menu = createFromFile("menu_people_nearby_multiselect.xml");
@@ -141,11 +171,15 @@ void PeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("share"));
 		items.push_back(std::string("pay"));
 		items.push_back(std::string("offer_teleport"));
+		items.push_back(std::string("separator_utilities"));
+		items.push_back(std::string("tools_menu"));
+		items.push_back(std::string("copy_name"));
+		items.push_back(std::string("copy_slurl"));
+		items.push_back(std::string("copy_uuid"));
 	}
 	else 
 	{
 		items.push_back(std::string("view_profile"));
-		items.push_back(std::string("copy_info"));
 		items.push_back(std::string("im"));
 		items.push_back(std::string("offer_teleport"));
 		items.push_back(std::string("request_teleport"));
@@ -160,40 +194,14 @@ void PeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("share"));
 		items.push_back(std::string("pay"));
 		items.push_back(std::string("block_unblock"));
+		items.push_back(std::string("separator_utilities"));
+		items.push_back(std::string("tools_menu"));
+		items.push_back(std::string("copy_name"));
+		items.push_back(std::string("copy_slurl"));
+		items.push_back(std::string("copy_uuid"));
 	}
 
     hide_context_entries(menu, items, disabled_items);
-}
-
-// <polarity> Copy Key. From Alchemy's CopyData.
-bool PeopleContextMenu::copyData(const LLSD& userdata)
-{
-	auto uuid = mUUIDs.front();
-	if (uuid.notNull())
-	{
-		const std::string& param = userdata.asString();
-		if (param == "copy_name")
-		{
-			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_NAME);
-			return true;
-		}
-		if (param == "copy_displayname")
-		{
-			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_DISPLAYNAME);
-			return true;
-		}
-		else if (param == "copy_slurl")
-		{
-			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_SLURL);
-			return true;
-		}
-		else if (param == "copy_key")
-		{
-			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_UUID);
-			return true;
-		}
-	}
-	return false;
 }
 
 bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
@@ -232,10 +240,7 @@ bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
 
 		for (;id != uuids_end; ++id)
 		{
-//			if ( LLAvatarActions::isFriend(*id) )
-// [RLVa:KB] - Checked: 2014-03-31 (RLVa-2.0.1)
-			if ( (LLAvatarActions::isFriend(*id)) || (!RlvActions::canShowName(RlvActions::SNC_DEFAULT, *id)) )
-// [/RLVa:KB]
+			if ( LLAvatarActions::isFriend(*id) )
 			{
 				result = false;
 				break;
@@ -258,10 +263,7 @@ bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
 
 		for (;id != uuids_end; ++id)
 		{
-//			if ( !LLAvatarActions::isFriend(*id) )
-// [RLVa:KB] - Checked: 2014-03-31 (RLVa-2.0.1)
-			if ( (!LLAvatarActions::isFriend(*id)) || (!RlvActions::canShowName(RlvActions::SNC_DEFAULT, *id)) )
-// [/RLVa:KB]
+			if ( !LLAvatarActions::isFriend(*id) )
 			{
 				result = false;
 				break;
@@ -277,14 +279,18 @@ bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
 	else if (item == std::string("can_zoom_in"))
 	{
 		const LLUUID& id = mUUIDs.front();
-
 		return gObjectList.findObject(id);
+	}
+	else if (item == std::string("can_teleport_to"))
+	{
+		const LLUUID& id = mUUIDs.front();
+		return LLAvatarActions::canTeleportTo(id);
 	}
 	else if (item == std::string("can_show_on_map"))
 	{
 		const LLUUID& id = mUUIDs.front();
 
-		return (LLAvatarTracker::instance().isBuddyOnline(id) && is_agent_mappable(id))
+		return (LLAvatarTracker::instance().isBuddyOnline(id) && LLAvatarActions::isAgentMappable(id))
 					|| gAgent.isGodlike();
 	}
 	else if(item == std::string("can_offer_teleport"))
@@ -316,112 +322,6 @@ bool PeopleContextMenu::checkContextMenuItem(const LLSD& userdata)
 	return false;
 }
 
-bool PeopleContextMenu::enableFreezeEject(const LLSD& userdata)
-{
-    if((gAgent.getID() == mUUIDs.front()) || (mUUIDs.size() != 1))
-    {
-        return false;
-    }
-
-    const LLUUID& id = mUUIDs.front();
-
-    // Use avatar_id if available, otherwise default to right-click avatar
-    LLVOAvatar* avatar = NULL;
-    if (id.notNull())
-    {
-        LLViewerObject* object = gObjectList.findObject(id);
-        if (object)
-        {
-            if( !object->isAvatar() )
-            {
-                object = NULL;
-            }
-            avatar = (LLVOAvatar*) object;
-        }
-    }
-    if (!avatar) return false;
-
-    // Gods can always freeze
-    if (gAgent.isGodlike()) return true;
-
-    // Estate owners / managers can freeze
-    // Parcel owners can also freeze
-    const LLVector3& pos = avatar->getPositionRegion();
-    const LLVector3d& pos_global = avatar->getPositionGlobal();
-    LLParcel* parcel = LLViewerParcelMgr::getInstance()->selectParcelAt(pos_global)->getParcel();
-    LLViewerRegion* region = avatar->getRegion();
-    if (!region) return false;
-
-    bool new_value = region->isOwnedSelf(pos);
-    if (!new_value || region->isOwnedGroup(pos))
-    {
-        new_value = LLViewerParcelMgr::getInstance()->isParcelOwnedByAgent(parcel,GP_LAND_ADMIN);
-    }
-    return new_value;
-}
-
-void PeopleContextMenu::requestTeleport()
-{
-	// boost::bind cannot recognize overloaded method LLAvatarActions::teleportRequest(),
-	// so we have to use a wrapper.
-// [RLVa:KB] - Checked: RLVa-2.0.1
-	bool fRlvCanShowName = (!m_fRlvCheck) || (RlvActions::canShowName(RlvActions::SNC_DEFAULT, mUUIDs.front()));
-	RlvActions::setShowName(RlvActions::SNC_TELEPORTREQUEST, fRlvCanShowName);
-	LLAvatarActions::teleportRequest(mUUIDs.front());
-	RlvActions::setShowName(RlvActions::SNC_TELEPORTREQUEST, true);
-// [/RLVa:KB]
-//	LLAvatarActions::teleportRequest(mUUIDs.front());
-}
-
-void PeopleContextMenu::offerTeleport()
-{
-	// boost::bind cannot recognize overloaded method LLAvatarActions::offerTeleport(),
-	// so we have to use a wrapper.
-// [RLVa:KB] - Checked: RLVa-2.0.1
-	bool fRlvCanShowName = true;
-	if ( (m_fRlvCheck) && (RlvActions::isRlvEnabled()) )
-		std::for_each(mUUIDs.begin(), mUUIDs.end(), [&fRlvCanShowName](const LLUUID& idAgent) { fRlvCanShowName &= RlvActions::canShowName(RlvActions::SNC_DEFAULT, idAgent); });
-
-	RlvActions::setShowName(RlvActions::SNC_TELEPORTOFFER, fRlvCanShowName);
-	LLAvatarActions::offerTeleport(mUUIDs);
-	RlvActions::setShowName(RlvActions::SNC_TELEPORTOFFER, true);
-// [/RLVa:KB]
-//	LLAvatarActions::offerTeleport(mUUIDs);
-}
-
-void PeopleContextMenu::eject()
-{
-	if((gAgent.getID() == mUUIDs.front()) || (mUUIDs.size() != 1))
-	{
-		return;
-	}
-
-	const LLUUID& id = mUUIDs.front();
-
-	// Use avatar_id if available, otherwise default to right-click avatar
-	LLVOAvatar* avatar = NULL;
-	if (id.notNull())
-	{
-		LLViewerObject* object = gObjectList.findObject(id);
-		if (object)
-		{
-			if( !object->isAvatar() )
-			{
-				object = NULL;
-			}
-			avatar = (LLVOAvatar*) object;
-		}
-	}
-	if (!avatar) return;
-	LLSD payload;
-	payload["avatar_id"] = avatar->getID();
-	//std::string fullname = avatar->getFullname();
-
-	const LLVector3d& pos = avatar->getPositionGlobal();
-	LLParcel* parcel = LLViewerParcelMgr::getInstance()->selectParcelAt(pos)->getParcel();
-	LLAvatarActions::ejectAvatar(id ,LLViewerParcelMgr::getInstance()->isParcelOwnedByAgent(parcel,GP_LAND_MANAGE_BANNED));
-}
-
 void PeopleContextMenu::startConference()
 {
 	uuid_vec_t uuids;
@@ -435,38 +335,52 @@ void PeopleContextMenu::startConference()
 	LLAvatarActions::startConference(uuids);
 }
 
+void PeopleContextMenu::colorize(const LLSD& userdata)
+{
+	const std::string& param = userdata.asString();
+	U32 color = 99;
+	if (param == "color1")
+	{
+		color = ALAvatarColorMgr::E_FIRST_COLOR;
+	}
+	else if (param == "color2")
+	{
+		color = ALAvatarColorMgr::E_SECOND_COLOR;
+	}
+	else if (param == "color3")
+	{
+		color = ALAvatarColorMgr::E_THIRD_COLOR;
+	}
+	else if (param == "color4")
+	{
+		color = ALAvatarColorMgr::E_FOURTH_COLOR;
+	}
+
+	for (const LLUUID& id : mUUIDs)
+	{
+		if (id != gAgentID)
+		{
+			if (color != 99)
+			{
+				ALAvatarColorMgr::instance().addOrUpdateCustomColor(id, (ALAvatarColorMgr::e_custom_colors)color);
+			}
+			else
+			{
+				ALAvatarColorMgr::instance().clearCustomColor(id);
+			}
+		}
+	}
+}
+
 //== NearbyPeopleContextMenu ===============================================================
 
 void NearbyPeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 {
     menuentry_vec_t items;
     menuentry_vec_t disabled_items;
-	
-// [RLVa:KB] - Checked: RLVa-1.5.0
-	bool fRlvCanShowName = true;
-	if ( (m_fRlvCheck) && (RlvActions::isRlvEnabled()) )
-		std::for_each(mUUIDs.begin(), mUUIDs.end(), [&fRlvCanShowName](const LLUUID& idAgent) { fRlvCanShowName &= RlvActions::canShowName(RlvActions::SNC_DEFAULT, idAgent); });
-
-	if (!fRlvCanShowName)
-	{
-		if (flags & ITEM_IN_MULTI_SELECTION)
-		{
-			items.push_back(std::string("offer_teleport"));
-			items.push_back(std::string("refresh")); // <polarity> PLVR-32 Refresh texture on objects and avatars
-		}
-		else
-		{
-			items.push_back(std::string("offer_teleport"));
-			items.push_back(std::string("request_teleport"));
-			items.push_back(std::string("separator_invite_to_group"));
-			items.push_back(std::string("zoom_in"));
-			items.push_back(std::string("block_unblock"));
-			items.push_back(std::string("refresh")); // <polarity> PLVR-32 Refresh texture on objects and avatars
-		}
-	}
-	else if (flags & ITEM_IN_MULTI_SELECTION)
-// [/RLVa:KB]
-//	if (flags & ITEM_IN_MULTI_SELECTION)
+	bool parcel_manage = LLAvatarActions::canFreezeEject(mUUIDs);
+	bool estate_manage = LLAvatarActions::canManageAvatarsEstate(mUUIDs);
+	if (flags & ITEM_IN_MULTI_SELECTION)
 	{
 		items.push_back(std::string("add_friends"));
 		items.push_back(std::string("remove_friends"));
@@ -475,12 +389,28 @@ void NearbyPeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("share"));
 		items.push_back(std::string("pay"));
 		items.push_back(std::string("offer_teleport"));
-		items.push_back(std::string("refresh")); // <polarity> PLVR-32 Refresh texture on objects and avatars
+		items.push_back(std::string("separator_utilities"));
+		if (parcel_manage || estate_manage)
+		{
+			items.push_back("manage_menu");
+			items.push_back(std::string("freeze"));
+			items.push_back(std::string("eject"));
+			if (estate_manage)
+			{
+				items.push_back(std::string("estate_tphome"));
+				items.push_back(std::string("estate_kick"));
+				items.push_back(std::string("estate_ban"));
+			}
+		}
+		items.push_back(std::string("tools_menu"));
+		items.push_back(std::string("copy_name"));
+		items.push_back(std::string("copy_slurl"));
+		items.push_back(std::string("copy_uuid"));
+		items.push_back(std::string("tag_color"));
 	}
 	else 
 	{
 		items.push_back(std::string("view_profile"));
-		items.push_back(std::string("copy_info"));
 		items.push_back(std::string("im"));
 		items.push_back(std::string("offer_teleport"));
 		items.push_back(std::string("request_teleport"));
@@ -491,14 +421,30 @@ void NearbyPeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("remove_friend"));
 		items.push_back(std::string("invite_to_group"));
 		items.push_back(std::string("separator_invite_to_group"));
+		items.push_back(std::string("teleport_to"));
 		items.push_back(std::string("zoom_in"));
 		items.push_back(std::string("map"));
 		items.push_back(std::string("share"));
 		items.push_back(std::string("pay"));
 		items.push_back(std::string("block_unblock"));
-		items.push_back(std::string("freeze"));
-		items.push_back(std::string("eject"));
-		items.push_back(std::string("refresh")); // <polarity> PLVR-32 Refresh texture on objects and avatars
+		items.push_back(std::string("separator_utilities"));
+		if (parcel_manage || estate_manage)
+		{
+			items.push_back("manage_menu");
+			items.push_back(std::string("freeze"));
+			items.push_back(std::string("eject"));
+			if (estate_manage)
+			{
+				items.push_back(std::string("estate_tphome"));
+				items.push_back(std::string("estate_kick"));
+				items.push_back(std::string("estate_ban"));
+			}
+		}
+		items.push_back(std::string("tools_menu"));
+		items.push_back(std::string("copy_name"));
+		items.push_back(std::string("copy_slurl"));
+		items.push_back(std::string("copy_uuid"));
+		items.push_back(std::string("tag_color"));
 	}
 
     hide_context_entries(menu, items, disabled_items);

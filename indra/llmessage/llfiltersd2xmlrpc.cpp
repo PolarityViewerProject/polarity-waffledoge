@@ -74,11 +74,11 @@
 
 #include "linden_common.h"
 #include "llfiltersd2xmlrpc.h"
+#include "llbase64.h"
 
 #include <sstream>
 #include <iterator>
 #include <xmlrpc-epi/xmlrpc.h>
-#include "apr_base64.h"
 
 #include "llbuffer.h"
 #include "llbufferstream.h"
@@ -269,15 +269,7 @@ void LLFilterSD2XMLRPC::streamOut(std::ostream& ostr, const LLSD& sd)
 		LLSD::Binary buffer = sd.asBinary();
 		if(!buffer.empty())
 		{
-			// *TODO: convert to LLBase64
-			int b64_buffer_length = apr_base64_encode_len(buffer.size());
-			char* b64_buffer = new char[b64_buffer_length];
-			b64_buffer_length = apr_base64_encode_binary(
-				b64_buffer,
-				&buffer[0],
-				buffer.size());
-			ostr.write(b64_buffer, b64_buffer_length - 1);
-			delete[] b64_buffer;
+			ostr << LLBase64::encode(&buffer[0], buffer.size());
 		}
 		ostr << "</base64>";
 		break;
@@ -614,11 +606,11 @@ LLIOPipe::EStatus LLFilterXMLRPCResponse2LLSD::process_impl(
 	// *FIX: This technique for reading data is far from optimal. We
 	// need to have some kind of istream interface into the xml
 	// parser...
-	S32 bytes = buffer->countAfter(channels.in(), NULL);
+	S32 bytes = buffer->countAfter(channels.in(), nullptr);
 	if(!bytes) return STATUS_ERROR;
 	char* buf = new char[bytes + 1];
 	buf[bytes] = '\0';
-	buffer->readAfter(channels.in(), NULL, (U8*)buf, bytes);
+	buffer->readAfter(channels.in(), nullptr, (U8*)buf, bytes);
 
 	//LL_DEBUGS() << "xmlrpc response: " << buf << LL_ENDL;
 
@@ -626,7 +618,7 @@ LLIOPipe::EStatus LLFilterXMLRPCResponse2LLSD::process_impl(
 	XMLRPC_REQUEST response = XMLRPC_REQUEST_FromXML(
 		buf,
 		bytes,
-		NULL);
+		nullptr);
 	if(!response)
 	{
 		LL_WARNS() << "XML -> SD Response unable to parse xml." << LL_ENDL;
@@ -698,11 +690,11 @@ LLIOPipe::EStatus LLFilterXMLRPCRequest2LLSD::process_impl(
 	// *FIX: This technique for reading data is far from optimal. We
 	// need to have some kind of istream interface into the xml
 	// parser...
-	S32 bytes = buffer->countAfter(channels.in(), NULL);
+	S32 bytes = buffer->countAfter(channels.in(), nullptr);
 	if(!bytes) return STATUS_ERROR;
 	char* buf = new char[bytes + 1];
 	buf[bytes] = '\0';
-	buffer->readAfter(channels.in(), NULL, (U8*)buf, bytes);
+	buffer->readAfter(channels.in(), nullptr, (U8*)buf, bytes);
 
 	//LL_DEBUGS() << "xmlrpc request: " << buf << LL_ENDL;
 	
@@ -728,7 +720,7 @@ LLIOPipe::EStatus LLFilterXMLRPCRequest2LLSD::process_impl(
 	XMLRPC_REQUEST request = XMLRPC_REQUEST_FromXML(
 		buf,
 		bytes,
-		NULL);
+		nullptr);
 	if(!request)
 	{
 		LL_WARNS() << "XML -> SD Request process parse error." << LL_ENDL;

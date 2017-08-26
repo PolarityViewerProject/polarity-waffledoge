@@ -108,44 +108,44 @@ public:
 
 public:
 						LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
-	/*virtual*/ void markDead();		// Override (and call through to parent) to clean up media references
+	/*virtual*/ void markDead() override;		// Override (and call through to parent) to clean up media references
 
-	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
+	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline) override;
 
 				void	deleteFaces();
 
 				void	animateTextures();
 	
 	            BOOL    isVisible() const ;
-	/*virtual*/ BOOL	isActive() const;
-	/*virtual*/ BOOL	isAttachment() const;
-	/*virtual*/ BOOL	isRootEdit() const; // overridden for sake of attachments treating themselves as a root object
-	/*virtual*/ BOOL	isHUDAttachment() const;
+	/*virtual*/ BOOL	isActive() const override;
+	/*virtual*/ BOOL	isAttachment() const override;
+	/*virtual*/ BOOL	isRootEdit() const override; // overridden for sake of attachments treating themselves as a root object
+	/*virtual*/ BOOL	isHUDAttachment() const override;
 
 				void	generateSilhouette(LLSelectNode* nodep, const LLVector3& view_point);
-	/*virtual*/	BOOL	setParent(LLViewerObject* parent);
-				S32		getLOD() const							{ return mLOD; }
-	const LLVector3		getPivotPositionAgent() const;
+	/*virtual*/	BOOL	setParent(LLViewerObject* parent) override;
+				S32		getLOD() const override { return mLOD; }
+	const LLVector3		getPivotPositionAgent() const override;
 	const LLMatrix4&	getRelativeXform() const				{ return mRelativeXform; }
 	const LLMatrix3&	getRelativeXformInvTrans() const		{ return mRelativeXformInvTrans; }
-	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
+	/*virtual*/	const LLMatrix4	getRenderMatrix() const override;
 				typedef std::map<LLUUID, S32> texture_cost_t;
 				U32 	getRenderCost(texture_cost_t &textures) const;
-				F32		getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const;
-	/*virtual*/	F32		getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL) { return getStreamingCost(bytes, visible_bytes, NULL); }
+				F32		getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const override;
+	/*virtual*/	F32		getStreamingCost(S32* bytes = nullptr, S32* visible_bytes = nullptr) { return getStreamingCost(bytes, visible_bytes, nullptr); }
 
-	/*virtual*/ U32		getTriangleCount(S32* vcount = NULL) const;
-	/*virtual*/ U32		getHighLODTriangleCount();
+	/*virtual*/ U32		getTriangleCount(S32* vcount = nullptr) const override;
+	/*virtual*/ U32		getHighLODTriangleCount() override;
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
 										  BOOL pick_transparent = FALSE,
 										  BOOL pick_rigged = FALSE,
-										  S32* face_hit = NULL,                 // which face was hit
-										  LLVector4a* intersection = NULL,       // return the intersection point
-										  LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
-										  LLVector4a* normal = NULL,             // return the surface normal at the intersection point
-										  LLVector4a* tangent = NULL           // return the surface tangent at the intersection point
-		);
+										  S32* face_hit = nullptr,                 // which face was hit
+										  LLVector4a* intersection = nullptr,       // return the intersection point
+										  LLVector2* tex_coord = nullptr,          // return the texture coordinates of the intersection point
+										  LLVector4a* normal = nullptr,             // return the surface normal at the intersection point
+										  LLVector4a* tangent = nullptr           // return the surface tangent at the intersection point
+		) override;
 	
 				LLVector3 agentPositionToVolume(const LLVector3& pos) const;
 				LLVector3 agentDirectionToVolume(const LLVector3& dir) const;
@@ -156,53 +156,54 @@ public:
 				BOOL	getVolumeChanged() const				{ return mVolumeChanged; }
 				
 	/*virtual*/ F32  	getRadius() const						{ return mVObjRadius; };
-				const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const;
+				const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const override;
 
 				void	markForUpdate(BOOL priority)			{ LLViewerObject::markForUpdate(priority); mVolumeChanged = TRUE; }
 				void    faceMappingChanged()                    { mFaceMappingChanged=TRUE; };
 
-	/*virtual*/ void	onShift(const LLVector4a &shift_vector); // Called when the drawable shifts
+	/*virtual*/ void	onShift(const LLVector4a &shift_vector) override; // Called when the drawable shifts
 
-	/*virtual*/ void	parameterChanged(U16 param_type, bool local_origin);
-	/*virtual*/ void	parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_use, bool local_origin);
+	/*virtual*/ void	parameterChanged(U16 param_type, bool local_origin) override;
+	/*virtual*/ void	parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_use, bool local_origin) override;
 
 	/*virtual*/ U32		processUpdateMessage(LLMessageSystem *mesgsys,
 											void **user_data,
-											U32 block_num, const EObjectUpdateType update_type,
-											LLDataPacker *dp);
+											U32 block_num, 
+											const EObjectUpdateType update_type,
+											LLDataPacker *dp) override;
 
-	/*virtual*/ void	setSelected(BOOL sel);
-	/*virtual*/ BOOL	setDrawableParent(LLDrawable* parentp);
+	/*virtual*/ void	setSelected(BOOL sel) override;
+	/*virtual*/ BOOL	setDrawableParent(LLDrawable* parentp) override;
 
-	/*virtual*/ void	setScale(const LLVector3 &scale, BOOL damped);
+	/*virtual*/ void	setScale(const LLVector3 &scale, BOOL damped) override;
 
-	/*virtual*/ void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
-	/*virtual*/ void	setNumTEs(const U8 num_tes);
-	/*virtual*/ void	setTEImage(const U8 te, LLViewerTexture *imagep);
-	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
-	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
-	/*virtual*/ S32		setTEColor(const U8 te, const LLColor4 &color);
-	/*virtual*/ S32		setTEBumpmap(const U8 te, const U8 bump);
-	/*virtual*/ S32		setTEShiny(const U8 te, const U8 shiny);
-	/*virtual*/ S32		setTEFullbright(const U8 te, const U8 fullbright);
-	/*virtual*/ S32		setTEBumpShinyFullbright(const U8 te, const U8 bump);
-	/*virtual*/ S32		setTEMediaFlags(const U8 te, const U8 media_flags);
-	/*virtual*/ S32		setTEGlow(const U8 te, const F32 glow);
-	/*virtual*/ S32		setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
+	/*virtual*/ void    changeTEImage(S32 index, LLViewerTexture* new_image) override;
+	/*virtual*/ void	setNumTEs(const U8 num_tes) override;
+	/*virtual*/ void	setTEImage(const U8 te, LLViewerTexture *imagep) override;
+	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid) override;
+	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color) override;
+	/*virtual*/ S32		setTEColor(const U8 te, const LLColor4 &color) override;
+	/*virtual*/ S32		setTEBumpmap(const U8 te, const U8 bump) override;
+	/*virtual*/ S32		setTEShiny(const U8 te, const U8 shiny) override;
+	/*virtual*/ S32		setTEFullbright(const U8 te, const U8 fullbright) override;
+	/*virtual*/ S32		setTEBumpShinyFullbright(const U8 te, const U8 bump) override;
+	/*virtual*/ S32		setTEMediaFlags(const U8 te, const U8 media_flags) override;
+	/*virtual*/ S32		setTEGlow(const U8 te, const F32 glow) override;
+	/*virtual*/ S32		setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID) override;
 	
 	static void	setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLMaterialID& pMaterialID, const LLMaterialPtr pMaterialParams, U32 te);
 
-	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams);
-	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
-	/*virtual*/ S32		setTEScaleS(const U8 te, const F32 s);
-	/*virtual*/ S32		setTEScaleT(const U8 te, const F32 t);
-	/*virtual*/ S32		setTETexGen(const U8 te, const U8 texgen);
-	/*virtual*/ S32		setTEMediaTexGen(const U8 te, const U8 media);
-	/*virtual*/ BOOL 	setMaterial(const U8 material);
+	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams) override;
+	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t) override;
+	/*virtual*/ S32		setTEScaleS(const U8 te, const F32 s) override;
+	/*virtual*/ S32		setTEScaleT(const U8 te, const F32 t) override;
+	/*virtual*/ S32		setTETexGen(const U8 te, const U8 texgen) override;
+	/*virtual*/ S32		setTEMediaTexGen(const U8 te, const U8 media) override;
+	/*virtual*/ BOOL 	setMaterial(const U8 material) override;
 
-				void	setTexture(const S32 face) const;
+				void	setTexture(const S32 face);
 				S32     getIndexInTex() const {return mIndexInTex ;}
-	/*virtual*/ BOOL	setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false);
+	/*virtual*/ BOOL	setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false) override;
 				void	updateSculptTexture();
 				void    setIndexInTex(S32 index) { mIndexInTex = index ;}
 				void	sculpt();
@@ -212,21 +213,21 @@ public:
 														  void* user_data, S32 status, LLExtStat ext_status);
 					
 				void	updateRelativeXform(bool force_identity = false);
-	/*virtual*/ BOOL	updateGeometry(LLDrawable *drawable);
-	/*virtual*/ void	updateFaceSize(S32 idx);
-	/*virtual*/ BOOL	updateLOD();
-				void	updateRadius();
-	/*virtual*/ void	updateTextures();
+	/*virtual*/ BOOL	updateGeometry(LLDrawable *drawable) override;
+	/*virtual*/ void	updateFaceSize(S32 idx) override;
+	/*virtual*/ BOOL	updateLOD() override;
+				void	updateRadius() override;
+	/*virtual*/ void	updateTextures() override;
 				void	updateTextureVirtualSize(bool forced = false);
 
-				void	updateFaceFlags() const;
+				void	updateFaceFlags();
 				void	regenFaces();
 				BOOL	genBBoxes(BOOL force_global);
-				void	preRebuild() const;
-	virtual		void	updateSpatialExtents(LLVector4a& min, LLVector4a& max);
-	virtual		F32		getBinRadius();
-	
-	virtual U32 getPartitionType() const;
+				void	preRebuild();
+	void	updateSpatialExtents(LLVector4a& min, LLVector4a& max) override;
+	F32		getBinRadius() override;
+
+	U32 getPartitionType() const override;
 
 	// For Lights
 	void setIsLight(BOOL is_light);
@@ -255,10 +256,10 @@ public:
 	
 	// Flexible Objects
 	U32 getVolumeInterfaceID() const;
-	virtual BOOL isFlexible() const;
-	virtual BOOL isSculpted() const;
-	virtual BOOL isMesh() const;
-	virtual BOOL hasLightTexture() const;
+	BOOL isFlexible() const override;
+	BOOL isSculpted() const override;
+	BOOL isMesh() const override;
+	BOOL hasLightTexture() const override;
 
 	BOOL isVolumeGlobal() const;
 	BOOL canBeFlexible() const;
@@ -271,14 +272,14 @@ public:
 	void updateObjectMediaData(const LLSD &media_data_array, const std::string &media_version);
     
     // Bounce back media at the given index to its current URL (or home URL, if current URL is empty)
-	void mediaNavigateBounceBack(U8 texture_index) const;
+	void mediaNavigateBounceBack(U8 texture_index);
     
     // Returns whether or not this object has permission to navigate or control 
 	// the given media entry
 	enum MediaPermType {
 		MEDIA_PERM_INTERACT, MEDIA_PERM_CONTROL
 	};
-    bool hasMediaPermission(const LLMediaEntry* media_entry, MediaPermType perm_type) const;
+    bool hasMediaPermission(const LLMediaEntry* media_entry, MediaPermType perm_type);
     
 	void mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, std::string new_location);
 	void mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, LLViewerMediaObserver::EMediaEvent event);
@@ -296,7 +297,7 @@ public:
    
 	bool hasMedia() const;
 	
-	LLVector3 getApproximateFaceNormal(U8 face_id) const;
+	LLVector3 getApproximateFaceNormal(U8 face_id);
 	
 	void notifyMeshLoaded();
 	
@@ -313,23 +314,23 @@ public:
 
 	//rigged volume update (for raycasting)
 	void updateRiggedVolume(bool force_update = false);
-	LLRiggedVolume* getRiggedVolume() const;
+	LLRiggedVolume* getRiggedVolume();
 
 	//returns true if volume should be treated as a rigged volume
 	// - Build tools are open
 	// - object is an attachment
 	// - object is attached to self
 	// - object is rendered as rigged
-	bool treatAsRigged() const;
+	bool treatAsRigged();
 
 	//clear out rigged volume and revert back to non-rigged state for picking/LOD/distance updates
 	void clearRiggedVolume();
 
 protected:
-	S32	computeLODDetail(F32	distance, F32 radius) const;
+	S32	computeLODDetail(F32	distance, F32 radius);
 	BOOL calcLOD();
 	LLFace* addFace(S32 face_index);
-	static void updateTEData();
+	void updateTEData();
 
 	// stats tracking for render complexity
 	static S32 mRenderComplexity_last;
@@ -376,7 +377,7 @@ private:
 
 	// statics
 public:
-	//static F32 sLODSlopDistanceFactor;// Changing this to zero, effectively disables the LOD transition slop
+	static F32 sLODSlopDistanceFactor;// Changing this to zero, effectively disables the LOD transition slop
 	static F32 sLODFactor;				// LOD scale factor
 	static F32 sDistanceFactor;			// LOD distance factor
 

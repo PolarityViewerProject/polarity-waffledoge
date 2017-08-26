@@ -34,13 +34,14 @@
 
 #include <sstream>
 
-#include "boost/tokenizer.hpp"
+#include <boost/tokenizer.hpp>
 
 #include "indra_constants.h"	// CRASH_BEHAVIOR_ASK, CRASH_SETTING_NAME
 #include "llerror.h"
 #include "llfile.h"
 #include "lltimer.h"
 #include "llstring.h"
+#include "lldxhardware.h"
 #include "lldir.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -48,7 +49,7 @@
 
 #if LL_WINDOWS
 #pragma warning (push)
-#pragma warning (disable : 4091) // 'typedef ': ignored on left of '' when no variable is declared
+#pragma warning (disable : 4091) // compiler thinks might use uninitialized var, but no
 #endif
 #include <client/windows/crash_generation/crash_generation_server.h>
 #include <client/windows/crash_generation/client_info.h>
@@ -64,30 +65,31 @@ const S32 SETTINGS_FILE_VERSION = 101;
 // Windows Message Handlers
 
 // Global Variables:
-HINSTANCE hInst= NULL;					// current instance
+HINSTANCE hInst= nullptr;					// current instance
 TCHAR szTitle[MAX_LOADSTRING];				/* Flawfinder: ignore */		// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];		/* Flawfinder: ignore */		// The title bar text
 
-HWND gHwndReport = NULL;	// Send/Don't Send dialog
-HWND gHwndProgress = NULL;	// Progress window
-HCURSOR gCursorArrow = NULL;
-HCURSOR gCursorWait = NULL;
+std::string gProductName;
+HWND gHwndReport = nullptr;	// Send/Don't Send dialog
+HWND gHwndProgress = nullptr;	// Progress window
+HCURSOR gCursorArrow = nullptr;
+HCURSOR gCursorWait = nullptr;
 BOOL gFirstDialog = TRUE;	// Are we currently handling the Send/Don't Send dialog?
 std::stringstream gDXInfo;
 bool gSendLogs = false;
 
-LLCrashLoggerWindows* LLCrashLoggerWindows::sInstance = NULL;
+LLCrashLoggerWindows* LLCrashLoggerWindows::sInstance = nullptr;
 
 //Conversion from char* to wchar*
 //Replacement for ATL macros, doesn't allocate memory
 //For more info see: http://www.codeguru.com/forum/showthread.php?t=337247
 void ConvertLPCSTRToLPWSTR (const char* pCstring, WCHAR* outStr)
 {
-    if (pCstring != NULL)
+    if (pCstring != nullptr)
     {
         int nInputStrLen = strlen (pCstring);
         // Double NULL Termination
-        int nOutputStrLen = MultiByteToWideChar(CP_ACP, 0, pCstring, nInputStrLen, NULL, 0) + 2;
+        int nOutputStrLen = MultiByteToWideChar(CP_ACP, 0, pCstring, nInputStrLen, nullptr, 0) + 2;
         if (outStr)
         {
             memset (outStr, 0x00, sizeof (WCHAR)*nOutputStrLen);
@@ -122,7 +124,7 @@ void show_progress(const std::string& message)
 void update_messages()
 {
 	MSG msg;
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 	{
 		if (msg.message == WM_QUIT)
 		{
@@ -151,7 +153,7 @@ void LLCrashLoggerWindows::ProcessCaption(HWND hWnd)
 	TCHAR header[MAX_STRING];
 	std::string final;
 	GetWindowText(hWnd, templateText, sizeof(templateText));
-	final = llformat(ll_convert_wide_to_string(templateText, CP_ACP).c_str(), mProductName.c_str());
+	final = llformat(ll_convert_wide_to_string(templateText, CP_ACP).c_str(), gProductName.c_str());
 	ConvertLPCSTRToLPWSTR(final.c_str(), header);
 	SetWindowText(hWnd, header);
 }
@@ -164,7 +166,7 @@ void LLCrashLoggerWindows::ProcessDlgItemText(HWND hWnd, int nIDDlgItem)
 	TCHAR header[MAX_STRING];
 	std::string final;
 	GetDlgItemText(hWnd, nIDDlgItem, templateText, sizeof(templateText));
-	final = llformat(ll_convert_wide_to_string(templateText, CP_ACP).c_str(), mProductName.c_str());
+	final = llformat(ll_convert_wide_to_string(templateText, CP_ACP).c_str(), gProductName.c_str());
 	ConvertLPCSTRToLPWSTR(final.c_str(), header);
 	SetDlgItemText(hWnd, nIDDlgItem, header);
 }
@@ -237,7 +239,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 LLCrashLoggerWindows::LLCrashLoggerWindows(void)
 {
-	if (LLCrashLoggerWindows::sInstance==NULL)
+	if (LLCrashLoggerWindows::sInstance== nullptr)
 	{
 		sInstance = this; 
 	}
@@ -245,18 +247,18 @@ LLCrashLoggerWindows::LLCrashLoggerWindows(void)
 
 LLCrashLoggerWindows::~LLCrashLoggerWindows(void)
 {
-	sInstance = NULL;
+	sInstance = nullptr;
 }
 
 bool LLCrashLoggerWindows::getMessageWithTimeout(MSG *msg, UINT to)
 {
     bool res;
-	UINT_PTR timerID = SetTimer(NULL, NULL, to, NULL);
-    res = GetMessage(msg, NULL, 0, 0);
-    KillTimer(NULL, timerID);
+	UINT_PTR timerID = SetTimer(nullptr, NULL, to, nullptr);
+    res = GetMessage(msg, nullptr, 0, 0);
+    KillTimer(nullptr, timerID);
     if (!res)
         return false;
-    if (msg->message == WM_TIMER && msg->hwnd == NULL && msg->wParam == 1)
+    if (msg->message == WM_TIMER && msg->hwnd == nullptr && msg->wParam == 1)
         return false; //TIMEOUT! You could call SetLastError() or something...
     return true;
 }
@@ -274,7 +276,7 @@ int LLCrashLoggerWindows::processingLoop() {
 	
 	bool result;
 
-    while (1) 
+    while (true) 
 	{
 		result = getMessageWithTimeout(&msg, millisecs);
 		if ( result ) 
@@ -381,25 +383,27 @@ bool LLCrashLoggerWindows::initCrashServer()
 	//Generate a quasi-uniq name for the named pipe.  For our purposes
 	//this is unique-enough with least hassle.  Worst case for duplicate name
 	//is a second instance of the viewer will not do crash reporting. 
-	std::wstring wpipe_name;
-	wpipe_name = mCrashReportPipeStr + std::wstring(wstringize(mPID));
+	std::wstring wpipe_name = mCrashReportPipeStr + std::wstring(std::to_wstring(mPID));
 
-	std::wstring wdump_path( wstringize(dump_path) );
+	std::wstring wdump_path(utf8str_to_utf16str(dump_path) );
 		
 	//Pipe naming conventions:  http://msdn.microsoft.com/en-us/library/aa365783%28v=vs.85%29.aspx
-	mCrashHandler = new CrashGenerationServer( wpipe_name,
-		NULL, 
- 		&LLCrashLoggerWindows::OnClientConnected, this,
-		/*NULL, NULL,    */ &LLCrashLoggerWindows::OnClientDumpRequest, this,
- 		&LLCrashLoggerWindows::OnClientExited, this,
- 		NULL, NULL,
- 		true, &wdump_path);
-	
- 	if (!mCrashHandler) {
+	try
+	{
+		mCrashHandler = new CrashGenerationServer(wpipe_name,
+			nullptr,
+			&LLCrashLoggerWindows::OnClientConnected, this,
+			/*NULL, NULL,    */ &LLCrashLoggerWindows::OnClientDumpRequest, this,
+			&LLCrashLoggerWindows::OnClientExited, this,
+			nullptr, nullptr,
+			true, &wdump_path);
+	}
+	catch (const std::bad_alloc& e)
+	{
 		//Failed to start the crash server.
- 		LL_WARNS() << "Failed to init crash server." << LL_ENDL;
-		return false; 
- 	}
+		LL_WARNS() << "Failed to allocate crash server with exception: " << e.what() << LL_ENDL;
+		return false;
+	}
 
 	// Start servicing clients.
     if (!mCrashHandler->Start()) {
@@ -407,7 +411,7 @@ bool LLCrashLoggerWindows::initCrashServer()
 		return false;
 	}
 
-	LL_INFOS("CRASHREPORT") << "Initialized OOP server with pipe named " << stringize(wpipe_name) << LL_ENDL;
+	LL_INFOS("CRASHREPORT") << "Initialized OOP server with pipe named " << utf16str_to_utf8str(wpipe_name).c_str() << LL_ENDL;
 	return true;
 }
 
@@ -418,14 +422,20 @@ bool LLCrashLoggerWindows::init(void)
 
 	initCrashServer();
 
+	/*
+	mbstowcs( gProductName, mProductName.c_str(), LL_ARRAY_SIZE(gProductName) );
+	gProductName[ LL_ARRY_SIZE(gProductName) - 1 ] = 0;
+	swprintf(gProductName, L"Second Life"); 
+	*/
+
 	LL_INFOS() << "Loading dialogs" << LL_ENDL;
 
 	// Initialize global strings
 	LoadString(mhInst, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(mhInst, IDC_WIN_CRASH_LOGGER, szWindowClass, MAX_LOADSTRING);
 
-	gCursorArrow = LoadCursor(NULL, IDC_ARROW);
-	gCursorWait = LoadCursor(NULL, IDC_WAIT);
+	gCursorArrow = LoadCursor(nullptr, IDC_ARROW);
+	gCursorWait = LoadCursor(nullptr, IDC_WAIT);
 
 	// Register a window class that will be used by our dialogs
 	WNDCLASS wndclass;
@@ -437,7 +447,7 @@ bool LLCrashLoggerWindows::init(void)
 	wndclass.hIcon = LoadIcon(hInst, MAKEINTRESOURCE( IDI_WIN_CRASH_LOGGER ) );
 	wndclass.hCursor = gCursorArrow;
 	wndclass.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
-	wndclass.lpszMenuName = NULL;
+	wndclass.lpszMenuName = nullptr;
 	wndclass.lpszClassName = szWindowClass;
 	RegisterClass( &wndclass );
 	
@@ -452,6 +462,7 @@ void LLCrashLoggerWindows::gatherPlatformSpecificFiles()
 	SetCursor(gCursorWait);
 	// At this point we're responsive enough the user could click the close button
 	SetCursor(gCursorArrow);
+	//mDebugLog["DisplayDeviceInfo"] = gDXHardware.getDisplayInfo();  //Not initialized.
 }
 
 bool LLCrashLoggerWindows::frame()
@@ -461,7 +472,8 @@ bool LLCrashLoggerWindows::frame()
 	// Note: parent hwnd is 0 (the desktop).  No dlg proc.  See Petzold (5th ed) HexCalc example, Chapter 11, p529
 	// win_crash_logger.rc has been edited by hand.
 	// Dialogs defined with CLASS "WIN_CRASH_LOGGER" (must be same as szWindowClass)
-	gHwndProgress = CreateDialog(hInst, MAKEINTRESOURCE(IDD_PROGRESS), 0, NULL);
+	gProductName = mProductName;
+	gHwndProgress = CreateDialog(hInst, MAKEINTRESOURCE(IDD_PROGRESS), nullptr, NULL);
 	ProcessCaption(gHwndProgress);
 	ShowWindow(gHwndProgress, SW_HIDE );
 
@@ -473,7 +485,7 @@ bool LLCrashLoggerWindows::frame()
 	}
 	else if (mCrashBehavior == CRASH_BEHAVIOR_ASK)
 	{
-		gHwndReport = CreateDialog(hInst, MAKEINTRESOURCE(IDD_PREVREPORTBOX), 0, NULL);
+		gHwndReport = CreateDialog(hInst, MAKEINTRESOURCE(IDD_PREVREPORTBOX), nullptr, NULL);
 		// Ignore result
 		(void) SendDlgItemMessage(gHwndReport, IDC_CHECK_AUTO, BM_SETCHECK, 0, 0);
 		// Include the product name in the caption and various dialog items.
@@ -497,7 +509,7 @@ bool LLCrashLoggerWindows::frame()
 		
 		MSG msg;
 		memset(&msg, 0, sizeof(msg));
-		while (!LLApp::isQuitting() && GetMessage(&msg, NULL, 0, 0))
+		while (!LLApp::isQuitting() && GetMessage(&msg, nullptr, 0, 0))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);

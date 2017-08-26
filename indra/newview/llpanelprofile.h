@@ -42,19 +42,15 @@ class LLPanelProfile : public LLPanel
 	LOG_CLASS(LLPanelProfile);
 
 public:
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
+	/*virtual*/ void onOpen(const LLSD& key) override;
 
 	virtual void openPanel(LLPanel* panel, const LLSD& params);
 
 	virtual void closePanel(LLPanel* panel);
 
-	S32 notifyParent(const LLSD& info);
-
-// [RLVa:KB] - Checked: 2010-04-20 (RLVa-1.2.0f) | Added: RVLa-1.2.0f
-	const LLUUID& getAvatarId() const { return mAvatarId; }
-// [/RLVa:KB]
+	S32 notifyParent(const LLSD& info) override;
 
 protected:
 
@@ -62,7 +58,7 @@ protected:
 
 	virtual void onTabSelected(const LLSD& param);
 
-//	const LLUUID& getAvatarId() { return mAvatarId; }
+	const LLUUID& getAvatarId() { return mAvatarId; }
 
 	void setAvatarId(const LLUUID& avatar_id) { mAvatarId = avatar_id; }
 

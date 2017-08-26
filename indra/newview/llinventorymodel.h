@@ -27,13 +27,9 @@
 #ifndef LL_LLINVENTORYMODEL_H
 #define LL_LLINVENTORYMODEL_H
 
-#include "llassettype.h"
 #include "llfoldertype.h"
-#include "llframetimer.h"
 #include "lluuid.h"
-#include "llpermissionsflags.h"
 #include "llviewerinventory.h"
-#include "llstring.h"
 #include "llmd5.h"
 #include "httpcommon.h"
 #include "httprequest.h"
@@ -92,10 +88,10 @@ public:
 
 	protected:
 		FetchItemHttpHandler(const FetchItemHttpHandler &) = delete;				// Not defined
-		void operator=(const FetchItemHttpHandler &) = delete;					// Not defined
+		FetchItemHttpHandler& operator=(const FetchItemHttpHandler &) = delete;		// Not defined
 
 	public:
-		virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+		void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response) override;
 
 	private:
 		void processData(LLSD & body, LLCore::HttpResponse * response);
@@ -239,24 +235,16 @@ public:
 	};
 	// Simpler existence test if matches don't actually need to be collected.
 	bool hasMatchingDirectDescendent(const LLUUID& cat_id,
-									 LLInventoryCollectFunctor& filter);
+									 LLInventoryCollectFunctor& filter) const;
 	void collectDescendents(const LLUUID& id,
 							cat_array_t& categories,
 							item_array_t& items,
 							BOOL include_trash);
-// [RLVa:KB] - Checked: 2013-04-15 (RLVa-1.4.8)
 	void collectDescendentsIf(const LLUUID& id,
 							  cat_array_t& categories,
 							  item_array_t& items,
 							  BOOL include_trash,
-							  LLInventoryCollectFunctor& add,
-							  bool follow_folder_links = false);
-// [/RLVa:KB]
-//	void collectDescendentsIf(const LLUUID& id,
-//							  cat_array_t& categories,
-//							  item_array_t& items,
-//							  BOOL include_trash,
-//							  LLInventoryCollectFunctor& add);
+							  LLInventoryCollectFunctor& add);
 
 	// Collect all items in inventory that are linked to item_id.
 	// Assumes item_id is itself not a linked item.
@@ -280,6 +268,10 @@ public:
 		bool create_folder,
 		const LLUUID& root_id);
 
+	const LLUUID findCategoryUUIDForNameInRoot(std::string const& folder_name,
+											   bool create_folder,
+											   LLUUID const& root_id);
+
 	// Returns the uuid of the category that specifies 'type' as what it 
 	// defaults to containing. The category is not necessarily only for that type. 
 	//    NOTE: If create_folder is true, this will create a new inventory category 
@@ -293,6 +285,10 @@ public:
 	// Returns user specified category for uploads, returns default id if there are no
 	// user specified one or it does not exist, creates default category if it is missing.
 	const LLUUID findUserDefinedCategoryUUIDForType(LLFolderType::EType preferred_type);
+
+	// Returns the uuid of the category if found, LLUUID::null is not
+	const LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,
+												const std::string& name) const;
 	
 	// Get whatever special folder this object is a child of, if any.
 	const LLViewerInventoryCategory *getFirstNondefaultParent(const LLUUID& obj_id) const;
@@ -414,6 +410,7 @@ public:
 	/// removeItem() or removeCategory(), whichever is appropriate
 	void removeObject(const LLUUID& object_id);
 
+	// "TrashIsFull" when trash exceeds maximum capacity
 	void checkTrashOverflow();
 
 protected:
@@ -434,12 +431,6 @@ public:
 	// Gets an iterator on an item vector knowing only the item UUID.
 	// Returns end() of the vector if not found.
 	static LLInventoryModel::item_array_t::iterator findItemIterByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id);
-
-
-	// Rearranges Landmarks inside Favorites folder.
-	// Moves source landmark before target one.
-	void rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id);
-	//void saveItemsOrder(const LLInventoryModel::item_array_t& items);
 
 	//--------------------------------------------------------------------
 	// Creation
@@ -636,7 +627,9 @@ public:
 	static void processRemoveInventoryObjects(LLMessageSystem* msg, void**);
 	static void processSaveAssetIntoInventory(LLMessageSystem* msg, void**);
 	static void processBulkUpdateInventory(LLMessageSystem* msg, void**);
+	static void processInventoryDescendents(LLMessageSystem* msg, void**);
 	static void processMoveInventoryItem(LLMessageSystem* msg, void**);
+	static void processFetchInventoryReply(LLMessageSystem* msg, void**);
 protected:
 	bool messageUpdateCore(LLMessageSystem* msg, bool do_accounting, U32 mask = 0x0);
 

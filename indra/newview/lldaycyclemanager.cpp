@@ -32,10 +32,6 @@
 
 #include "lldiriterator.h"
 
-// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-#include <boost/algorithm/string.hpp>
-// [/RLVa:KB]
-
 void LLDayCycleManager::getPresetNames(preset_name_list_t& names) const
 {
 	names.clear();
@@ -65,18 +61,6 @@ void LLDayCycleManager::getPresetNames(preset_name_list_t& user, preset_name_lis
 		}
 	}
 }
-
-// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-const std::string& LLDayCycleManager::findPreset(const std::string& strPresetName)
-{
-	for (dc_map_t::const_iterator itCycle = mDayCycleMap.begin(); itCycle != mDayCycleMap.end(); ++itCycle)
-	{
-		if (boost::iequals(itCycle->first, strPresetName))
-			return itCycle->first;
-	}
-	return LLStringUtil::null;
-}
-// [/RLVa:KB]
 
 void LLDayCycleManager::getUserPresetNames(preset_name_list_t& user) const
 {
@@ -198,7 +182,7 @@ void LLDayCycleManager::loadPresets(const std::string& dir)
 {
 	LLDirIterator dir_iter(dir, "*.xml");
 
-	while (1)
+	while (true)
 	{
 		std::string file;
 		if (!dir_iter.next(file)) break; // no more files
@@ -225,7 +209,6 @@ bool LLDayCycleManager::addPreset(const std::string& name, const LLSD& data)
 {
 	if (name.empty())
 	{
-		//llassert(name.empty());
 		return false;
 	}
 

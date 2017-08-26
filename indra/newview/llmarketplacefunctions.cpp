@@ -58,9 +58,12 @@ namespace {
 
     static std::string getMarketplaceDomain()
     {
-        std::string domain = "secondlife.com";
-
-        if (!LLGridManager::getInstance()->isInProductionGrid())
+        std::string domain = "undefined";
+        if (LLGridManager::getInstance()->isInSLMain())
+        {
+            domain = "secondlife.com";
+        }
+        else if (LLGridManager::getInstance()->isInSLBeta())
         {
             const std::string& grid_id = LLGridManager::getInstance()->getGridId();
             const std::string& grid_id_lower = utf8str_tolower(grid_id);
@@ -123,7 +126,6 @@ namespace {
         {
             // Prompt the user with the warning (so they know why things are failing)
             LLSD subs;
-            subs["[ERROR_REASON]"] = reason;
             // We do show long descriptions in the alert (unlikely to be readable). The description string will be in the log though.
             std::string description;
             if (result.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT))
@@ -146,6 +148,16 @@ namespace {
             else
             {
                 description = result.asString();
+            }
+            std::string reason_lc = reason;
+            LLStringUtil::toLower(reason_lc);
+            if (!description.empty() && reason_lc.find("unknown") != std::string::npos)
+            {
+                subs["[ERROR_REASON]"] = "";
+            }
+            else
+            {
+                subs["[ERROR_REASON]"] = "'" + reason +"'\n";
             }
             subs["[ERROR_DESCRIPTION]"] = description;
             LLNotificationsUtil::add("MerchantTransactionFailed", subs);
@@ -271,7 +283,7 @@ namespace LLMarketplaceImport
 
         if (buildHeaders)
         {
-            httpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
+            httpHeaders = boost::make_shared<LLCore::HttpHeaders>();
 
             httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
             httpHeaders->append(HTTP_OUT_HEADER_COOKIE, sMarketplaceCookie);
@@ -444,15 +456,15 @@ LLMarketplaceInventoryImporter::LLMarketplaceInventoryImporter()
 	, mImportInProgress(false)
 	, mInitialized(false)
 	, mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
-	, mErrorInitSignal(NULL)
-	, mStatusChangedSignal(NULL)
-	, mStatusReportSignal(NULL)
+	, mErrorInitSignal(nullptr)
+	, mStatusChangedSignal(nullptr)
+	, mStatusReportSignal(nullptr)
 {
 }
 
 boost::signals2::connection LLMarketplaceInventoryImporter::setInitializationErrorCallback(const status_report_signal_t::slot_type& cb)
 {
-	if (mErrorInitSignal == NULL)
+	if (mErrorInitSignal == nullptr)
 	{
 		mErrorInitSignal = new status_report_signal_t();
 	}
@@ -462,7 +474,7 @@ boost::signals2::connection LLMarketplaceInventoryImporter::setInitializationErr
 
 boost::signals2::connection LLMarketplaceInventoryImporter::setStatusChangedCallback(const status_changed_signal_t::slot_type& cb)
 {
-	if (mStatusChangedSignal == NULL)
+	if (mStatusChangedSignal == nullptr)
 	{
 		mStatusChangedSignal = new status_changed_signal_t();
 	}
@@ -472,7 +484,7 @@ boost::signals2::connection LLMarketplaceInventoryImporter::setStatusChangedCall
 
 boost::signals2::connection LLMarketplaceInventoryImporter::setStatusReportCallback(const status_report_signal_t::slot_type& cb)
 {
-	if (mStatusReportSignal == NULL)
+	if (mStatusReportSignal == nullptr)
 	{
 		mStatusReportSignal = new status_report_signal_t();
 	}
@@ -597,7 +609,7 @@ class LLMarketplaceInventoryObserver : public LLInventoryObserver
 public:
 	LLMarketplaceInventoryObserver() {}
 	virtual ~LLMarketplaceInventoryObserver() {}
-	virtual void changed(U32 mask);
+	void changed(U32 mask) override;
 };
 
 void LLMarketplaceInventoryObserver::changed(U32 mask)
@@ -706,10 +718,10 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, 
 // Data map
 LLMarketplaceData::LLMarketplaceData() : 
  mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED),
+ mStatusUpdatedSignal(nullptr),
+ mDirtyCount(false),
  mMarketPlaceDataFetched(MarketplaceFetchCodes::MARKET_FETCH_NOT_DONE),
- mStatusUpdatedSignal(NULL),
- mDataFetchedSignal(NULL),
- mDirtyCount(false)
+ mDataFetchedSignal(nullptr)
 {
     mInventoryObserver = new LLMarketplaceInventoryObserver;
     gInventory.addObserver(mInventoryObserver);
@@ -742,7 +754,7 @@ LLSD LLMarketplaceData::getMarketplaceStringSubstitutions()
 
 void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& cb)
 {
-	if (mStatusUpdatedSignal == NULL)
+	if (mStatusUpdatedSignal == nullptr)
 	{
 		mStatusUpdatedSignal = new status_updated_signal_t();
 	}
@@ -824,7 +836,7 @@ void LLMarketplaceData::getMerchantStatusCoro()
 
 void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot_type& cb)
 {
-	if (mDataFetchedSignal == NULL)
+	if (mDataFetchedSignal == nullptr)
 	{
 		mDataFetchedSignal = new status_updated_signal_t();
 	}

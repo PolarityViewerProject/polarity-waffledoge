@@ -45,7 +45,7 @@ public:
 	static LLViewerShaderMgr * instance();
 	static void releaseInstance();
 
-	void initAttribsAndUniforms(void);
+	void initAttribsAndUniforms(void) override;
 	void setShaders();
 	void unloadShaders();
 	S32 getVertexShaderLevel(S32 type);
@@ -122,9 +122,9 @@ public:
 	shader_iter beginShaders() const;
 	shader_iter endShaders() const;
 
-	/* virtual */ std::string getShaderDirPrefix(void);
+	/* virtual */ std::string getShaderDirPrefix(void) override;
 
-	/* virtual */ void updateShaderUniforms(LLGLSLShader * shader);
+	/* virtual */ void updateShaderUniforms(LLGLSLShader * shader) override;
 
 private:
 	
@@ -172,7 +172,7 @@ extern LLGLSLShader			gGlowCombineFXAAProgram;
 extern LLGLSLShader			gDebugProgram;
 extern LLGLSLShader			gClipProgram;
 extern LLGLSLShader			gDownsampleDepthProgram;
-extern LLGLSLShader			gDownsampleDepthRectProgram;
+extern LLGLSLShader			gBenchmarkProgram;
 
 //output tex0[tc0] + tex1[tc1]
 extern LLGLSLShader			gTwoTextureAddProgram;
@@ -255,7 +255,6 @@ extern LLGLSLShader			gHighlightSpecularProgram;
 // avatar shader handles
 extern LLGLSLShader			gAvatarProgram;
 extern LLGLSLShader			gAvatarWaterProgram;
-extern LLGLSLShader			gAvatarEyeballProgram;
 extern LLGLSLShader			gAvatarPickProgram;
 extern LLGLSLShader			gImpostorProgram;
 
@@ -283,6 +282,8 @@ extern LLGLSLShader			gDeferredLightProgram;
 extern LLGLSLShader			gDeferredMultiLightProgram[LL_DEFERRED_MULTI_LIGHT_COUNT];
 extern LLGLSLShader			gDeferredSpotLightProgram;
 extern LLGLSLShader			gDeferredMultiSpotLightProgram;
+extern LLGLSLShader			gDeferredSSAOProgram;
+extern LLGLSLShader			gDeferredDownsampleDepthNearestProgram;
 extern LLGLSLShader			gDeferredSunProgram;
 extern LLGLSLShader			gDeferredBlurLightProgram;
 extern LLGLSLShader			gDeferredAvatarProgram;
@@ -316,12 +317,6 @@ extern LLGLSLShader			gDeferredFullbrightShinyProgram;
 extern LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;
 extern LLGLSLShader			gDeferredSkinnedFullbrightProgram;
 extern LLGLSLShader			gNormalMapGenProgram;
-
-#ifdef GAUSSIAN_BLUR
-// <polarity> Gaussian blur shader
-extern LLGLSLShader			gGaussianBlurProgram;
-// </polarity>
-#endif
 
 // Deferred materials shaders
 extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];

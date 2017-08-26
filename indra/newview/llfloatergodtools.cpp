@@ -69,7 +69,6 @@
 #include "llvlcomposition.h"
 #include "llsurface.h"
 #include "llviewercontrol.h"
-#include "lluictrlfactory.h"
 #include "lltrans.h"
 
 #include "lltransfertargetfile.h"
@@ -117,6 +116,8 @@ void LLFloaterGodTools::refreshAll()
 
 LLFloaterGodTools::LLFloaterGodTools(const LLSD& key)
 :	LLFloater(key),
+	mPanelRegionTools(nullptr),
+	mPanelObjectTools(nullptr),
 	mCurrentHost(LLHost()),
 	mUpdateTimer()
 {
@@ -531,7 +532,7 @@ void LLPanelRegionTools::onSaveState(void* userdata)
 		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		gMessageSystem->nextBlockFast(_PREHASH_DataBlock);
-		gMessageSystem->addStringFast(_PREHASH_Filename, NULL);
+		gMessageSystem->addStringFast(_PREHASH_Filename, nullptr);
 		gAgent.sendReliableMessage();
 	}
 }
@@ -1023,8 +1024,8 @@ void LLPanelObjectTools::onGetTopColliders()
 	
 	if (gAgent.isGodlike())
 	{
-		instance->openFloater();
-		instance->setMode(STAT_REPORT_TOP_COLLIDERS);
+		LLFloaterReg::showInstance("top_objects");
+		LLFloaterTopObjects::setMode(STAT_REPORT_TOP_COLLIDERS);
 		instance->onRefresh();
 	}
 }
@@ -1036,8 +1037,8 @@ void LLPanelObjectTools::onGetTopScripts()
 	
 	if (gAgent.isGodlike()) 
 	{
-		instance->openFloater();
-		instance->setMode(STAT_REPORT_TOP_SCRIPTS);
+		LLFloaterReg::showInstance("top_objects");
+		LLFloaterTopObjects::setMode(STAT_REPORT_TOP_SCRIPTS);
 		instance->onRefresh();
 	}
 }
@@ -1147,7 +1148,7 @@ void LLPanelObjectTools::onClickSetBySelection(void* data)
 	if (!panelp) return;
 
 	const BOOL non_root_ok = TRUE; 
-	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode(NULL, non_root_ok);
+	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode(nullptr, non_root_ok);
 	if (!node) return;
 
 	std::string owner_name;
@@ -1325,7 +1326,7 @@ void LLPanelRequestTools::sendRequest(const LLHost& host)
 								  host,
 								  FALSE,
 								  terrain_download_done,
-								  NULL);
+								  nullptr);
 	}
 	else
 	{

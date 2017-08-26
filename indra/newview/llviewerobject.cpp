@@ -104,13 +104,8 @@
 #include "llmediaentry.h"
 #include "llfloaterperms.h"
 #include "llvocache.h"
+#include "llviewernetwork.h"
 #include "llcleanup.h"
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-#include "rlvactions.h"
-#include "rlvcommon.h"
-#include "rlvlocks.h"
-// [/RLVa:KB]
-#include "fsassetblacklist.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -163,7 +158,11 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 			{
 				gAgentAvatarp = new LLVOAvatarSelf(id, pcode, regionp);
 				gAgentAvatarp->initInstance();
-				gAgentWearables.setAvatarObject(gAgentAvatarp);
+				if (LLGridManager::getInstance()->isInSecondlife())
+				{
+					gAgentWearables.setAvatarObject(gAgentAvatarp);
+
+				}
 			}
 			else 
 			{
@@ -702,12 +701,6 @@ bool LLViewerObject::isReturnable()
 		return false;
 	}
 		
-// [RLVa:KB] - Checked: 2011-05-28 (RLVa-1.4.0a) | Added: RLVa-1.4.0a
-	if ( (RlvActions::isRlvEnabled()) && (!rlvCanDeleteOrReturn(this)) )
-	{
-		return false;
-	}
-// [/RLVa:KB]
 	std::vector<LLBBox> boxes;
 	boxes.push_back(LLBBox(getPositionRegion(), getRotationRegion(), getScale() * -0.5f, getScale() * 0.5f).getAxisAligned());
 	for (child_list_t::iterator iter = mChildList.begin();
@@ -717,13 +710,13 @@ bool LLViewerObject::isReturnable()
 		boxes.push_back( LLBBox(child->getPositionRegion(), child->getRotationRegion(), child->getScale() * -0.5f, child->getScale() * 0.5f).getAxisAligned());
 	}
 
-	bool result = (mRegionp && mRegionp->objectIsReturnable(getPositionRegion(), boxes)) ? 1 : 0;
+	bool result = (mRegionp && mRegionp->objectIsReturnable(getPositionRegion(), boxes));
 	
 	if ( !result )
 	{		
 		//Get list of neighboring regions relative to this vo's region
 		std::vector<LLViewerRegion*> uniqueRegions;
-		mRegionp->getNeighboringRegions( uniqueRegions );
+		if (mRegionp) mRegionp->getNeighboringRegions( uniqueRegions );
 	
 		//Build aabb's - for root and all children
 		std::vector<PotentialReturnableObject> returnables;
@@ -925,10 +918,7 @@ void LLViewerObject::addThisAndNonJointChildren(std::vector<LLViewerObject*>& ob
 	}
 }
 
-//BOOL LLViewerObject::isChild(LLViewerObject *childp) const
-// [RLVa:KB] - Checked: 2011-05-28 (RLVa-1.4.0a) | Added: RLVa-1.4.0a
-BOOL LLViewerObject::isChild(const LLViewerObject *childp) const
-// [/RLVa:KB]
+BOOL LLViewerObject::isChild(LLViewerObject *childp) const
 {
 	for (child_list_t::const_iterator iter = mChildList.begin();
 		 iter != mChildList.end(); iter++)
@@ -1151,7 +1141,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	U16 valswizzle[4];
 #endif
 	U16	*val;
-	const F32 size = LLWorld::getInstance()->getRegionWidthInMeters();	
+	const F32 size = mRegionp->getWidth();
 	const F32 MAX_HEIGHT = LLWorld::getInstance()->getRegionMaxHeight();
 	const F32 MIN_HEIGHT = LLWorld::getInstance()->getRegionMinHeight();
 	S32 length;
@@ -1447,12 +1437,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					coloru.mV[3] = 255 - coloru.mV[3];
 					mText->setColor(LLColor4(coloru));
 					mText->setString(temp_string);
-// [RLVa:KB] - Checked: 2010-03-27 (RLVa-1.4.0a) | Added: RLVa-1.0.0f
-					if (RlvActions::isRlvEnabled())
-					{
-						mText->setObjectText(temp_string);
-					}
-// [/RLVa:KB]
 
 					mHudText = temp_string;
 					mHudTextColor = LLColor4(coloru);
@@ -1835,12 +1819,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					coloru.mV[3] = 255 - coloru.mV[3];
 					mText->setColor(LLColor4(coloru));
 					mText->setString(temp_string);
-// [RLVa:KB] - Checked: 2010-03-27 (RLVa-1.4.0a) | Added: RLVa-1.0.0f
-					if (RlvActions::isRlvEnabled())
-					{
-						mText->setObjectText(temp_string);
-					}
-// [/RLVa:KB]
 
                     mHudText = temp_string;
                     mHudTextColor = LLColor4(coloru);
@@ -2033,25 +2011,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 								gObjectList.killObject(this);
 								return retval;
 							}
-// [RLVa:KB] - Checked: 2010-03-16 (RLVa-1.1.0k) | Added: RLVa-1.1.0k
-							if ( (RlvActions::isRlvEnabled()) && (sent_parentp->isAvatar()) && (sent_parentp->getID() == gAgent.getID()) )
-							{
-								// Rezzed object that's being worn as an attachment (we're assuming this will be due to llAttachToAvatar())
-								S32 idxAttachPt = ATTACHMENT_ID_FROM_STATE(getState());
-								if (gRlvAttachmentLocks.isLockedAttachmentPoint(idxAttachPt, RLV_LOCK_ADD))
-								{
-									// If this will end up on an "add locked" attachment point then treat the attach as a user action
-									LLNameValue* nvItem = getNVPair("AttachItemID");
-									if (nvItem)
-									{
-										LLUUID idItem(nvItem->getString());
-										// URGENT-RLVa: [RLVa-1.2.0] At the moment llAttachToAvatar always seems to *add*
-										if (idItem.notNull())
-											RlvAttachmentLockWatchdog::instance().onWearAttachment(idItem, RLV_WEAR_ADD);
-									}
-								}
-							}
-// [/RLVa:KB]
 							sent_parentp->addChild(this);
 							// make sure this object gets a non-damped update
 							if (sent_parentp->mDrawable.notNull())
@@ -2710,10 +2669,7 @@ void LLViewerObject::doUpdateInventory(
 	LLViewerInventoryItem* old_item = NULL;
 	if(TASK_INVENTORY_ITEM_KEY == key)
 	{
-		// <FS:ND> Do not use C-Style cast for polymorphic upcasting
-//		old_item = (LLViewerInventoryItem*)getInventoryObject(item->getUUID());
 		old_item = dynamic_cast<LLViewerInventoryItem*>(getInventoryObject(item->getUUID()));
-		// </FS:ND>
 	}
 	else if(TASK_INVENTORY_ASSET_KEY == key)
 	{
@@ -2917,10 +2873,9 @@ void LLViewerObject::requestInventory()
 		delete mInventory;
 		mInventory = NULL;
 	}
-
 	if(mInventory)
 	{
-		// inventory is either up to date or doesn't has a listener
+		// Inventory is either up to date or doesn't have a listener
 		// if it is dirty, leave it this way in case we gain a listener
 		doInventoryCallback();
 	}
@@ -3069,15 +3024,6 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 		if (object->loadTaskInvFile(ft->mFilename))
 		{
 
-		// <FS:ND> Crashfix, not sure why object->mInventory can be 0
-		if( !object->mInventory )
-		{
-			LL_WARNS() << "object->mInventory == 0" << LL_ENDL;
-			delete ft;
-			return;
-		}
-		// </FS:ND>
-
 			LLInventoryObject::object_list_t::iterator it = object->mInventory->begin();
 			LLInventoryObject::object_list_t::iterator end = object->mInventory->end();
 			std::list<LLUUID>& pending_lst = object->mPendingInventoryItemsIDs;
@@ -3087,10 +3033,7 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 				LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(it->get());
 				if(item && item->getType() != LLAssetType::AT_CATEGORY)
 				{
-					// <FS> Copy & paste error
-					//std::list<LLUUID>::iterator id_it = std::find(pending_lst.begin(), pending_lst.begin(), item->getAssetUUID());
 					std::list<LLUUID>::iterator id_it = std::find(pending_lst.begin(), pending_lst.end(), item->getAssetUUID());
-					// </FS>
 					if (id_it != pending_lst.end())
 					{
 						pending_lst.erase(id_it);
@@ -3349,8 +3292,7 @@ LLViewerInventoryItem* LLViewerObject::getInventoryItemByAsset(const LLUUID& ass
 		for( ; it != end; ++it)
 		{
 			LLInventoryObject* obj = *it;
-			if(obj->getType() != LLAssetType::AT_CATEGORY
-			   && obj->getType() != LLAssetType::AT_NONE ) // <FS:ND> check for AT_NONE too loadTaskInvFile can create such objects for "Contants"
+			if(obj->getType() != LLAssetType::AT_CATEGORY)
 			{
 				// *FIX: gank-ass down cast!
 				item = (LLViewerInventoryItem*)obj;
@@ -3399,7 +3341,7 @@ void LLViewerObject::setPixelAreaAndAngle(LLAgent &agent)
 	// to try to get a min distance from face, subtract min_scale/2 from the range.
 	// This means we'll load too much detail sometimes, but that's better than not enough
 	// I don't think there's a better way to do this without calculating distance per-poly
-	F32 range = sqrt(dx*dx + dy*dy + dz*dz) - min_scale/2;
+	F32 range = sqrt(dx*dx + dy*dy + dz*dz) - min_scale/2.f;
 
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	if (range < 0.001f || isHUDAttachment())		// range == zero
@@ -3815,11 +3757,6 @@ LLNameValue *LLViewerObject::getNVPair(const std::string& name) const
 	char		*canonical_name;
 
 	canonical_name = gNVNameTable.addString(name);
-	// It's possible for addString to return NULL.
-	if (canonical_name == NULL)
-	{
-		return NULL;
-	}
 
 	// If you access a map with a name that isn't in it, it will add the name and a null pointer.
 	// So first check if the data is in the map.
@@ -4464,6 +4401,8 @@ void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 
 S32 LLViewerObject::setTETextureCore(const U8 te, LLViewerTexture *image)
 {
+	if (!image)
+		return 0;
 	const LLUUID& uuid = image->getID();
 	S32 retval = 0;
 	if (uuid != getTE(te)->getID() ||
@@ -5228,7 +5167,7 @@ void LLViewerObject::setParticleSource(const LLPartSysData& particle_parameters,
 			LLViewerTexture* image;
 			if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
 			{
-				image = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+				image = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.tga");
 			}
 			else
 			{
@@ -5406,14 +5345,6 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		}
 		return;
 	}
-
-	// <FS:Ansariel> Asset blacklist
-	if (FSAssetBlacklist::getInstance()->isBlacklisted(audio_uuid, LLAssetType::AT_SOUND))
-	{
-		return;
-	}
-	// </FS:Ansariel>
-
 	if (flags & LL_SOUND_FLAG_LOOP
 		&& mAudioSourcep && mAudioSourcep->isLoop() && mAudioSourcep->getCurrentData()
 		&& mAudioSourcep->getCurrentData()->getID() == audio_uuid)
@@ -5761,7 +5692,7 @@ BOOL LLViewerObject::permYouOwner() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLGridManager::getInstance()->isInProductionGrid()
+		if (LLGridManager::getInstance()->isInSLBeta()
             && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
 		{
 			return TRUE;
@@ -5798,7 +5729,7 @@ BOOL LLViewerObject::permOwnerModify() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLGridManager::getInstance()->isInProductionGrid()
+		if (!LLGridManager::getInstance()->isInSLMain()
             && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
 	{
 			return TRUE;
@@ -5822,7 +5753,7 @@ BOOL LLViewerObject::permModify() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLGridManager::getInstance()->isInProductionGrid()
+		if (!LLGridManager::getInstance()->isInSLMain()
             && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
 	{
 			return TRUE;
@@ -5846,7 +5777,7 @@ BOOL LLViewerObject::permCopy() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLGridManager::getInstance()->isInProductionGrid()
+		if (LLGridManager::getInstance()->isInSLBeta()
             && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
 		{
 			return TRUE;
@@ -5870,7 +5801,7 @@ BOOL LLViewerObject::permMove() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLGridManager::getInstance()->isInProductionGrid()
+		if (LLGridManager::getInstance()->isInSLBeta()
             && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
 		{
 			return TRUE;
@@ -5894,7 +5825,7 @@ BOOL LLViewerObject::permTransfer() const
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLGridManager::getInstance()->isInProductionGrid()
+		if (LLGridManager::getInstance()->isInSLBeta()
             && (gAgent.getGodLevel() >= GOD_MAINTENANCE))
 		{
 			return TRUE;
@@ -5913,10 +5844,7 @@ BOOL LLViewerObject::permTransfer() const
 // given you modify rights to.  JC
 BOOL LLViewerObject::allowOpen() const
 {
-// [RLVa:KB] - Checked: 2010-11-29 (RLVa-1.3.0c) | Modified: RLVa-1.3.0c
-	return !flagInventoryEmpty() && (permYouOwner() || permModify()) && ((!RlvActions::isRlvEnabled()) || (RlvActions::canEdit(this)));
-// [/RLVa:KB]
-//	return !flagInventoryEmpty() && (permYouOwner() || permModify());
+	return !flagInventoryEmpty() && (permYouOwner() || permModify());
 }
 
 LLViewerObject::LLInventoryCallbackInfo::~LLInventoryCallbackInfo()
@@ -6352,6 +6280,24 @@ void LLViewerObject::resetChildrenPosition(const LLVector3& offset, BOOL simplif
 BOOL	LLViewerObject::isTempAttachment() const
 {
 	return (mID.notNull() && (mID == mAttachmentItemID));
+}
+
+BOOL LLViewerObject::isHiglightedOrBeacon() const
+{
+	if (LLFloaterReg::instanceVisible("beacons") && (gPipeline.getRenderBeacons(NULL) || gPipeline.getRenderHighlights(NULL)))
+	{
+		BOOL has_media = (getMediaType() == LLViewerObject::MEDIA_SET);
+		BOOL is_scripted = !isAvatar() && !getParent() && flagScripted();
+		BOOL is_physical = !isAvatar() && flagUsePhysics();
+
+		return (isParticleSource() && gPipeline.getRenderParticleBeacons(NULL))
+				|| (isAudioSource() && gPipeline.getRenderSoundBeacons(NULL))
+				|| (has_media && gPipeline.getRenderMOAPBeacons(NULL))
+				|| (is_scripted && gPipeline.getRenderScriptedBeacons(NULL))
+				|| (is_scripted && flagHandleTouch() && gPipeline.getRenderScriptedTouchBeacons(NULL))
+				|| (is_physical && gPipeline.getRenderPhysicalBeacons(NULL));
+	}
+	return FALSE;
 }
 
 

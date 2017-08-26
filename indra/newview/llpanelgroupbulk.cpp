@@ -47,8 +47,6 @@
 #include "lltextbox.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
-#include "lluictrlfactory.h"
-#include "llviewerwindow.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,16 +54,16 @@
 //////////////////////////////////////////////////////////////////////////
 LLPanelGroupBulkImpl::LLPanelGroupBulkImpl(const LLUUID& group_id) :
 	mGroupID(group_id),
-	mBulkAgentList(NULL),
-	mOKButton(NULL),
-	mRemoveButton(NULL),
-	mGroupName(NULL),
+	mBulkAgentList(nullptr),
+	mOKButton(nullptr),
+	mRemoveButton(nullptr),
+	mGroupName(nullptr),
 	mLoadingText(),
 	mTooManySelected(),
-	mCloseCallback(NULL),
-	mCloseCallbackUserData(NULL),
+	mCloseCallback(nullptr),
+	mCloseCallbackUserData(nullptr),
 	mAvatarNameCacheConnection(),
-	mRoleNames(NULL),
+	mRoleNames(nullptr),
 	mOwnerWarning(),
 	mAlreadyInGroup(),
 	mConfirmedOwnerInvite(false),
@@ -118,7 +116,7 @@ void LLPanelGroupBulkImpl::callbackClickCancel(void* userdata)
 		(*(selfp->mCloseCallback))(selfp->mCloseCallbackUserData);
 }
 
-void LLPanelGroupBulkImpl::callbackSelect(LLUICtrl* ctrl, void* userdata)
+void LLPanelGroupBulkImpl::callbackSelect(void* userdata)
 {
 	LLPanelGroupBulkImpl* selfp = (LLPanelGroupBulkImpl*)userdata;
 	if (selfp) 

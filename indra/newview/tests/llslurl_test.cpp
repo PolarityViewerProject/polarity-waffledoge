@@ -27,13 +27,13 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#if LL_SLURL_TESTS
 #include "../llviewerprecompiledheaders.h"
 #include "../llviewernetwork.h"
 #include "../test/lltut.h"
 #include "../llslurl.h"
-#include "../../llxml/llcontrol.h"
-#include "llsdserialize.h"
+#include "llxmlnode.h"
+#include "llcontrol.h"
+#include "llnotificationsutil.h"
 
 namespace
 {
@@ -42,48 +42,6 @@ namespace
 static const char * const TEST_FILENAME("llslurl_test.xml");
 
 }
-
-//
-// Stub implementation for LLTrans
-//
-class LLTrans
-{
-public:
-	static std::string getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args);
-};
-
-std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args)
-{
-	return std::string();
-}
-
-// [RLVa:KB] - Checked: 2010-11-12 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-// Stub implementation to get the test to compile properly
-#include "../rlvhandler.h"
-
-const std::string& RlvStrings::getString(const std::string& strStringName)
-{
-	static const std::string strMissing = "(Missing RLVa string)";
-	return strMissing;
-}
-
-bool RlvUtil::isNearbyRegion(const std::string& strRegion)
-{
-	return false;
-}
-
-RlvHandler::RlvHandler() : m_pGCTimer(NULL)
-{
-	// Array auto-initialization to 0 is non-standard? (Compiler warning in VC-8.0)
-	memset(m_Behaviours, 0, sizeof(S16) * RLV_BHVR_COUNT);
-}
-
-RlvHandler::~RlvHandler()
-{
-}
-
-RlvHandler gRlvHandler;
-// [/RLVa:KB]
 
 //----------------------------------------------------------------------------
 // Mock objects for the dependencies of the code we're testing
@@ -95,14 +53,16 @@ LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,
                                    LLControlVariable::ePersist persist) {return NULL;}
-void LLControlGroup::setString(const std::string& name, const std::string& val){}
+void LLControlGroup::setString(const std::string& name, const std::string& val) {}
+LLNotificationPtr LLNotificationsUtil::add(const std::string& name, const LLSD& substitutions) { return NULL; }
+
 
 std::string gCmdLineLoginURI;
 std::string gCmdLineGridChoice;
 std::string gCmdLineHelperURI;
 std::string gLoginPage;
 std::string gCurrentGrid;
-std::string LLControlGroup::getString(const std::string& name)
+std::string LLControlGroup::getString(const std::string& name) const
 {
 	if (name == "CmdLineGridChoice")
 		return gCmdLineGridChoice;
@@ -115,7 +75,7 @@ std::string LLControlGroup::getString(const std::string& name)
 	return "";
 }
 
-LLSD LLControlGroup::getLLSD(const std::string& name)
+LLSD LLControlGroup::getLLSD(const std::string& name) const
 {
 	if (name == "CmdLineLoginURI")
 	{
@@ -127,9 +87,9 @@ LLSD LLControlGroup::getLLSD(const std::string& name)
 	return LLSD();
 }
 
-LLPointer<LLControlVariable> LLControlGroup::getControl(const std::string& name)
+LLPointer<LLControlVariable> LLControlGroup::getControl(const std::string& name) const
 {
-	ctrl_name_table_t::iterator iter = mNameTable.find(name);
+	ctrl_name_table_t::const_iterator iter = mNameTable.find(name);
 	return iter == mNameTable.end() ? LLPointer<LLControlVariable>() : iter->second;
 }
 
@@ -163,6 +123,19 @@ const char *gSampleGridFile =
 	"      <key>keyname</key><string>my.grid.com</string>"
 	"      <key>credential_type</key><string>agent</string>"
 	"      <key>grid_login_id</key><string>MyGrid</string>"
+	"    </map>"
+	"    <key>my.stupidgrid.com:8002</key>"
+	"    <map>"
+	"      <key>helper_uri</key><string>https://my.stupidgrid.com/helpers/</string>"
+	"      <key>label</key><string>My Stupid Grid</string>"
+	"      <key>login_page</key><string>my.stupidgrid.com/loginpage</string>"
+	"      <key>login_uri</key>"
+	"      <array>"
+	"        <string>my.stupidgrid.com:8002/</string>"
+	"      </array>"
+	"      <key>keyname</key><string>my.stupidgrid.com:8002</string>"
+	"      <key>credential_type</key><string>agent</string>"
+	"      <key>grid_login_id</key><string>My Stupid Grid</string>"
 	"    </map>"
 	"  </map>"
 	"</llsd>"
@@ -244,26 +217,26 @@ namespace tut
 					  "http://maps.secondlife.com/secondlife/my%20region/1/2/3");
 
 		LLGridManager::getInstance()->setGridChoice("my.grid.com");
-		slurl = LLSLURL("https://my.grid.com/region/my%20region/1/2/3");
+		slurl = LLSLURL("x-grid-info://my.grid.com/region/my%20region/1/2/3");
 		ensure_equals("grid slurl, region + coords - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals("grid slurl, region + coords", slurl.getSLURLString(),
-					  "https://my.grid.com/region/my%20region/1/2/3");
+					  "x-grid-info://my.grid.com/region/my%20region/1/2/3");
 
-		slurl = LLSLURL("https://my.grid.com/region/my region");
+		slurl = LLSLURL("x-grid-info://my.grid.com/region/my region");
 		ensure_equals("grid slurl, region + coords - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals("grid slurl, region + coords", slurl.getSLURLString(),
-					  "https://my.grid.com/region/my%20region/128/128/0");
+					  "x-grid-info://my.grid.com/region/my%20region/128/128/0");
 
 		LLGridManager::getInstance()->setGridChoice("foo.bar.com");
 		slurl = LLSLURL("/myregion/1/2/3");
 		ensure_equals("/: slurl, region + coords - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals("/ slurl, region + coords", slurl.getSLURLString(),
-					  "https://foo.bar.com/region/myregion/1/2/3");
+					  "x-grid-info://foo.bar.com/region/myregion/1/2/3");
 
 		slurl = LLSLURL("myregion/1/2/3");
 		ensure_equals(": slurl, region + coords - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals(" slurl, region + coords", slurl.getSLURLString(),
-					  "https://foo.bar.com/region/myregion/1/2/3");
+					  "x-grid-info://foo.bar.com/region/myregion/1/2/3");
 
 		slurl = LLSLURL(LLSLURL::SIM_LOCATION_HOME);
 		ensure_equals("home", slurl.getType(), LLSLURL::HOME_LOCATION);
@@ -301,7 +274,7 @@ namespace tut
 		ensure_equals("grid4", slurl.getGrid(), "Aditi" );
 
 		LLGridManager::getInstance()->setGridChoice("my.grid.com");
-		slurl = LLSLURL("https://my.grid.com/app/foo/bar?12345");
+		slurl = LLSLURL("x-grid-info://my.grid.com/app/foo/bar?12345");
 		ensure_equals("app", slurl.getType(), LLSLURL::APP);
 		ensure_equals("appcmd", slurl.getAppCmd(), "foo");
 		ensure_equals("apppath", slurl.getAppPath().size(), 1);
@@ -323,12 +296,12 @@ namespace tut
 		LLSLURL slurl = LLSLURL("my.grid.com", "my region");
 		ensure_equals("grid/region - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals("grid/region", slurl.getSLURLString(),
-					  "https://my.grid.com/region/my%20region/128/128/0");
+					  "x-grid-info://my.grid.com/region/my%20region/128/128/0");
 
 		slurl = LLSLURL("my.grid.com", "my region", LLVector3(1,2,3));
 		ensure_equals("grid/region/vector - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals(" grid/region/vector", slurl.getSLURLString(),
-					  "https://my.grid.com/region/my%20region/1/2/3");
+					  "x-grid-info://my.grid.com/region/my%20region/1/2/3");
 
 		LLGridManager::getInstance()->setGridChoice("util.agni.lindenlab.com");
 		slurl = LLSLURL("my region", LLVector3(1,2,3));
@@ -340,27 +313,52 @@ namespace tut
 		slurl = LLSLURL("my region", LLVector3(1,2,3));
 		ensure_equals("default grid/region/vector - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals(" default grid/region/vector", slurl.getSLURLString(),
-					  "https://my.grid.com/region/my%20region/1/2/3");
+					  "x-grid-info://my.grid.com/region/my%20region/1/2/3");
 
 	}
-	// Accessors
+	
+	// x-grid-location-info
 	template<> template<>
-	void slurlTestObject::test<3>()
+	void slurlTestObject::test<4>()
 	{
 		llofstream gridfile(TEST_FILENAME);
 		gridfile << gSampleGridFile;
 		gridfile.close();
-
+		
 		LLGridManager::getInstance()->initialize(TEST_FILENAME);
-
+		
 		LLGridManager::getInstance()->setGridChoice("my.grid.com");
-		LLSLURL slurl = LLSLURL("https://my.grid.com/region/my%20region/1/2/3");
+		LLSLURL slurl = LLSLURL("x-grid-info://my.grid.com/app/foo/bar?12345");
+		ensure_equals("app", slurl.getType(), LLSLURL::APP);
+		ensure_equals("appcmd", slurl.getAppCmd(), "foo");
+		ensure_equals("apppath", slurl.getAppPath().size(), 1);
+		ensure_equals("apppath2", slurl.getAppPath()[0].asString(), "bar");
+		ensure_equals("appquery", slurl.getAppQuery(), "12345");
+		ensure_equals("grid1", slurl.getGrid(), "my.grid.com");
+		
+		slurl = LLSLURL("x-grid-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
+		ensure_equals("app", slurl.getType(), LLSLURL::APP);
+		ensure_equals("appcmd", slurl.getAppCmd(), "agent");
+		ensure_equals("apppath", slurl.getAppPath().size(), 2);
+		ensure_equals("apppath2", slurl.getAppPath()[0].asString(), "0e346d8b-4433-4d66-a6b0-fd37083abc4c");
+		ensure_equals("apppath3", slurl.getAppPath()[1].asString(), "about");
+		ensure_equals("grid1", slurl.getGrid(), "lincoln.lindenlab.com");
+		
+		LLGridManager::getInstance()->setGridChoice("my.stupidgrid.com:8002");
+		slurl = LLSLURL("x-grid-info://my.stupidgrid.com:8002/app/foo/bar/baz?12345");
+		ensure_equals("app", slurl.getType(), LLSLURL::APP);
+		ensure_equals("appcmd", slurl.getAppCmd(), "foo");
+		ensure_equals("apppath", slurl.getAppPath().size(), 2);
+		ensure_equals("apppath2", slurl.getAppPath()[0].asString(), "bar");
+		ensure_equals("apppath3", slurl.getAppPath()[1].asString(), "baz");
+		ensure_equals("appquery", slurl.getAppQuery(), "12345");
+		ensure_equals("grid1", slurl.getGrid(), "my.stupidgrid.com:8002");
+		
+		slurl = LLSLURL("x-grid-info://my.stupidgrid.com:8002/region/my%20region/1/2/3");
 		ensure_equals("login string", slurl.getLoginString(), "uri:my region&amp;1&amp;2&amp;3");
 		ensure_equals("location string", slurl.getLocationString(), "my region/1/2/3");
-		ensure_equals("grid", slurl.getGrid(), "my.grid.com");
+		ensure_equals("grid", slurl.getGrid(), "my.stupidgrid.com:8002");
 		ensure_equals("region", slurl.getRegion(), "my region");
 		ensure_equals("position", slurl.getPosition(), LLVector3(1, 2, 3));
-
 	}
 }
-#endif // LL_SLURL_TESTS

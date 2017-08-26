@@ -37,8 +37,7 @@ typedef enum e_chat_source_type
 	CHAT_SOURCE_SYSTEM = 0,
 	CHAT_SOURCE_AGENT = 1,
 	CHAT_SOURCE_OBJECT = 2,
-	CHAT_SOURCE_UNKNOWN = 3,
-	CHAT_SOURCE_MOTD = 4
+	CHAT_SOURCE_UNKNOWN = 3
 } EChatSourceType;
 
 typedef enum e_chat_type
@@ -82,10 +81,6 @@ public:
 		mChatType(CHAT_TYPE_NORMAL),
 		mAudible(CHAT_AUDIBLE_FULLY),
 		mMuted(FALSE),
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f) | Modified: RLVa-1.0.0a
-		mRlvLocFiltered(FALSE),
-		mRlvNamesFiltered(FALSE),
-// [/RLVa:KB]
 		mTime(0.0),
 		mTimeStr(),
 		mPosAgent(),
@@ -103,10 +98,6 @@ public:
 	EChatType		mChatType;
 	EChatAudible	mAudible;
 	BOOL			mMuted;		// pass muted chat to maintain list of chatters
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f) | Modified: RLVa-1.0.0a
-	BOOL			mRlvLocFiltered;
-	BOOL			mRlvNamesFiltered;
-// [/RLVa:KB]
 	F64				mTime;		// viewer only, seconds from viewer start
 	std::string		mTimeStr;
 	LLVector3		mPosAgent;

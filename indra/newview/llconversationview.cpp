@@ -39,11 +39,7 @@
 #include "llfloaterimcontainer.h"
 #include "llfloaterreg.h"
 #include "llgroupiconctrl.h"
-#include "lluictrlfactory.h"
 #include "lltoolbarview.h"
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
 
 //
 // Implementation of conversations list session widgets
@@ -60,7 +56,7 @@ public:
 	:	conversation(conv)
 	{}
 
-	virtual void onChange(EStatusType status, const std::string &channelURI, bool proximal)
+	void onChange(EStatusType status, const std::string &channelURI, bool proximal) override
 	{
 		conversation->showVoiceIndicator(conversation
 			&& status != STATUS_JOINING
@@ -80,16 +76,17 @@ LLConversationViewSession::Params::Params() :
 LLConversationViewSession::LLConversationViewSession(const LLConversationViewSession::Params& p):
 	LLFolderViewFolder(p),
 	mContainer(p.container),
-	mItemPanel(NULL),
-	mCallIconLayoutPanel(NULL),
-	mSessionTitle(NULL),
-	mSpeakingIndicator(NULL),
-	mVoiceClientObserver(NULL),
-	mCollapsedMode(false),
-    mHasArrow(true),
-	mIsInActiveVoiceChannel(false),
+	mItemPanel(nullptr),
+	mCallIconLayoutPanel(nullptr),
+	mTypingIconLayoutPanel(nullptr),
+	mSessionTitle(nullptr),
+	mSpeakingIndicator(nullptr),
 	mFlashStateOn(false),
-	mFlashStarted(false)
+	mFlashStarted(false),
+    mCollapsedMode(false),
+	mHasArrow(true),
+	mIsInActiveVoiceChannel(false),
+	mVoiceClientObserver(nullptr)
 {
 	mFlashTimer = new LLFlashTimer();
 }
@@ -157,10 +154,11 @@ BOOL LLConversationViewSession::postBuild()
 {
 	LLFolderViewItem::postBuild();
 
-	mItemPanel = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>("panel_conversation_list_item.xml", NULL, LLPanel::child_registry_t::instance());
+	mItemPanel = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>("panel_conversation_list_item.xml", nullptr, LLPanel::child_registry_t::instance());
 	addChild(mItemPanel);
 
 	mCallIconLayoutPanel = mItemPanel->getChild<LLPanel>("call_icon_panel");
+	mTypingIconLayoutPanel = mItemPanel->getChild<LLPanel>("typing_icon_panel");
 	mSessionTitle = mItemPanel->getChild<LLTextBox>("conversation_title");
 
 	mActiveVoiceChannelConnection = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLConversationViewSession::onCurrentVoiceSessionChanged, this, _1));
@@ -180,12 +178,8 @@ BOOL LLConversationViewSession::postBuild()
 				LLAvatarIconCtrl* icon = mItemPanel->getChild<LLAvatarIconCtrl>("avatar_icon");
 				icon->setVisible(true);
 				icon->setValue(session->mOtherParticipantID);
-				static auto avatar_list_item_color = LLUIColorTable::getInstance()->getColor("AvatarListItemIconDefaultColor");
-#ifdef PVDATA_SYSTEM
-				mSessionTitle->setColor(PVAgent::getColor(session->mOtherParticipantID, avatar_list_item_color));
-#endif
 				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID, true);
-				mHasArrow = false;
+                mHasArrow = false;
 			}
 			break;
 		}
@@ -404,21 +398,21 @@ void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
 	}
 }
 
-LLFloater* LLConversationViewSession::getSessionFloater()
+LLFloater* LLConversationViewSession::getSessionFloater() const
 {
 	LLFolderViewModelItem* item = mViewModelItem;
 	LLUUID session_uuid = dynamic_cast<LLConversationItem*>(item)->getUUID();
 	return LLFloaterIMSessionTab::getConversation(session_uuid);
 }
 
-LLConversationViewParticipant* LLConversationViewSession::findParticipant(const LLUUID& participant_id)
+LLConversationViewParticipant* LLConversationViewSession::findParticipant(const LLUUID& participant_id) const
 {
 	// This is *not* a general tree parsing algorithm. We search only in the mItems list
 	// assuming there is no mFolders which makes sense for sessions (sessions don't contain
 	// sessions).
-	LLConversationViewParticipant* participant = NULL;
+	LLConversationViewParticipant* participant = nullptr;
 	items_t::const_iterator iter;
-	for (iter = getItemsBegin(); iter != getItemsEnd(); iter++)
+	for (iter = getItemsBegin(); iter != getItemsEnd(); ++iter)
 	{
 		participant = dynamic_cast<LLConversationViewParticipant*>(*iter);
 		if (participant->hasSameValue(participant_id))
@@ -433,6 +427,11 @@ void LLConversationViewSession::showVoiceIndicator(bool visible)
 {
 	mCallIconLayoutPanel->setVisible(visible && LLVoiceChannel::getCurrentVoiceChannel()->getSessionID().isNull());
 	requestArrange();
+}
+
+void LLConversationViewSession::showTypingIndicator(bool visible)
+{
+	mTypingIconLayoutPanel->setVisible(visible);
 }
 
 void LLConversationViewSession::refresh()
@@ -456,9 +455,8 @@ void LLConversationViewSession::refresh()
 		{
 			mSpeakingIndicator->setVisible(false);
 		}
-		LLConversationViewParticipant* participant = NULL;
-		items_t::const_iterator iter;
-		for (iter = getItemsBegin(); iter != getItemsEnd(); iter++)
+		LLConversationViewParticipant* participant = nullptr;
+		for (items_t::const_iterator iter = getItemsBegin(); iter != getItemsEnd(); ++iter)
 		{
 			participant = dynamic_cast<LLConversationViewParticipant*>(*iter);
 			if (participant)
@@ -506,9 +504,9 @@ output_monitor("output_monitor")
 
 LLConversationViewParticipant::LLConversationViewParticipant( const LLConversationViewParticipant::Params& p ):
 	LLFolderViewItem(p),
-    mAvatarIcon(NULL),
-    mInfoBtn(NULL),
-    mSpeakingIndicator(NULL),
+    mAvatarIcon(nullptr),
+    mInfoBtn(nullptr),
+    mSpeakingIndicator(nullptr),
     mUUID(p.participant_id)
 {
 }
@@ -560,13 +558,13 @@ BOOL LLConversationViewParticipant::postBuild()
 
 void LLConversationViewParticipant::draw()
 {
-    static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
-	static LLUIColor sFgDisabledColor = LLUIColorTable::instance().getColor("MenuItemDisabledColor", DEFAULT_WHITE);
-    static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
-    static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
-    static LLUIColor sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", DEFAULT_WHITE);
-    static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
-    static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
+    static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", LLColor4::white);
+	static LLUIColor sFgDisabledColor = LLUIColorTable::instance().getColor("MenuItemDisabledColor", LLColor4::white);
+	static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", LLColor4::white);
+	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", LLColor4::white);
+	static LLUIColor sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", LLColor4::white);
+	static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", LLColor4::white);
+	static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", LLColor4::white);
 
     const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
 
@@ -731,9 +729,9 @@ void LLConversationViewParticipant::updateChildren()
     }
 }
 
-LLView* LLConversationViewParticipant::getItemChildView(EAvatarListItemChildIndex child_view_index)
+LLView* LLConversationViewParticipant::getItemChildView(EAvatarListItemChildIndex child_view_index) const
 {
-    LLView* child_view = NULL;
+    LLView* child_view = nullptr;
 
     switch (child_view_index)
     {

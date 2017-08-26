@@ -32,9 +32,7 @@
 #include "llmodaldialog.h"
 #include "llavatarappearancedefines.h"
 #include "llwearabletype.h"
-//#include "llwearable.h"
 
-//#include "llwearable.h" // <FS:ND/> for LLWearable::LLWearableObserver
 class LLAccordionCtrl;
 class LLCheckBoxCtrl;
 class LLViewerWearable;
@@ -47,32 +45,28 @@ class LLAccordionCtrlTab;
 class LLJoint;
 class LLLineEditor;
 
-class LLPanelEditWearable : public LLPanel//, public LLWearable::LLWearableObserver
+class LLPanelEditWearable : public LLPanel
 {
-	// <FS:ND> Try to see if this fixes the crash in LLPanelEditWearable::isDirty, that is the wearable dets destroyed before the panel
-	//virtual void onDestroyed(LLWearable const *) { mWearablePtr = NULL; }
-	// </FS:ND>
-
 public:
 	LLPanelEditWearable( );
 	virtual ~LLPanelEditWearable();
 
-	/*virtual*/ BOOL 		postBuild();
-	/*virtual*/ BOOL		isDirty() const;	// LLUICtrl
-	/*virtual*/ void		draw();	
+	/*virtual*/ BOOL 		postBuild() override;
+	/*virtual*/ BOOL		isDirty() const override;	// LLUICtrl
+	/*virtual*/ void		draw() override;	
 				void		onClose();
 
 	// changes camera angle to default for selected subpart
-	void				changeCamera(U8 subpart) const;
+	void				changeCamera(U8 subpart);
 
 	LLViewerWearable*	getWearable() { return mWearablePtr; }
 	void				setWearable(LLViewerWearable *wearable, BOOL disable_camera_switch = FALSE);
 
-	void				saveChanges(const bool force_save_as = false) const;
+	void				saveChanges(bool force_save_as = false);
 	void				revertChanges();
 
-	void				showDefaultSubpart() const;
-	void				onTabExpandedCollapsed(const LLSD& param, U8 index) const;
+	void				showDefaultSubpart();
+	void				onTabExpandedCollapsed(const LLSD& param, U8 index);
 
 	void 				updateScrollingPanelList();
 
@@ -80,25 +74,27 @@ public:
 	static void			onBackButtonClicked(void* userdata); 
 	void				onCommitSexChange();
 	void				onSaveAsButtonClicked();
-	void				saveAsCallback(const LLSD& notification, const LLSD& response) const;
+	void				saveAsCallback(const LLSD& notification, const LLSD& response);
 
-	virtual void		setVisible(BOOL visible);
+	void		setVisible(BOOL visible) override;
 
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 
 	void				showWearable(LLViewerWearable* wearable, BOOL show, BOOL disable_camera_switch = FALSE);
 	void				updateScrollingPanelUI();
-	LLPanel*			getPanel(const LLWearableType::EType type) const;
-	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group) const;
+	LLPanel*			getPanel(LLWearableType::EType type);
+	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
 	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab, LLJoint* jointp);
 	// update bottom bar buttons ("Save", "Revert", etc)
 	void				updateVerbs();
+	
+	void				onClickedImportBtn();
 
 	void				onColorSwatchCommit(const LLUICtrl*);
 	void				onTexturePickerCommit(const LLUICtrl*);
 	void				updatePanelPickerControls(LLWearableType::EType type);
-	void				toggleTypeSpecificControls(LLWearableType::EType type) const;
+	void				toggleTypeSpecificControls(LLWearableType::EType type);
 	void				updateTypeSpecificControls(LLWearableType::EType type);
 
 	//alpha mask checkboxes
@@ -115,9 +111,9 @@ private:
 	void updateMetricLayout(BOOL new_value);
 
 	// updates avatar height label
-	void updateAvatarHeightLabel() const;
+	void updateAvatarHeightLabel();
 
-	void onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl) const;
+	void onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl);
 
 	void setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel);
 

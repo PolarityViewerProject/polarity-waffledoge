@@ -27,8 +27,6 @@
 #ifndef LL_LLLOCATIONHISTORY_H
 #define LL_LLLOCATIONHISTORY_H
 
-#include "llsingleton.h" // for LLSingleton
-
 class LLSD;
 /**
  * This enum is responsible for identifying of history item.
@@ -44,9 +42,9 @@ public:
 	LLLocationHistoryItem(){}
 	LLLocationHistoryItem(std::string typed_location, 
 			LLVector3d global_position, std::string tooltip,ELocationType type ):
-		mLocation(typed_location),		
-		mGlobalPos(global_position),
+		mGlobalPos(global_position),		
 		mToolTip(tooltip),
+		mLocation(typed_location),
 		mType(type)
 	{}
 	LLLocationHistoryItem(const LLLocationHistoryItem& item):
@@ -56,9 +54,9 @@ public:
 		mType(item.mType)
 	{}
 	LLLocationHistoryItem(const LLSD& data):
-	mLocation(data["location"]),
 	mGlobalPos(data["global_pos"]),
 	mToolTip(data["tooltip"]),
+	mLocation(data["location"]),
 	mType(ELocationType(data["item_type"].asInteger()))
 	{}
 
@@ -109,7 +107,7 @@ public:
 	};
 	
 	typedef std::vector<LLLocationHistoryItem>	location_list_t;
-	typedef boost::function<void(EChangeType event)>			history_changed_callback_t;
+	typedef std::function<void(EChangeType event)>			history_changed_callback_t;
 	typedef boost::signals2::signal<void(EChangeType event)>	history_changed_signal_t;
 	
 	

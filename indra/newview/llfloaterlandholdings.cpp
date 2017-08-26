@@ -49,7 +49,6 @@
 #include "lltrans.h"
 #include "lluiconstants.h"
 #include "llviewermessage.h"
-#include "lluictrlfactory.h"
 
 #include "llgroupactions.h"
 

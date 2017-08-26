@@ -53,7 +53,6 @@
 #include "lltrans.h"
 #include "llviewchildren.h"
 #include "llviewercontrol.h"
-#include "lluictrlfactory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewertexteditor.h"
@@ -75,7 +74,7 @@ public:
 	LLFloaterBuyLandUI(const LLSD& key);
 	virtual ~LLFloaterBuyLandUI();
 	
-	/*virtual*/ void onClose(bool app_quitting);
+	/*virtual*/ void onClose(bool app_quitting) override;
 
 	// Left padding for maturity rating icon.
 	static const S32 ICON_PAD = 2;
@@ -85,7 +84,7 @@ private:
 	{
 	public:
 		SelectionObserver(LLFloaterBuyLandUI* floater) : mFloater(floater) {}
-		virtual void changed();
+		void changed() override;
 	private:
 		LLFloaterBuyLandUI* mFloater;
 	};
@@ -150,7 +149,8 @@ private:
 	{
 		TransactionPreflight,
 		TransactionCurrency,
-		TransactionBuy
+		TransactionBuy,
+		TransactionNone
 	};
 	LLXMLRPCTransaction* mTransaction;
 	TransactionType		 mTransactionType;
@@ -164,7 +164,6 @@ public:
 	void updateAgentInfo();
 	void updateParcelInfo();
 	void updateCovenantInfo();
-	static void onChangeAgreeCovenant(LLUICtrl* ctrl, void* user_data);
 	void updateFloaterCovenantText(const std::string& string, const LLUUID &asset_id);
 	void updateFloaterEstateName(const std::string& name);
 	void updateFloaterLastModified(const std::string& text);
@@ -189,7 +188,7 @@ public:
 	
 	void tellUserError(const std::string& message, const std::string& uri);
 
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 	
 	void startBuyPreConfirm();
 	void startBuyPostConfirm(const std::string& password);
@@ -197,9 +196,9 @@ public:
 	void onClickBuy();
 	void onClickCancel();
 	 void onClickErrorWeb();
-	
-	virtual void draw();
-	virtual BOOL canClose();
+
+	void draw() override;
+	BOOL canClose() override;
 
 	void onVisibilityChanged ( const LLSD& new_visibility );
 	
@@ -282,13 +281,38 @@ LLFloater* LLFloaterBuyLand::buildFloater(const LLSD& key)
 #pragma warning(disable : 4355)
 #endif 
 LLFloaterBuyLandUI::LLFloaterBuyLandUI(const LLSD& key)
-:	LLFloater(LLSD()),
+	: LLFloater(LLSD()),
 	mParcelSelectionObserver(this),
-	mParcel(0),
+	mRegion(nullptr),
+	mParcel(nullptr),
+	mIsClaim(false),
+	mIsForGroup(false),
+	mCanBuy(false),
+	mCannotBuyIsError(false),
 	mBought(false),
-	mParcelValid(false), mSiteValid(false),
-	mChildren(*this), mCurrency(*this), mTransaction(0),
-	mParcelBuyInfo(0)
+	mAgentCommittedTier(0),
+	mAgentCashBalance(0),
+	mAgentHasNeverOwnedLand(true),
+	mParcelValid(false),
+	mParcelIsForSale(false),
+	mParcelIsGroupLand(false),
+	mParcelGroupContribution(0),
+	mParcelPrice(0),
+	mParcelActualArea(0),
+	mParcelBillableArea(0),
+	mParcelSupportedObjects(0),
+	mParcelSoldWithObjects(false),
+	mUserPlanChoice(0),
+	mSiteValid(false),
+	mSiteMembershipUpgrade(false),
+	mSiteLandUseUpgrade(false),
+	mPreflightAskBillableArea(0),
+	mPreflightAskCurrencyBuy(0),
+	mChildren(*this),
+	mCurrency(*this),
+	mTransaction(nullptr),
+	mTransactionType(TransactionNone),
+	mParcelBuyInfo(nullptr)
 {
 	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
 	
@@ -565,7 +589,7 @@ void LLFloaterBuyLandUI::updateCovenantInfo()
 	{
 		check->set(false);
 		check->setEnabled(true);
-		check->setCommitCallback(onChangeAgreeCovenant, this);
+		check->setCommitCallback(boost::bind(&LLFloaterBuyLandUI::refreshUI, this));
 	}
 
 	LLTextBox* box = getChild<LLTextBox>("covenant_text");
@@ -581,16 +605,6 @@ void LLFloaterBuyLandUI::updateCovenantInfo()
 	msg->addUUIDFast(_PREHASH_AgentID,	gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID,gAgent.getSessionID());
 	msg->sendReliable(region->getHost());
-}
-
-// static
-void LLFloaterBuyLandUI::onChangeAgreeCovenant(LLUICtrl* ctrl, void* user_data)
-{
-	LLFloaterBuyLandUI* self = (LLFloaterBuyLandUI*)user_data;
-	if(self)
-	{
-		self->refreshUI();
-	}
 }
 
 void LLFloaterBuyLandUI::updateFloaterCovenantText(const std::string &string, const LLUUID& asset_id)
@@ -855,7 +869,7 @@ void LLFloaterBuyLandUI::updateGroupName(const LLUUID& id,
 void LLFloaterBuyLandUI::startTransaction(TransactionType type, const LLXMLRPCValue& params)
 {
 	delete mTransaction;
-	mTransaction = NULL;
+	mTransaction = nullptr;
 
 	mTransactionType = type;
 
@@ -900,7 +914,7 @@ bool LLFloaterBuyLandUI::checkTransaction()
 		return false;
 	}
 
-	if (mTransaction->status(NULL) != LLXMLRPCTransaction::StatusComplete)
+	if (mTransaction->status(nullptr) != LLXMLRPCTransaction::StatusComplete)
 	{
 		tellUserError(mTransaction->statusMessage(), mTransaction->statusURI());
 	}
@@ -914,7 +928,7 @@ bool LLFloaterBuyLandUI::checkTransaction()
 	}
 	
 	delete mTransaction;
-	mTransaction = NULL;
+	mTransaction = nullptr;
 	
 	return true;
 }

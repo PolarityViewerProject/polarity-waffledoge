@@ -37,13 +37,7 @@
  || ! defined(LL_VIEWER_VERSION_MAJOR) \
  || ! defined(LL_VIEWER_VERSION_MINOR) \
  || ! defined(LL_VIEWER_VERSION_PATCH) \
- || ! defined(LL_VIEWER_VERSION_BUILD) \
- || ! defined(LINDEN_SOURCE_MAJOR) \
- || ! defined(LINDEN_SOURCE_MINOR) \
- || ! defined(LINDEN_SOURCE_PATCH) \
- || ! defined(BUILD_COMMIT_HASH) \
- || ! defined(BUILD_COMMIT_HASH_LONG) \
- || ! defined(BUILD_NUMBER)
+ || ! defined(LL_VIEWER_VERSION_BUILD)
  #error "Channel or Version information is undefined"
 #endif
 
@@ -115,33 +109,7 @@ namespace
 	// Storage for the "version and channel" string.
 	// This will get reset too.
 	std::string sVersionChannel("");
-    std::string sVersionChannelForPVData("");
-	std::string sCompiledChannel("");
-	// </polarity> PVData
 }
-// <polarity> PVData
-const std::string &LLVersionInfo::getChannelAndVersionStatic()
-{
-	if (sVersionChannelForPVData.empty())
-	{
-		// cache the version string
-		std::ostringstream stream;
-		stream	<< LL_VIEWER_CHANNEL << " "
-				<< LL_VIEWER_VERSION_MAJOR << "."
-				<< LL_VIEWER_VERSION_MINOR << "."
-		 		<< LL_VIEWER_VERSION_PATCH << " ("
-		 		<< LL_VIEWER_VERSION_BUILD << ")";
-		sVersionChannelForPVData = stream.str();
-		LL_INFOS("PVDataOldAPI") << " Full viewer version = \"" << sVersionChannelForPVData << "\"" << LL_ENDL;
-	}
-	return sVersionChannelForPVData;
-}
-const std::string &LLVersionInfo::getCompiledChannel()
-{
-	sCompiledChannel = LL_VIEWER_CHANNEL;
-	return sCompiledChannel;
-}
-// </polarity> PVData
 
 //static
 const std::string &LLVersionInfo::getChannelAndVersion()
@@ -153,20 +121,6 @@ const std::string &LLVersionInfo::getChannelAndVersion()
 	}
 
 	return sVersionChannel;
-}
-const std::string & LLVersionInfo::getLastLindenRelease()
-{
-	static std::string sLindenRelease("");
-	if(sLindenRelease.empty())
-	{
-		// cache the version string
-		std::ostringstream llrelease;
-		llrelease << LINDEN_SOURCE_MAJOR << "."
-				<< LINDEN_SOURCE_MINOR << "."
-				<< LINDEN_SOURCE_PATCH;
-		sLindenRelease = llrelease.str();
-	}
-	return sLindenRelease;
 }
 
 //static
@@ -224,22 +178,4 @@ const std::string &LLVersionInfo::getBuildConfig()
 {
     static const std::string build_configuration(LLBUILD_CONFIG); // set in indra/cmake/BuildVersion.cmake
     return build_configuration;
-}
-
-const std::string &LLVersionInfo::getBuildCommitHash()
-{
-	static const std::string hash_short(BUILD_COMMIT_HASH);
-	return hash_short;
-}
-
-const std::string &LLVersionInfo::getBuildCommitHashLong()
-{
-	static const std::string hash_long(BUILD_COMMIT_HASH_LONG);
-	return hash_long;
-}
-
-const std::string &LLVersionInfo::getBuildNumber()
-{
-	static const std::string build_id(std::to_string(BUILD_NUMBER)); // oh surprise, we get numbers!
-	return build_id;
 }

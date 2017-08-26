@@ -25,6 +25,9 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+
+#include "linden_common.h"
+
 #include "llflashtimer.h"
 #include "lleventtimer.h"
 #include "llui.h"
@@ -33,8 +36,8 @@ LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 :	LLEventTimer(period),
 	mCallback(cb),
 	mCurrentTickCount(0),
-    mIsFlashingInProgress(false),
     mIsCurrentlyHighlighted(false),
+    mIsFlashingInProgress(false),
     mUnset(false)
 {
 	mEventTimer.stop();
@@ -42,10 +45,12 @@ LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 	// By default use settings from settings.xml to be able change them via Debug settings. See EXT-5973.
 	// Due to Timer is implemented as derived class from EventTimer it is impossible to change period
 	// in runtime. So, both settings are made as required restart.
-	mFlashCount = 2 * ((count > 0) ? count : LLUI::sSettingGroups["config"]->getS32("FlashCount"));
+	static LLUICachedControl<S32> sFlashCount("FlashCount", 8);
+	mFlashCount = 2 * ((count > 0) ? count : sFlashCount);
 	if (mPeriod <= 0)
 	{
-		mPeriod = LLUI::sSettingGroups["config"]->getF32("FlashPeriod");
+		static LLUICachedControl<F32> sFlashPeriod("FlashPeriod", 0.5f);
+		mPeriod = sFlashPeriod;
 	}
 }
 

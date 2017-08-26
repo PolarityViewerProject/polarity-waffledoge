@@ -28,6 +28,19 @@
 #include "llwindowmacosx-objc.h"
 #include <Carbon/Carbon.h> // Used for Text Input Services ("Safe" API - it's supported)
 
+
+@implementation LLNSApplication
+
+- (void)sendEvent:(NSEvent *)event {
+	// Fuck you, conventions!
+    if ([event type] == NSKeyUp && ([event modifierFlags] & NSCommandKeyMask))
+        [[self keyWindow] sendEvent:event];
+    else
+        [super sendEvent:event];
+}
+
+@end
+
 @implementation LLAppDelegate
 
 @synthesize window;
@@ -37,6 +50,7 @@
 
 - (void)dealloc
 {
+    [currentInputLanguage release];
     [super dealloc];
 }
 
@@ -64,6 +78,12 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(languageUpdated) name:@"NSTextInputContextKeyboardSelectionDidChangeNotification" object:nil];
 
  //   [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleGetURLEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
+	
+	[[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
+}
+
+- (BOOL)userNotificationCenter:(NSUserNotificationCenter *)center shouldPresentNotification:(NSUserNotification *)notification{
+    return NO;
 }
 
 - (void) handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
@@ -97,7 +117,7 @@
 	callWindowUnhide();
 }
 
-- (NSApplicationDelegateReply) applicationShouldTerminate:(NSApplication *)sender
+- (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender
 {
 	// run one frame to assess state
 	if (!pumpMainLoop())
@@ -123,7 +143,7 @@
 		// Once pumpMainLoop() reports that we're done, cancel frameTimer:
 		// stop the repetitive calls.
 		[frameTimer release];
-		[[NSApplication sharedApplication] terminate:self];
+		[[LLNSApplication sharedApplication] terminate:self];
 	}
 }
 
@@ -171,12 +191,14 @@
 	// How to add support for new languages with the input window:
 	// Simply append this array with the language code (ja for japanese, ko for korean, zh for chinese, etc.)
 	NSArray *nonRomanScript = [[NSArray alloc] initWithObjects:@"ja", @"ko", @"zh-Hant", @"zh-Hans", nil];
+	bool ret = true;
 	if ([nonRomanScript containsObject:currentInputLanguage])
     {
-        return false;
+        ret = false;
     }
-    
-    return true;
+	
+	[nonRomanScript release];
+    return ret;
 }
 
 @end

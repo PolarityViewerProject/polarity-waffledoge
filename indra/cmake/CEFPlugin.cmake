@@ -1,9 +1,7 @@
 # -*- cmake -*-
 include(Linking)
 include(Prebuilt)
-include(Variables)
 
-if (ENABLE_MEDIA_PLUGINS)
 if (USESYSTEMLIBS)
     set(CEFPLUGIN OFF CACHE BOOL
         "CEFPLUGIN support for the llplugin/llmedia test apps.")
@@ -45,4 +43,3 @@ elseif (LINUX)
        cef
     )
 endif (WINDOWS)
-endif (ENABLE_MEDIA_PLUGINS)

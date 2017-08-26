@@ -36,11 +36,11 @@
 #include "llrender2dutils.h"
 
 LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
-:	mName(name),
-	mImage(image),
+:	mImageLoaded(nullptr),
+	mName(name),
 	mScaleRegion(0.f, 1.f, 1.f, 0.f),
 	mClipRegion(0.f, 1.f, 1.f, 0.f),
-	mImageLoaded(NULL),
+	mImage(image),
 	mScaleStyle(SCALE_INNER)
 {}
 
@@ -67,10 +67,7 @@ void LLUIImage::setScaleStyle(LLUIImage::EScaleStyle style)
 //TODO: move drawing implementation inside class
 void LLUIImage::draw(S32 x, S32 y, const LLColor4& color) const
 {
-	if (this != nullptr)
-	{
-		draw(x, y, getWidth(), getHeight(), color);
-	}
+	draw(x, y, getWidth(), getHeight(), color);
 }
 
 void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
@@ -200,7 +197,7 @@ namespace LLInitParam
 		// do not default to current value. Used to overwrite template images. 
 		if (name() == "none")
 		{
-			updateValue(NULL);
+			updateValue(nullptr);
 			return;
 		}
 
@@ -213,18 +210,13 @@ namespace LLInitParam
 	
 	void ParamValue<LLUIImage*>::updateBlockFromValue(bool make_block_authoritative)
 	{
-		auto val = getValue();
-		if (val == NULL)
+		if (getValue() == nullptr)
 		{
 			name.set("none", make_block_authoritative);
 		}
 		else
 		{
-			auto this_name = val->getName();
-			if (!this_name.empty())
-			{
-				name.set(this_name, make_block_authoritative);
-			}
+			name.set(getValue()->getName(), make_block_authoritative);
 		}
 	}
 

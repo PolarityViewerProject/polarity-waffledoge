@@ -37,6 +37,8 @@
 #include "llviewertexture.h"
 #include "llgltexture.h"
 
+#include <array>
+
 // map item types
 const U32 MAP_ITEM_TELEHUB = 0x01;
 const U32 MAP_ITEM_PG_EVENT = 0x02;
@@ -113,6 +115,7 @@ public:
 
 	// Setters
 	void setName(std::string& name) { mName = name; }
+	void setSize(U16 sizeX, U16 sizeY) { mSizeX = sizeX; mSizeY = sizeY; }
 	void setAccess (U32 accesscode) { mAccess = accesscode; }
 	void setRegionFlags (U32 region_flags) { mRegionFlags = region_flags; }
 	void setLandForSaleImage (LLUUID image_id);
@@ -123,6 +126,7 @@ public:
 	const std::string getFlagsString() const { return LLViewerRegion::regionFlagsToString(mRegionFlags); }
 	const std::string getAccessString() const { return LLViewerRegion::accessToString((U8)mAccess); }
 	const std::string getShortAccessString() const { return LLViewerRegion::accessToShortString(static_cast<U8>(mAccess)); } // <alchemy/>
+	const std::string getAccessIcon() const { return LLViewerRegion::getAccessIcon(static_cast<U8>(mAccess)); }
 
 	const S32 getAgentCount() const;				// Compute the total agents count
 	LLPointer<LLViewerFetchedTexture> getLandForSaleImage();	// Get the overlay image, fetch it if necessary
@@ -193,8 +197,8 @@ private:
 
 // We request region data on the world by "blocks" of (MAP_BLOCK_SIZE x MAP_BLOCK_SIZE) regions
 // This is to reduce the number of requests to the asset DB and get things in big "blocks"
-const S32 MAP_MAX_SIZE = 2048;
-const S32 MAP_BLOCK_SIZE = 4;
+const S32 MAP_MAX_SIZE = 16384;
+const S32 MAP_BLOCK_SIZE = 16;
 const S32 MAP_BLOCK_RES = (MAP_MAX_SIZE / MAP_BLOCK_SIZE);
 
 class LLWorldMap : public LLSingleton<LLWorldMap>
@@ -217,7 +221,7 @@ public:
 
 	// Insert a region and items in the map global instance
 	// Note: x_world and y_world in world coordinates (meters)
-	static bool insertRegion(U32 x_world, U32 y_world, std::string& name, LLUUID& uuid, U32 accesscode, U32 region_flags);
+	static bool insertRegion(U32 x_world, U32 y_world, U16 x_size, U16 y_size, std::string& name, LLUUID& uuid, U32 accesscode, U64 region_flags);
 	static bool insertItem(U32 x_world, U32 y_world, std::string& name, LLUUID& uuid, U32 type, S32 extra, S32 extra2);
 
 	// Get info on sims (region) : note that those methods only search the range of loaded sims (the one that are being browsed)
@@ -271,7 +275,7 @@ private:
 	// This boolean table avoids "blocks" to be requested multiple times. 
 	// Issue: Not sure this scheme is foolproof though as I've seen
 	// cases where a block is never retrieved and, because of this boolean being set, never re-requested
-	bool *			mMapBlockLoaded;		// Telling us if the block of regions has been requested or not
+	std::array<bool, MAP_BLOCK_RES*MAP_BLOCK_RES>	mMapBlockLoaded;		// Telling us if the block of regions has been requested or not
 
 	// Track location data : used while there's nothing tracked yet by LLTracker
 	bool			mIsTrackingLocation;	// True when we're tracking a point

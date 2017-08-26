@@ -33,12 +33,8 @@
 #include "llview.h"
 
 // declarations
-class LLButton;
-class LLStatusPanel;
 class LLFastTimerView;
 class LLConsole;
-class LLTextureView;
-class LLFloaterStats;
 
 class LLDebugView : public LLView
 {
@@ -55,7 +51,7 @@ public:
 	~LLDebugView();
 
 	void init();
-	void draw();
+	void draw() override;
 	
 	void setStatsVisible(BOOL visible);
 	

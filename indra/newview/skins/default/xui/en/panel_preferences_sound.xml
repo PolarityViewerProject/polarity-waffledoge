@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+ border="true"
  follows="all"
- height="408"
+ height="438"
+ label="Sounds"
  layout="topleft"
  left="102"
  name="Preference Media panel"
  top="1"
  width="517">
-    <panel.string
-     name="middle_mouse">
-     Middle Mouse
-    </panel.string>
+ <panel.string
+  name="middle_mouse">
+  Middle Mouse
+ </panel.string>
+<tab_container
+ label="Audio"
+ layout="topleft"
+ follows="all"
+ top="5"
+ bottom="-10"
+ left="1"
+ right="-1"
+ name="sound_tabs"
+ tab_min_width="50"
+ tab_position="top" >
+    <panel
+     top_pad="5"
+     bottom="-1"
+     left="1"
+     right="-1"
+     follows="all"
+     label="Sounds"
+     name="tab-Sounds" >
     <slider
      control_name="AudioLevelMaster"
      follows="left|top"
@@ -312,37 +333,127 @@
 		name="enable_voice_check"
 		width="110"/>
 	<!-- -->
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left="29"
+     name="sound_quality_helper"
+     width="100"
+     top_pad="5">
+      Sound Quality:
+    </text>
+    <combo_box
+     top_delta="-1"
+     left_pad="5"
+     control_name="FMODResampleMethod"
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     name="sound_quality_combo"
+     width="120">
+        <combo_box.item
+         label="Low"
+         name="Low Quality"
+         value="0" />
+        <combo_box.item
+         label="Medium"
+         name="Medium Quality"
+         value="1" />
+        <combo_box.item
+         label="High"
+         name="High Quality"
+         value="2" />
+    </combo_box>
+	<check_box
+        name="ShowStreamInfo"
+        control_name="ShowStreamInfo"
+        follows="left|top"
+        height="15"
+        tool_tip="Show audio stream metadata"
+        label="Show audio stream notifications"
+        top_pad="6"
+        left="25"/>
 	<check_box
 		name="media_auto_play_btn"
 		control_name="ParcelMediaAutoPlayEnable"
+		enabled_control="AudioStreamingMedia"
 		value="true"
-		follows="left|bottom|right"
+		follows="left|top"
 		height="15"
 		tool_tip="Check this to let media auto-play if it wants"
 		label="Allow Media to auto-play"
-		top_pad="1"
+		top_pad="4"
 		left="25"/>
  	<check_box
 		name="media_show_on_others_btn"
 		control_name="MediaShowOnOthers"
 		value="true"
-		follows="left|bottom|right"
+		follows="left|top"
 		height="15"
 		tool_tip="Uncheck this to hide media attached to other avatars nearby"
 		label="Play media attached to other avatars"
+        top_pad="4"
 		left="25"
     width="230"/>
 	<check_box
-		name="gesture_audio_play_btn"
-		control_name="EnableGestureSounds"
-        disabled_control="MuteAudio"
-		value="true"
-		follows="left|bottom|right"
-		height="15"
-		tool_tip="Check this to hear sounds from gestures"
-		label="Play sounds from gestures"
-		top_pad="1"
-		left="25"/>
+     name="gesture_audio_play_btn"
+     control_name="EnableGestureSounds"
+     disabled_control="MuteAudio"
+     value="true"
+     follows="left|top"
+     height="15"
+     tool_tip="Check this to hear sounds from gestures"
+     label="Play sounds from gestures"
+     top_pad="4"
+     left="25"/>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left="29"
+     name="play_sound_helper"
+     width="100"
+     top_pad="0">
+      Play sounds for:
+    </text>
+    <check_box
+     control_name="AlchemyPlayTypingSound"
+     height="20"
+     initial_value="true"
+     label="Typing"
+     layout="topleft"
+     top_delta="-2"
+     left_pad="5"
+     name="AlchemyPlayTypingSound"
+     width="70"/>
+    <check_box
+     control_name="AlchemyPlayTeleportSound"
+     height="20"
+     initial_value="true"
+     label="Teleport"
+     layout="topleft"
+     top_delta="0"
+     left_pad="5"
+     name="AlchemyPlayTeleportSound"
+     width="70"/>
+    </panel>
+    <panel
+     top_pad="5"
+     bottom="-1"
+     left="1"
+     right="-1"
+     follows="all"
+     label="Voice"
+     name="tab-Voice" >
+    <panel.string
+     name="middle_mouse">
+     Middle Mouse
+    </panel.string>
     <text
      type="string"
      length="1"
@@ -352,7 +463,7 @@
      left="25"
      name="voice_chat_settings"
      width="200"
-     top_pad="7">
+     top_pad="5">
 	  Voice Chat Settings
     </text>
     <text
@@ -361,7 +472,7 @@
      follows="left|top"
      layout="topleft"
 	   left="46"
-	   top_pad="10"
+	   top_delta="16"
      name="Listen from"
      width="112">
         Listen from:
@@ -376,7 +487,7 @@
 		visible="true"
 		width="18"
 		left_pad="-4"
-		top_delta="-5"/>
+		top_delta="-2"/>
 	<icon
 		follows="left|top"
 		height="18"
@@ -396,6 +507,7 @@
      left_delta="-168"
      width="360"
      height="20"
+     top_delta="-4"
      name="ear_location">
     <radio_item
      height="19"
@@ -414,43 +526,6 @@
      top_delta ="0" 
      width="200" />
    </radio_group>
-        <text
-         follows="top|left"
-         height="23"
-         layout="topleft"
-         left_delta="-128"
-         length="1"
-         name="quantum_voice_label"
-         top_pad="10"
-         type="string"
-         width="130">
-          Indicator appearance:
-        </text>
-        <combo_box
-         control_name="PVUI_VoiceIndicatorBehavior"
-         height="23"
-         layout="topleft"
-         left_pad="50"
-         name="ShadowDetail"
-         top_delta="-5" 
-         width="150">
-           <combo_box.item
-            label="Status dot &amp; waves"
-            name="3"
-            value="3"/>
-           <combo_box.item
-            label="Waves only"
-            name="1"
-            value="1"/>
-           <combo_box.item
-            label="Status dot only"
-            name="2"
-            value="2"/>
-           <combo_box.item
-            label="Hidden"
-            name="0"
-            value="0"/>
-        </combo_box>
   <check_box
    control_name="LipSyncEnabled"
    follows="left|top"
@@ -459,7 +534,7 @@
    layout="topleft"
    left="44"
    name="enable_lip_sync"
-   top_pad="5" 
+   top_pad="8" 
    width="237"/>
  <check_box
   follows="top|left"
@@ -534,3 +609,5 @@
     left="18"
     class="panel_voice_device_settings"/>
     </panel>
+  </tab_container>
+</panel>

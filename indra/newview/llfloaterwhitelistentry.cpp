@@ -32,7 +32,6 @@
 #include "llfloatermediasettings.h"
 #include "llfloaterwhitelistentry.h"
 #include "llpanelmediasettingssecurity.h"
-#include "lluictrlfactory.h"
 #include "llwindow.h"
 #include "llviewerwindow.h"
 #include "lllineeditor.h"
@@ -40,8 +39,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-LLFloaterWhiteListEntry::LLFloaterWhiteListEntry( const LLSD& key ) :
-	LLFloater(key)
+LLFloaterWhiteListEntry::LLFloaterWhiteListEntry( const LLSD& key ) 
+	: LLFloater(key)
+	, mWhiteListEdit(nullptr)
 {
 }
 

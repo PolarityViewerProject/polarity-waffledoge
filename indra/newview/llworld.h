@@ -55,6 +55,19 @@ class LLCloudPuff;
 class LLCloudGroup;
 class LLVOAvatar;
 
+class CapUrlMatches
+{
+public:
+	CapUrlMatches(std::set<LLViewerRegion*>& regions, std::set<std::string>& cap_names)
+	{
+		mRegions = regions;
+		mCapNames = cap_names;
+	}
+
+	std::set<LLViewerRegion*> mRegions;
+	std::set<std::string> mCapNames;
+};
+
 // LLWorld maintains a stack of unused viewer_regions and an array of pointers to viewer regions
 // as simulators are connected to, viewer_regions are popped off the stack and connected as required
 // as simulators are removed, they are pushed back onto the stack
@@ -103,18 +116,25 @@ public:
 	// but it may eventually become more general.
 	F32 resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d &point_a, const LLVector3d &point_b,
 							LLVector3d &intersection, LLVector3 &intersection_normal,
-							LLViewerObject** viewerObjectPtr=NULL);
+							LLViewerObject** viewerObjectPtr= nullptr);
 
 	LLSurfacePatch *		resolveLandPatchGlobal(const LLVector3d &position);
 	LLVector3				resolveLandNormalGlobal(const LLVector3d &position);		// absolute frame
 
+	void						setRegionSize(const U32& width = 0, const U32& length = 0);
 	U32						getRegionWidthInPoints() const	{ return mWidth; }
 	F32						getRegionScale() const			{ return mScale; }
 
 	// region X and Y size in meters
 	F32						getRegionWidthInMeters() const	{ return mWidthInMeters; }
 	F32						getRegionMinHeight() const		{ return -mWidthInMeters; }
-	F32						getRegionMaxHeight() const		{ return MAX_OBJECT_Z; }
+	F32						getRegionMaxHeight() const		{ return mRegionMaxHeight; }
+	F32						getRegionMinPrimScale() const	{ return mRegionMinPrimScale; }
+	F32						getRegionMaxPrimScale() const	{ return mRegionMaxPrimScale; }
+	F32						getRegionMaxPrimScaleNoMesh() const	{ return mRegionMaxPrimScaleNoMesh; }
+	F32						getRegionMaxHollowSize() const	{ return mRegionMaxHollowSize; }
+	F32						getRegionMinHoleSize() const	{ return mRegionMinHoleSize; }
+	S32						getRegionMaxLinkObjects() const	{ return mRegionMaxLinkObjects; }
 
 	void					updateRegions(F32 max_update_time);
 	void					updateVisibilities();
@@ -148,6 +168,11 @@ public:
 	U32  getNumOfActiveCachedObjects() const {return mNumOfActiveCachedObjects;}
 
 	void clearAllVisibleObjects();
+	void refreshLimits();
+
+	virtual CapUrlMatches getCapURLMatches(const std::string& cap_url);
+	virtual bool isCapURLMapped(const std::string& cap_url);
+
 public:
 	typedef std::list<LLViewerRegion*> region_list_t;
 	const region_list_t& getRegionList() const { return mActiveRegionList; }
@@ -159,12 +184,21 @@ public:
 	// All arguments are optional. Given containers will be emptied and then filled.
 	// Not supplying origin or radius input returns data on all avatars in the known regions.
 	void getAvatars(
-		uuid_vec_t* avatar_ids = NULL,
-		std::vector<LLVector3d>* positions = NULL, 
+		uuid_vec_t* avatar_ids = nullptr,
+		std::vector<LLVector3d>* positions = nullptr, 
 		const LLVector3d& relative_to = LLVector3d(), F32 radius = FLT_MAX) const;
-// [RLVa:KB] - Checked: RLVa-2.0.1
-	bool getAvatar(const LLUUID& idAvatar, LLVector3d& posAvatar) const;
-// [/RLVa:KB]
+	
+	typedef boost::unordered_map<LLUUID, LLVector3d> pos_map_t;
+	void getAvatars(pos_map_t* map = nullptr,
+					const LLVector3d& relative_to = LLVector3d(),
+					F32 radius = FLT_MAX) const;
+
+	// Returns list of avatar ids with region pointer and global position
+	typedef std::pair<LLViewerRegion*, LLVector3d > regionp_gpos_pair_t;
+	typedef boost::unordered_map<LLUUID, regionp_gpos_pair_t > region_gpos_map_t;
+	void getAvatars(region_gpos_map_t* map = nullptr,
+		const LLVector3d& relative_to = LLVector3d(),
+		F32 radius = FLT_MAX) const;
 
 	// Returns 'true' if the region is in mRegionList,
 	// 'false' if the region has been removed due to region change
@@ -180,12 +214,21 @@ private:
 	region_remove_signal_t mRegionRemovedSignal;
 
 	// Number of points on edge
-	static const U32 mWidth;
+	static U32 mWidth;
+	static U32 mLength;
 
 	// meters/point, therefore mWidth * mScale = meters per edge
 	static const F32 mScale;
 
 	static F32 mWidthInMeters;
+	F32 mRegionMaxHeight;
+	F32 mRegionMinPrimScale;
+	F32 mRegionMaxPrimScale;
+	F32 mRegionMaxPrimScaleNoMesh;
+	F32 mRegionMaxHollowSize;
+	F32 mRegionMinHoleSize;
+	S32 mRegionMaxLinkObjects;
+	bool mRefreshLimits;
 
 	F32 mLandFarClip;					// Far clip distance for land.
 	LLPatchVertexArray		mLandPatch;

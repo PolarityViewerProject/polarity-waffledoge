@@ -29,7 +29,7 @@
  */
 
 // Precompiled header
-#include "linden_common.h"
+#include "linden_common.h" // <alchemy/> Moved up here.
 // STL headers
 #include <iostream>
 #include <string>

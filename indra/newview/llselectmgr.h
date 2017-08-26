@@ -45,7 +45,6 @@
 #include "llviewerobject.h"	// LLObjectSelection::getSelectedTEValue template
 #include "llmaterial.h"
 
-#include <unordered_set> // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include <boost/iterator/filter_iterator.hpp>
 
 class LLMessageSystem;
@@ -244,7 +243,7 @@ public:
 	{
 		bool operator()(LLSelectNode* node)
 		{
-			return (node->getObject() != NULL);
+			return (node->getObject() != nullptr);
 		}
 	};
 	typedef boost::filter_iterator<is_non_null, list_t::iterator > iterator;
@@ -255,7 +254,7 @@ public:
 	{
 		bool operator()(LLSelectNode* node)
 		{
-			return (node->getObject() != NULL) && node->mValid;
+			return (node->getObject() != nullptr) && node->mValid;
 		}
 	};
 	typedef boost::filter_iterator<is_valid, list_t::iterator > valid_iterator;
@@ -293,8 +292,8 @@ public:
 
 	BOOL isEmpty() const;
 
-	LLSelectNode*	getFirstNode(LLSelectedNodeFunctor* func = NULL);
-	LLSelectNode*	getFirstRootNode(LLSelectedNodeFunctor* func = NULL, BOOL non_root_ok = FALSE);
+	LLSelectNode*	getFirstNode(LLSelectedNodeFunctor* func = nullptr);
+	LLSelectNode*	getFirstRootNode(LLSelectedNodeFunctor* func = nullptr, BOOL non_root_ok = FALSE);
 	LLViewerObject* getFirstSelectedObject(LLSelectedNodeFunctor* func, BOOL get_parent = FALSE);
 	LLViewerObject*	getFirstObject();
 	LLViewerObject*	getFirstRootObject(BOOL non_root_ok = FALSE);
@@ -325,8 +324,8 @@ public:
 	F32 getSelectedLinksetPhysicsCost();
 	S32 getSelectedObjectRenderCost();
 	
-	F32 getSelectedObjectStreamingCost(S32* total_bytes = NULL, S32* visible_bytes = NULL);
-	U32 getSelectedObjectTriangleCount(S32* vcount = NULL);
+	F32 getSelectedObjectStreamingCost(S32* total_bytes = nullptr, S32* visible_bytes = nullptr);
+	U32 getSelectedObjectTriangleCount(S32* vcount = nullptr);
 
 	S32 getTECount();
 	S32 getRootObjectCount();
@@ -419,17 +418,17 @@ public:
 	static void cleanupGlobals();
 
 	// LLEditMenuHandler interface
-	virtual BOOL canUndo() const;
-	virtual void undo();
+	BOOL canUndo() const override;
+	void undo() override;
 
-	virtual BOOL canRedo() const;
-	virtual void redo();
+	BOOL canRedo() const override;
+	void redo() override;
 
-	virtual BOOL canDoDelete() const;
-	virtual void doDelete();
+	BOOL canDoDelete() const override;
+	void doDelete() override;
 
-	virtual void deselect();
-	virtual BOOL canDeselect() const;
+	void deselect() override;
+	BOOL canDeselect() const override;
 
 	virtual void duplicate();
 	virtual BOOL canDuplicate() const;
@@ -507,8 +506,6 @@ public:
 
 	bool unlinkObjects();
 
-	void confirmUnlinkObjects(const LLSD& notification, const LLSD& response);
-
 	bool enableLinkObjects();
 
 	bool enableUnlinkObjects();
@@ -516,6 +513,7 @@ public:
 	////////////////////////////////////////////////////////////////
 	// Selection accessors
 	////////////////////////////////////////////////////////////////
+	LLObjectSelectionHandle getHoverObjects() { return mHoverObjects; }
 	LLObjectSelectionHandle	getSelection() { return mSelectedObjects; }
 	// right now this just renders the selection with root/child colors instead of a single color
 	LLObjectSelectionHandle	getEditSelection() { convertTransient(); return mSelectedObjects; }
@@ -552,8 +550,6 @@ public:
 	void saveSelectedObjectColors();
 	void saveSelectedShinyColors();
 	void saveSelectedObjectTextures();
-
-	void refreshSelectionTextures(std::unordered_set<LLUUID>& additional_textures = std::unordered_set<LLUUID>()); // <polarity> PLVR-32 Refresh texture on objects and avatars
 
 	// Sets which texture channel to query for scale and rot of display
 	// and depends on UI state of LLPanelFace when editing
@@ -624,6 +620,9 @@ public:
 	// returns TRUE if you can modify all selected objects. 
 	BOOL selectGetRootsModify();
 	BOOL selectGetModify();
+
+	// returns TRUE if all objects are in same region
+	BOOL selectGetSameRegion();
 
 	// returns TRUE if is all objects are non-permanent-enforced
 	BOOL selectGetRootsNonPermanentEnforced();
@@ -700,10 +699,6 @@ public:
 
 	void selectDelete();							// Delete on simulator
 	void selectForceDelete();			// just delete, no into trash
-	// This gets which group should we rez the item under, according to user preferences,
-	// group membership and parcel ownership.
-	static LLUUID getGroupIDToRezUnder();
-
 	void selectDuplicate(const LLVector3& offset, BOOL select_copy);	// Duplicate on simulator
 	void repeatDuplicate();
 	void selectDuplicateOnRay(const LLVector3 &ray_start_region,

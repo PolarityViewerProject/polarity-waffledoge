@@ -167,7 +167,6 @@
       <string>UserLogFile</string>
     </map>
 
-  <!-- [FS:CR] Use UserLoginInfoCmdLine Plz -->
     <key>login</key>
     <map>
       <key>desc</key>
@@ -175,7 +174,7 @@
       <key>count</key>
       <integer>3</integer>
       <key>map-to</key>
-      <string>UserLoginInfoCmdLine</string>
+      <string>UserLoginInfo</string>
     </map>
 
     <key>logmetrics</key>
@@ -236,12 +235,6 @@
     <map>
       <key>map-to</key>
       <string>NoHardwareProbe</string>
-    </map>
-
-    <key>noquicktime</key>
-    <map>
-      <key>map-to</key>
-      <string>NoQuickTime</string>
     </map>
 
     <key>nosound</key>

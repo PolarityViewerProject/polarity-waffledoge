@@ -74,6 +74,7 @@ LLConversationLogList::~LLConversationLogList()
 	if (mContextMenu.get())
 	{
 		mContextMenu.get()->die();
+		mContextMenu.markDead();
 	}
 
 	LLConversationLog::instance().removeObserver(this);
@@ -93,9 +94,9 @@ BOOL LLConversationLogList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
 
 	LLToggleableMenu* context_menu = mContextMenu.get();
+	if (context_menu && size())
 	{
 		context_menu->buildDrawLabels();
-	if (context_menu && size())
 		context_menu->updateParent(LLMenuGL::sMenuContainer);
 		LLMenuGL::showPopup(this, context_menu, x, y);
 	}
@@ -220,7 +221,7 @@ void LLConversationLogList::rebuildList()
 	}
 
 	// try to restore selection of item
-	if (NULL != selected_conversationp)
+	if (nullptr != selected_conversationp)
 	{
 		selectItemByUUID(selected_conversationp->getSessionID());
 	}
@@ -249,7 +250,7 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 {
 	const LLConversation * selected_conversationp = getSelectedConversation();
 
-	if (NULL == selected_conversationp)
+	if (nullptr == selected_conversationp)
 	{
 		return;
 	}
@@ -359,7 +360,7 @@ bool LLConversationLogList::isActionEnabled(const LLSD& userdata)
 {
 	const LLConversation * selected_conversationp = getSelectedConversation();
 
-	if (NULL == selected_conversationp || numSelected() > 1)
+	if (nullptr == selected_conversationp || numSelected() > 1)
 	{
 		return false;
 	}
@@ -403,7 +404,7 @@ bool LLConversationLogList::isActionEnabled(const LLSD& userdata)
 	}
 	else if ("can_show_on_map" == command_name)
 	{
-		return is_p2p && ((LLAvatarTracker::instance().isBuddyOnline(selected_id) && is_agent_mappable(selected_id)) || gAgent.isGodlike());
+		return is_p2p && ((LLAvatarTracker::instance().isBuddyOnline(selected_id) && LLAvatarActions::isAgentMappable(selected_id)) || gAgent.isGodlike());
 	}
 
 	return false;
@@ -413,7 +414,7 @@ bool LLConversationLogList::isActionChecked(const LLSD& userdata)
 {
 	const LLConversation * selected_conversationp = getSelectedConversation();
 
-	if (NULL == selected_conversationp)
+	if (nullptr == selected_conversationp)
 	{
 		return false;
 	}
@@ -468,7 +469,7 @@ const LLConversation* LLConversationLogList::getSelectedConversation()
 		return panel->getConversation();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 LLConversationLogListItem* LLConversationLogList::getConversationLogListItem(const LLUUID& session_id)
@@ -486,7 +487,7 @@ LLConversationLogListItem* LLConversationLogList::getConversationLogListItem(con
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 LLConversationLogList::ESortOrder LLConversationLogList::getSortOrder()

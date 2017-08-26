@@ -56,7 +56,7 @@
 class LLAvalineUpdater : public LLVoiceClientParticipantObserver
 {
 public:
-	typedef boost::function<void(const LLUUID& speaker_id)> process_avaline_callback_t;
+	typedef std::function<void(const LLUUID& speaker_id)> process_avaline_callback_t;
 
 	LLAvalineUpdater(process_avaline_callback_t found_cb, process_avaline_callback_t removed_cb)
 		: mAvalineFoundCallback(found_cb)
@@ -82,7 +82,7 @@ public:
 		mAvalineCallers.insert(avaline_caller_id);
 	}
 
-	void onParticipantsChanged()
+	void onParticipantsChanged() override
 	{
 		uuid_set_t participant_uuids;
 		LLVoiceClient::getInstance()->getParticipantList(participant_uuids);
@@ -181,8 +181,7 @@ private:
 
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLFolderViewModelInterface& root_view_model) :
 	LLConversationItemSession(data_source->getSessionID(), root_view_model),
-	mSpeakerMgr(data_source),
-	mValidateSpeakerCallback(NULL)
+	mSpeakerMgr(data_source)
 {
 
 	mAvalineUpdater = new LLAvalineUpdater(boost::bind(&LLParticipantList::onAvalineCallerFound, this, _1),
@@ -377,7 +376,7 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(avatar_id);
 
-	LLConversationItemParticipant* participant = NULL;
+	LLConversationItemParticipant* participant = nullptr;
 	
 	if (is_avatar)
 	{

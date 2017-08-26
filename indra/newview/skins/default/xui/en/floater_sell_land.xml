@@ -8,7 +8,7 @@
  name="sell land"
  help_topic="sell_land"
  single_instance="true"
- title="Sell Land"
+ title="SELL LAND"
  width="313">
     <scroll_container
      color="DkGray2"
@@ -71,8 +71,7 @@
     </text>
     <text
      follows="top|left"
-     font="SansSerif"
-     font.size="VeryBig"
+     font="SansSerifBig"
      height="24"
      left="16"
      name="info_action"
@@ -183,8 +182,7 @@
         3. Sell the objects with the land?
     </text>
     <text
-     font="SansSerif"
-     font.size="Small"
+     font="SansSerifSmall"
      follows="top|left"
      height="25"
      word_wrap="true"
@@ -228,8 +226,7 @@
     <text
      bottom_delta="30"
      follows="top|left"
-     font="SansSerif"
-     font.size="VeryBig"
+     font="SansSerifBig"
      height="16"
      left="16"
      name="nag_message_label"

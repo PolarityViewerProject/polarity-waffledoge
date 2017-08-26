@@ -35,8 +35,10 @@
 #include "llui.h"
 #include "llviewercontrol.h"
 #include "lluuid.h"
+#include "llslurl.h"// <alchemy/>
 
 #include "llcachename.h"
+#include "llavatarnamecache.h"
 
 // statics
 std::set<LLNameBox*> LLNameBox::sInstances;
@@ -69,7 +71,9 @@ void LLNameBox::setNameID(const LLUUID& name_id, BOOL is_group)
 
 	if (!is_group)
 	{
-		got_name = gCacheName->getFullName(name_id, name);
+		LLAvatarName av_name;
+		got_name = LLAvatarNameCache::get(name_id, &av_name);
+		name = av_name.getUserName();
 	}
 	else
 	{
@@ -111,9 +115,15 @@ void LLNameBox::setName(const std::string& name, BOOL is_group)
 		std::string url;
 
 		if (is_group)
-			url = "[secondlife:///app/group/" + mNameID.asString() + "/about " + name + "]";
+		{
+			//url = "[secondlife:///app/group/" + mNameID.asString() + "/about " + name + "]";
+			url = LLSLURL("group", mNameID, "inspect").getSLURLString(); // <alchemy/>
+		}
 		else
-			url = "[secondlife:///app/agent/" + mNameID.asString() + "/about " + name + "]";
+		{
+			//url = "[secondlife:///app/agent/" + mNameID.asString() + "/about " + name + "]";
+			url = LLSLURL("agent", mNameID, "inspect").getSLURLString(); // <alchemy/>
+		}
 
 		setText(url);
 	}

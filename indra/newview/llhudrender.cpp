@@ -107,7 +107,6 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	LLVector3 render_pos = pos_agent + (floorf(x_offset) * right_axis) + (floorf(y_offset) * up_axis);
 
 	//get the render_pos in screen space
-	
 	LLRect world_view_rect = gViewerWindow->getWorldViewRectRaw();
 	glm::ivec4 viewport(world_view_rect.mLeft, world_view_rect.mBottom, world_view_rect.getWidth(), world_view_rect.getHeight());
 

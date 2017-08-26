@@ -49,7 +49,6 @@
 #include "llsnapshotmodel.h"
 
 #include <boost/scoped_ptr.hpp>
-#include <lliconctrl.h>
 
 class LLView;
 class LLViewerObject;
@@ -136,6 +135,8 @@ private:
 
 };
 
+static const U32 MAX_SNAPSHOT_IMAGE_SIZE = 6 * 1024; // max snapshot image size 6144 * 6144
+
 class LLViewerWindow : public LLWindowCallbacks
 {
 public:
@@ -152,9 +153,9 @@ public:
 									height,
 									min_width,
 									min_height;
-		Optional<bool>				fullscreen,
-									ignore_pixel_depth,
+		Optional<bool>				ignore_pixel_depth,
 									first_run;
+		Optional<U32>				window_mode;
 
 		Params();
 	};
@@ -172,53 +173,53 @@ public:
 	void			initWorldUI();
 	void			setUIVisibility(bool);
 	bool			getUIVisibility();
+	void			setWindowTitle(const std::string& title);
 
 	BOOL handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down);
 
 	//
 	// LLWindowCallback interface implementation
 	//
-	/*virtual*/ BOOL handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated);
-	/*virtual*/ BOOL handleTranslatedKeyUp(KEY key,  MASK mask);
-	/*virtual*/ void handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level);
-	/*virtual*/ BOOL handleUnicodeChar(llwchar uni_char, MASK mask);	// NOT going to handle extended 
-	/*virtual*/ BOOL handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ BOOL handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ BOOL handleCloseRequest(LLWindow *window);
-	/*virtual*/ void handleQuit(LLWindow *window);
-	/*virtual*/ BOOL handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ BOOL handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ BOOL handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ BOOL handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ LLWindowCallbacks::DragNDropResult handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, LLWindowCallbacks::DragNDropAction action, std::string data);
-				void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask);
-                void handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ void handleMouseLeave(LLWindow *window);
-	/*virtual*/ void handleResize(LLWindow *window,  S32 x,  S32 y);
-	/*virtual*/ void handleFocus(LLWindow *window);
-	/*virtual*/ void handleFocusLost(LLWindow *window);
-	/*virtual*/ BOOL handleActivate(LLWindow *window, BOOL activated);
-	/*virtual*/ BOOL handleActivateApp(LLWindow *window, BOOL activating);
-	/*virtual*/ void handleMenuSelect(LLWindow *window,  S32 menu_item);
-	/*virtual*/ BOOL handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
-	/*virtual*/ void handleScrollWheel(LLWindow *window,  S32 clicks);
-	/*virtual*/ BOOL handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ void handleWindowBlock(LLWindow *window);
-	/*virtual*/ void handleWindowUnblock(LLWindow *window);
-	/*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);
-	/*virtual*/ BOOL handleTimerEvent(LLWindow *window);
-	/*virtual*/ BOOL handleDeviceChange(LLWindow *window);
-	/*virtual*/ BOOL handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
+	/*virtual*/ BOOL handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated) override;
+	/*virtual*/ BOOL handleTranslatedKeyUp(KEY key,  MASK mask) override;
+	/*virtual*/ void handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level) override;
+	/*virtual*/ BOOL handleUnicodeChar(llwchar uni_char, MASK mask) override;	// NOT going to handle extended 
+	/*virtual*/ BOOL handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask) override;
+	/*virtual*/ BOOL handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask) override;
+	/*virtual*/ BOOL handleCloseRequest(LLWindow *window) override;
+	/*virtual*/ void handleQuit(LLWindow *window) override;
+	/*virtual*/ BOOL handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask) override;
+	/*virtual*/ BOOL handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask) override;
+	/*virtual*/ BOOL handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask) override;
+	/*virtual*/ BOOL handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask) override;
+	/*virtual*/ LLWindowCallbacks::DragNDropResult handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, LLWindowCallbacks::DragNDropAction action, std::string data) override;
+    /*virtual*/ void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask) override;
+	/*virtual*/ void handleMouseLeave(LLWindow *window) override;
+	/*virtual*/ void handleResize(LLWindow *window, S32 width, S32 height) override;
+	/*virtual*/ void handleFocus(LLWindow *window) override;
+	/*virtual*/ void handleFocusLost(LLWindow *window) override;
+	/*virtual*/ BOOL handleActivate(LLWindow *window, BOOL activated) override;
+	/*virtual*/ BOOL handleActivateApp(LLWindow *window, BOOL activating) override;
+	/*virtual*/ void handleMenuSelect(LLWindow *window,  S32 menu_item) override;
+	/*virtual*/ BOOL handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height) override;
+	/*virtual*/ void handleScrollWheel(LLWindow *window,  S32 clicks) override;
+	/*virtual*/ BOOL handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask) override;
+	/*virtual*/ void handleWindowBlock(LLWindow *window) override;
+	/*virtual*/ void handleWindowUnblock(LLWindow *window) override;
+	/*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data) override;
+	/*virtual*/ BOOL handleTimerEvent(LLWindow *window) override;
+	/*virtual*/ BOOL handleDeviceChange(LLWindow *window) override;
+	/*virtual*/ BOOL handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height) override;
 
-	/*virtual*/ void handlePingWatchdog(LLWindow *window, const char * msg);
-	/*virtual*/ void handlePauseWatchdog(LLWindow *window);
-	/*virtual*/ void handleResumeWatchdog(LLWindow *window);
-	/*virtual*/ std::string translateString(const char* tag);
+	/*virtual*/ void handlePingWatchdog(LLWindow *window, const char * msg) override;
+	/*virtual*/ void handlePauseWatchdog(LLWindow *window) override;
+	/*virtual*/ void handleResumeWatchdog(LLWindow *window) override;
+	/*virtual*/ std::string translateString(const char* tag) override;
 	/*virtual*/ std::string translateString(const char* tag,
-					const std::map<std::string, std::string>& args);
+					const std::map<std::string, std::string>& args) override;
 	
 	// signal on update of WorldView rect
-	typedef boost::function<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_callback_t;
+	typedef std::function<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_callback_t;
 	typedef boost::signals2::signal<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_signal_t;
 	world_rect_signal_t mOnWorldViewRectUpdated;
 	boost::signals2::connection setOnWorldViewRectUpdated(world_rect_callback_t cb) { return mOnWorldViewRectUpdated.connect(cb); }
@@ -247,7 +248,6 @@ public:
 	LLRect			getWindowRectRaw() const		{ return mWindowRectRaw; }
 	S32				getWindowHeightRaw() const;
 	S32				getWindowWidthRaw() const;
-
 
 	LLWindow*		getWindow()			const	{ return mWindow; }
 	void*			getPlatformWindow() const;
@@ -300,6 +300,7 @@ public:
 	BOOL			getShowProgress() const;
 	void			setProgressString(const std::string& string);
 	void			setProgressPercent(const F32 percent);
+	void			setProgressMessage(const std::string& msg);
 	void			setProgressCancelButtonVisible( BOOL b, const std::string& label = LLStringUtil::null );
 	LLProgressView *getProgressView() const;
 	void			revealIntroPanel();
@@ -308,9 +309,9 @@ public:
 	void			updateObjectUnderCursor();
 
 	void			updateUI();		// Once per frame, update UI based on mouse position, calls following update* functions
-	void				updateLayout();						
-	void				updateMouseDelta();		
-	void				updateKeyboardFocus();		
+	void			updateLayout();
+	void			updateMouseDelta();
+	void			updateKeyboardFocus();
 
 	void			updateWorldViewRect(bool use_full_window=false);
 	LLView*			getToolBarHolder() { return mToolBarHolder.get(); }
@@ -327,7 +328,7 @@ public:
 
 	// Hide normal UI when a logon fails, re-show everything when logon is attempted again
 	void			setNormalControlsVisible( BOOL visible );
-	void			setMenuBackgroundColor(bool god_mode = false, bool dev_grid = false);
+	void			setMenuBackgroundColor(bool god_mode = false);
 
 	void			reshape(S32 width, S32 height);
 	void			sendShapeToSim();
@@ -344,17 +345,12 @@ public:
 	// perhaps some of this should move to llfloatershapshot?  -MG
 
 	BOOL			saveSnapshot(const std::string&  filename, S32 image_width, S32 image_height, BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR);
-	static GLint	getGPUTextureSizeLimit();
 	BOOL			rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, BOOL keep_window_aspect = TRUE, BOOL is_texture = FALSE,
-		BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR);
+		BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, S32 max_size = MAX_SNAPSHOT_IMAGE_SIZE);
 	BOOL			thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type);
 	BOOL			isSnapshotLocSet() const { return ! sSnapshotDir.empty(); }
 	void			resetSnapshotLoc() const { sSnapshotDir.clear(); }
-	// <FS:Ansariel> Threaded filepickers
-	//BOOL		    saveImageNumbered(LLImageFormatted *image, bool force_picker = false);
-	void			saveImageNumbered(LLImageFormatted *image, bool force_picker = false, boost::function<void(bool)> callback = NULL);
-	void			saveImageCallback(const std::string& filename, LLImageFormatted* image, const std::string& extension, boost::function<void(bool)> callback);
-	// </FS:Ansariel>
+	BOOL		    saveImageNumbered(LLImageFormatted *image, bool force_picker = false);
 
 	// Reset the directory where snapshots are saved.
 	// Client will open directory picker on next snapshot save.
@@ -379,17 +375,17 @@ public:
 										   LLVector4a* intersection);
 
 	LLViewerObject* cursorIntersect(S32 mouse_x = -1, S32 mouse_y = -1, F32 depth = 512.f,
-									LLViewerObject *this_object = NULL,
+									LLViewerObject *this_object = nullptr,
 									S32 this_face = -1,
 									BOOL pick_transparent = FALSE,
 									BOOL pick_rigged = FALSE,
-									S32* face_hit = NULL,
-									LLVector4a *intersection = NULL,
-									LLVector2 *uv = NULL,
-									LLVector4a *normal = NULL,
-									LLVector4a *tangent = NULL,
-									LLVector4a* start = NULL,
-									LLVector4a* end = NULL);
+									S32* face_hit = nullptr,
+									LLVector4a *intersection = nullptr,
+									LLVector2 *uv = nullptr,
+									LLVector4a *normal = nullptr,
+									LLVector4a *tangent = nullptr,
+									LLVector4a* start = nullptr,
+									LLVector4a* end = nullptr);
 	
 	
 	// Returns a pointer to the last object hit
@@ -408,12 +404,6 @@ public:
 	// Prints window implementation details
 	void			dumpState();
 
-// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-07-09 (Catznip-2.1.2a) | Added: Catznip-2.1.1a
-	bool			canFullscreenWindow();
-	bool			getFullscreenWindow();
-	void			setFullscreenWindow(BOOL fFullscreen);
-// [/SL:KB]
-
 	// handle shutting down GL and bringing it back up
 	void			requestResolutionUpdate();
 	void			checkSettings();
@@ -424,10 +414,6 @@ public:
 	const LLVector2& getDisplayScale() const { return mDisplayScale; }
 	void			calcDisplayScale();
 	static LLRect 	calcScaledRect(const LLRect & rect, const LLVector2& display_scale);
-
-	void			setTitle(const std::string& win_title);	// <polarity/> Dynamic window title
-
-	LLWindow*		mWindow;						// graphical window object
 
 	bool getSystemUIScaleFactorChanged() { return mSystemUIScaleFactorChanged; }
 	static void showSystemUIScaleFactorChanged();
@@ -447,9 +433,7 @@ private:
 
 	static bool onSystemUIScaleFactorChanged(const LLSD& notification, const LLSD& response);
 private:
-
-	// Moved
-	//LLWindow*		mWindow;						// graphical window object
+	LLWindow*		mWindow;						// graphical window object
 	bool			mActive;
 	bool			mUIVisible;
 
@@ -481,8 +465,6 @@ private:
 
 	BOOL			mMouseInWindow;				// True if the mouse is over our window or if we have captured the mouse.
 	BOOL			mFocusCycleMode;
-    BOOL            mAllowMouseDragging;
-    LLFrameTimer    mMouseDownTimer;
 	typedef std::set<LLHandle<LLView> > view_handle_set_t;
 	view_handle_set_t mMouseHoverViews;
 
@@ -507,6 +489,7 @@ private:
 	LLHandle<LLView> mHintHolder;			// container for hints
 	LLHandle<LLView> mLoginPanelHolder;		// container for login panel
 	LLPopupView*	mPopupView;			// container for transient popups
+	LLHandle<LLPanel> mStatusBarPanel;
 	
 	class LLDebugText* mDebugText; // Internal class for debug text
 	

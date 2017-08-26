@@ -65,7 +65,6 @@
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "pipeline.h"
-#include "lluictrlfactory.h"
 #include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "llviewermenufile.h"
@@ -81,6 +80,7 @@
 #include "lltoggleablemenu.h"
 #include "lltrans.h"
 #include "llvfile.h"
+#include "llworld.h" // for getRegionMaxPrimScale()
 #include "llvfs.h"
 #include "llcallbacklist.h"
 #include "llviewerobjectlist.h"
@@ -93,7 +93,7 @@
 
 //static
 S32 LLFloaterModelPreview::sUploadAmount = 10;
-LLFloaterModelPreview* LLFloaterModelPreview::sInstance = NULL;
+LLFloaterModelPreview* LLFloaterModelPreview::sInstance = nullptr;
 
 bool LLModelPreview::sIgnoreLoadedCallback = false;
 
@@ -181,7 +181,7 @@ BOOL stop_gloderror()
 
 	if (error != GLOD_NO_ERROR)
 	{
-		LL_WARNS() << "GLOD error detected, cannot generate LOD: " << std::hex << error << LL_ENDL;
+		LL_WARNS() << "GLOD error detected, cannot generate LOD: " << std::hex << error << std::dec << LL_ENDL;
 		return TRUE;
 	}
 
@@ -201,7 +201,7 @@ LLViewerFetchedTexture* bindMaterialDiffuseTexture(const LLImportMaterial& mater
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 std::string stripSuffix(std::string name)
@@ -214,10 +214,7 @@ std::string stripSuffix(std::string name)
 }
 
 LLMeshFilePicker::LLMeshFilePicker(LLModelPreview* mp, S32 lod)
-// <FS:CR> Threaded Filepickers
-//: LLFilePickerThread(LLFilePicker::FFLOAD_COLLADA)
-: LLLoadFilePickerThread(LLFilePicker::FFLOAD_COLLADA)
-// </FS:CR>
+: LLFilePickerThread(LLFilePicker::FFLOAD_COLLADA)
 	{
 		mMP = mp;
 		mLOD = lod;
@@ -257,14 +254,14 @@ void FindModel(LLModelLoader::scene& scene, const std::string& name_to_match, LL
 //-----------------------------------------------------------------------------
 LLFloaterModelPreview::LLFloaterModelPreview(const LLSD& key) :
 LLFloaterModelUploadBase(key),
-mUploadBtn(NULL),
-mCalculateBtn(NULL)
+mUploadBtn(nullptr),
+mCalculateBtn(nullptr)
 {
 	sInstance = this;
 	mLastMouseX = 0;
 	mLastMouseY = 0;
 	mStatusLock = new LLMutex();
-	mModelPreview = NULL;
+	mModelPreview = nullptr;
 
 	mLODMode[LLModel::LOD_HIGH] = 0;
 	for (U32 i = 0; i < LLModel::LOD_HIGH; i++)
@@ -301,10 +298,10 @@ BOOL LLFloaterModelPreview::postBuild()
 		getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod])->setCommitCallback(boost::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, true));
 	}
 
-	childSetCommitCallback("upload_skin", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
-	childSetCommitCallback("upload_joints", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
-	childSetCommitCallback("lock_scale_if_joint_position", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
-	childSetCommitCallback("upload_textures", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
+	childSetCommitCallback("upload_skin", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), nullptr);
+	childSetCommitCallback("upload_joints", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), nullptr);
+	childSetCommitCallback("lock_scale_if_joint_position", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), nullptr);
+	childSetCommitCallback("upload_textures", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), nullptr);
 
 	childSetTextArg("status", "[STATUS]", getString("status_idle"));
 
@@ -388,7 +385,7 @@ BOOL LLFloaterModelPreview::postBuild()
 	mUploadBtn = getChild<LLButton>("ok_btn");
 	mCalculateBtn = getChild<LLButton>("calculate_btn");
 
-	if (LLConvexDecomposition::getInstance() != NULL)
+	if (LLConvexDecomposition::getInstance() != nullptr)
 	{
 	mCalculateBtn->setClickedCallback(boost::bind(&LLFloaterModelPreview::onClickCalculateBtn, this));
 
@@ -407,7 +404,7 @@ BOOL LLFloaterModelPreview::postBuild()
 //-----------------------------------------------------------------------------
 LLFloaterModelPreview::~LLFloaterModelPreview()
 {
-	sInstance = NULL;
+	sInstance = nullptr;
 	
 	if ( mModelPreview )
 	{
@@ -415,7 +412,7 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 	}
 
 	delete mStatusLock;
-	mStatusLock = NULL;
+	mStatusLock = nullptr;
 }
 
 void LLFloaterModelPreview::initModelPreview()
@@ -473,13 +470,6 @@ void LLFloaterModelPreview::disableViewOption(const std::string& option)
 
 void LLFloaterModelPreview::loadModel(S32 lod)
 {
-	// <FS:Ansariel> FIRE-15204: Viewer crashes when clicking "upload model" quickly twice then closing both filepickers
-	if (mModelPreview->mLoading)
-	{
-		return;
-	}
-	// </FS:Ansariel>
-
 	mModelPreview->mLoading = true;
 	if (lod == LLModel::LOD_PHYSICS)
 	{
@@ -492,13 +482,6 @@ void LLFloaterModelPreview::loadModel(S32 lod)
 
 void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name, bool force_disable_slm)
 {
-	// <FS:Ansariel> FIRE-15204: Viewer crashes when clicking "upload model" quickly twice then closing both filepickers
-	if (mModelPreview->mLoading)
-	{
-		return;
-	}
-	// </FS:Ansariel>
-
 	mModelPreview->mLoading = true;
 
 	mModelPreview->loadModel(file_name, lod, force_disable_slm);
@@ -721,16 +704,16 @@ void LLFloaterModelPreview::draw()
 			mPreviewRect = preview_panel->getRect();
 		}
 
-		gGL.begin( LLRender::QUADS );
+		gGL.begin(LLRender::TRIANGLE_STRIP);
 		{
 			gGL.texCoord2f(0.f, 1.f);
-			gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mTop-1);
+			gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mTop - 1);
 			gGL.texCoord2f(0.f, 0.f);
 			gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mBottom);
-			gGL.texCoord2f(1.f, 0.f);
-			gGL.vertex2i(mPreviewRect.mRight-1, mPreviewRect.mBottom);
 			gGL.texCoord2f(1.f, 1.f);
-			gGL.vertex2i(mPreviewRect.mRight-1, mPreviewRect.mTop-1);
+			gGL.vertex2i(mPreviewRect.mRight - 1, mPreviewRect.mTop - 1);
+			gGL.texCoord2f(1.f, 0.f);
+			gGL.vertex2i(mPreviewRect.mRight - 1, mPreviewRect.mBottom);
 		}
 		gGL.end();
 
@@ -853,7 +836,7 @@ void LLFloaterModelPreview::onClose(bool app_quitting)
 //static
 void LLFloaterModelPreview::onPhysicsParamCommit(LLUICtrl* ctrl, void* data)
 {
-	if (LLConvexDecomposition::getInstance() == NULL)
+	if (LLConvexDecomposition::getInstance() == nullptr)
 	{
 		LL_INFOS() << "convex decomposition tool is a stub on this platform. cannot get decomp." << LL_ENDL;
 		return;
@@ -1012,23 +995,23 @@ void LLFloaterModelPreview::initDecompControls()
 {
 	LLSD key;
 
-	childSetCommitCallback("simplify_cancel", onPhysicsStageCancel, NULL);
-	childSetCommitCallback("decompose_cancel", onPhysicsStageCancel, NULL);
+	childSetCommitCallback("simplify_cancel", onPhysicsStageCancel, nullptr);
+	childSetCommitCallback("decompose_cancel", onPhysicsStageCancel, nullptr);
 
-	childSetCommitCallback("physics_lod_combo", onPhysicsUseLOD, NULL);
-	childSetCommitCallback("physics_browse", onPhysicsBrowse, NULL);
+	childSetCommitCallback("physics_lod_combo", onPhysicsUseLOD, nullptr);
+	childSetCommitCallback("physics_browse", onPhysicsBrowse, nullptr);
 
-	static const LLCDStageData* stage = NULL;
+	static const LLCDStageData* stage = nullptr;
 	static S32 stage_count = 0;
 
-	if (!stage && LLConvexDecomposition::getInstance() != NULL)
+	if (!stage && LLConvexDecomposition::getInstance() != nullptr)
 	{
 		stage_count = LLConvexDecomposition::getInstance()->getStages(&stage);
 	}
 
-	static const LLCDParam* param = NULL;
+	static const LLCDParam* param = nullptr;
 	static S32 param_count = 0;
-	if (!param && LLConvexDecomposition::getInstance() != NULL)
+	if (!param && LLConvexDecomposition::getInstance() != nullptr)
 	{
 		param_count = LLConvexDecomposition::getInstance()->getParameters(&param);
 	}
@@ -1215,12 +1198,12 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex()
 , mLodsQuery()
 , mLodsWithParsingError()
-, mPelvisZOffset( 0.0f )
-, mLegacyRigValid( false )
-, mRigValidJointUpload( false )
 , mPhysicsSearchLOD( LLModel::LOD_PHYSICS )
 , mResetJoints( false )
 , mModelNoErrors( true )
+, mPelvisZOffset( 0.0f )
+, mRigValidJointUpload( false )
+, mLegacyRigValid( false )
 , mLastJointUpdate( false )
 {
 	mNeedsUpdate = TRUE;
@@ -1230,7 +1213,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 	mCameraZoom = 1.f;
 	mTextureName = 0;
 	mPreviewLOD = 0;
-	mModelLoader = NULL;
+	mModelLoader = nullptr;
 	mMaxTriangleLimit = 0;
 	mDirty = false;
 	mGenLOD = false;
@@ -1279,6 +1262,10 @@ LLModelPreview::~LLModelPreview()
 	// glod.dll!glodShutdown()  + 0x77 bytes	
 	//
 	//glodShutdown();
+	if(mModelLoader)
+	{
+		mModelLoader->shutdown();
+	}
 }
 
 U32 LLModelPreview::calcResourceCost()
@@ -1461,7 +1448,7 @@ void LLModelPreview::rebuildUploadData()
 
 			for (int i = LLModel::NUM_LODS - 1; i >= LLModel::LOD_IMPOSTOR; i--)
 			{
-				LLModel* lod_model = NULL;
+				LLModel* lod_model = nullptr;
 				if (!legacyMatching)
 				{
 					// Fill LOD slots by finding matching meshes by label with name extensions
@@ -1657,7 +1644,7 @@ void LLModelPreview::rebuildUploadData()
 		}
 	}
 
-	F32 max_import_scale = (DEFAULT_MAX_PRIM_SCALE-0.1f)/max_scale;
+	F32 max_import_scale = (LLWorld::getInstance()->getRegionMaxPrimScale()-0.1f)/max_scale;
 
 	F32 max_axis = llmax(mPreviewScale.mV[0], mPreviewScale.mV[1]);
 	max_axis = llmax(max_axis, mPreviewScale.mV[2]);
@@ -1952,7 +1939,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 	if(getLoadState() >= LLModelLoader::ERROR_PARSING)
 	{
 		mLoading = false ;
-		mModelLoader = NULL;
+		mModelLoader = nullptr;
 		mLodsWithParsingError.push_back(loaded_lod);
 		return ;
 	}
@@ -2116,7 +2103,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 					{
 						std::string loaded_name = stripSuffix(mModel[loaded_lod][idx]->mLabel);
 
-						LLModel* found_model = NULL;
+						LLModel* found_model = nullptr;
 						LLMatrix4 transform;
 						FindModel(mBaseScene, loaded_name, found_model, transform);
 						if (found_model)
@@ -2195,7 +2182,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 
 	mModelLoadedSignal();
 
-	mModelLoader = NULL;
+	mModelLoader = nullptr;
 }
 
 void LLModelPreview::resetPreviewTarget()
@@ -3273,7 +3260,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 	U32 mesh_count = 0;
 
 	
-	LLModelLoader::model_list* model = NULL;
+	LLModelLoader::model_list* model = nullptr;
 
 	if (lod < 0 || lod > 4)
 	{
@@ -3317,7 +3304,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 				continue;
 			}
 
-			LLVertexBuffer* vb = NULL;
+			LLVertexBuffer* vb = nullptr;
 
 			bool skinned = include_skin_weights && !mdl->mSkinWeights.empty();
 
@@ -3502,7 +3489,7 @@ LLJoint* LLModelPreview::lookupJointByName(const std::string& str, void* opaque)
 	{
 		return pPreview->getPreviewAvatar()->getJoint(str);
 	}
-	return NULL;
+	return nullptr;
 }
 
 U32 LLModelPreview::loadTextures(LLImportMaterial& material,void* opaque)
@@ -3515,13 +3502,13 @@ U32 LLModelPreview::loadTextures(LLImportMaterial& material,void* opaque)
 		LLPointer< LLViewerFetchedTexture >& tex = (*reinterpret_cast< LLPointer< LLViewerFetchedTexture > * >(material.mOpaqueData));
 
 		tex = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + material.mDiffuseMapFilename, FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_PREVIEW);
-		tex->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, opaque, NULL, FALSE);
+		tex->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, opaque, nullptr, FALSE);
 		tex->forceToSaveRawImage(0, F32_MAX);
 		material.setDiffuseMap(tex->getID()); // record tex ID
 		return 1;
 	}
 
-	material.mOpaqueData = NULL;
+	material.mOpaqueData = nullptr;
 	return 0;	
 }
 
@@ -3848,11 +3835,11 @@ BOOL LLModelPreview::render()
 
 						if (edges)
 						{
-							glLineWidth(3.f);
+							gGL.setLineWidth(3.f);
 							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 							buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-							glLineWidth(1.f);
+							gGL.setLineWidth(1.f);
 						}
 					}
 					gGL.popMatrix();
@@ -3966,19 +3953,19 @@ BOOL LLModelPreview::render()
 
 									gGL.diffuseColor3f(1.f, 1.f, 0.f);
 
-									glLineWidth(2.f);
+									gGL.setLineWidth(2.f);
 									glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 									buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 
 									glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-									glLineWidth(1.f);
+									gGL.setLineWidth(1.f);
 								}
 							}
 
 							gGL.popMatrix();
 						}
 
-					glLineWidth(3.f);
+					gGL.setLineWidth(3.f);
 					glPointSize(8.f);
 					gPipeline.enableLightsFullbright(LLColor4::white);
 					//show degenerate triangles
@@ -4049,7 +4036,7 @@ BOOL LLModelPreview::render()
 
 						gGL.popMatrix();
 					}
-					glLineWidth(1.f);
+					gGL.setLineWidth(1.f);
 					glPointSize(1.f);
 					gPipeline.enableLightsPreview();
 					gGL.setSceneBlendType(LLRender::BT_ALPHA);
@@ -4137,11 +4124,11 @@ BOOL LLModelPreview::render()
 
 							if (edges)
 							{
-								glLineWidth(3.f);
+								gGL.setLineWidth(3.f);
 								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 								buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
 								glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-								glLineWidth(1.f);
+								gGL.setLineWidth(1.f);
 							}
 						}
 					}

@@ -36,7 +36,6 @@
 #include "llimview.h"
 #include "llconversationmodel.h"
 #include "llconversationview.h"
-#include "lltexteditor.h"
 
 class LLPanelChatControlPanel;
 class LLChatEntry;
@@ -77,11 +76,11 @@ public:
 	bool isNearbyChat() {return mIsNearbyChat;}
 
 	// LLFloater overrides
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
-	/*virtual*/ void setVisible(BOOL visible);
-	/*virtual*/ void setFocus(BOOL focus);
+	/*virtual*/ void onOpen(const LLSD& key) override;
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void draw() override;
+	/*virtual*/ void setVisible(BOOL visible) override;
+	/*virtual*/ void setFocus(BOOL focus) override;
 	
 	// Handle the left hand participant list widgets
 	void addConversationViewParticipant(LLConversationItem* item);
@@ -97,13 +96,12 @@ public:
 	virtual void updateMessages() {}
 	LLConversationItem* getCurSelectedViewModelItem();
 	void forceReshape();
-	virtual BOOL handleKeyHere( KEY key, MASK mask );
+	BOOL handleKeyHere( KEY key, MASK mask ) override;
 	bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
 	void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
 	void restoreFloater();
 	void saveCollapsedState();
 
-	void purgeChatHistory(); // <polarity> Allow to clear chat history
 	LLView* getChatHistory();
 
 protected:
@@ -137,14 +135,16 @@ protected:
 	virtual void enableDisableCallBtn();
 
 	// process focus events to set a currently active session
-	/* virtual */ void onFocusLost();
-	/* virtual */ void onFocusReceived();
+	/* virtual */ void onFocusLost() override;
+	/* virtual */ void onFocusReceived() override;
 
 	// prepare chat's params and out one message to chatHistory
 	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 
 	std::string appendTime();
 	void assignResizeLimits();
+	
+	virtual void applyMUPose(std::string& text);
 
 	S32  mFloaterExtraWidth;
 
@@ -161,6 +161,7 @@ protected:
 	LLConversationViewParticipant* createConversationViewParticipant(LLConversationItem* item);
 	
 	LLUUID mSessionID; 
+	LLView* mContentsView; // <alchemy/>
 	LLLayoutStack* mBodyStack;
 	LLLayoutStack* mParticipantListAndHistoryStack;
 	LLLayoutPanel* mParticipantListPanel;	// add the widgets to that see mConversationsListPanel
@@ -197,7 +198,7 @@ private:
     void getSelectedUUIDs(uuid_vec_t& selected_uuids);
 	
 	/// Refreshes the floater at a constant rate.
-	virtual void refresh() = 0;
+	void refresh() override = 0;
 
 	/**
 	 * Adjusts chat history height to fit vertically with input chat field

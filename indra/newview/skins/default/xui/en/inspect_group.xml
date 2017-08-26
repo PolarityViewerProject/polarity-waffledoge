@@ -22,8 +22,7 @@
   <string name="YouAreMember">You are a member</string>
   <text
      follows="all"
-     font="SansSerif"
-     font.size="Large"
+     font="SansSerifLarge"
      height="16"
      left="8"
      name="group_name"
@@ -37,8 +36,7 @@
   </text>
   <text
    follows="all"
-   font="SansSerif"
-   font.size="Small"
+   font="SansSerifSmall"
    text_color="White"
    height="16"
    left="8"

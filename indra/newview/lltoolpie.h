@@ -42,29 +42,26 @@ class LLToolPie : public LLTool, public LLSingleton<LLToolPie>
 public:
 
 	// Virtual functions inherited from LLMouseHandler
-	virtual BOOL		handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down);
-	virtual BOOL		handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleRightMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleDoubleClick(S32 x, S32 y, MASK mask);
-	virtual BOOL		handleScrollWheel(S32 x, S32 y, S32 clicks);
-	virtual BOOL		handleToolTip(S32 x, S32 y, MASK mask);
+	BOOL		handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down) override;
+	BOOL		handleMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL		handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL		handleMouseUp(S32 x, S32 y, MASK mask) override;
+	BOOL		handleRightMouseUp(S32 x, S32 y, MASK mask) override;
+	BOOL		handleHover(S32 x, S32 y, MASK mask) override;
+	BOOL		handleDoubleClick(S32 x, S32 y, MASK mask) override;
+	BOOL		handleScrollWheel(S32 x, S32 y, S32 clicks) override;
+	BOOL		handleToolTip(S32 x, S32 y, MASK mask) override;
 
-	virtual void		render();
+	void		render() override;
 
-	virtual void		stopEditing();
+	void		stopEditing() override;
 
-	virtual void		onMouseCaptureLost();
-	virtual void		handleSelect();
-	virtual void		handleDeselect();
-	virtual LLTool*		getOverrideTool(MASK mask);
+	void		onMouseCaptureLost() override;
+	void		handleSelect() override;
+	void		handleDeselect() override;
+	LLTool*		getOverrideTool(MASK mask) override;
 
 	LLPickInfo&			getPick() { return mPick; }
-// [RLVa:KB] - Checked: 2010-03-06 (RLVa-1.2.0c) | Added: RLVa-1.2.0a
-	LLPickInfo&			getHoverPick() { return mHoverPick; }
-// [/RLVa:KB]
 	U8					getClickAction() { return mClickAction; }
 	LLViewerObject*		getClickActionObject() { return mClickActionObject; }
 	LLObjectSelection*	getLeftClickSelection() { return (LLObjectSelection*)mLeftClickSelection; }

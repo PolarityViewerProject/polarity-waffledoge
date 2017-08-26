@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+ border="true"
  height="408"
  label="Popups"
  layout="topleft"
@@ -20,80 +21,31 @@
         Tell me:
     </text>
     <check_box
+     control_name="NotifyMoneySpend"
+     height="16"
+     label="When I spend L$"
+     layout="topleft"
+     left_delta="50"
+     name="notify_money_spend_checkbox"
+     top_pad="4"
+     width="300" />
+    <check_box
      control_name="ChatOnlineNotification"
-     height="22"
+     height="16"
      label="When my friends log in or out"
      layout="topleft"
-     left="10"
-     top_pad="2"
+     left_delta="150"
      name="friends_online_notify_checkbox"     
-     width="85" />
-    <check_box
-     control_name="NotifyMoneySpend"
-     height="22"
-     label="When I spend more than"
-     layout="topleft"
-     left_delta="0"
-     name="notify_money_spend_checkbox"
-     top_pad="5"
-     valign="center"
-     width="160" />
+     width="300" />	
     <check_box
      control_name="NotifyMoneyReceived"
-     height="22"
-     label="When I get more than"
+     height="16"
+     label="When I get L$"
      layout="topleft"
-     left_delta="0"
-     top_pad="2"  
-     name="notify_money_recv_spinner"     
-     valign="center"
-     width="165" />
-    <spinner
-     control_name="PVUI_BalanceNotificationThresholdSend"
-     decimal_digits="0"
-     follows="top|left|right"
-     height="22"
-     layout="topleft"
-     left_pad="5"
-     name="notify_money_send_spinner"     
-     top_delta="-22"
-     valign="center"
-     width="70" />  
-    <spinner
-     control_name="PVUI_BalanceNotificationThresholdReceive"
-     decimal_digits="0"
-     follows="top|left|right"
-     height="22"
-     layout="topleft"
-     left_delta="0"
+     left_delta="-150"
+     top_pad="4"	
      name="notify_money_received_checkbox"     
-     top_pad="2"  
-     valign="center"
-     width="70" />  
-    <text
-     height="22"
-     follows="top|left|right"
-     label=""
-     layout="topleft"
-     left_pad="2"
-     name="threshold_text_send"
-     top_delta="-24"  
-     valign="center"
-     width="65">
-     L$
-    </text> 
-    <text
-     height="22"
-     label=""
-     follows="top|left|right"
-     layout="topleft"
-     left_delta="0"
-     name="threshold_text"
-     top_pad="2"  
-     valign="center"
-     width="65">
-     L$
-    </text> 
+     width="300" />   
     <text
      type="string"
      length="1"
@@ -102,13 +54,13 @@
      layout="topleft"
      left="10"
      name="show_label"
-     top_pad="15"
+     top_pad="8"
      width="450">
         Always show:
     </text>
     <scroll_list
      follows="top|left|right"
-     height="135"
+     height="140"
      layout="topleft"
      left="10"
      multi_select="true"
@@ -158,7 +110,7 @@
     </text>
     <scroll_list
      follows="top|left|right"
-     height="135"
+     height="140"
      layout="topleft"
      left="10"
      sort_column="0"

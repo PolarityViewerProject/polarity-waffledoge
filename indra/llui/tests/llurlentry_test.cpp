@@ -54,12 +54,12 @@
 typedef std::map<std::string, LLControlGroup*> settings_map_t;
 settings_map_t LLUI::sSettingGroups;
 
-BOOL LLControlGroup::getBOOL(const std::string& name)
+BOOL LLControlGroup::getBOOL(const std::string& name) const
 {
 	return false;
 }
 
-LLUIColor LLUIColorTable::getColor(char const *name, const LLColor4& default_color) const
+LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& default_color) const
 {
 	return LLUIColor();
 }
@@ -390,7 +390,19 @@ namespace tut
 
 		testRegex("Standalone Agent Url Multicase with Text", url,
 				  "M x-grid-location-info://lincoln.lindenlab.com/app/AGENT/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about M",
-				  "x-grid-location-info://lincoln.lindenlab.com/app/AGENT/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");		
+				  "x-grid-location-info://lincoln.lindenlab.com/app/AGENT/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
+		
+		testRegex("Standalone Agent Url with Port", url,
+				  "x-grid-location-info://my.grid.com:8002/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about",
+				  "x-grid-location-info://my.grid.com:8002/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
+		
+		testRegex("Standalone Agent Url using IP address", url,
+				  "x-grid-location-info://127.0.0.1:9000/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about",
+				  "x-grid-location-info://127.0.0.1:9000/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
+		
+		testRegex("Standalone Agent Url with an ungodly long uri alternate command", url,
+				  "x-grid-location-info://holyshitthisdomainiswaytolongwhywouldyoudothistomewhatthefuckisyourproblem.hi.edu:99999/app/agent/0E346D8B-4433-4d66-a6b0-fd37083abc4c/foobar",
+				  "x-grid-location-info://holyshitthisdomainiswaytolongwhywouldyoudothistomewhatthefuckisyourproblem.hi.edu:99999/app/agent/0E346D8B-4433-4d66-a6b0-fd37083abc4c/foobar");
 	}
 
 	template<> template<>
@@ -428,6 +440,14 @@ namespace tut
 		testRegex("Standalone Group Url Multicase ith Text", url,
 				  "M x-grid-location-info://lincoln.lindenlab.com/app/GROUP/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about M",
 				  "x-grid-location-info://lincoln.lindenlab.com/app/GROUP/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");		
+		
+		testRegex("Standalone Group Url with Port", url,
+				  "x-grid-location-info://my.grid.com:8002/app/group/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about",
+				  "x-grid-location-info://my.grid.com:8002/app/group/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
+		
+		testRegex("Standalone Group Url using IP address", url,
+				  "x-grid-location-info://127.0.0.1:9000/app/group/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about",
+				  "x-grid-location-info://127.0.0.1:9000/app/group/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
 		
 	}
 
@@ -479,7 +499,15 @@ namespace tut
 		
 		testRegex("Standalone All Hands (50,50) [2] with text", url,
 				  "XXX x-grid-location-info://lincoln.lindenlab.com/region/All%20Hands/50/50/50 XXX",
-				  "x-grid-location-info://lincoln.lindenlab.com/region/All%20Hands/50/50/50");		
+				  "x-grid-location-info://lincoln.lindenlab.com/region/All%20Hands/50/50/50");
+		
+		testRegex("Standalone Hippo Pants (50,50) [2] with port and text", url,
+				  "XXX x-grid-location-info://my.grid.com:8002/region/Hippo%20Pants/50/50/50 XXX",
+				  "x-grid-location-info://my.grid.com:8002/region/Hippo%20Pants/50/50/50");
+		
+		testRegex("Standalone Hippo Pants (50,50) [2] with ip address and text", url,
+				  "XXX x-grid-location-info://127.0.0.1:9000/region/Hippo%20Pants/50/50/50 XXX",
+				  "x-grid-location-info://127.0.0.1:9000/region/Hippo%20Pants/50/50/50");
 	}
 
 	template<> template<>
@@ -582,7 +610,16 @@ namespace tut
 		
 		testRegex("Standalone All Hands", url,
 				  "XXX x-grid-location-info://lincoln.lindenlab.com/app/teleport/All%20Hands/50/50/50 XXX",
-				  "x-grid-location-info://lincoln.lindenlab.com/app/teleport/All%20Hands/50/50/50");		
+				  "x-grid-location-info://lincoln.lindenlab.com/app/teleport/All%20Hands/50/50/50");
+		
+		testRegex("Standalone Hippo Pants", url,
+				  "XXX x-grid-location-info://my.grid.com:8002/app/teleport/Hippo%20Pants/50/50/50 XXX",
+				  "x-grid-location-info://my.grid.com:8002/app/teleport/Hippo%20Pants/50/50/50");
+		
+		
+		testRegex("Standalone Hippo Pants with ip address", url,
+				  "XXX x-grid-location-info://127.0.0.1:9000/app/teleport/Hippo%20Pants/50/50/50 XXX",
+				  "x-grid-location-info://127.0.0.1:9000/app/teleport/Hippo%20Pants/50/50/50");
 	}
 
 	template<> template<>
@@ -657,6 +694,14 @@ namespace tut
 		testRegex("teleport slurl with label", url,
 				  "XXX [secondlife:///app/teleport/Ahern/50/50/50/ Teleport to Ahern] YYY",
 				  "secondlife:///app/teleport/Ahern/50/50/50/");
+		
+		testRegex("Standalone agent slurl with label", url,
+				  "[x-grid-location-info://my.grid.com:8002/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about  Profile]",
+				  "x-grid-location-info://my.grid.com:8002/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
+		
+		testRegex("Standalone teleport slurl with label", url,
+				  "XXX [x-grid-location-info://my.grid.com:8002/app/teleport/SexyDungeon/50/50/50/ Teleport to Scary] YYY",
+				  "x-grid-location-info://my.grid.com:8002/app/teleport/SexyDungeon/50/50/50/");
 	}
 
 	template<> template<>
@@ -848,25 +893,21 @@ namespace tut
 				  "search something https://marketplace.secondlife.com/products/search on marketplace and test the https",
 				  "https://marketplace.secondlife.com/products/search");
 
-		testRegex("match HTTPS urls with port", url,
-				  "let's specify some port https://secondlife.com:888/status",
-				  "https://secondlife.com:888/status");
+		testRegex("match urls with port", url,
+				  "let's specify some port http://secondlife.com:888/status",
+				  "http://secondlife.com:888/status");
 
-		testRegex("don't match HTTP urls with port", url,
-				  "let's specify some port for HTTP http://secondlife.com:888/status",
-				  "");
-
-		testRegex("don't match urls w/o protocol", url,
-				  "looks like an url something www.marketplace.secondlife.com/products but no https prefix",
-				  "");
+		//testRegex("don't match urls w/o protocol", url,
+		//		  "looks like an url something www.marketplace.secondlife.com/products but no https prefix",
+		//		  "");
 
 		testRegex("but with a protocol www is fine", url,
-				  "so let's add a protocol https://www.marketplace.secondlife.com:8888/products",
-				  "https://www.marketplace.secondlife.com:8888/products");
+				  "so let's add a protocol http://www.marketplace.secondlife.com:8888/products",
+				  "http://www.marketplace.secondlife.com:8888/products");
 
-		testRegex("don't match urls w/o protocol", url,
-				  "and even no www something secondlife.com/status",
-				  "");
+		//testRegex("don't match urls w/o protocol", url,
+		//		  "and even no www something secondlife.com/status",
+		//		  "");
 	}
 
 	template<> template<>
@@ -886,9 +927,9 @@ namespace tut
 				  "search something https://marketplace.secondlife.com on marketplace and test the https",
 				  "https://marketplace.secondlife.com");
 
-		testRegex("don't match urls w/o protocol", url,
-				  "looks like an url something www.marketplace.secondlife.com but no https prefix",
-				  "");
+		//testRegex("don't match urls w/o protocol", url,
+		//		  "looks like an url something www.marketplace.secondlife.com but no https prefix",
+		//		  "");
 
 		testRegex("but with a protocol www is fine", url,
 				  "so let's add a protocol http://www.marketplace.secondlife.com",
@@ -897,5 +938,44 @@ namespace tut
 		testRegex("don't match urls w/o protocol", url,
 				  "and even no www something lindenlab.com",
 				  "");
+	}
+
+	template<> template<>
+	void object::test<16>()
+	{
+		//
+		// test LLUrlEntryJira - Jira highlighting
+		//
+		LLUrlEntryJira jira;
+		testRegex("Jira ALCH-6969", jira,
+				  "XXX ALCH-6969 XXX",
+				  "http://alchemy.atlassian.net/browse/ALCH-6969");
+		testRegex("Jira STORM-991", jira,
+				  "XXX STORM-991 XXX",
+				  "http://jira.secondlife.com/browse/STORM-991");
+		testRegex("Jira OPEN-22", jira,
+				  "XXX OPEN-22 XXX",
+				  "http://jira.secondlife.com/browse/OPEN-22");
+		testRegex("Jira BUG-3930244", jira,
+				  "XXX BUG-3930244 XXX",
+				  "http://jira.secondlife.com/browse/BUG-3930244");
+		testRegex("Jira Fireshits", jira,
+				  "XXX FIRE-93013 XXX",
+				  "http://jira.phoenixviewer.com/browse/FIRE-93013");
+		testLabel("Jira ALCH-6969", jira,
+				  "http://alchemy.atlasian.net/browse/ALCH-6969",
+				  "ALCH-6969");
+		testLabel("Jira STORM-991", jira,
+				  "http://jira.secondlife.com/browse/STORM-991",
+				  "STORM-991");
+		testLabel("Jira OPEN-22", jira,
+				  "http://jira.secondlife.com/browse/OPEN-22",
+				  "OPEN-22");
+		testLabel("Jira BUG-3930244", jira,
+				  "http://jira.secondlife.com/browse/BUG-3930244",
+				  "BUG-3930244");
+		testLabel("Jira Fireshits", jira,
+				  "http://jira.phoenixviewer.com/browse/FIRE-93013",
+				  "FIRE-93013");
 	}
 }

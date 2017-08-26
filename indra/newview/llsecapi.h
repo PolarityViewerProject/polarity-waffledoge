@@ -285,21 +285,14 @@ bool operator!=(const LLCertificateVector::iterator& _lhs, const LLCertificateVe
 #define CRED_AUTHENTICATOR_TYPE_HASH   "hash"
 //
 // LLCredential - interface for credentials providing the following functionality:
-// * Persistence of credential information based on some identifier/grid name (for saving username/password)
+// * Persistence of credential information based on grid (for saving username/password)
 // * Serialization to an OGP identifier/authenticator pair
 // 
 class LLCredential  : public LLThreadSafeRefCount
 {
 public:
-	
 	LLCredential() {}
-	
-	LLCredential(const std::string& CredentialName)
-	{
-		mCredentialName = CredentialName;
-		mIdentifier = LLSD::emptyMap();
-		mAuthenticator = LLSD::emptyMap();
-	}
+    LLCredential(const std::string& grid) : mGrid(grid) {}
 	
 	virtual ~LLCredential() {}
 	
@@ -313,17 +306,26 @@ public:
 	virtual LLSD getAuthenticator() { return mAuthenticator; }
 	virtual void authenticatorType(std::string& authType);
 	virtual LLSD getLoginParams();
-	virtual std::string getCredentialName() { return mCredentialName; }
+	virtual std::string getGrid() { return mGrid; }
 	
+	virtual bool hasIdentifier() { return !mIdentifier.isUndefined(); }
+	virtual bool hasAuthenticator() { return !mAuthenticator.isUndefined(); }
 
 	virtual void clearAuthenticator() { mAuthenticator = LLSD(); } 
 	virtual std::string userID() const { return std::string("unknown");}
+	virtual std::string username() const { return std::string("unknown");}
+
+	virtual LLSD asLLSD(bool save_authenticator);
 	virtual std::string asString() const { return std::string("unknown");}
 	operator std::string() const { return asString(); }
+    
+    static std::string userIDFromIdentifier(const LLSD& identifier);
+    static std::string usernameFromIdentifier(const LLSD& identifier);
+    
 protected:
 	LLSD mIdentifier;
 	LLSD mAuthenticator;
-	std::string mCredentialName;
+	std::string mGrid;
 };
 
 std::ostream& operator <<(std::ostream& s, const LLCredential& cred);
@@ -468,18 +470,19 @@ public:
 	virtual void deleteProtectedData(const std::string& data_type,
 									 const std::string& data_id)=0;
 	
-	virtual LLPointer<LLCredential> createCredential(const std::string& name,
+	virtual LLPointer<LLCredential> createCredential(const std::string& grid,
 													 const LLSD& identifier, 
 													 const LLSD& authenticator)=0;
-	
-	virtual LLPointer<LLCredential> loadCredential(const std::string& name)=0;
-	
-	virtual std::vector<std::string> listCredentials()=0;
+
+	virtual LLPointer<LLCredential> loadCredential(const std::string& grid, const std::string& user_id = LLStringUtil::null) = 0;
+	virtual LLPointer<LLCredential> loadCredential(const std::string& grid, const LLSD& identifier) = 0;
 	
 	virtual void saveCredential(LLPointer<LLCredential> cred, bool save_authenticator)=0;
 	
+	virtual void deleteCredential(const std::string& grid, const LLSD& identifier) = 0;
 	virtual void deleteCredential(LLPointer<LLCredential> cred)=0;
-	
+
+	virtual bool getCredentialIdentifierList(const std::string& grid, std::vector<LLSD>& identifiers) = 0;
 };
 
 void initializeSecHandler();

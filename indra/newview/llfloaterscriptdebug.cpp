@@ -31,7 +31,6 @@
 #include "llfloaterscriptdebug.h"
 
 #include "llfloaterreg.h"
-#include "lluictrlfactory.h"
 #include "llfontgl.h"
 #include "llrect.h"
 #include "llerror.h"
@@ -45,7 +44,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewertexturelist.h"
 
-#include <boost/algorithm/string/predicate.hpp> // <polarity> for BOOST functions
+#include <boost/algorithm/string/predicate.hpp> // <alchemy/>
 
 //
 // Statics
@@ -90,7 +89,7 @@ void LLFloaterScriptDebug::setVisible(BOOL visible)
 	if(visible)
 	{
 		LLFloaterScriptDebugOutput* floater_output = LLFloaterReg::findTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
-		if (floater_output == NULL)
+		if (floater_output == nullptr)
 		{
 			floater_output = dynamic_cast<LLFloaterScriptDebugOutput*>(LLFloaterReg::showInstance("script_debug_output", LLUUID::null, FALSE));
 			if (floater_output)
@@ -119,12 +118,12 @@ LLFloater* LLFloaterScriptDebug::addOutputWindow(const LLUUID &object_id)
 {
 	LLMultiFloater* host = LLFloaterReg::showTypedInstance<LLMultiFloater>("script_debug", LLSD());
 	if (!host)
-		return NULL;
+		return nullptr;
 
 	LLFloater::setFloaterHost(host);
 	// prevent stealing focus, see EXT-8040
 	LLFloater* floaterp = LLFloaterReg::showInstance("script_debug_output", object_id, FALSE);
-	LLFloater::setFloaterHost(NULL);
+	LLFloater::setFloaterHost(nullptr);
 
 	return floaterp;
 }
@@ -136,7 +135,7 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 
 	// Handle /me messages.
 	std::string prefix = utf8mesg.substr(0, 4);
-	std::string message = (boost::iequals(prefix, "/me ") || boost::iequals(prefix, "/me'")) ? user_name + utf8mesg.substr(3) : utf8mesg; // <polarity/>
+	std::string message = (boost::iequals(prefix, "/me ") || boost::iequals(prefix, "/me'")) ? user_name + utf8mesg.substr(3) : utf8mesg; // <alchemy/>
 
 	if (objectp)
 	{
@@ -181,7 +180,8 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 //
 
 LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLSD& object_id)
-  : LLFloater(LLSD(object_id)),
+  : LLFloater(object_id),
+	mHistoryEditor(nullptr),
 	mObjectID(object_id.asUUID())
 {
 	// enabled autocous blocks controling focus via  LLFloaterReg::showInstance

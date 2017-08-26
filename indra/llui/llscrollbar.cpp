@@ -52,19 +52,19 @@ LLScrollbar::Params::Params()
 	doc_pos ("doc_pos", 0),
 	page_size ("page_size", 0),
 	step_size ("step_size", 1),
+	thickness("thickness"),
 	thumb_image_vertical("thumb_image_vertical"),
 	thumb_image_horizontal("thumb_image_horizontal"),
-	track_image_vertical("track_image_vertical"),
 	track_image_horizontal("track_image_horizontal"),
+	track_image_vertical("track_image_vertical"),
+	bg_visible("bg_visible", false),
 	track_color("track_color"),
 	thumb_color("thumb_color"),
-	thickness("thickness"),
+	bg_color("bg_color", LLColor4::black),
 	up_button("up_button"),
 	down_button("down_button"),
 	left_button("left_button"),
-	right_button("right_button"),
-	bg_visible("bg_visible", false),
-	bg_color("bg_color", LLColor4::black)
+	right_button("right_button")
 {}
 
 LLScrollbar::LLScrollbar(const Params & p)
@@ -80,15 +80,16 @@ LLScrollbar::LLScrollbar(const Params & p)
 		mDragStartY( 0 ),
 		mHoverGlowStrength(0.15f),
 		mCurGlowStrength(0.f),
+		mLastDelta( 0 ),
 		mTrackColor( p.track_color() ),
 		mThumbColor ( p.thumb_color() ),
+		mBGColor(p.bg_color),
+		mBGVisible(p.bg_visible),
 		mThumbImageV(p.thumb_image_vertical),
 		mThumbImageH(p.thumb_image_horizontal),
 		mTrackImageV(p.track_image_vertical),
 		mTrackImageH(p.track_image_horizontal),
-		mThickness(p.thickness.isProvided() ? p.thickness : LLUI::sSettingGroups["config"]->getS32("UIScrollbarSize")),
-		mBGVisible(p.bg_visible),
-		mBGColor(p.bg_color)
+		mThickness(p.thickness.isProvided() ? p.thickness : LLUI::sSettingGroups["config"]->getS32("UIScrollbarSize"))
 {
 	updateThumbRect();
 	
@@ -114,8 +115,9 @@ LLScrollbar::LLScrollbar(const Params & p)
 	up_btn.mouse_held_callback.function(boost::bind(&LLScrollbar::onLineUpBtnPressed, this, _2));
 	up_btn.tab_stop(false);
 	up_btn.follows.flags = (mOrientation == VERTICAL ? (FOLLOWS_RIGHT | FOLLOWS_TOP) : (FOLLOWS_LEFT | FOLLOWS_BOTTOM));
-
-	addChild(LLUICtrlFactory::create<LLButton>(up_btn));
+	
+	mBtnScrollUp = LLUICtrlFactory::create<LLButton>(up_btn);
+	addChild(mBtnScrollUp);
 
 	LLButton::Params down_btn(mOrientation == VERTICAL ? p.down_button : p.right_button);
 	down_btn.name(std::string("Line Down"));
@@ -125,7 +127,8 @@ LLScrollbar::LLScrollbar(const Params & p)
 	down_btn.mouse_held_callback.function(boost::bind(&LLScrollbar::onLineDownBtnPressed, this, _2));
 	down_btn.tab_stop(false);
 
-	addChild(LLUICtrlFactory::create<LLButton>(down_btn));
+	mBtnScrollDown = LLUICtrlFactory::create<LLButton>(down_btn);
+	addChild(mBtnScrollDown);
 }
 
 
@@ -243,7 +246,7 @@ void LLScrollbar::updateThumbRect()
 BOOL LLScrollbar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// Check children first
-	BOOL handled_by_child = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
+	BOOL handled_by_child = LLView::childrenHandleMouseDown(x, y, mask) != nullptr;
 	if( !handled_by_child )
 	{
 		if( mThumbRect.pointInRect(x,y) )
@@ -388,7 +391,7 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 	}
 	else
 	{
-		handled = childrenHandleHover( x, y, mask ) != NULL;
+		handled = childrenHandleHover( x, y, mask ) != nullptr;
 	}
 
 	// Opaque
@@ -437,7 +440,7 @@ BOOL LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 	if( hasMouseCapture() )
 	{
-		gFocusMgr.setMouseCapture( NULL );
+		gFocusMgr.setMouseCapture(nullptr );
 		handled = TRUE;
 	}
 	else
@@ -460,20 +463,18 @@ void LLScrollbar::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	if (width == getRect().getWidth() && height == getRect().getHeight()) return;
 	LLView::reshape( width, height, called_from_parent );
-	LLButton* up_button = getChild<LLButton>("Line Up");
-	LLButton* down_button = getChild<LLButton>("Line Down");
 
 	if (mOrientation == VERTICAL)
 	{
-		up_button->reshape(up_button->getRect().getWidth(), llmin(getRect().getHeight() / 2, mThickness));
-		down_button->reshape(down_button->getRect().getWidth(), llmin(getRect().getHeight() / 2, mThickness));
-		up_button->setOrigin(up_button->getRect().mLeft, getRect().getHeight() - up_button->getRect().getHeight());
+		mBtnScrollUp->reshape(mBtnScrollUp->getRect().getWidth(), llmin(getRect().getHeight() / 2, mThickness));
+		mBtnScrollDown->reshape(mBtnScrollDown->getRect().getWidth(), llmin(getRect().getHeight() / 2, mThickness));
+		mBtnScrollUp->setOrigin(mBtnScrollUp->getRect().mLeft, getRect().getHeight() - mBtnScrollUp->getRect().getHeight());
 	}
 	else
 	{
-		up_button->reshape(llmin(getRect().getWidth() / 2, mThickness), up_button->getRect().getHeight());
-		down_button->reshape(llmin(getRect().getWidth() / 2, mThickness), down_button->getRect().getHeight());
-		down_button->setOrigin(getRect().getWidth() - down_button->getRect().getWidth(), down_button->getRect().mBottom);
+		mBtnScrollUp->reshape(llmin(getRect().getWidth() / 2, mThickness), mBtnScrollUp->getRect().getHeight());
+		mBtnScrollDown->reshape(llmin(getRect().getWidth() / 2, mThickness), mBtnScrollDown->getRect().getHeight());
+		mBtnScrollDown->setOrigin(getRect().getWidth() - mBtnScrollDown->getRect().getWidth(), mBtnScrollDown->getRect().mBottom);
 	}
 	updateThumbRect();
 }

@@ -139,6 +139,8 @@ public:
 	void setStyle(U8 style);
 	U8 getStyle() const;
 
+	static std::string getVersionString();
+
 private:
 	void resetBitmapCache();
 	void setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32 width, U32 height, U8 *data, S32 stride = 0) const;
@@ -151,7 +153,7 @@ private:
 	bool getKerningCache(U32 left_glyph, U32 right_glyph, F32& kerning) const;
 	void setKerningCache(U32 left_glyph, U32 right_glyph, F32 kerning) const;
 
-	mutable boost::container::flat_map<std::pair<U32, U32>, F32> mKerningCache;
+	mutable boost::container::flat_map<U64, F32> mKerningCache;
 
 	std::string mName;
 

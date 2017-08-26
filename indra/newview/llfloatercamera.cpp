@@ -36,6 +36,7 @@
 // Viewer includes
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llflatlistview.h"
 #include "lljoystickbutton.h"
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
@@ -68,8 +69,8 @@ class LLPanelCameraZoom
 public:
 	LLPanelCameraZoom();
 
-	/* virtual */ BOOL	postBuild();
-	/* virtual */ void	draw();
+	/* virtual */ BOOL	postBuild() override;
+	/* virtual */ void	draw() override;
 
 protected:
 	void	onZoomPlusHeldDown();
@@ -89,8 +90,8 @@ LLPanelCameraItem::Params::Params()
 :	icon_over("icon_over"),
 	icon_selected("icon_selected"),
 	picture("picture"),
-	text("text"),
 	selected_picture("selected_picture"),
+	text("text"),
 	mousedown_callback("mousedown_callback")
 {
 }
@@ -159,9 +160,9 @@ static LLPanelInjector<LLPanelCameraZoom> t_camera_zoom_panel("camera_zoom_panel
 //-------------------------------------------------------------------------------
 
 LLPanelCameraZoom::LLPanelCameraZoom()
-:	mPlusBtn( NULL ),
-	mMinusBtn( NULL ),
-	mSlider( NULL )
+:	mPlusBtn(nullptr ),
+	mMinusBtn(nullptr ),
+	mSlider(nullptr )
 {
 	mCommitCallbackRegistrar.add("Zoom.minus", boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this));
 	mCommitCallbackRegistrar.add("Zoom.plus", boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this));
@@ -349,9 +350,13 @@ void LLFloaterCamera::onClose(bool app_quitting)
 
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 :	LLFloater(val),
+	mRotate(nullptr),
+	mZoom(nullptr),
+	mTrack(nullptr),
 	mClosed(FALSE),
+	mPrevMode(CAMERA_CTRL_MODE_PAN),
 	mCurrMode(CAMERA_CTRL_MODE_PAN),
-	mPrevMode(CAMERA_CTRL_MODE_PAN)
+	mBtnCollapse(nullptr)
 {
 	LLHints::registerHintTarget("view_popup", getHandle());
 	mCommitCallbackRegistrar.add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
@@ -374,6 +379,10 @@ BOOL LLFloaterCamera::postBuild()
 
 	// ensure that appearance mode is handled while building. See EXT-7796.
 	handleAvatarEditingAppearance(sAppearanceEditing);
+	
+	mBtnCollapse = getChild<LLButton>("collapse_btn");
+	mBtnCollapse->setCommitCallback(boost::bind(&LLFloaterCamera::toggleCollapse, this));
+	collapse();
 
 	return LLFloater::postBuild();
 }
@@ -529,6 +538,8 @@ void LLFloaterCamera::updateItemsSelection()
 	getChild<LLPanelCameraItem>("rear_view")->setValue(argument);
 	argument["selected"] = preset == CAMERA_PRESET_GROUP_VIEW;
 	getChild<LLPanelCameraItem>("group_view")->setValue(argument);
+	argument["selected"] = preset == CAMERA_PRESET_SHOULDER_VIEW;
+	getChild<LLPanelCameraItem>("shoulder_view")->setValue(argument);
 	argument["selected"] = preset == CAMERA_PRESET_FRONT_VIEW;
 	getChild<LLPanelCameraItem>("front_view")->setValue(argument);
 	argument["selected"] = gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK;
@@ -577,6 +588,10 @@ void LLFloaterCamera::switchToPreset(const std::string& name)
 	{
 		gAgentCamera.switchCameraPreset(CAMERA_PRESET_GROUP_VIEW);
 	}
+	else if ("shoulder_view" == name)
+	{
+		gAgentCamera.switchCameraPreset(CAMERA_PRESET_SHOULDER_VIEW);
+	}
 	else if ("front_view" == name)
 	{
 		gAgentCamera.switchCameraPreset(CAMERA_PRESET_FRONT_VIEW);
@@ -589,4 +604,19 @@ void LLFloaterCamera::fromFreeToPresets()
 	{
 		switchMode(CAMERA_CTRL_MODE_PRESETS);
 	}
+}
+
+void LLFloaterCamera::toggleCollapse()
+{
+	BOOL setting = !gSavedSettings.getBOOL("AlchemyCameraExpanded");
+	gSavedSettings.setBOOL("AlchemyCameraExpanded", setting);
+	collapse();
+}
+
+void LLFloaterCamera::collapse()
+{
+	BOOL collapse = gSavedSettings.getBOOL("AlchemyCameraExpanded");
+	mBtnCollapse->setImageOverlay(collapse ? "Conv_toolbar_collapse" : "Conv_toolbar_expand");
+	getChild<LLPanel>("controls")->setVisible(collapse);
+	reshape(collapse ? 210 : 30, getRect().getHeight(), FALSE);
 }

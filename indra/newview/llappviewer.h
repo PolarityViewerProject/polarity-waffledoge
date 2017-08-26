@@ -1,12 +1,12 @@
 /** 
  * @mainpage
  *
- * This is the sources for the Polarity Viewer;
+ * This is the sources for the Second Life Viewer;
  * information on the open source project is at 
  * https://wiki.secondlife.com/wiki/Open_Source_Portal
  *
  * The Mercurial repository for the trunk version is at
- * https://bitbucket.org/polarityviewer/xenhat.polarity-development
+ * https://bitbucket.org/lindenlab/viewer-release
  *
  * @section source-license Source License
  * @verbinclude LICENSE-source.txt
@@ -43,11 +43,13 @@
 #define LL_LLAPPVIEWER_H
 
 #include "llallocator.h"
+#include "llapp.h"
 #include "llapr.h"
 #include "llcontrol.h"
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"
 #include "llappcorehttp.h"
+#include "lltrace.h"
 
 class LLCommandLineParser;
 class LLFrameTimer;
@@ -60,10 +62,6 @@ class LLUpdaterService;
 class LLViewerJoystick;
 
 extern LLTrace::BlockTimerStatHandle FTM_FRAME;
-
-static LLFrameTimer gUptimeTimer;
-
-static std::string gUptimeString;
 
 class LLAppViewer : public LLApp
 {
@@ -82,9 +80,9 @@ public:
 	//
 	// Main application logic
 	//
-	virtual bool init();			// Override to do application initialization
-	virtual bool cleanup();			// Override to do application cleanup
-	virtual bool frame(); // Override for application body logic
+	bool init() override;			// Override to do application initialization
+	bool cleanup() override;			// Override to do application cleanup
+	bool frame() override; // Override for application body logic
 
 	// Application control
 	void flushVFSIO(); // waits for vfs transfers to complete
@@ -107,7 +105,7 @@ public:
 
 	void setServerReleaseNotesURL(const std::string& url) { mServerReleaseNotesURL = url; }
 	LLSD getViewerInfo() const;
-	std::string getViewerInfoString(bool detailed = true) const;
+	std::string getViewerInfoString() const;
 
 	// Report true if under the control of a debugger. A null-op default.
 	virtual bool beingDebugged() { return false; } 
@@ -116,7 +114,6 @@ public:
 	                                     // return false if the error trap needed restoration.
 	virtual void initCrashReporting(bool reportFreeze = false) = 0; // What to do with crash report?
 	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
-    void checkForCrash();
     
 	// Thread accessors
 	static LLTextureCache* getTextureCache() { return sTextureCache; }
@@ -154,11 +151,6 @@ public:
     virtual void forceErrorSoftwareException();
     virtual void forceErrorDriverCrash();
 
-	// The list is found in app_settings/settings_files.xml
-	// but since they are used explicitly in code,
-	// the follow consts should also do the trick.
-	static const std::string sGlobalSettingsName; 
-
 	LLCachedControl<bool> mRandomizeFramerate; 
 	LLCachedControl<bool> mPeriodicSlowFrame; 
 
@@ -175,35 +167,12 @@ public:
 	// For thread debugging. 
 	// llstartup needs to control init.
 	// llworld, send_agent_pause() also controls pause/resume.
-
-	// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
-
-	// void initMainloopTimeout(const std::string& state, F32 secs = -1.0f);
-	void initMainloopTimeout( char const *state, F32 secs = -1.0f);
-
-	// </FS:ND>
-
+	void initMainloopTimeout(const std::string& state, F32 secs = -1.0f);
 	void destroyMainloopTimeout();
 	void pauseMainloopTimeout();
+	void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
+	void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
 
-	// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
-
-	// void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
-	// void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
-	void resumeMainloopTimeout( char const *state = "", F32 secs = -1.0f);
-	void pingMainloopTimeout( char const *state, F32 secs = -1.0f);
-
-	
-	// dynamic window title
-	static std::string title_firstname;
-	static std::string title_lastname;
-	static std::string title_short_name;
-	static std::string title_long_name;
-	static std::string window_title_appname_string;
-	static bool name_is_long;
-	
-
-	void PVGetDynamicWindowTitle();
 	// Handle the 'login completed' event.
 	// *NOTE:Mani Fix this for login abstraction!!
 	void handleLoginComplete();
@@ -215,7 +184,7 @@ public:
 	login_completed_signal_t mOnLoginCompleted;
 	boost::signals2::connection setOnLoginCompletedCallback( const login_completed_signal_t::slot_type& cb ) { return mOnLoginCompleted.connect(cb); } 
 
-	void addOnIdleCallback(const boost::function<void()>& cb); // add a callback to fire (once) when idle
+	void addOnIdleCallback(const std::function<void()>& cb); // add a callback to fire (once) when idle
 
 	void purgeCache(); // Clear the local cache. 
 	void purgeCacheImmediate(); //clear local cache immediately.
@@ -236,6 +205,7 @@ protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual void initLoggingAndGetLastDuration(); // Initialize log files, logging system
 	virtual void initConsole() {}; // Initialize OS level debugging console.
+	virtual bool initHardwareTest() { return true; } // A false result indicates the app should quit.
 	virtual bool initSLURLHandler();
 	virtual bool sendURLToOtherInstance(const std::string& url);
 
@@ -315,8 +285,7 @@ private:
 
     bool mQuitRequested;				// User wants to quit, may have modified documents open.
     bool mLogoutRequestSent;			// Disconnect message sent to simulator, no longer safe to send messages to the sim.
-	// <FS:Ansariel> MaxFPS Viewer-Chui merge error
-    //S32 mYieldTime;
+    S32 mYieldTime;
 	U32 mLastAgentControlFlags;
 	F32 mLastAgentForceUpdate;
 	struct SettingsFiles* mSettingsLocationList;
@@ -329,7 +298,7 @@ private:
 	// for tracking viewer<->region circuit death
 	bool mAgentRegionLastAlive;
 	LLUUID mAgentRegionLastID;
-	
+
     LLAllocator mAlloc;
 
 	LLFrameTimer mMemCheckTimer;
@@ -355,10 +324,6 @@ public:
 
 	void launchUpdater();
 	//---------------------------------------------
-
-	public:
-		static std::string mSessionTime;
-		static std::string secondsToTimeString(const F32& seconds_in_f32);
 };
 
 // consts from viewer.h
@@ -418,7 +383,6 @@ extern BOOL		gDisconnected;
 extern LLFrameTimer	gRestoreGLTimer;
 extern BOOL			gRestoreGL;
 extern BOOL		gUseWireframe;
-extern BOOL		gInitialDeferredModeForWireframe; // <polarity> RLVa merge
 
 // VFS globals - gVFS is for general use
 // gStaticVFS is read-only and is shipped w/ the viewer

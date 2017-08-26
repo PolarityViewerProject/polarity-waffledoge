@@ -30,10 +30,13 @@
 
 #include "llpanelgenerictip.h"
 #include "llpanelonlinestatus.h"
+#include "llpanelradaralert.h"
+#include "llpanelstreaminfo.h"
 #include "llnotifications.h"
 #include "lltoastnotifypanel.h"
 #include "lltoastpanel.h"
 #include "lltoastscriptquestion.h"
+#include "lltextbox.h"
 
 //static
 const S32 LLToastPanel::MIN_PANEL_HEIGHT = 40; // VPAD(4)*2 + ICON_HEIGHT(32)
@@ -51,10 +54,7 @@ LLToastPanel::~LLToastPanel()
 std::string LLToastPanel::getTitle()
 {
 	// *TODO: create Title and localize it. If it will be required.
-//	return mNotification->getMessage();
-// [SL:KB] - Patch: UI-Notifications | Checked: 2011-04-11 (Catznip-2.5.0a) | Added: Catznip-2.5.0a
-	return (mNotification->hasLabel()) ? mNotification->getLabel() : mNotification->getMessage();
-// [/SL:KB]
+	return mNotification->getMessage();
 }
 
 //virtual
@@ -113,7 +113,7 @@ void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 LLToastPanel* LLToastPanel::buidPanelFromNotification(
 		const LLNotificationPtr& notification)
 {
-	LLToastPanel* res = NULL;
+	LLToastPanel* res = nullptr;
 
 	//process tip toast panels
 	if ("notifytip" == notification->getType())
@@ -122,6 +122,14 @@ LLToastPanel* LLToastPanel::buidPanelFromNotification(
 		if ("FriendOnlineOffline" == notification->getName())
 		{
 			res = new LLPanelOnlineStatus(notification);
+		}
+		else if (notification->matchesTag("radar"))
+		{
+			res = new LLPanelRadarAlert(notification);
+		}
+		else if (notification->matchesTag("StreamInfo"))
+		{
+			res = new LLPanelStreamInfo(notification);
 		}
 		// in all other case we use generic tip panel
 		else

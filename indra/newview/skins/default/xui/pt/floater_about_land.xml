@@ -407,8 +407,6 @@ Textura:
 Mídia:
 			</text>
 			<check_box label="Repetir mídia" name="media_loop" tool_tip="Executar a mídia repetidamente. Quando a mídia chegar ao fim, ela recomeça."/>
-		</panel>
-		<panel label="SOM" name="land_audio_panel">
 			<text name="MusicURL:">
 				URL de música:
 			</text>
@@ -451,7 +449,7 @@ Mídia:
 			<spinner label="Horas de acesso:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
 				<text label="Always Allow" name="AllowedText">
-					Residentes permitidos ([COUNT])
+					Residentes permitidos ([COUNT], máx: [MAX])
 				</text>
 				<name_list name="AccessList" tool_tip="(Total [LISTED], máx de [MAX])"/>
 				<button label="Adicionar" name="add_allowed"/>
@@ -459,7 +457,7 @@ Mídia:
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Ban" name="BanCheck">
-					Residentes banidos ([COUNT])
+					Residentes banidos ([COUNT], máx: [MAX])
 				</text>
 				<name_list name="BannedList" tool_tip="(Total [LISTED], máx de [MAX])"/>
 				<button label="Adicionar" name="add_banned"/>

@@ -40,8 +40,8 @@ LLGroupIconCtrl::Params::Params()
 	draw_tooltip("draw_tooltip", true),
 	default_icon_name("default_icon_name")
 {
-    changeDefault(min_width, 32);
-    changeDefault(min_height, 32);
+    changeDefault(min_width, DEFAULT_ICON_SIZE);
+    changeDefault(min_height, DEFAULT_ICON_SIZE);
 }
 
 

@@ -104,8 +104,7 @@ void LLHUDEffectPointAt::packData(LLMessageSystem *mesgsys)
 	LLHUDEffect::packData(mesgsys);
 
 	// Pack the type-specific data.  Uses a fun packed binary format.  Whee!
-	U8 packed_data[PKT_SIZE];
-	memset(packed_data, 0, PKT_SIZE);
+	U8 packed_data[PKT_SIZE] = {0};
 
 	if (mSourceObject)
 	{
@@ -213,7 +212,7 @@ void LLHUDEffectPointAt::setTargetObjectAndOffset(LLViewerObject *objp, LLVector
 //-----------------------------------------------------------------------------
 void LLHUDEffectPointAt::setTargetPosGlobal(const LLVector3d &target_pos_global)
 {
-	mTargetObject = NULL;
+	mTargetObject = nullptr;
 	mTargetOffsetGlobal = target_pos_global;
 }
 
@@ -288,7 +287,7 @@ BOOL LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
 //-----------------------------------------------------------------------------
 void LLHUDEffectPointAt::clearPointAtTarget()
 {
-	mTargetObject = NULL;
+	mTargetObject = nullptr;
 	mTargetOffsetGlobal.clearVec();
 	mTargetType = POINTAT_TARGET_NONE;
 }

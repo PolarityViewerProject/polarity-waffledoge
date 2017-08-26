@@ -34,9 +34,6 @@
 #include "llnotificationsutil.h"
 #include "lltrans.h"
 
-#include <boost/foreach.hpp>
-#include "boost/lexical_cast.hpp"
-
 const S32Days CONVERSATION_LIFETIME = (S32Days)30; // lifetime of LLConversation is 30 days by spec
 
 struct ConversationParams : public LLInitParam::Block<ConversationParams>
@@ -57,26 +54,26 @@ struct ConversationParams : public LLInitParam::Block<ConversationParams>
 
 LLConversation::LLConversation(const ConversationParams& params)
 :	mTime(params.time),
-	mTimestamp(params.timestamp.isProvided() ? params.timestamp : createTimestamp(params.time)),
 	mConversationType(params.conversation_type),
 	mConversationName(params.conversation_name),
 	mHistoryFileName(params.history_filename),
 	mSessionID(params.session_id),
 	mParticipantID(params.participant_id),
-	mHasOfflineIMs(params.has_offline_ims)
+	mHasOfflineIMs(params.has_offline_ims),
+	mTimestamp(params.timestamp.isProvided() ? params.timestamp : createTimestamp(params.time))
 {
 	setListenIMFloaterOpened();
 }
 
 LLConversation::LLConversation(const LLIMModel::LLIMSession& session)
 :	mTime(time_corrected()),
-	mTimestamp(createTimestamp(mTime)),
 	mConversationType(session.mSessionType),
 	mConversationName(session.mName),
 	mHistoryFileName(session.mHistoryFileName),
 	mSessionID(session.isOutgoingAdHoc() ? session.generateOutgoingAdHocHash() : session.mSessionID),
 	mParticipantID(session.mOtherParticipantID),
-	mHasOfflineIMs(session.mHasOfflineMessage)
+	mHasOfflineIMs(session.mHasOfflineMessage),
+	mTimestamp(createTimestamp(mTime))
 {
 	setListenIMFloaterOpened();
 }
@@ -172,7 +169,7 @@ class LLConversationLogFriendObserver : public LLFriendObserver
 public:
 	LLConversationLogFriendObserver() {}
 	virtual ~LLConversationLogFriendObserver() {}
-	virtual void changed(U32 mask);
+	void changed(U32 mask) override;
 };
 
 void LLConversationLogFriendObserver::changed(U32 mask)
@@ -188,6 +185,7 @@ void LLConversationLogFriendObserver::changed(U32 mask)
 /************************************************************************/
 
 LLConversationLog::LLConversationLog() :
+	mFriendObserver(nullptr),
 	mAvatarNameCacheConnection(),
 	mLoggingEnabled(false)
 {
@@ -327,7 +325,7 @@ LLConversation* LLConversationLog::findConversation(const LLIMModel::LLIMSession
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void LLConversationLog::removeConversation(const LLConversation& conversation)
@@ -356,7 +354,7 @@ const LLConversation* LLConversationLog::getConversation(const LLUUID& session_i
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void LLConversationLog::addObserver(LLConversationLogObserver* observer)
@@ -406,7 +404,7 @@ void LLConversationLog::deleteBackupLogs()
 	std::vector<std::string> backup_logs;
 	getListOfBackupLogs(backup_logs);
 
-	BOOST_FOREACH(const std::string& fullpath, backup_logs)
+	for (const std::string& fullpath : backup_logs)
 	{
 		LLFile::remove(fullpath);
 	}
@@ -430,7 +428,7 @@ bool LLConversationLog::moveLog(const std::string &originDirectory, const std::s
 			while(LLFile::isfile(backupFileName))
 			{
 				++backupFileCount;
-				backupFileName = targetDirectory + ".backup" + boost::lexical_cast<std::string>(backupFileCount);
+				backupFileName = targetDirectory + ".backup" + std::to_string(backupFileCount);
 			}
 
 			//Rename the file to its backup name so it is not overwritten

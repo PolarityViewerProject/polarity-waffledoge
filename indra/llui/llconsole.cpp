@@ -51,15 +51,15 @@
 // Used for LCD display
 extern void AddNewDebugConsoleToLCD(const LLWString &newLine);
 
-LLConsole* gConsole = NULL;  // Created and destroyed in LLViewerWindow.
+LLConsole* gConsole = nullptr;  // Created and destroyed in LLViewerWindow.
 
 const F32 FADE_DURATION = 2.f;
  
 static LLDefaultChildRegistry::Register<LLConsole> r("console");
 
 LLConsole::LLConsole(const LLConsole::Params& p) 
-:	LLUICtrl(p),
-	LLFixedBuffer(p.max_lines),
+:	LLFixedBuffer(p.max_lines),
+	LLUICtrl(p),
 	mLinePersistTime(p.persist_time), // seconds
 	mFont(p.font),
 	mConsoleWidth(0),
@@ -101,58 +101,30 @@ void LLConsole::reshape(S32 width, S32 height, BOOL called_from_parent)
 	}
 }
 
-// static
-// <polarity> Centralize font size selection
-LLFontGL* LLConsole::getFontSize(const S32& size_index)
-{
-	LLFontGL* return_font = NULL;
-	switch (size_index)
-	{
-	case -1:
-		return_font = LLFontGL::getFontMonospace();		break;
-	case 0:
-		return_font = LLFontGL::getFontSansSerifMicro(); break;
-	case 1:
-		return_font = LLFontGL::getFontSansSerifTiny(); break;
-	case 2:
-		return_font = LLFontGL::getFontSansSerifVerySmall(); break;
-	case 3:
-		return_font = LLFontGL::getFontSansSerifSmall(); break;
-	default:
-		LL_WARNS() << "Invalid font size : " << size_index << LL_ENDL;
-	case 4:
-		return_font = LLFontGL::getFontSansSerif();	    break;
-	case 5:
-		return_font = LLFontGL::getFontSansSerifBig();	break;
-	case 6:
-		return_font = LLFontGL::getFontSansSerifVeryBig();	break;
-	case 7:
-		return_font = LLFontGL::getFontSansSerifLarge();	break;
-	case 8:
-		return_font = LLFontGL::getFontSansSerifVeryLarge();	break;
-	case 9:
-		return_font = LLFontGL::getFontSansSerifHuge();	break;
-	case 10:
-		return_font = LLFontGL::getFontSansSerifVeryHuge();	break;
-	case 11:
-		return_font = LLFontGL::getFontSansSerifHumongous();	break;
-	case 12:
-		return_font = LLFontGL::getFontSansSerifGigantic();	break;
-	}
-	// Make sure the font exists
-	if (return_font == NULL)
-	{
-		LL_WARNS() << "Font size " << return_font << " does not exist!" << LL_ENDL;
-		return_font = LLFontGL::getFontDefault();
-	}
-	return return_font;
-}
-// </polarity>
 void LLConsole::setFontSize(S32 size_index)
 {
-	// <polarity/> Centralize font size selection
-	mFont = getFontSize(size_index);
-
+	if (-1 == size_index)
+	{
+		mFont = LLFontGL::getFontMonospace();
+	}
+	else if (0 == size_index)
+	{
+		mFont = LLFontGL::getFontSansSerif();
+	}
+	else if (1 == size_index)
+	{
+		mFont = LLFontGL::getFontSansSerifBig();
+	}
+	else
+	{
+		mFont = LLFontGL::getFontSansSerifHuge();
+	}
+	// Make sure the font exists
+	if (mFont == nullptr)
+	{
+		mFont = LLFontGL::getFontDefault();
+	}
+	
 	for(paragraph_t::iterator paragraph_it = mParagraphs.begin(); paragraph_it != mParagraphs.end(); paragraph_it++)
 	{
 		(*paragraph_it).updateLines((F32)getRect().getWidth(), mFont, true);
@@ -210,7 +182,8 @@ void LLConsole::draw()
 
 	LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Rect");
 
-	F32 console_opacity = llclamp(LLUI::sSettingGroups["config"]->getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
+	static LLUICachedControl<F32> console_background_opacity("ConsoleBackgroundOpacity", 0.7f);
+	F32 console_opacity = llclamp(console_background_opacity(), 0.f, 1.f);
 	LLColor4 color = LLUIColorTable::instance().getColor("ConsoleBackground");
 	color.mV[VALPHA] *= console_opacity;
 
@@ -308,7 +281,7 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
 	
 	if (	mParagraphText.empty() 
 		|| mParagraphColorSegments.empty()
-		|| font == NULL)
+		|| font == nullptr)
 	{
 		return;					//Not enough info to complete.
 	}
@@ -399,7 +372,7 @@ LLConsole::Paragraph::Paragraph (LLWString str, const LLColor4 &color, F32 add_t
 // static
 void LLConsole::updateClass()
 {	
-	for (instance_iter it = beginInstances(), end_it = endInstances(); it != end_it; ++it)
+	for (instance_iter it = beginInstances(), it_end = endInstances(); it != it_end; ++it)
 	{
 		it->update();
 	} 

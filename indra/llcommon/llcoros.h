@@ -26,8 +26,10 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_LLCOROS_H)
+#ifndef LL_LLCOROS_H
 #define LL_LLCOROS_H
+
+#include "llwin32headerslean.h"
 
 #include <boost/dcoroutine/coroutine.hpp>
 #include <boost/dcoroutine/future.hpp>
@@ -35,7 +37,6 @@
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/tss.hpp>
-#include <boost/noncopyable.hpp>
 #include <string>
 #include <stdexcept>
 #include "llcoro_get_id.h"          // for friend declaration
@@ -247,11 +248,15 @@ namespace llcoro
 
 /// Instantiate one of these in a block surrounding any leaf point when
 /// control literally switches away from this coroutine.
-class Suspending: boost::noncopyable
+class Suspending
 {
 public:
     Suspending();
     ~Suspending();
+
+protected:
+    Suspending(const Suspending&) = delete;
+    Suspending& operator=(const Suspending&) = delete;
 
 private:
     LLCoros::CoroData* mSuspended;

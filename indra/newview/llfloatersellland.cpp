@@ -41,15 +41,13 @@
 #include "lltexturectrl.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
-#include "lluictrlfactory.h"
-#include "llviewerwindow.h"
 #include "lltrans.h"
 
 class LLAvatarName;
 
 // defined in llfloaterland.cpp
 void send_parcel_select_objects(S32 parcel_local_id, U32 return_type,
-								uuid_list_t* return_ids = NULL);
+								uuid_list_t* return_ids = nullptr);
 
 enum Badge { BADGE_OK, BADGE_NOTE, BADGE_WARN, BADGE_ERROR };
 
@@ -59,14 +57,14 @@ class LLFloaterSellLandUI
 public:
 	LLFloaterSellLandUI(const LLSD& key);
 	virtual ~LLFloaterSellLandUI();
-	/*virtual*/ void onClose(bool app_quitting);
+	/*virtual*/ void onClose(bool app_quitting) override;
 	
 private:
 	class SelectionObserver : public LLParcelObserver
 	{
 	public:
 		SelectionObserver(LLFloaterSellLandUI* floater) : mFloater(floater) {}
-		virtual void changed();
+		void changed() override;
 	private:
 		LLFloaterSellLandUI* mFloater;
 	};
@@ -101,7 +99,7 @@ private:
 	void onBuyerNameCache(const LLAvatarName& av_name);
 
 public:
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 	
 	bool setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel);
 	static bool callbackHighlightTransferable(const LLSD& notification, const LLSD& response);
@@ -131,8 +129,8 @@ LLFloater* LLFloaterSellLand::buildFloater(const LLSD& key)
 #endif 
 LLFloaterSellLandUI::LLFloaterSellLandUI(const LLSD& key)
 :	LLFloater(key),
+	mRegion(nullptr),
 	mParcelSelectionObserver(this),
-	mRegion(0),
 	mAvatarNameCacheConnection()
 {
 	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
@@ -151,7 +149,7 @@ LLFloaterSellLandUI::~LLFloaterSellLandUI()
 void LLFloaterSellLandUI::onClose(bool app_quitting)
 {
 	// Must release parcel selection to allow land to deselect, see EXT-803
-	mParcelSelection = NULL;
+	mParcelSelection = nullptr;
 }
 
 void LLFloaterSellLandUI::SelectionObserver::changed()

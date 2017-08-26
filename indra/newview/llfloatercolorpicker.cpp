@@ -47,7 +47,6 @@
 #include "lllineeditor.h"
 #include "v4coloru.h"
 #include "llbutton.h"
-#include "lluictrlfactory.h"
 #include "llgl.h"
 #include "llpointer.h"
 #include "llimage.h"
@@ -60,7 +59,6 @@
 #include "lldraghandle.h"
 #include "llwindow.h"
 
-#include "llnotificationsutil.h"		// <FS:Zi> Add float LSL color entry widgets
 // System includes
 #include <sstream>
 #include <iomanip>
@@ -73,6 +71,15 @@
 
 LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show_apply_immediate )
 	: LLFloater(LLSD()),
+	  origR(1.f),
+	  origG(1.f),
+	  origB(1.f),
+	  curR(1.f),
+	  curG(1.f),
+	  curB(1.f),
+	  curH(0.f), 
+	  curS(0.f),
+	  curL(1.f),
 	  mComponents			( 3 ),
 	  mMouseDownInLumRegion	( FALSE ),
 	  mMouseDownInHueRegion	( FALSE ),
@@ -92,18 +99,22 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show
 	  mSwatchRegionTop		( 190 ),
 	  mSwatchRegionWidth	( 116 ),
 	  mSwatchRegionHeight	( 60 ),
-	  mSwatchView			( NULL ),
+	  mSwatchView			(nullptr ),
 	  // *TODO: Specify this in XML
 	  numPaletteColumns		( 16 ),
-	  numPaletteRows		( 4 ),
+	  numPaletteRows		( 2 ),
 	  highlightEntry		( -1 ),
 	  mPaletteRegionLeft	( 11 ),
 	  mPaletteRegionTop		( 100 - 8 ),
-	  mPaletteRegionWidth	( mLumRegionLeft + mLumRegionWidth - 6 ),
-	  mPaletteRegionHeight	( 60 ),
+	  mPaletteRegionWidth	( mLumRegionLeft + mLumRegionWidth - 10 ),
+	  mPaletteRegionHeight	( 40 ),
 	  mSwatch				( swatch ),
 	  mActive				( TRUE ),
+	  mApplyImmediateCheck(nullptr),
 	  mCanApplyImmediately	( show_apply_immediate ),
+	  mSelectBtn(nullptr),
+	  mCancelBtn(nullptr),
+	  mPipetteBtn(nullptr),
 	  mContextConeOpacity	( 0.f ),
       mContextConeInAlpha   ( 0.f ),
       mContextConeOutAlpha   ( 0.f ),
@@ -113,12 +124,6 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show
 
 	// create user interface for this picker
 	createUI ();
-
-	if (!mCanApplyImmediately)
-	{
-		mApplyImmediateCheck->setEnabled(FALSE);
-		mApplyImmediateCheck->set(FALSE);
-	}
 
     mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
     mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
@@ -208,10 +213,10 @@ void LLFloaterColorPicker::showUI ()
 BOOL LLFloaterColorPicker::postBuild()
 {
 	mCancelBtn = getChild<LLButton>( "cancel_btn" );
-    mCancelBtn->setClickedCallback ( onClickCancel, this );
+	mCancelBtn->setCommitCallback(boost::bind(&LLFloaterColorPicker::onClickCancel, this));
 
 	mSelectBtn = getChild<LLButton>( "select_btn");
-    mSelectBtn->setClickedCallback ( onClickSelect, this );
+    mSelectBtn->setCommitCallback(boost::bind(&LLFloaterColorPicker::onClickSelect, this));
 	mSelectBtn->setFocus ( TRUE );
 
 	mPipetteBtn = getChild<LLButton>("color_pipette" );
@@ -222,7 +227,7 @@ BOOL LLFloaterColorPicker::postBuild()
 
 	mApplyImmediateCheck = getChild<LLCheckBoxCtrl>("apply_immediate");
 	mApplyImmediateCheck->set(gSavedSettings.getBOOL("ApplyColorImmediately"));
-	mApplyImmediateCheck->setCommitCallback(onImmediateCheck, this);
+	mApplyImmediateCheck->setCommitCallback(boost::bind(&LLFloaterColorPicker::onImmediateCheck, this));
 
 	childSetCommitCallback("rspin", onTextCommit, (void*)this );
 	childSetCommitCallback("gspin", onTextCommit, (void*)this );
@@ -230,32 +235,6 @@ BOOL LLFloaterColorPicker::postBuild()
 	childSetCommitCallback("hspin", onTextCommit, (void*)this );
 	childSetCommitCallback("sspin", onTextCommit, (void*)this );
 	childSetCommitCallback("lspin", onTextCommit, (void*)this );
-	// <FS:Zi> Add float LSL color entry widgets
-	mCopyLSLBtn = getChild<LLButton>( "copy_lsl_btn" );
-	mCopyLSLBtn->setClickedCallback ( onClickCopyLSL, this );
-
-	// Can't hide a button directly by design, need to make a wrapper panel.
-	mCopyLLColor4Panel = getChild<LLPanel>("copy_llcolor4_panel");
-	mCopyLLColor4Btn = getChild<LLButton>("copy_llcolor4_btn");
-	if (mCopyLLColor4Panel && mCopyLLColor4Btn)
-	{
-		mCopyLLColor4Btn->setClickedCallback(onClickCopyLLColor4, this);
-		// TODO: Add a hook somewhere to show/hide the button when the menu visibility changes.
-		static LLCachedControl<bool> advanced_menu(gSavedSettings, "UseDebugMenus");
-		mCopyLLColor4Panel->setVisible(advanced_menu);
-	}
-
-	mCopyHexBtn = getChild<LLButton>("copy_hex_btn");
-	if (mCopyHexBtn)
-	{
-		mCopyHexBtn->setClickedCallback(onClickCopyHex, this);
-	}
-
-	childSetCommitCallback("rspin_lsl", onTextCommit, (void*)this );
-	childSetCommitCallback("gspin_lsl", onTextCommit, (void*)this );
-	childSetCommitCallback("bspin_lsl", onTextCommit, (void*)this );
-	childSetCommitCallback("hex_value", onTextCommit, (void*)this );
-	// </FS:Zi>
 
 	LLToolPipette::getInstance()->setToolSelectCallback(boost::bind(&LLFloaterColorPicker::onColorSelect, this, _1));
 
@@ -300,7 +279,7 @@ void LLFloaterColorPicker::destroyUI ()
 	{
 		this->removeChild ( mSwatchView );
 		mSwatchView->die();;
-		mSwatchView = NULL;
+		mSwatchView = nullptr;
 	}
 }
 
@@ -412,38 +391,22 @@ void LLFloaterColorPicker::getCurHsl ( F32& curHOut, F32& curSOut, F32& curLOut 
 
 //////////////////////////////////////////////////////////////////////////////
 // called when 'cancel' clicked
-void LLFloaterColorPicker::onClickCancel ( void* data )
+void LLFloaterColorPicker::onClickCancel()
 {
-	if (data)
+	if(getRevertOnCancel())
 	{
-		LLFloaterColorPicker* self = ( LLFloaterColorPicker* )data;
-
-		if ( self )
-		{
-		    if(self->getRevertOnCancel())
-		    {
-		        self->cancelSelection ();
-		    }
-			self->closeFloater();
-		}
+		cancelSelection();
 	}
+	closeFloater();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // called when 'select' clicked
-void LLFloaterColorPicker::onClickSelect ( void* data )
+void LLFloaterColorPicker::onClickSelect()
 {
-	if (data)
-	{
-		LLFloaterColorPicker* self = ( LLFloaterColorPicker* )data;
-
-		if ( self )
-		{
-			// apply to selection
-			LLColorSwatchCtrl::onColorChanged ( self->getSwatch (), LLColorSwatchCtrl::COLOR_SELECT );
-			self->closeFloater();
-		}
-	}
+	// apply to selection
+	LLColorSwatchCtrl::onColorChanged(getSwatch(), LLColorSwatchCtrl::COLOR_SELECT);
+	closeFloater();
 }
 
 void LLFloaterColorPicker::onClickPipette( )
@@ -474,16 +437,13 @@ void LLFloaterColorPicker::onTextCommit ( LLUICtrl* ctrl, void* data )
 	}
 }
 
-void LLFloaterColorPicker::onImmediateCheck( LLUICtrl* ctrl, void* data)
+void LLFloaterColorPicker::onImmediateCheck()
 {
-	LLFloaterColorPicker* self = ( LLFloaterColorPicker* )data;
-	if (self)
+	gSavedSettings.setBOOL("ApplyColorImmediately", mApplyImmediateCheck->get());
+
+	if (mApplyImmediateCheck->get() && isColorChanged())
 	{
-		gSavedSettings.setBOOL("ApplyColorImmediately", self->mApplyImmediateCheck->get());
-		if (self->mApplyImmediateCheck->get() && self->isColorChanged())
-		{
-			LLColorSwatchCtrl::onColorChanged ( self->getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
-		}
+		LLColorSwatchCtrl::onColorChanged ( getSwatch(), LLColorSwatchCtrl::COLOR_CHANGE );
 	}
 }
 
@@ -522,35 +482,28 @@ void LLFloaterColorPicker::draw()
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		LLGLEnable(GL_CULL_FACE);
-		gGL.begin(LLRender::QUADS);
+		gGL.begin(LLRender::TRIANGLE_STRIP);
 		{
-			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
-			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mTop);
-			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mTop);
-			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-			gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-			gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
 			gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-			gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
-			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mBottom);
 			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mTop);
-
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-			gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
 			gGL.vertex2i(local_rect.mRight, local_rect.mTop);
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
 			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mTop);
-			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mBottom);
-
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-			gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
 			gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
 			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mBottom);
+			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+			gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
 			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mBottom);
+			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+			gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mTop);
 		}
 		gGL.end();
 	}
@@ -755,12 +708,6 @@ void LLFloaterColorPicker::updateTextEntry ()
 	getChild<LLUICtrl>("hspin")->setValue(( getCurH () * 360.0f ) );
 	getChild<LLUICtrl>("sspin")->setValue(( getCurS () * 100.0f ) );
 	getChild<LLUICtrl>("lspin")->setValue(( getCurL () * 100.0f ) );
-	// <FS:Zi> Add float LSL color entry widgets
-	getChild<LLUICtrl>("rspin_lsl")->setValue(( getCurR () ) );
-	getChild<LLUICtrl>("gspin_lsl")->setValue(( getCurG () ) );
-	getChild<LLUICtrl>("bspin_lsl")->setValue(( getCurB () ) );
-	getChild<LLUICtrl>("hex_value")->setValue(llformat("%02x%02x%02x",(S32) (getCurR()*255.0),(S32) (getCurG()*255.0),(S32) (getCurB()*255.0)));
-	// </FS:Zi>
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -796,52 +743,6 @@ void LLFloaterColorPicker::onTextEntryChanged ( LLUICtrl* ctrl )
 
 		updateTextEntry ();
 	}
-	// <FS:Zi> Add float LSL color entry widgets
-	else if ( ( name == "rspin_lsl" ) || ( name == "gspin_lsl" ) || ( name == "bspin_lsl" ) )
-	{
-		// get current RGB
-		F32 rVal, gVal, bVal;
-		getCurRgb ( rVal, gVal, bVal );
-		// update component value with new value from text
-		if ( name == "rspin_lsl" )
-		{
-			rVal = (F32)ctrl->getValue().asReal();
-		}
-		else
-		if ( name == "gspin_lsl" )
-		{
-			gVal = (F32)ctrl->getValue().asReal();
-		}
-		else
-		if ( name == "bspin_lsl" )
-		{
-			bVal = (F32)ctrl->getValue().asReal();
-		}
-		// update current RGB (and implicitly HSL)
-		selectCurRgb ( rVal, gVal, bVal );
-		updateTextEntry ();
-	}
-	else if ( name == "hex_value" )
-	{
-		// get current RGB
-		S32 r, g, b;
-		F32 rVal, gVal, bVal;
-		getCurRgb ( rVal, gVal, bVal );
-		std::string hex_string=ctrl->getValue().asString();
-		if(hex_string.length()!=6)
-			return;
-		LLStringUtil::toLower(hex_string);
-		if(hex_string.find_first_not_of("0123456789abcdef")!=std::string::npos)
-			return;
-		sscanf(hex_string.c_str(),"%02x%02x%02x", &r,&g,&b);
-		rVal=(F32) r/255.0;
-		gVal=(F32) g/255.0;
-		bVal=(F32) b/255.0;
-		// update current RGB (and implicitly HSL)
-		selectCurRgb ( rVal, gVal, bVal );
-		updateTextEntry ();
-	}
-	// </FS:Zi>
 	else
 	// value in HSL boxes changed
 	if ( ( name == "hspin" ) || ( name == "sspin" ) || ( name == "lspin" ) )
@@ -985,6 +886,11 @@ BOOL LLFloaterColorPicker::handleMouseDown ( S32 x, S32 y, MASK mask )
 			LLColor4 selected = *mPalette [ index ];
 
 			selectCurRgb ( selected [ 0 ], selected [ 1 ], selected [ 2 ] );
+
+			if (mApplyImmediateCheck->get())
+			{
+				LLColorSwatchCtrl::onColorChanged ( getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
+			}
 
 			updateTextEntry ();
 		}
@@ -1133,7 +1039,7 @@ BOOL LLFloaterColorPicker::handleMouseUp ( S32 x, S32 y, MASK mask )
 
 	if (hasMouseCapture())
 	{
-		gFocusMgr.setMouseCapture(NULL);
+		gFocusMgr.setMouseCapture(nullptr);
 	}
 
 	// dispatch to base class for the rest of things
@@ -1210,44 +1116,3 @@ void LLFloaterColorPicker::stopUsingPipette()
 		LLToolMgr::getInstance()->clearTransientTool();
 	}
 }
-// <FS:Zi> Add float LSL color entry widgets
-void LLFloaterColorPicker::onClickCopyLSL ( void* data )
-{
-	if (data)
-	{
-		LLFloaterColorPicker* self = ( LLFloaterColorPicker* )data;
-		if ( self )
-		{
-			getWindow()->copyTextToClipboard(utf8str_to_wstring(llformat("<%.5f,%.5f,%.5f>",self->getCurR(),self->getCurG(),self->getCurB())));
-			LLNotificationsUtil::add("LSLColorCopiedToClipboard");
-		}
-	}
-}
-// </FS:Zi>
-void LLFloaterColorPicker::onClickCopyLLColor4 ( void* data )
-{
-	if (data)
-	{
-		LLFloaterColorPicker* self = ( LLFloaterColorPicker* )data;
-		if ( self )
-		{
-			getWindow()->copyTextToClipboard(utf8str_to_wstring(llformat("%.5f %.5f %.5f 1.0",self->getCurR(),self->getCurG(),self->getCurB())));
-			LLNotificationsUtil::add("LSLColorCopiedToClipboard");
-		}
-	}
-}
-
-void LLFloaterColorPicker::onClickCopyHex(void* data)
-{
-	if (data)
-	{
-		LLFloaterColorPicker* self = (LLFloaterColorPicker*)data;
-		if (self)
-		{
-			// I can't seem to be able to getValue() the field itself, so I apologize for the code duplication.
-			getWindow()->copyTextToClipboard(utf8str_to_wstring(llformat("%02x%02x%02x", (S32)(self->getCurR()*255.0), (S32)(self->getCurG()*255.0), (S32)(self->getCurB()*255.0))));
-			LLNotificationsUtil::add("LSLColorCopiedToClipboard");
-		}
-	}
-}
-

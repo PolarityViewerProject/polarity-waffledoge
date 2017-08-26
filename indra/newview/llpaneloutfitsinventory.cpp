@@ -54,9 +54,9 @@ static const std::string COF_TAB_NAME = "cof_tab";
 static LLPanelInjector<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
-	mMyOutfitsPanel(NULL),
-	mCurrentOutfitPanel(NULL),
-	mActivePanel(NULL),
+	mActivePanel(nullptr),
+	mMyOutfitsPanel(nullptr),
+	mCurrentOutfitPanel(nullptr),
 	mInitialized(false)
 {
 	gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
@@ -110,8 +110,7 @@ void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 			panel_appearance->refreshCurrentOutfitName();
 		}
 
-		// <FS:Ansariel> FIRE-20180: Select last tab when actually opening the appearance floater for the first time
-		if (!mAppearanceTabs->selectTab(gSavedSettings.getS32("PVUI_LastAppearanceTab")))
+		if (!mAppearanceTabs->selectTab(gSavedSettings.getS32("LastAppearanceTab")))
 			mAppearanceTabs->selectFirstTab();
 
 		mInitialized = true;

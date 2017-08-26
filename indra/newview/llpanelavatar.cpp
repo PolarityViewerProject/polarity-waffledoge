@@ -32,23 +32,11 @@
 #include "llagent.h"
 #include "llavataractions.h"
 #include "llcallingcard.h"
-#include "llcombobox.h"
-#include "lldateutil.h"			// ageFromDate()
-#include "llimview.h"
-#include "llmenubutton.h"
-#include "llnotificationsutil.h"
-#include "llslurl.h"
-#include "lltexteditor.h"
-#include "lltexturectrl.h"
-#include "lltoggleablemenu.h"
+
 #include "lltooldraganddrop.h"
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
-#include "llfloaterreg.h"
-#include "llnotificationsutil.h"
-#include "llvoiceclient.h"
 #include "lltextbox.h"
-#include "lltrans.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLDropTarget
@@ -58,68 +46,7 @@
 // its parent.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLDropTarget : public LLView
-{
-public:
-	struct Params : public LLInitParam::Block<Params, LLView::Params>
-	{
-		Optional<LLUUID> agent_id;
-		Params()
-		:	agent_id("agent_id")
-		{
-			changeDefault(mouse_opaque, false);
-			changeDefault(follows.flags, FOLLOWS_ALL);
-		}
-	};
-
-	LLDropTarget(const Params&);
-	~LLDropTarget();
-
-	void doDrop(EDragAndDropType cargo_type, void* cargo_data);
-
-	//
-	// LLView functionality
-	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-								   EDragAndDropType cargo_type,
-								   void* cargo_data,
-								   EAcceptance* accept,
-								   std::string& tooltip_msg);
-	void setAgentID(const LLUUID &agent_id)		{ mAgentID = agent_id; }
-protected:
-	LLUUID mAgentID;
-};
-
-LLDropTarget::LLDropTarget(const LLDropTarget::Params& p) 
-:	LLView(p),
-	mAgentID(p.agent_id)
-{}
-
-LLDropTarget::~LLDropTarget()
-{}
-
-void LLDropTarget::doDrop(EDragAndDropType cargo_type, void* cargo_data)
-{
-	LL_INFOS() << "LLDropTarget::doDrop()" << LL_ENDL;
-}
-
-BOOL LLDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-									 EDragAndDropType cargo_type,
-									 void* cargo_data,
-									 EAcceptance* accept,
-									 std::string& tooltip_msg)
-{
-	if(getParent())
-	{
-		LLToolDragAndDrop::handleGiveDragAndDrop(mAgentID, LLUUID::null, drop,
-												 cargo_type, cargo_data, accept);
-
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-static LLDefaultChildRegistry::Register<LLDropTarget> r("drop_target");
+/* Moved to lldroptarget.cpp */
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -169,7 +96,7 @@ void LLPanelProfileTab::onOpen(const LLSD& key)
 	updateButtons();
 }
 
-void LLPanelProfileTab::scrollToTop()
+void LLPanelProfileTab::scrollToTop() const
 {
 	LLScrollContainer* scrollContainer = findChild<LLScrollContainer>("profile_scroll");
 	if (scrollContainer)
@@ -195,7 +122,7 @@ void LLPanelProfileTab::updateButtons()
 	}
 
 	bool enable_map_btn = (is_buddy_online &&
-			       is_agent_mappable(getAvatarId()))
+			       LLAvatarActions::isAgentMappable(getAvatarId()))
 		|| gAgent.isGodlike();
 	getChildView("show_on_map_btn")->setEnabled(enable_map_btn);
 }

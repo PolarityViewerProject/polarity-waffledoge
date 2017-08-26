@@ -39,6 +39,8 @@
 #include "lluri.h"
 #include "llagent.h"
 #include "llui.h"
+#include "llviewernetwork.h"
+#include "llviewerregion.h"
 #include "llviewercontrol.h"
 #include "llweb.h"
 
@@ -48,7 +50,7 @@ class LLSearchHandler : public LLCommandHandler
 public:
 	// requires trusted browser to trigger
 	LLSearchHandler() : LLCommandHandler("search", UNTRUSTED_THROTTLE) { }
-	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
+	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web) override
 	{
 		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableSearch"))
 		{
@@ -199,7 +201,9 @@ void LLFloaterSearch::search(const SearchQuery &p)
 
 	// get the search URL and expand all of the substitutions
 	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
-	std::string url = gSavedSettings.getString("SearchURL");
+	LLViewerRegion* regionp = gAgent.getRegion();
+	std::string url = regionp != nullptr ? regionp->getSearchServerURL()
+		: gSavedSettings.getString(LLGridManager::getInstance()->isInOpenSim() ? "OpenSimSearchURL" : "SearchURL");
 	url = LLWeb::expandURLSubstitutions(url, subs);
 
 	// and load the URL in the web view

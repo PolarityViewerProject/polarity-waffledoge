@@ -35,8 +35,7 @@
     <last_interaction_time_textbox
       layout="topleft"
       follows="right"
-      font="SansSerif"
-      font.size="Small"
+      font="SansSerifSmall"
       height="15"
       left_pad="5"
       right="-164"

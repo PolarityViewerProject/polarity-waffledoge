@@ -44,7 +44,6 @@
 #include "llsdutil.h"
 #include "stringize.h"
 #include <boost/scoped_ptr.hpp>
-#include <boost/bind.hpp>
 
 LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter& kbgetter)
 	: LLEventAPI("LLWindow", "Inject input events into the LLWindow instance"),
@@ -210,7 +209,7 @@ void LLWindowListener::getInfo(LLSD const & evt)
 	{
 		std::string path(evt["path"]);
 		LLView * target_view = LLUI::resolvePath(LLUI::getRootView(), path);
-		if (target_view != 0)
+		if (target_view != nullptr)
 		{
 			response.setResponse(target_view->getInfo());
 		}
@@ -230,7 +229,7 @@ void LLWindowListener::getInfo(LLSD const & evt)
 void LLWindowListener::getPaths(LLSD const & request)
 {
 	Response response(LLSD(), request);
-	LLView *root(LLUI::getRootView()), *base(NULL);
+	LLView *root(LLUI::getRootView()), *base(nullptr);
 	// Capturing request["under"] as string means we conflate the case in
 	// which there is no ["under"] key with the case in which its value is the
 	// empty string. That seems to make sense to me.
@@ -269,7 +268,7 @@ void LLWindowListener::keyDown(LLSD const & evt)
 	{
 		std::string path(evt["path"]);
 		LLView * target_view = LLUI::resolvePath(LLUI::getRootView(), path);
-		if (target_view == 0) 
+		if (target_view == nullptr) 
 		{
 			response.error(STRINGIZE(evt["op"].asString() << " request "
 											"specified invalid \"path\": '" << path << "'"));
@@ -304,7 +303,7 @@ void LLWindowListener::keyUp(LLSD const & evt)
 	{
 		std::string path(evt["path"]);
 		LLView * target_view = LLUI::resolvePath(LLUI::getRootView(), path);
-		if (target_view == 0 )
+		if (target_view == nullptr )
 		{
 			response.error(STRINGIZE(evt["op"].asString() << " request "
 											"specified invalid \"path\": '" << path << "'"));
@@ -334,7 +333,7 @@ typedef BOOL (LLWindowCallbacks::*MouseMethod)(LLWindow *, LLCoordGL, MASK);
 struct Actions
 {
 	Actions(const MouseMethod& d, const MouseMethod& u): down(d), up(u), valid(true) {}
-	Actions(): valid(false) {}
+	Actions(): down(nullptr), up(nullptr), valid(false) {}
 	MouseMethod down, up;
 	bool valid;
 };
@@ -353,31 +352,7 @@ struct WhichButton: public StringLookup<Actions>
 };
 static WhichButton buttons;
 
-typedef boost::function<bool(LLCoordGL, MASK)> MouseFunc;
-
-// Wrap a function returning 'void' to return 'true' instead. I'm sure there's
-// a more generic way to accomplish this, but generically handling the
-// arguments seems to require variadic templates and perfect forwarding. (We
-// used to be able to write (boost::lambda::bind(...), true), counting on
-// boost::lambda's comma operator overload, until
-// https://svn.boost.org/trac/boost/ticket/10864. And boost::phoenix doesn't
-// seem to overload comma the same way; or at least not with bind().)
-class MouseFuncTrue
-{
-    typedef boost::function<void(LLCoordGL, MASK)> MouseFuncVoid;
-    MouseFuncVoid mFunc;
-
-public:
-    MouseFuncTrue(const MouseFuncVoid& func):
-        mFunc(func)
-    {}
-
-    bool operator()(LLCoordGL coords, MASK mask) const
-    {
-        mFunc(coords, mask);
-        return true;
-    }
-};
+typedef std::function<bool(LLCoordGL, MASK)> MouseFunc;
 
 static void mouseEvent(const MouseFunc& func, const LLSD& request)
 {
@@ -484,12 +459,8 @@ void LLWindowListener::mouseDown(LLSD const & request)
 	Actions actions(buttons.lookup(request["button"]));
 	if (actions.valid)
 	{
-		// Normally you can pass NULL to an LLWindow* without compiler
-		// complaint, but going through boost::bind() evidently
-		// bypasses that special case: it only knows you're trying to pass an
-		// int to a pointer. Explicitly cast NULL to the desired pointer type.
-		mouseEvent(boost::bind(actions.down, mWindow,
-							 static_cast<LLWindow*>(NULL), _1, _2),
+		mouseEvent(std::bind(actions.down, mWindow,
+							 nullptr, std::placeholders::_1, std::placeholders::_2),
 				   request);
 	}
 }
@@ -499,21 +470,16 @@ void LLWindowListener::mouseUp(LLSD const & request)
 	Actions actions(buttons.lookup(request["button"]));
 	if (actions.valid)
 	{
-		mouseEvent(boost::bind(actions.up, mWindow,
-							 static_cast<LLWindow*>(NULL), _1, _2),
+		mouseEvent(std::bind(actions.up, mWindow,
+							 nullptr, std::placeholders::_1, std::placeholders::_2),
 				   request);
 	}
 }
 
 void LLWindowListener::mouseMove(LLSD const & request)
 {
-	// We want to call the same central mouseEvent() routine for
-	// handleMouseMove() as for button clicks. But handleMouseMove() returns
-	// void, whereas mouseEvent() accepts a function returning bool -- and
-	// uses that bool return. Use MouseFuncTrue to construct a callable that
-	// returns bool anyway.
-	mouseEvent(MouseFuncTrue(boost::bind(&LLWindowCallbacks::handleMouseMove, mWindow,
-						  static_cast<LLWindow*>(NULL), _1, _2)),
+	// handleMouseMove returns void while the other return a bool, wrap in a lambda and just return true 
+	mouseEvent([&](LLCoordGL p, MASK m) -> BOOL { mWindow->handleMouseMove(nullptr, p, m); return true; },
 			   request);
 }
 
@@ -521,5 +487,5 @@ void LLWindowListener::mouseScroll(LLSD const & request)
 {
 	S32 clicks = request["clicks"].asInteger();
 
-	mWindow->handleScrollWheel(NULL, clicks);
+	mWindow->handleScrollWheel(nullptr, clicks);
 }

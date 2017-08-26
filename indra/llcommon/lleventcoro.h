@@ -26,7 +26,7 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_LLEVENTCORO_H)
+#ifndef LL_LLEVENTCORO_H
 #define LL_LLEVENTCORO_H
 
 #include <boost/optional.hpp>

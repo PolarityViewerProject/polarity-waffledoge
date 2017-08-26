@@ -45,13 +45,13 @@ public:
 	virtual ~LLPanelGroupNotices();
 
 	// LLPanelGroupTab
-	virtual void activate();
+	void activate() override;
 	//virtual bool needsApply(std::string& mesg);
 	//virtual bool apply(std::string& mesg);
 	//virtual void update();
-	
-	virtual BOOL postBuild();
-	virtual BOOL isVisibleByAgent(LLAgent* agentp);
+
+	BOOL postBuild() override;
+	BOOL isVisibleByAgent(LLAgent* agentp) override;
 
 	void setItem(LLPointer<LLInventoryItem> inv_item);
 
@@ -65,7 +65,7 @@ public:
 
 	void refreshNotices();
 
-	virtual void setGroupID(const LLUUID& id);
+	void setGroupID(const LLUUID& id) override;
 
 private:
 	static void onClickRemoveAttachment(void* data);
@@ -75,7 +75,7 @@ private:
 	static void onClickRefreshNotices(void* data);
 
 	void processNotices(LLMessageSystem* msg);
-	static void onSelectNotice(LLUICtrl* ctrl, void* data);
+	void onSelectNotice();
 
 	enum ENoticeView
 	{
@@ -104,10 +104,6 @@ private:
 	LLPanel				*mPanelCreateNotice;
 	LLPanel				*mPanelViewNotice;
 
-	// <FS:Ansariel> Doesn't exist as of 2015-11-27
-	//LLIconCtrl		 *mCreateInventoryIcon;
-	//LLIconCtrl		 *mViewInventoryIcon;
-	
 	LLScrollListCtrl *mNoticesList;
 
 	std::string		mNoNoticesStr;

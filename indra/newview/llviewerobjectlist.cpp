@@ -50,7 +50,6 @@
 #include "llstring.h"
 #include "llhudicon.h"
 #include "llhudnametag.h"
-#include "llhudtext.h"
 #include "lldrawable.h"
 #include "llflexibleobject.h"
 #include "llviewertextureanim.h"
@@ -85,12 +84,6 @@
 
 #include <algorithm>
 #include <iterator>
-
-#include "llfloaterreg.h"
-#include "fsareasearch.h" // <FS:Cron> Added to provide the ability to update the impact costs in area search. </FS:Cron>
-#include "fsassetblacklist.h"
-
-#include "llglsandbox.h"
 
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
@@ -242,7 +235,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 										   bool just_created,
 										   bool from_cache)
 {
-	LLMessageSystem* msg = NULL;
+	LLMessageSystem* msg = nullptr;
 	
 	if(!from_cache)
 	{
@@ -271,14 +264,14 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	// RN: this must be called after we have a drawable 
 	// (from gPipeline.addObject)
 	// so that the drawable parent is set properly
-	if(msg != NULL)
+	if(msg != nullptr)
 	{
 	findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
 	}
 	else
 	{
 		LLViewerRegion* regionp = objectp->getRegion();
-		if(regionp != NULL)
+		if(regionp != nullptr)
 		{
 			findOrphans(objectp, regionp->getHost().getAddress(), regionp->getHost().getPort());
 		}
@@ -311,7 +304,7 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 
 	if (!cached_dpp)
 	{
-		return NULL; //nothing cached.
+		return nullptr; //nothing cached.
 	}
 	
 	LLViewerObject *objectp;
@@ -327,13 +320,6 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 	cached_dpp->unpackUUID(fullid, "ID");
 	cached_dpp->unpackU32(local_id, "LocalID");
 	cached_dpp->unpackU8(pcode, "PCode");
-
-	// <FS:Ansariel> Don't process derendered objects
-	if (mDerendered.end() != mDerendered.find(fullid))
-	{
-		return NULL;
-	}
-	// </FS:Ansariel>
 
 	objectp = findObject(fullid);
 
@@ -373,7 +359,7 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 		{
 			LL_INFOS() << "createObject failure for object: " << fullid << LL_ENDL;
 			recorder.objectUpdateFailure(entry->getLocalID(), OUT_FULL_CACHED, 0);
-			return NULL;
+			return nullptr;
 		}
 		justCreated = true;
 		mNumNewObjects++;
@@ -384,7 +370,7 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 		LL_WARNS() << "Dead object " << objectp->mID << " in UUID map 1!" << LL_ENDL;
 	}
 		
-	processUpdateCore(objectp, NULL, 0, OUT_FULL_CACHED, cached_dpp, justCreated, true);
+	processUpdateCore(objectp, nullptr, 0, OUT_FULL_CACHED, cached_dpp, justCreated, true);
 	objectp->loadFlags(entry->getUpdateFlags()); //just in case, reload update flags from cache.
 	
 	if(entry->getHitCount() > 0)
@@ -621,12 +607,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
 #endif
 
-			if (FSAssetBlacklist::getInstance()->isBlacklisted(fullid, LLAssetType::AT_OBJECT))
-			{
-				LL_INFOS() << "Blacklisted object blocked." << LL_ENDL;
-				continue;
-			}
-
 			objectp = createObject(pcode, regionp, fullid, local_id, gMessageSystem->getSender());
 			if (!objectp)
 			{
@@ -639,14 +619,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			mNumNewObjects++;
 		}
 
-		// Gah, why bother spamming the log with messages we can't do
-		//  anything about?! -- TS
-#if 0
 		if (objectp->isDead())
 		{
 			LL_WARNS() << "Dead object " << objectp->mID << " in UUID map 1!" << LL_ENDL;
 		}
-#endif
 
 		//bool bCached = false;
 		if (compressed)
@@ -678,7 +654,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				objectp->mLocalID = local_id;
 			}
-			processUpdateCore(objectp, user_data, i, update_type, NULL, justCreated);
+			processUpdateCore(objectp, user_data, i, update_type, nullptr, justCreated);
 		}
 		recorder.objectUpdateEvent(local_id, update_type, objectp, msg_size);
 		objectp->setLastUpdateType(update_type);
@@ -749,29 +725,6 @@ void LLViewerObjectList::dirtyAllObjectInventory()
 	}
 }
 
-// [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
-void LLViewerObjectList::setAllObjectDefaultTextures(U32 nChannel, bool fShowDefault)
-{
-	LLPipeline::sRenderTextures = !fShowDefault;
-
-	for (LLViewerObject* pObj : mObjects)
-	{
-		LLDrawable* pDrawable = pObj->mDrawable;
-		if ( (pDrawable) && (!pDrawable->isDead()) )
-		{
-			for (int idxFace = 0, cntFace = pDrawable->getNumFaces(); idxFace < cntFace; idxFace++)
-			{
-				if (LLFace* pFace = pDrawable->getFace(idxFace))
-					pFace->setDefaultTexture(nChannel, fShowDefault);
-			}
-
-			if (LLVOVolume* pVoVolume = pDrawable->getVOVolume())
-				pVoVolume->markForUpdate(true);
-		}
-	}
-}
-// [/SL:KB]
-
 void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 {
 	S32 i;
@@ -815,7 +768,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	// Selected
 	struct f : public LLSelectedObjectFunctor
 	{
-		virtual bool apply(LLViewerObject* objectp)
+		bool apply(LLViewerObject* objectp) override
 		{
 			objectp->boostTexturePriority();
 			return true;
@@ -852,28 +805,18 @@ static LLTrace::BlockTimerStatHandle FTM_IDLE_COPY("Idle Copy");
 
 void LLViewerObjectList::update(LLAgent &agent)
 {
-	// <FS:Ansariel> Speed up debug settings
-	static LLCachedControl<bool> velocityInterpolate(gSavedSettings, "VelocityInterpolate");
-	static LLCachedControl<bool> pingInterpolate(gSavedSettings, "PingInterpolate");
-	static LLCachedControl<F32> interpolationTime(gSavedSettings, "InterpolationTime");
-	static LLCachedControl<F32> interpolationPhaseOut(gSavedSettings, "InterpolationPhaseOut");
-	static LLCachedControl<bool> animateTextures(gSavedSettings, "AnimateTextures");
-	static LLCachedControl<bool> freezeTime(gSavedSettings, "FreezeTime");
-	// </FS:Ansariel> Speed up debug settings
+	static LLCachedControl<bool> cc_velocity_interpolate(gSavedSettings, "VelocityInterpolate");
+	static LLCachedControl<bool> cc_ping_interpolate(gSavedSettings, "PingInterpolate");
+	static LLCachedControl<F32> cc_interpolation_time(gSavedSettings, "InterpolationTime");
+	static LLCachedControl<F32> cc_interpolation_phase_out(gSavedSettings, "InterpolationPhaseOut");
+	static LLCachedControl<bool> cc_animate_textures(gSavedSettings, "AnimateTextures");
 
 	// Update globals
-	// </FS:Ansariel> Speed up debug settings
-	//LLViewerObject::setVelocityInterpolate( gSavedSettings.getBOOL("VelocityInterpolate") );
-	//LLViewerObject::setPingInterpolate( gSavedSettings.getBOOL("PingInterpolate") );
-	//
-	//F32 interp_time = gSavedSettings.getF32("InterpolationTime");
-	//F32 phase_out_time = gSavedSettings.getF32("InterpolationPhaseOut");
-	LLViewerObject::setVelocityInterpolate(velocityInterpolate);
-	LLViewerObject::setPingInterpolate(pingInterpolate);
+	LLViewerObject::setVelocityInterpolate( cc_velocity_interpolate );
+	LLViewerObject::setPingInterpolate( cc_ping_interpolate );
 	
-	F32 interp_time = (F32)interpolationTime;
-	F32 phase_out_time = (F32)interpolationPhaseOut;
-	// </FS:Ansariel> Speed up debug settings
+	F32 interp_time = cc_interpolation_time;
+	F32 phase_out_time = cc_interpolation_phase_out;
 	if (interp_time < 0.0 || 
 		phase_out_time < 0.0 ||
 		phase_out_time > interp_time)
@@ -885,10 +828,7 @@ void LLViewerObjectList::update(LLAgent &agent)
 	LLViewerObject::setPhaseOutUpdateInterpolationTime( interp_time );
 	LLViewerObject::setMaxUpdateInterpolationTime( phase_out_time );
 
-	// <FS:Ansariel> Speed up debug settings
-	//gAnimateTextures = gSavedSettings.getBOOL("AnimateTextures");
-	gAnimateTextures = animateTextures;
-	// </FS:Ansariel> Speed up debug settings
+	gAnimateTextures = cc_animate_textures;
 
 	// update global timer
 	F32 last_time = gFrameTimeSeconds;
@@ -912,7 +852,7 @@ void LLViewerObjectList::update(LLAgent &agent)
 
 	const F64 frame_time = LLFrameTimer::getElapsedSeconds();
 	
-	LLViewerObject *objectp = NULL;	
+	LLViewerObject *objectp = nullptr;	
 	
 	// Make a copy of the list in case something in idleUpdate() messes with it
 	static std::vector<LLViewerObject*> idle_list;
@@ -948,10 +888,8 @@ void LLViewerObjectList::update(LLAgent &agent)
 
 	std::vector<LLViewerObject*>::iterator idle_end = idle_list.begin()+idle_count;
 
-	// <FS:Ansariel> Speed up debug settings
-	//if (gSavedSettings.getBOOL("FreezeTime"))
+	static LLCachedControl<bool> freezeTime(gSavedSettings, "FreezeTime");
 	if (freezeTime)
-	// </FS:Ansariel> Speed up debug settings
 	{
 		
 		for (std::vector<LLViewerObject*>::iterator iter = idle_list.begin();
@@ -1364,10 +1302,7 @@ static LLTrace::BlockTimerStatHandle FTM_REMOVE_DRAWABLE("Remove Drawable");
 
 void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 {
-	if (!LLApp::isQuitting())
-	{
-		LL_RECORD_BLOCK_TIME(FTM_REMOVE_DRAWABLE);
-	}
+	LL_RECORD_BLOCK_TIME(FTM_REMOVE_DRAWABLE);
 
 	if (!drawablep)
 	{
@@ -1429,140 +1364,6 @@ void LLViewerObjectList::killObjects(LLViewerRegion *regionp)
 	cleanDeadObjects(FALSE);
 }
 
-//BD
-char itoc(int in)
-{
-	if (in < 0)
-	{
-		return (char)0;
-	}
-	if (in <= 9)
-	{
-		return (char)in + '0';
-	}
-	if (in >= 9)
-	{
-		return (char)in + 'a' - 10;
-	}
-	return (char)0;
-}
-
-int ctoi(char c)
-{
-	if (c >= '0' && c <= '9')
-	{
-		return c - '0';
-	}
-	return 0;
-}
-
-//BD - Fullbright Toggle
-void LLViewerObjectList::killAllFullbrights()
-{
-	LLViewerObject *objectp;
-	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
-	{
-		objectp = *iter;
-		for (S32 i = 0; i < objectp->getNumTEs(); i++)
-		{
-			const LLTextureEntry* te = objectp->getTE(i);
-			if (te->getFullbrightFlag())
-			{
-				if (objectp != gAgentAvatarp)
-				{
-					LL_DEBUGS() << itoc(te->getFullbright()) << LL_ENDL;
-					objectp->setTEFullbright(i, 0);
-				}
-			}
-		}
-	}
-}
-
-//BD - Alpha Toggle
-void LLViewerObjectList::killAllAlphas()
-{
-	LLViewerObject *objectp;
-	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
-	{
-		objectp = *iter;
-		for (S32 i = 0; i < objectp->getNumTEs(); i++)
-		{
-			if (objectp != gAgentAvatarp)
-			{
-				const LLTextureEntry* te = objectp->getTE(i);
-				LLColor4 te_color = te->getColor();
-				te_color.mV[VW] = 1.0;
-				objectp->setTEColor(i, te_color);
-				objectp->setTEAlpha(i, 1.0);
-			}
-		}
-	}
-}
-
-//BD - DeAlpha
-void LLViewerObjectList::killAlpha(LLViewerObject *objectp)
-{
-	if (objectp)
-	{
-		for (S32 i = 0; i < objectp->getNumTEs(); i++)
-		{
-			if (objectp != gAgentAvatarp
-				&& LLSelectMgr::getInstance()->getSelection()->contains(objectp, i))
-			{
-				const LLTextureEntry* te = objectp->getTE(i);
-				LLColor4 te_color = te->getColor();
-				te_color.mV[VW] = 1.0;
-				objectp->setTEColor(i, te_color);
-				objectp->setTEAlpha(i, 1.0);
-			}
-		}
-	}
-}
-
-//BD - ReAlpha
-void LLViewerObjectList::restoreAlpha(LLViewerObject *objectp)
-{
-	if (objectp)
-	{
-		for (S32 i = 0; i < objectp->getNumTEs(); i++)
-		{
-			if (objectp != gAgentAvatarp
-				&& LLSelectMgr::getInstance()->getSelection()->contains(objectp, i))
-			{
-				const LLTextureEntry* te = objectp->getTE(i);
-				LLColor4 te_color = te->getColor();
-				te_color.mV[VW] = 0.0;
-				objectp->setTEColor(i, te_color);
-				objectp->setTEAlpha(i, 0.0);
-			}
-		}
-	}
-}
-
-//BD - DeBright
-void LLViewerObjectList::killFullbright(LLViewerObject *objectp)
-{
-	if (objectp)
-	{
-		for (S32 i = 0; i < objectp->getNumTEs(); i++)
-		{
-			if (objectp != gAgentAvatarp
-				&& LLSelectMgr::getInstance()->getSelection()->contains(objectp, i))
-			{
-				const LLTextureEntry* te = objectp->getTE(i);
-				if (te->getFullbrightFlag())
-				{
-					if (objectp != gAgentAvatarp)
-					{
-						LL_DEBUGS() << itoc(te->getFullbright()) << LL_ENDL;
-						objectp->setTEFullbright(i, 0);
-					}
-				}
-			}
-		}
-	}
-}
-
 void LLViewerObjectList::killAllObjects()
 {
 	// Used only on global destruction.
@@ -1615,7 +1416,7 @@ void LLViewerObjectList::cleanDeadObjects(BOOL use_timer)
 	{
 		// Scan for all of the dead objects and put them all on the end of the list with no ref count ops
 		objectp = *iter;
-		if (objectp == NULL)
+		if (objectp == nullptr)
 		{ //we caught up to the dead tail
 			break;
 		}
@@ -1623,7 +1424,7 @@ void LLViewerObjectList::cleanDeadObjects(BOOL use_timer)
 		if (objectp->isDead())
 		{
 			LLPointer<LLViewerObject>::swap(*iter, *target);
-			*target = NULL;
+			*target = nullptr;
 			++target;
 			num_removed++;
 
@@ -1904,20 +1705,19 @@ void LLViewerObjectList::clearAllMapObjectsInRegion(LLViewerRegion* regionp)
 
 void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 {
-	LLColor4 above_water_color = LLUIColorTable::instance().getColor( "NetMapOtherOwnAboveWater" );
-	LLColor4 below_water_color = LLUIColorTable::instance().getColor( "NetMapOtherOwnBelowWater" );
-	LLColor4 you_own_above_water_color = 
-						LLUIColorTable::instance().getColor( "NetMapYouOwnAboveWater" );
-	LLColor4 you_own_below_water_color = 
-						LLUIColorTable::instance().getColor( "NetMapYouOwnBelowWater" );
-	LLColor4 group_own_above_water_color = 
-						LLUIColorTable::instance().getColor( "NetMapGroupOwnAboveWater" );
-	LLColor4 group_own_below_water_color = 
-						LLUIColorTable::instance().getColor( "NetMapGroupOwnBelowWater" );
+	static LLUIColor above_water_color(LLUIColorTable::instance().getColor("NetMapOtherOwnAboveWater"));
+	static LLUIColor below_water_color(LLUIColorTable::instance().getColor("NetMapOtherOwnBelowWater"));
+	static LLUIColor you_own_above_water_color(LLUIColorTable::instance().getColor("NetMapYouOwnAboveWater"));
+	static LLUIColor you_own_below_water_color(LLUIColorTable::instance().getColor("NetMapYouOwnBelowWater"));
+	static LLUIColor group_own_above_water_color(LLUIColorTable::instance().getColor("NetMapGroupOwnAboveWater"));
+	static LLUIColor group_own_below_water_color(LLUIColorTable::instance().getColor("NetMapGroupOwnBelowWater"));
+	static LLUIColor physical_object_color(LLUIColorTable::instance().getColor("NetMapPhysicalObject"));
+	static LLUIColor temp_object_color(LLUIColorTable::instance().getColor("NetMapTempObject"));
 
 	static LLCachedControl<F32> max_radius(gSavedSettings, "MiniMapPrimMaxRadius");
 
-	for (vobj_list_t::iterator iter = mMapObjects.begin(); iter != mMapObjects.end(); ++iter)
+	const vobj_list_t::const_iterator end_it = mMapObjects.cend();
+	for (vobj_list_t::iterator iter = mMapObjects.begin(); iter != end_it; ++iter)
 	{
 		LLViewerObject* objectp = *iter;
 
@@ -1930,10 +1730,10 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 		{
 			continue;
 		}
+
 		const LLVector3& scale = objectp->getScale();
-		const LLVector3d pos = objectp->getPositionGlobal();
+		const LLVector3d& pos = objectp->getPositionGlobal();
 		const F64 water_height = F64( objectp->getRegion()->getWaterHeight() );
-		// LLWorld::getInstance()->getWaterHeight();
 
 		F32 approx_radius = (scale.mV[VX] + scale.mV[VY]) * 0.5f * 0.5f * 1.3f;  // 1.3 is a fudge
 
@@ -1942,42 +1742,49 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 		// See DEV-17370 and DEV-29869/SNOW-79 for details.
 		approx_radius = llmin(approx_radius, (F32)max_radius);
 
-		LLColor4U color = above_water_color;
-		if( objectp->permYouOwner() )
+		LLColor4U color = LLColor4U(above_water_color.get());
+		if (objectp->permYouOwner())
 		{
 			const F32 MIN_RADIUS_FOR_OWNED_OBJECTS = 2.f;
-			if( approx_radius < MIN_RADIUS_FOR_OWNED_OBJECTS )
+			if (approx_radius < MIN_RADIUS_FOR_OWNED_OBJECTS)
 			{
 				approx_radius = MIN_RADIUS_FOR_OWNED_OBJECTS;
 			}
 
-			if( pos.mdV[VZ] >= water_height )
+			if (pos.mdV[VZ] >= water_height)
 			{
-				if ( objectp->permGroupOwner() )
+				if (objectp->permGroupOwner())
 				{
-					color = group_own_above_water_color;
+					color = LLColor4U(group_own_above_water_color.get());
 				}
 				else
 				{
-				color = you_own_above_water_color;
-			}
-			}
-			else
-			{
-				if ( objectp->permGroupOwner() )
-				{
-					color = group_own_below_water_color;
+					color = LLColor4U(you_own_above_water_color.get());
 				}
+			}
 			else
 			{
-				color = you_own_below_water_color;
+				if (objectp->permGroupOwner())
+				{
+					color = LLColor4U(group_own_below_water_color.get());
+				}
+				else
+				{
+					color = LLColor4U(you_own_below_water_color.get());
+				}
 			}
 		}
-		}
-		else
-		if( pos.mdV[VZ] < water_height )
+		else if (objectp->flagUsePhysics())
 		{
-			color = below_water_color;
+			color = LLColor4U(physical_object_color.get());
+		}
+		else if (objectp->flagTemporaryOnRez())
+		{
+			color = LLColor4U(temp_object_color.get());
+		}
+		else if (pos.mdV[VZ] < water_height)
+		{
+			color = LLColor4U(below_water_color.get());
 		}
 
 		netmap.renderScaledPointGlobal( 
@@ -2026,7 +1833,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 			if( !drawablep )
 				continue;
 
-			LLViewerObject* last_objectp = NULL;
+			LLViewerObject* last_objectp = nullptr;
 			for (S32 face_num = 0; face_num < drawablep->getNumFaces(); face_num++)
 			{
 				LLFace * facep = drawablep->getFace(face_num);
@@ -2065,10 +1872,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 			{
 				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 				LLViewerJointAttachment* attachment = curiter->second;
-				// <FS:Ansariel> Possible crash fix
-				//if (attachment->getIsHUDAttachment())
-				if (attachment && attachment->getIsHUDAttachment())
-				// </FS:Ansariel>
+				if (attachment->getIsHUDAttachment())
 				{
 					for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
 						 attachment_iter != attachment->mAttachedObjects.end();
@@ -2129,7 +1933,7 @@ LLViewerObject *LLViewerObjectList::getSelectedObject(const U32 object_id)
 			return (*pick_it);
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void LLViewerObjectList::addDebugBeacon(const LLVector3 &pos_agent,
@@ -2162,7 +1966,7 @@ LLViewerObject *LLViewerObjectList::createObjectViewer(const LLPCode pcode, LLVi
 	if (!objectp)
 	{
 // 		LL_WARNS() << "Couldn't create object of type " << LLPrimitive::pCodeToString(pcode) << LL_ENDL;
-		return NULL;
+		return nullptr;
 	}
 
 	mUUIDObjectMap[fullid] = objectp;
@@ -2182,7 +1986,7 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
 	if (!objectp)
 	{
 // 		LL_WARNS() << "Couldn't create object of type " << LLPrimitive::pCodeToString(pcode) << " id:" << fullid << LL_ENDL;
-		return NULL;
+		return nullptr;
 	}
 
 	objectp->mLocalID = local_id;
@@ -2201,12 +2005,6 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
 LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRegion *regionp,
 												 const LLUUID &uuid, const U32 local_id, const LLHost &sender)
 {
-	// <FS:Ansariel> Don't create derendered objects
-	if (mDerendered.end() != mDerendered.find(uuid))
-	{
-		return NULL;
-	}
-	// </FS:Ansariel>
 	
 	LLUUID fullid;
 	if (uuid == LLUUID::null)
@@ -2222,7 +2020,7 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
 	if (!objectp)
 	{
 // 		LL_WARNS() << "Couldn't create object of type " << LLPrimitive::pCodeToString(pcode) << " id:" << fullid << LL_ENDL;
-		return NULL;
+		return nullptr;
 	}
 	if(regionp)
 	{
@@ -2252,7 +2050,7 @@ LLViewerObject *LLViewerObjectList::replaceObject(const LLUUID &id, const LLPCod
 		
 		return createObject(pcode, regionp, id, old_instance->getLocalID(), LLHost());
 	}
-	return NULL;
+	return nullptr;
 }
 
 S32 LLViewerObjectList::findReferences(LLDrawable *drawablep) const
@@ -2465,154 +2263,5 @@ LLDebugBeacon::~LLDebugBeacon()
 	if (mHUDObject.notNull())
 	{
 		mHUDObject->markDead();
-	}
-}
-
-// <FS:ND> Helper function to purge the internal list of derendered objects on teleport.
-void LLViewerObjectList::resetDerenderList(bool force /*= false*/)
-{
-	static LLCachedControl<bool> PVDerender_ClearTempOnTeleport(gSavedSettings, "PVDerender_ClearTempOnTeleport");
-	if (!PVDerender_ClearTempOnTeleport && !force)
-	{
-		return;
-	}
-
-	std::map< LLUUID, bool > oDerendered;
-	uuid_vec_t removed_ids;
-
-	for (std::map< LLUUID, bool >::iterator itr = mDerendered.begin(); itr != mDerendered.end(); ++itr)
-	{
-		if (itr->second)
-		{
-			oDerendered[itr->first] = itr->second;
-		}
-		else
-		{
-			removed_ids.push_back(itr->first);
-		}
-	}
-
-	mDerendered.swap( oDerendered );
-	FSAssetBlacklist::instance().removeItemsFromBlacklist(removed_ids);
-}
-
-// <FS:ND> Helper function to add items from global blacklist after teleport.
-void LLViewerObjectList::addDerenderedItem( LLUUID const &aId, bool aPermanent )
-{
-	mDerendered[ aId ] = aPermanent;
-}
-void LLViewerObjectList::removeDerenderedItem( LLUUID const &aId )
-{
-	mDerendered.erase( aId );
-}
-
-// </FS:ND>
-
-void LLViewerObjectList::renderObjectBeacons()
-{
-	if (mDebugBeacons.empty())
-	{
-		return;
-	}
-
-	LLGLSUIDefault gls_ui;
-
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.bind();
-	}
-
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-		S32 last_line_width = -1;
-		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
-		
-		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
-		{
-			const LLDebugBeacon &debug_beacon = *iter;
-			LLColor4 color = debug_beacon.mColor;
-			color.mV[3] *= 0.25f;
-			S32 line_width = debug_beacon.mLineWidth;
-			if (line_width != last_line_width)
-			{
-				gGL.flush();
-				glLineWidth( (F32)line_width );
-				last_line_width = line_width;
-			}
-
-			const LLVector3 &thisline = debug_beacon.mPositionAgent;
-		
-			gGL.begin(LLRender::LINES);
-			gGL.color4fv(color.mV);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 50.f);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 50.f);
-			gGL.vertex3f(thisline.mV[VX] - 2.f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX] + 2.f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] - 2.f,thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 2.f,thisline.mV[VZ]);
-
-			draw_line_cube(0.10f, thisline);
-			
-			gGL.end();
-		}
-	}
-
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		LLGLDepthTest gls_depth(GL_TRUE);
-		
-		S32 last_line_width = -1;
-		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
-		
-		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
-		{
-			const LLDebugBeacon &debug_beacon = *iter;
-
-			S32 line_width = debug_beacon.mLineWidth;
-			if (line_width != last_line_width)
-			{
-				gGL.flush();
-				glLineWidth( (F32)line_width );
-				last_line_width = line_width;
-			}
-
-			const LLVector3 &thisline = debug_beacon.mPositionAgent;
-			gGL.begin(LLRender::LINES);
-			gGL.color4fv(debug_beacon.mColor.mV);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 0.5f);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 0.5f);
-			gGL.vertex3f(thisline.mV[VX] - 0.5f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX] + 0.5f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] - 0.5f,thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 0.5f,thisline.mV[VZ]);
-
-			draw_line_cube(0.10f, thisline);
-
-			gGL.end();
-		}
-		
-		gGL.flush();
-		glLineWidth(1.f);
-
-		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
-		{
-			LLDebugBeacon &debug_beacon = *iter;
-			if (debug_beacon.mString.empty())
-			{
-				continue;
-			}
-			LLHUDText *hud_textp = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
-
-			hud_textp->setZCompare(FALSE);
-			LLColor4 color;
-			color = debug_beacon.mTextColor;
-			color.mV[3] *= 1.f;
-
-			hud_textp->setString(debug_beacon.mString);
-			hud_textp->setColor(color);
-			hud_textp->setPositionAgent(debug_beacon.mPositionAgent);
-			debug_beacon.mHUDObject = hud_textp;
-		}
 	}
 }

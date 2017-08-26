@@ -9,9 +9,8 @@ label_pad_left - padding to the left of tab button labels
                tab_max_width="150"
                use_custom_icon_ctrl="false"
                halign="center"
-               font="SansSerif"
-               font.size="Small" 
-               tab_height="24"
+               font="SansSerifSmall" 
+               tab_height="22"
                label_pad_bottom="1"
                label_pad_left="4">
   <!--

@@ -34,13 +34,11 @@
 #include "llfloaterimcontainer.h"
 #include "llfloaterreg.h"
 #include "lllocalcliprect.h"
+#include "llmenugl.h"
 #include "llscriptfloater.h"
-#include "llsingleton.h"
 #include "llsyswellwindow.h"
+#include "llviewermenu.h"
 #include "llfloaternotificationstabbed.h"
-// [SL:KB] - Patch: UI-Notifications | Checked: 2013-05-09 (Catznip-3.5)
-#include "llchannelmanager.h"
-// [/SL:KB]
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
@@ -66,12 +64,12 @@ LLSysWellChiclet::Params::Params()
 
 LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 	: LLChiclet(p)
-	, mButton(NULL)
+	, mButton(nullptr)
 	, mCounter(0)
 	, mMaxDisplayedCount(p.max_displayed_count)
 	, mIsNewMessagesState(false)
-	, mFlashToLitTimer(NULL)
-	, mContextMenu(NULL)
+	, mFlashToLitTimer(nullptr)
+	, mContextMenuHandle()
 {
 	LLButton::Params button_params = p.button;
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
@@ -83,6 +81,12 @@ LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 LLSysWellChiclet::~LLSysWellChiclet()
 {
 	mFlashToLitTimer->unset();
+	LLContextMenu* menu_avatar = static_cast<LLContextMenu*>(mContextMenuHandle.get());
+	if (menu_avatar)
+	{
+		menu_avatar->die();
+		mContextMenuHandle.markDead();
+	}
 }
 
 void LLSysWellChiclet::setCounter(S32 counter)
@@ -149,14 +153,16 @@ void LLSysWellChiclet::updateWidget(bool is_window_empty)
 // virtual
 BOOL LLSysWellChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if(!mContextMenu)
+	LLContextMenu* menu_avatar = mContextMenuHandle.get();
+	if(!menu_avatar)
 	{
 		createMenu();
+		menu_avatar = mContextMenuHandle.get();
 	}
-	if (mContextMenu)
+	if (menu_avatar)
 	{
-		mContextMenu->show(x, y);
-		LLMenuGL::showPopup(this, mContextMenu, x, y);
+		menu_avatar->show(x, y);
+		LLMenuGL::showPopup(this, menu_avatar, x, y);
 	}
 	return TRUE;
 }
@@ -196,7 +202,7 @@ bool LLNotificationChiclet::enableMenuItem(const LLSD& user_data)
 
 void LLNotificationChiclet::createMenu()
 {
-	if(mContextMenu)
+	if(!mContextMenuHandle.isDead())
 	{
 		LL_WARNS() << "Menu already exists" << LL_ENDL;
 		return;
@@ -210,11 +216,11 @@ void LLNotificationChiclet::createMenu()
 	enable_registrar.add("NotificationWellChicletMenu.EnableItem",
 		boost::bind(&LLNotificationChiclet::enableMenuItem, this, _2));
 
-	llassert(LLMenuGL::sMenuContainer != NULL);
-	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>
+	LLContextMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>
 		("menu_notification_well_button.xml",
-		 LLMenuGL::sMenuContainer,
+		 gMenuHolder,
 		 LLViewerMenuHolderGL::child_registry_t::instance());
+	mContextMenuHandle = menu->getHandle();
 }
 
 /*virtual*/
@@ -242,15 +248,6 @@ bool LLNotificationChiclet::ChicletNotificationChannel::filterNotification( LLNo
 	{
 		displayNotification = true;
 	}
-// [SL:KB] - Patch: UI-Notifications | Checked: 2013-05-09 (Catznip-3.5)
-	else if ("offer" == notification->getType())
-	{
-		// Assume that any offer notification with "getCanBeStored() == true" is the result of RLVa routing it to the notifcation syswell
-		/*const*/ LLNotificationsUI::LLScreenChannel* pChannel = LLNotificationsUI::LLChannelManager::instance().getNotificationScreenChannel();
-		/*const*/ LLNotificationsUI::LLToast* pToast = (pChannel) ? pChannel->getToastByNotificationID(notification->getID()) : NULL;
-		displayNotification = (pToast) && (pToast->getCanBeStored());
-	}
-// [/SL:KB]
 	else
 	{
 		displayNotification = false;
@@ -318,11 +315,11 @@ void LLChiclet::setValue(const LLSD& value)
 
 LLIMChiclet::LLIMChiclet(const LLIMChiclet::Params& p)
 : LLChiclet(p)
+, mPopupMenu(nullptr)
 , mShowSpeaker(false)
 , mDefaultWidth(p.rect().getWidth())
-, mNewMessagesIcon(NULL)
-, mChicletButton(NULL)
-, mPopupMenu(NULL)
+, mNewMessagesIcon(nullptr)
+, mChicletButton(nullptr)
 {
 }
 
@@ -429,9 +426,9 @@ LLChicletPanel::Params::Params()
 
 LLChicletPanel::LLChicletPanel(const Params&p)
 : LLPanel(p)
-, mScrollArea(NULL)
-, mLeftScrollButton(NULL)
-, mRightScrollButton(NULL)
+, mLeftScrollButton(nullptr)
+, mRightScrollButton(nullptr)
+, mScrollArea(nullptr)
 , mChicletPadding(p.chiclet_padding)
 , mScrollingOffset(p.scrolling_offset)
 , mScrollButtonHPad(p.scroll_button_hpad)
@@ -481,7 +478,7 @@ void LLChicletPanel::objectChicletCallback(const LLSD& data)
 	for (iter = chiclets.begin(); iter != chiclets.end(); iter++)
 	{
 		LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*iter);
-		if (chiclet != NULL)
+		if (chiclet != nullptr)
 		{
 			chiclet->setShowNewMessagesIcon(new_message);
 		}
@@ -654,7 +651,7 @@ void LLChicletPanel::removeChiclet(const LLUUID& im_session_id)
 	{
 		LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*it);
 
-		if(chiclet->getSessionId() == im_session_id)
+		if(chiclet && chiclet->getSessionId() == im_session_id)
 		{
 			removeChiclet(it);
 			return;
@@ -1005,7 +1002,7 @@ bool LLChicletPanel::isAnyIMFloaterDoked()
 	{
 		LLFloaterIMSession* im_floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>(
 				"impanel", (*it)->getSessionId());
-		if (im_floater != NULL && im_floater->getVisible()
+		if (im_floater != nullptr && im_floater->getVisible()
 				&& !im_floater->isMinimized() && im_floater->isDocked())
 		{
 			res = true;
@@ -1059,15 +1056,15 @@ void LLChicletInvOfferIconCtrl::setValue(const LLSD& value )
 //////////////////////////////////////////////////////////////////////////
 
 LLScriptChiclet::Params::Params()
- : icon("icon")
- , chiclet_button("chiclet_button")
+ : chiclet_button("chiclet_button")
+ , icon("icon")
  , new_message_icon("new_message_icon")
 {
 }
 
 LLScriptChiclet::LLScriptChiclet(const Params&p)
  : LLIMChiclet(p)
- , mChicletIconCtrl(NULL)
+ , mChicletIconCtrl(nullptr)
 {
 	LLButton::Params button_params = p.chiclet_button;
 	mChicletButton = LLUICtrlFactory::create<LLButton>(button_params);
@@ -1127,15 +1124,15 @@ void LLScriptChiclet::createPopupMenu()
 static const std::string INVENTORY_USER_OFFER	("UserGiveItem");
 
 LLInvOfferChiclet::Params::Params()
- : icon("icon")
- , chiclet_button("chiclet_button")
+ : chiclet_button("chiclet_button")
+ , icon("icon")
  , new_message_icon("new_message_icon")
 {
 }
 
 LLInvOfferChiclet::LLInvOfferChiclet(const Params&p)
  : LLIMChiclet(p)
- , mChicletIconCtrl(NULL)
+ , mChicletIconCtrl(nullptr)
 {
 	LLButton::Params button_params = p.chiclet_button;
 	mChicletButton = LLUICtrlFactory::create<LLButton>(button_params);

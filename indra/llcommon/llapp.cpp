@@ -30,8 +30,6 @@
 
 #include "llapp.h"
 
-#include <cstdlib>
-
 #ifdef LL_DARWIN
 #include <sys/types.h>
 #include <unistd.h>
@@ -48,8 +46,14 @@
 #include "llstl.h" // for DeletePointer()
 #include "llstring.h"
 #include "lleventtimer.h"
+#if LL_WINDOWS
+#pragma warning (push)
+#pragma warning (disable : 4091) // compiler thinks might use uninitialized var, but no
+#endif
 #include "google_breakpad/exception_handler.h"
-#include "stringize.h"
+#if LL_WINDOWS
+#pragma warning (pop)
+#endif
 #include "llcleanup.h"
 
 //
@@ -58,7 +62,7 @@
 // Windows uses structured exceptions, so it's handled a bit differently.
 //
 #if LL_WINDOWS
-#include "windows.h"
+#include "llwin32headerslean.h"
 
 LONG WINAPI default_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop);
 BOOL ConsoleCtrlHandler(DWORD fdwCtrlType);
@@ -102,7 +106,7 @@ S32 LL_HEARTBEAT_SIGNAL = (SIGRTMAX >= 0) ? (SIGRTMAX-0) : SIGUSR2;
 #endif // LL_WINDOWS
 
 // the static application instance
-LLApp* LLApp::sApplication = NULL;
+LLApp* LLApp::sApplication = nullptr;
 
 // Allows the generation of core files for post mortem under gdb
 // and disables crashlogger
@@ -114,11 +118,20 @@ BOOL LLApp::sLogInSignal = FALSE;
 
 // static
 LLApp::EAppStatus LLApp::sStatus = LLApp::APP_STATUS_STOPPED; // Keeps track of application status
-LLAppErrorHandler LLApp::sErrorHandler = NULL;
+LLAppErrorHandler LLApp::sErrorHandler = nullptr;
 BOOL LLApp::sErrorThreadRunning = FALSE;
 
 
-LLApp::LLApp() : mThreadErrorp(NULL)
+LLApp::LLApp()
+	: mThreadErrorp(nullptr),
+	  mExceptionHandler(nullptr)
+{
+	commonCtor();
+}
+
+LLApp::LLApp(LLErrorThread *error_thread)
+	: mThreadErrorp(error_thread),
+	  mExceptionHandler(nullptr)
 {
 	commonCtor();
 }
@@ -147,20 +160,11 @@ void LLApp::commonCtor()
 	// Set the application to this instance.
 	sApplication = this;
 
-	mExceptionHandler = 0;
-	
 	// initialize the buffer to write the minidump filename to
 	// (this is used to avoid allocating memory in the crash handler)
 	memset(mMinidumpPath, 0, MAX_MINDUMP_PATH_LENGTH);
 	mCrashReportPipeStr = L"\\\\.\\pipe\\LLCrashReporterPipe";
 }
-
-LLApp::LLApp(LLErrorThread *error_thread) :
-	mThreadErrorp(error_thread)
-{
-	commonCtor();
-}
-
 
 LLApp::~LLApp()
 {
@@ -175,10 +179,10 @@ LLApp::~LLApp()
 	if (mThreadErrorp)
 	{
 		delete mThreadErrorp;
-		mThreadErrorp = NULL;
+		mThreadErrorp = nullptr;
 	}
 	
-	if(mExceptionHandler != 0) delete mExceptionHandler;
+	if(mExceptionHandler != nullptr) delete mExceptionHandler;
 
 	SUBSYSTEM_CLEANUP(LLCommon);
 }
@@ -306,7 +310,7 @@ void EnableCrashingOnCrashes()
 	typedef BOOL (WINAPI *tSetPolicy)(DWORD dwFlags);
 	const DWORD EXCEPTION_SWALLOWING = 0x1;
 
-	HMODULE kernel32 = LoadLibraryA("kernel32.dll");
+	HMODULE kernel32 = LoadLibraryW(TEXT("kernel32.dll"));
 	tGetPolicy pGetPolicy = (tGetPolicy)GetProcAddress(kernel32,
 		"GetProcessUserModeExceptionPolicy");
 	tSetPolicy pSetPolicy = (tSetPolicy)GetProcAddress(kernel32,
@@ -354,9 +358,9 @@ void LLApp::setupErrorHandling(bool second_instance)
 			LL_WARNS() << "adding breakpad exception handler" << LL_ENDL;
 
 			std::wstring wpipe_name;
-			wpipe_name =  mCrashReportPipeStr + wstringize(getPid());
+			wpipe_name =  mCrashReportPipeStr + std::to_wstring(getPid());
 
-			const std::wstring wdump_path(wstringize(mDumpPath));
+			const std::wstring wdump_path(utf8str_to_utf16str(mDumpPath));
 
 			int retries = 30;
 			for (; retries > 0; --retries)
@@ -412,15 +416,14 @@ void LLApp::setupErrorHandling(bool second_instance)
 	// API.  We disable this test for shipping versions to avoid conflicts with
 	// future releases of Darwin.  This test is really only needed for developers
 	// starting the app from a debugger anyway.
-	#ifndef LL_RELEASE_FOR_DOWNLOAD
+	#if 0
     int mib[4];
 	mib[0] = CTL_KERN;
 	mib[1] = KERN_PROC;
 	mib[2] = KERN_PROC_PID;
 	mib[3] = getpid();
 	
-	struct kinfo_proc info;
-	memset(&info, 0, sizeof(info));
+	struct kinfo_proc info = {0};
 	
 	size_t size = sizeof(info);
 	int result = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
@@ -515,7 +518,7 @@ void LLApp::setMiniDumpDir(const std::string &path)
 		mDumpPath = path;
 	}
 
-	if(mExceptionHandler == 0) return;
+	if(mExceptionHandler == nullptr) return;
 #ifdef LL_WINDOWS
 	wchar_t buffer[MAX_MINDUMP_PATH_LENGTH];
 	mbstowcs(buffer, mDumpPath.c_str(), MAX_MINDUMP_PATH_LENGTH);
@@ -537,7 +540,7 @@ void LLApp::setDebugFileNames(const std::string &path)
 
 void LLApp::writeMiniDump()
 {
-	if(mExceptionHandler == 0) return;
+	if(mExceptionHandler == nullptr) return;
 	mExceptionHandler->WriteMinidump();
 }
 
@@ -596,10 +599,10 @@ bool LLApp::isExiting()
 void LLApp::disableCrashlogger()
 {
 	// Disable Breakpad exception handler.
-	if (mExceptionHandler != 0)
+	if (mExceptionHandler != nullptr)
 	{
 		delete mExceptionHandler;
-		mExceptionHandler = 0;
+		mExceptionHandler = nullptr;
 	}
 
 	sDisableCrashlogger = TRUE;
@@ -612,12 +615,12 @@ bool LLApp::isCrashloggerDisabled()
 }
 
 // static
-S32 LLApp::getPid()
+int LLApp::getPid()
 {
 #if LL_WINDOWS
-    return (S32) GetCurrentProcessId();
+    return GetCurrentProcessId();
 #else
-	return (S32) getpid();
+	return getpid();
 #endif
 }
 
@@ -646,12 +649,6 @@ LONG WINAPI default_windows_exception_handler(struct _EXCEPTION_POINTERS *except
 	{
 		ms_sleep(10);
 	}
-
-	//
-	// Generate a minidump if we can.
-	//
-	// TODO: This needs to be ported over form the viewer-specific
-	// LLWinDebug class
 
 	//
 	// At this point, we always want to exit the app.  There's no graceful

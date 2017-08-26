@@ -35,7 +35,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloateravatar.h"
-#include "lluictrlfactory.h"
 #include "llmediactrl.h"
 
 

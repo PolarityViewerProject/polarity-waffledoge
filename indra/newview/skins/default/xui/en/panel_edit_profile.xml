@@ -30,7 +30,7 @@
     value="Charter Member" />
    <string
     name="AcctTypeEmployee"
-    value="Linden Lab Employee" />
+    value="[GRID_ADMIN] Employee" />
    <string
     name="PaymentInfoUsed"
     value="Payment Info Used" />
@@ -210,7 +210,7 @@
              top="10"
             name="second_life_photo_title_text"
              text_color="white"
-             value="[SECOND_LIFE]:"
+             value="[CURRENT_GRID]:"
              width="100" />
             <texture_picker
              allow_no_texture="true"
@@ -240,8 +240,7 @@
        type="string"
        length="1"
        follows="left|top|right"
-       font="SansSerif"
-       font.size="Small"
+       font="SansSerifSmall"
        height="102"
        layout="topleft"
        left="123"
@@ -297,8 +296,7 @@
        type="string"
        length="1"
        follows="left|top|right"
-       font="SansSerif"
-       font.size="Small"
+       font="SansSerifSmall"
        height="102"
        layout="topleft"
        left="123"
@@ -312,8 +310,7 @@
        type="string"
        length="1"
        follows="left|top"
-       font="SansSerif"
-       font.size="Small"
+       font="SansSerifSmall"
        font.style="BOLD"
        height="15"
        layout="topleft"
@@ -326,8 +323,7 @@
       </text>
       <line_editor
        follows="left|top|right"
-       font="SansSerif"
-       font.size="Small"
+       font="SansSerifSmall"
        height="20"
        layout="topleft"
        left="10"
@@ -338,8 +334,7 @@
       </line_editor>
       <text
          follows="left|top"
-         font="SansSerif"
-         font.size="Small"
+         font="SansSerifSmall"
 	 font.style="BOLD"
          height="15"
          layout="topleft"
@@ -367,8 +362,7 @@
         <text
          type="string"
          follows="left|top"
-         font="SansSerif"
-         font.size="Small"
+         font="SansSerifSmall"
          height="15"
          layout="topleft"
          left="10"
@@ -377,8 +371,7 @@
          width="200" />
         <text
          follows="left|top"
-         font="SansSerif"
-         font.size="Small"
+         font="SansSerifSmall"
       	 font.style="BOLD"
          height="15"
          layout="topleft"
