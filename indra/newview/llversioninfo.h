@@ -98,8 +98,8 @@ public:
         RELEASE_VIEWER
     } ViewerMaturity;
     static ViewerMaturity getViewerMaturity();
-    static std::string getBuildDate();
-    static std::string getBuildTime();
+    static const std::string getBuildDate();
+    static const std::string getBuildTime();
 };
 
 #endif

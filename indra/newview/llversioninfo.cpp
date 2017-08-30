@@ -219,24 +219,28 @@ LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity()
     return maturity;
 }
 
-    
+//static    
 const std::string &LLVersionInfo::getBuildConfig()
 {
     static const std::string build_configuration(LLBUILD_CONFIG); // set in indra/cmake/BuildVersion.cmake
     return build_configuration;
 }
+
+//static
 const std::string &LLVersionInfo::getBuildCommitHash()
 {
 	static const std::string hash_short(BUILD_COMMIT_HASH);
 	return hash_short;
 }
 
+//static
 const std::string &LLVersionInfo::getBuildCommitHashLong()
 {
 	static const std::string hash_long(BUILD_COMMIT_HASH_LONG);
 	return hash_long;
 }
 
+//static
 const std::string &LLVersionInfo::getBuildNumber()
 {
 	static const std::string build_id(std::to_string(BUILD_NUMBER)); // oh surprise, we get numbers!
@@ -244,7 +248,7 @@ const std::string &LLVersionInfo::getBuildNumber()
 }
 
 //static
-std::string LLVersionInfo::getBuildDate()
+const std::string LLVersionInfo::getBuildDate()
 {
 #if !defined BUILD_DATE
 	return __DATE__;
@@ -254,7 +258,7 @@ std::string LLVersionInfo::getBuildDate()
 }
 
 //static
-std::string LLVersionInfo::getBuildTime()
+const std::string LLVersionInfo::getBuildTime()
 {
 #if !defined BUILD_TIME
 	return __TIME__;
