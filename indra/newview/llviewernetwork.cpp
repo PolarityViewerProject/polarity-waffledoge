@@ -82,7 +82,7 @@ const std::string GRID_SLURL_BASE = "slurl_base";
 /// slurl base for grid slapp links
 const std::string GRID_APP_SLURL_BASE = "app_slurl_base";
 
-const std::string DEFAULT_LOGIN_PAGE = "https://login.alchemyviewer.org/";
+const std::string DEFAULT_LOGIN_PAGE = "http://app.polarityviewer.org/";
 
 const std::string MAIN_GRID_LOGIN_URI = "https://login.agni.lindenlab.com/cgi-bin/login.cgi";
 
@@ -933,19 +933,22 @@ std::string LLGridManager::getPlatformString() const
 
 std::string LLGridManager::getUpdateServiceURL() const
 {
-	std::string update_url_base = gSavedSettings.getString("CmdLineUpdateService");;
-	if ( !update_url_base.empty() )
-	{
-		LL_INFOS("UpdaterService","GridManager")
-			<< "Update URL base overridden from command line: " << update_url_base
-			<< LL_ENDL;
-	}
-	else
-	{
-		update_url_base = PROJECT_UPDATE_SERVICE;
-	}
-			
-	return update_url_base;
+// <polarity> We don't like that idea.
+//	std::string update_url_base = gSavedSettings.getString("CmdLineUpdateService");;
+//	if ( !update_url_base.empty() )
+//	{
+//		LL_INFOS("UpdaterService","GridManager")
+//			<< "Update URL base overridden from command line: " << update_url_base
+//			<< LL_ENDL;
+//	}
+//	else
+//	{
+//		update_url_base = PROJECT_UPDATE_SERVICE;
+//	}
+//			
+//	return update_url_base;
+	return PROJECT_UPDATE_SERVICE;
+// </polarity>
 }
 
 LLSD LLGridManager::getGridInfo(const std::string& grid) const
