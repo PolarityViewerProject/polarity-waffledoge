@@ -95,6 +95,14 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
       endif (NOT CUT_TOOL) # Cut
   endif (NOT DEFINED LL_SOURCE_HASH)
 
+  if (NOT DEFINED BUILD_DATE)
+    message(STATUS "Generating build timestamp...")
+    STRING(TIMESTAMP BUILD_DATE "%Y-%m-%d")
+    STRING(TIMESTAMP BUILD_TIME "%H:%M:%S")
+  endif (NOT DEFINED BUILD_DATE)
+  message(STATUS "Build Date: ${BUILD_DATE}")
+  message(STATUS "Build Time: ${BUILD_TIME}")
+
     set(VIEWER_CHANNEL_VERSION_DEFINES
         "LL_VIEWER_CHANNEL=\"${VIEWER_CHANNEL}\""
         "LL_VIEWER_VERSION_MAJOR=${VIEWER_VERSION_MAJOR}"

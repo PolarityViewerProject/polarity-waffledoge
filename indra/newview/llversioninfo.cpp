@@ -179,3 +179,23 @@ const std::string &LLVersionInfo::getBuildConfig()
     static const std::string build_configuration(LLBUILD_CONFIG); // set in indra/cmake/BuildVersion.cmake
     return build_configuration;
 }
+
+//static
+std::string LLVersionInfo::getBuildDate()
+{
+#if !defined BUILD_DATE
+	return __DATE__;
+#else
+	return BUILD_DATE;
+#endif
+}
+
+//static
+std::string LLVersionInfo::getBuildTime()
+{
+#if !defined BUILD_TIME
+	return __TIME__;
+#else
+	return BUILD_TIME;
+#endif
+}

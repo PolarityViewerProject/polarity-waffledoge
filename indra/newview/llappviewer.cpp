@@ -3308,8 +3308,12 @@ LLSD LLAppViewer::getViewerInfo() const
 	version.append(LLVersionInfo::getBuild());
 	info["VIEWER_VERSION"] = version;
 	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
-	info["BUILD_DATE"] = __DATE__;
-	info["BUILD_TIME"] = __TIME__;
+	// <polarity> Use date and time provided by the build system
+	//info["BUILD_DATE"] = __DATE__;
+	//info["BUILD_TIME"] = __TIME__;
+	info["BUILD_DATE"] = LLVersionInfo::getBuildDate();
+	info["BUILD_TIME"] = LLVersionInfo::getBuildTime();
+	// </polarity>
 	info["CHANNEL"] = LLVersionInfo::getChannel();
     std::string build_config = LLVersionInfo::getBuildConfig();
     if (build_config != "Release")

@@ -77,6 +77,8 @@ public:
         RELEASE_VIEWER
     } ViewerMaturity;
     static ViewerMaturity getViewerMaturity();
+    static std::string getBuildDate();
+    static std::string getBuildTime();
 };
 
 #endif
