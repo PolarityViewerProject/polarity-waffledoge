@@ -593,11 +593,11 @@
     <color
      name="MultiSliderTriangleColor"
      reference="Yellow" />
-  <!--
+  
     <color
       name="NameTagBackground"
       value="0.85 0.85 0.85 0.80" />
-      -->
+      
     <color
       name="NameTagBackground"
       value="0 0 0 1" />
