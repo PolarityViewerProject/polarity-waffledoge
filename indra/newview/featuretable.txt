@@ -273,9 +273,6 @@ RenderDeferredSSAO			1	1
 RenderShadowDetail			1	0
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
-		1	0
-	1	0
-PVRender_EnableSSR			1	0
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	1
@@ -310,9 +307,6 @@ RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
-		1	0
-	1	0
-PVRender_EnableSSR			1	0
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	1
@@ -347,9 +341,6 @@ RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 RenderFSAASamples			1	2
-		1	0
-	1	0
-PVRender_EnableSSR			1	0
 RenderDepthOfField			1	1
 RenderDepthOfFieldInEditMode	1	1
 PVRender_DepthOfFieldAlphas	1	1
