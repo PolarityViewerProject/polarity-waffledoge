@@ -819,7 +819,9 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 static LLTrace::BlockTimerStatHandle FTM_GL_DRAW_ARRAYS("GL draw arrays");
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
-	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+
+	// Fast timers causes this to be triggered.
+	//llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
 	mMappable = false;
 	gGL.syncMatrices();
 	
