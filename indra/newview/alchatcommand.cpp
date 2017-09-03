@@ -145,9 +145,9 @@ bool ALChatCommand::parseCommand(std::string data)
 			msg->nextBlockFast(_PREHASH_AgentData);
 			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			static LLCachedControl<bool> PVTools_RezUnderLandGroup(gSavedSettings, "PVTools_RezUnderLandGroup");
+			static LLCachedControl<bool> AlchemyRezUnderLandGroup(gSavedSettings, "AlchemyRezUnderLandGroup");
 			LLUUID group_id = gAgent.getGroupID();
-			if (PVTools_RezUnderLandGroup)
+			if (AlchemyRezUnderLandGroup)
 			{
 				LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 				// Is the agent in the land group
