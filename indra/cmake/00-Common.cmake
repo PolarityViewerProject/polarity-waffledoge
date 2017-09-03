@@ -112,7 +112,10 @@ if (WINDOWS)
       /Zc:throwingNew
       /nologo
       /Oy-
-      /fp:fast
+      # <polarity> Floating Point Precision
+      #/fp:fast
+      /fp:strict /fp:except-
+      # </polarity>
       /Zm140
       )
 
