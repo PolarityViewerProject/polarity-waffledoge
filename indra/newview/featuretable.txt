@@ -27,62 +27,60 @@ version 35
 // NOTE: All settings are set to the MIN of applied values, including 'all'!
 // This means that "all" should contain the highest value and NOT be used as a fallback
 list all
-//RenderTextureMemoryMultiple		1	1.0
-Disregard128DefaultDrawDistance	1	0
-Disregard96DefaultDrawDistance	1	0
-PVDebug_ForcedVideoMemory	1	0
-PVRender_DepthOfFieldAlphas	1	1
-PVRender_EnableGodRays		1	1
-PVRender_EnableLensFlare	1	1
-PVRender_EnableSSR			1	1
-PVRender_AttachmentShadowDetail	1	3
-PVRender_GodraysDirectional	1	1
 RenderAnisotropic			1	1
-RenderAutoMuteSurfaceAreaLimit     1	1000.0
 RenderAvatarCloth			1	1
-RenderAvatarLODFactor		1	10.0
-RenderAvatarMaxComplexity	1	500000
+RenderAvatarLODFactor		1	1.0
+RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxNonImpostors 1   16
-RenderAvatarPhysicsLODFactor 1	5.0
+RenderAvatarMaxComplexity	1	500000
 RenderAvatarVP				1	1
+RenderAutoMuteSurfaceAreaLimit     1	1000.0
 RenderCompressTextures		1	1
 RenderCubeMap				1	1
-RenderDeferred				1	1
-RenderDeferredSSAO			1	1
 RenderDelayVBUpdate			1	0
-RenderDepthOfField			1	1
-RenderDepthOfFieldInEditMode	1	1
 RenderFarClip				1	1024
-RenderFlexTimeFactor		1	10.0
+RenderFlexTimeFactor		1	1.0
 RenderFogRatio				1	4.0
-RenderFSAASamples			1	16
 RenderGamma					1	0
-RenderGlowResolutionPow		1	11
+RenderGlowResolutionPow		1	9
 RenderGround				1	1
-RenderLocalLights			1	1
 RenderMaxPartCount			1	8192
-RenderMaxTextureIndex		1	16
 RenderObjectBump			1	1
+RenderLocalLights			1	1
 RenderReflectionDetail		1	4
 RenderShaderLightingMaxLevel	1	3
 RenderShadowDetail			1	2
 RenderShadowFarClip			1	160
 RenderWaterRefResolution	1	8192
-
 RenderTerrainDetail			1	1
-RenderTerrainLODFactor		1	10.0
+RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
-RenderTreeLODFactor			1	10.0
-RenderUseStreamVBO			1	1
+RenderTreeLODFactor			1	1.0
 RenderVBOEnable				1	1
 RenderVBOMappingDisable		1	1
 RenderVolumeLODFactor		1	3.0
 UseOcclusion				1	1
-UseStartScreen				1	1
 VertexShaderEnable			1	1
-WatchdogDisabled				1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
+Disregard128DefaultDrawDistance	1	1
+Disregard96DefaultDrawDistance	1	1
+RenderTextureMemoryMultiple		1	1.0
+RenderCompressTextures		1	1
+RenderShaderLightingMaxLevel	1	3
+RenderDeferred				1	1
+RenderDeferredSSAO			1	1
+RenderShadowDetail			1	2
+RenderUseStreamVBO			1	1
+RenderFSAASamples			1	16
+RenderMaxTextureIndex		1	16
+// <polarity>
+RenderAvatarPhysicsLODFactor 1	5.0
+RenderDepthOfField			1	1
+RenderDepthOfFieldInEditMode	1	1
+PVDebug_ForcedVideoMemory	1	0
+PVRender_AttachmentShadowDetail	1	3
+// </polarity>
 
 //
 // Low Graphics Settings (fixed function)
@@ -114,13 +112,9 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	64
 RenderFSAASamples			1	0
-PVRender_EnableGodRays		1	0
-PVRender_EnableLensFlare	1	0
-PVRender_EnableSSR			1	0
 PVRender_AttachmentShadowDetail	1	0
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
-PVRender_DepthOfFieldAlphas	1	0
 RenderWaterRefResolution	1	256
 
 //
@@ -153,13 +147,9 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	64
 RenderFSAASamples			1	0
-PVRender_EnableGodRays		1	0
-PVRender_EnableLensFlare	1	0
-PVRender_EnableSSR			1	0
 PVRender_AttachmentShadowDetail	1	0
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
-PVRender_DepthOfFieldAlphas	1	0
 RenderWaterRefResolution	1	256
 
 //
@@ -191,13 +181,9 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	64
 RenderFSAASamples			1	0
-PVRender_EnableGodRays		1	0
-PVRender_EnableLensFlare	1	0
-PVRender_EnableSSR			1	0
 PVRender_AttachmentShadowDetail	1	0
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
-PVRender_DepthOfFieldAlphas	1	0
 RenderWaterRefResolution	1	512
 
 //
@@ -229,13 +215,9 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	64
 RenderFSAASamples			1	2
-PVRender_EnableGodRays		1	0
-PVRender_EnableLensFlare	1	0
-PVRender_EnableSSR			1	0
 PVRender_AttachmentShadowDetail	1	1
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
-PVRender_DepthOfFieldAlphas	1	0
 RenderWaterRefResolution	1	768
 
 //
@@ -267,13 +249,9 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
-PVRender_EnableGodRays		1	0
-PVRender_EnableLensFlare	1	0
-PVRender_EnableSSR			1	0
 PVRender_AttachmentShadowDetail	1	2
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
-PVRender_DepthOfFieldAlphas	1	0
 RenderWaterRefResolution	1	1024
 
 //
@@ -305,8 +283,8 @@ RenderDeferredSSAO			1	1
 RenderShadowDetail			1	0
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
-PVRender_EnableGodRays		1	0
-PVRender_EnableLensFlare	1	0
+		1	0
+	1	0
 PVRender_EnableSSR			1	0
 PVRender_AttachmentShadowDetail	1	2
 RenderDepthOfField			1	0
@@ -343,8 +321,8 @@ RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
-PVRender_EnableGodRays		1	0
-PVRender_EnableLensFlare	1	0
+		1	0
+	1	0
 PVRender_EnableSSR			1	0
 PVRender_AttachmentShadowDetail	1	2
 RenderDepthOfField			1	0
@@ -381,8 +359,8 @@ RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 RenderFSAASamples			1	2
-PVRender_EnableGodRays		1	0
-PVRender_EnableLensFlare	1	0
+		1	0
+	1	0
 PVRender_EnableSSR			1	0
 PVRender_AttachmentShadowDetail	1	3
 RenderDepthOfField			1	1
@@ -390,50 +368,14 @@ RenderDepthOfFieldInEditMode	1	1
 PVRender_DepthOfFieldAlphas	1	1
 RenderWaterRefResolution	1	2048
 
-// Molten Core (Melt my shit!)
-list MoltenCore
-RenderAnisotropic			1	1
-RenderAvatarCloth			1	1
-RenderAvatarLODFactor		1	10.0
-RenderAvatarMaxComplexity	1	500000
-RenderAvatarPhysicsLODFactor 1	5.0
-RenderAvatarVP				1	1
-RenderFlexTimeFactor		1	10.0
-RenderGlowResolutionPow		1	11
-RenderMaxPartCount			1	8192
-RenderObjectBump			1	1
-RenderLocalLights			1	1
-RenderReflectionDetail		1	4
-RenderTerrainDetail			1	1
-RenderTerrainLODFactor		1	10.0
-RenderTransparentWater		1	1
-RenderTreeLODFactor			1	10.0
-RenderVolumeLODFactor		1	3.0
-VertexShaderEnable			1	1
-WindLightUseAtmosShaders	1	1
-WLSkyDetail					1	1024
-RenderDeferred				1	1
-RenderDeferredSSAO			1	1
-RenderDepthOfField			1	1
-RenderDepthOfFieldInEditMode	1	1
-PVRender_DepthOfFieldAlphas	1	1
-RenderShadowDetail			1	2
-RenderFSAASamples			1	2
-PVRender_EnableGodRays		1	1
-PVRender_GodraysDirectional	1	0
-PVRender_EnableLensFlare	1	1
-PVRender_EnableSSR			1	1
-PVRender_AttachmentShadowDetail	1	3
-RenderWaterRefResolution	1	2560
-
-/// //
-/// // Class Unknown Hardware (unknown)
-/// //
-/// list Unknown
-/// RenderVBOEnable				1	0
-/// RenderShadowDetail			1	0
-/// RenderDeferred				1	0
-/// RenderDeferredSSAO			1	0
+//
+// Class Unknown Hardware (unknown)
+//
+list Unknown
+RenderVBOEnable				1	0
+RenderShadowDetail			1	0
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
 
 //
 // Class 0 Hardware (just old)
@@ -472,43 +414,18 @@ list Class5
 RenderVBOEnable				1	1
 
 //
+// Vertex Uniforms < 1024
+//
+list VertexUniformsLT1024
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+RenderDeferred 				0	0
+
+//
 // VRAM > 1024MB
 //
 list VRAMGT1GB
 RenderCompressTextures		1	0
-
-//
-// Fallback for cards where OpenGL-based VRAM detection fails
-//
-list ATIVRAMFALLBACK
-PVDebug_ForcedVideoMemory 1 128
-RenderCompressTextures		1	0
-
-//
-// No Pixel Shaders available
-//
-list NoPixelShaders
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-RenderReflectionDetail		0	0
-VertexShaderEnable			0	0
-WindLightUseAtmosShaders	0	0
-RenderDeferred				0	0
-RenderDeferredSSAO			0	0
-RenderShadowDetail			0	0
-
-//
-// No Vertex Shaders available
-//
-list NoVertexShaders
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-RenderReflectionDetail		0	0
-VertexShaderEnable			0	0
-WindLightUseAtmosShaders	0	0
-RenderDeferred				0	0
-RenderDeferredSSAO			0	0
-RenderShadowDetail			0	0
 
 //
 // GL_ARB_map_buffer_range exists
@@ -557,6 +474,21 @@ RenderObjectBump			0	0
 list OpenGLPre15
 RenderVBOEnable				1	0
 
+list OpenGLPre20
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+RenderReflectionDetail		0	0
+VertexShaderEnable			0	0
+WindLightUseAtmosShaders	0	0
+RenderDeferred				0	0
+RenderDeferredSSAO			0	0
+RenderShadowDetail			0	0
+
+list OpenGLPre21
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+RenderDeferred				0	0
+
 list OpenGLPre30
 RenderDeferred				0	0
 RenderMaxTextureIndex		1	1
@@ -568,6 +500,7 @@ RenderFarClip				1	32
 PVDebug_ForcedVideoMemory   1   512
 RenderCompressTextures		1	1
 WLSkyDetail					1	32
+RenderFSAASamples			1	2
 
 list IntelOld
 RenderAnisotropic			1	0
@@ -667,8 +600,6 @@ RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
 
 
-/// Tweaked AMD
-
 list ATI_FireGL_5200
 RenderVBOEnable				1	0
 WindLightUseAtmosShaders	0	0
@@ -682,9 +613,6 @@ RenderVBOEnable				0	0
 
 list ATI_Radeon_7xxx
 RenderVBOEnable				0	0
-
-list ATI_Radeon_7700
-//PVDebug_ForcedVideoMemory	1	1024
 
 list ATI_All-in-Wonder_Radeon
 RenderVBOEnable				0	0
@@ -760,6 +688,7 @@ list ATIOldDriver
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
 RenderVBOEnable				1	0
+RenderDeferred				0	0
 
 // ATI cards generally perform better when not using VBOs for streaming data
 
