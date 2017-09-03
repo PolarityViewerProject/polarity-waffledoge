@@ -104,6 +104,7 @@ if (WINDOWS)
       /GS
       /TP
       /W3
+      /WL
       /c
       /Zc:wchar_t
       /Zc:forScope
