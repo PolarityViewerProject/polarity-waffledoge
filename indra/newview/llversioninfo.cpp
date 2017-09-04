@@ -243,7 +243,16 @@ const std::string &LLVersionInfo::getBuildCommitHashLong()
 //static
 const std::string &LLVersionInfo::getBuildNumber()
 {
-	static const std::string build_id(std::to_string(BUILD_NUMBER)); // oh surprise, we get numbers!
+	const char * build_num = PV_BUILD_NUMBER;
+	static std::string build_id = "";
+	if(build_id.empty() && build_num == nullptr)
+	{
+		build_id = "0";
+	}
+	else
+	{
+		build_id = static_cast<std::string>(build_num);
+	}
 	return build_id;
 }
 
