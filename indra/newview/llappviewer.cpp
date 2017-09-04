@@ -3386,9 +3386,8 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 
 	// return a URL to the Latest merged Linden Lab release
-	std::string ll_source_url = "https://bitbucket.org/lindenlab/viewer-release/commits/tag/";
-	ll_source_url += info["LATEST_MERGED_VERSION"];
-	ll_source_url +="-release";
+	std::string latest_merged = info["LATEST_MERGED_VERSION"];
+	std::string ll_source_url = "https://bitbucket.org/lindenlab/viewer-release/commits/tag/" + latest_merged + "-release";
 	info["LATEST_SOURCE_URL"] = ll_source_url;
 
 #if LL_MSVC
