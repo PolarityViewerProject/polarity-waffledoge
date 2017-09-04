@@ -115,6 +115,6 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
         "LLBUILD_CONFIG=\"${CMAKE_BUILD_TYPE}\""
         "BUILD_COMMIT_HASH=\"${BUILD_COMMIT_HASH}\""
         "BUILD_COMMIT_HASH_LONG=\"${BUILD_COMMIT_HASH_LONG}\""
-        "BUILD_NUMBER=\"${BUILD_NUMBER}\""
+        "PV_BUILD_NUMBER=\"${BUILD_NUMBER}\""
         )
 endif (NOT DEFINED VIEWER_SHORT_VERSION)

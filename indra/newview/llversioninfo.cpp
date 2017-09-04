@@ -43,7 +43,7 @@
  || ! defined(LINDEN_SOURCE_PATCH) \
  || ! defined(BUILD_COMMIT_HASH) \
  || ! defined(BUILD_COMMIT_HASH_LONG) \
- || ! defined(BUILD_NUMBER)
+ || ! defined(PV_BUILD_NUMBER)
  #error "Channel or Version information is undefined"
 #endif
 
