@@ -1451,8 +1451,6 @@ list(APPEND viewer_HEADER_FILES
     )
 list(APPEND viewer_SOURCE_FILES
     ${alchemy_SOURCE_FILES}
-    # ${firestorm_SOURCE_FILES}
-    # ${polarity_SOURCE_FILES}
     )
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
