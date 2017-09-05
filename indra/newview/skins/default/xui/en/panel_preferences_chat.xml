@@ -161,9 +161,10 @@
      border="false"
      name="chat_appearance">
     <text
+        follows="top|left"
         layout="topleft"
         left="0"
-        height="12"
+        height="20"
         name="chat_appearance_text"
         width="60"
         top_pad="20">
@@ -175,7 +176,7 @@
         layout="topleft"
         left_pad="32"
         name="pass_combo"
-        top_delta="-1"
+        top_delta="0"
         width="120">
         <combo_box.item
          label="Monospace"
