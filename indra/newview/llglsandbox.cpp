@@ -903,8 +903,10 @@ F32 gpu_benchmark(bool force_run)
 	LL_INFOS() << "Running GPU benchmark..." << LL_ENDL;
 
 	bool old_fixed_func = LLGLSLShader::sNoFixedFunction;
-
-	static bool local_init = false;
+#ifdef GL_ARB_vertex_array_object
+	GLuint vao;
+#endif
+	bool local_init = false;
 	if (gBenchmarkProgram.mProgramObject == 0)
 	{
 		local_init = true;
@@ -917,15 +919,15 @@ F32 gpu_benchmark(bool force_run)
 		gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkV.glsl", GL_VERTEX_SHADER));
 		gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkF.glsl", GL_FRAGMENT_SHADER));
 		gBenchmarkProgram.mShaderLevel = 1;
-		if (!gBenchmarkProgram.createShader(NULL, NULL))
+		if (!gBenchmarkProgram.createShader(nullptr, nullptr))
 		{
 			LL_WARNS() << "GPU Benchmark failed to compose shaders! Benchmark not run." << LL_ENDL;
 			return -1.f;
 		}
+		LLShaderMgr::instance()->cleanupShaderSources();
 	}
 
 #ifdef GL_ARB_vertex_array_object
-	GLuint vao;
 	if (local_init)
 	{
 		if (LLRender::sGLCoreProfile && !LLVertexBuffer::sUseVAO)
@@ -993,7 +995,7 @@ F32 gpu_benchmark(bool force_run)
 	delete[] pixels;
 
 	//make a dummy triangle to draw with
-	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STATIC_DRAW_ARB);
+	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, GL_STATIC_DRAW_ARB);
 	buff->allocateBuffer(3, 0, true);
 
 	LLStrider<LLVector3> v;
@@ -1090,7 +1092,6 @@ F32 gpu_benchmark(bool force_run)
 
 	if (local_init)
 	{
-		gBenchmarkProgram.unload();
 #ifdef GL_ARB_vertex_array_object
 		if (LLRender::sGLCoreProfile && !LLVertexBuffer::sUseVAO)
 		{
@@ -1098,6 +1099,8 @@ F32 gpu_benchmark(bool force_run)
 			glDeleteVertexArrays(1, &vao);
 		}
 #endif
+
+		gBenchmarkProgram.unload();
 
 		LLGLSLShader::sNoFixedFunction = old_fixed_func;
 		local_init = false;
