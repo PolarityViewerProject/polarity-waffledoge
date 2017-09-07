@@ -1001,9 +1001,9 @@ F32 gpu_benchmark(bool force_run)
 	LLStrider<LLVector3> v;
 	buff->getVertexStrider(v);
 
-	v[0].set(-1, 1, 0);
-	v[1].set(-1, -3, 0);
-	v[2].set(3, 1, 0);
+	v[0].set(-1.f, -1.f, 0.f);
+	v[1].set(3.f, -1.f, 0.f);
+	v[2].set(-1.f, 3.f, 0.f);
 
 	buff->flush();
 
