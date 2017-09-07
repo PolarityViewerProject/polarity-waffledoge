@@ -3988,7 +3988,12 @@ Abuse Report</string>
 
   <string name="server_is_down">
 	Oh god, despite our best efforts, something unexpected has gone wrong.
+	If you continue to experience problems, please check your network and firewall setup.
+  </string>
 
+<string name="server_is_down_sl">
+	Oh god, despite our best efforts, something unexpected has gone wrong.
+	There might be additional information at [https://twitter.com/SLGridStatus @SLGridStatus].
 	If you continue to experience problems, please check your network and firewall setup.
   </string>
 

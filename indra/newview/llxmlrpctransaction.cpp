@@ -50,6 +50,8 @@
 #include "llappviewer.h"
 #include "lltrans.h"
 
+#include "llviewernetwork.h" // for LLGridManager
+
 // Static instance of LLXMLRPCListener declared here so that every time we
 // bring in this code, we instantiate a listener. If we put the static
 // instance of LLXMLRPCListener into llxmlrpclistener.cpp, the linker would
@@ -466,8 +468,15 @@ void LLXMLRPCTransaction::Impl::setStatus(EStatus status,
 			default:
 				// Usually this means that there's a problem with the login server,
 				// not with the client.  Direct user to status page.
-				mStatusMessage = LLTrans::getString("server_is_down");
 				mStatusURI = "http://status.secondlifegrid.net/";
+				if(LLGridManager::getInstance()->isInSecondlife())
+				{
+					mStatusMessage = LLTrans::getString("server_is_down_sl");
+				}
+				else
+				{
+					mStatusMessage = LLTrans::getString("server_is_down");
+				}
 		}
 	}
 }
