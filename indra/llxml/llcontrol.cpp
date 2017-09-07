@@ -137,12 +137,14 @@ bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
 
 LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
 							 LLSD initial, const std::string& comment,
-							 ePersist persist, bool hidefromsettingseditor)
+							 ePersist persist, bool hidefromsettingseditor,
+							 bool unrecognized)
 	: mName(name),
 	  mComment(comment),
 	  mType(type),
 	  mPersist(persist),
-	  mHideFromSettingsEditor(hidefromsettingseditor)
+	  mHideFromSettingsEditor(hidefromsettingseditor),
+	  mUnrecognized(unrecognized)
 {
 	if ((persist != PERSIST_NO) && mComment.empty())
 	{
@@ -275,6 +277,11 @@ void LLControlVariable::setHiddenFromSettingsEditor(bool hide)
 	mHideFromSettingsEditor = hide;
 }
 
+void LLControlVariable::setUnrecognized(bool unrecognized)
+{
+	mUnrecognized = unrecognized;
+}
+
 void LLControlVariable::setComment(const std::string& comment)
 {
 	mComment = comment;
@@ -394,7 +401,7 @@ std::string LLControlGroup::typeEnumToString(eControlType typeenum)
 	return mTypeString[typeenum];
 }
 
-LLControlVariable* LLControlGroup::declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, LLControlVariable::ePersist persist, BOOL hidefromsettingseditor)
+LLControlVariable* LLControlGroup::declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, LLControlVariable::ePersist persist, BOOL hidefromsettingseditor, BOOL unrecognized)
 {
 	LLControlVariable* existing_control = getControl(name);
 	if (existing_control)
@@ -417,7 +424,7 @@ LLControlVariable* LLControlGroup::declareControl(const std::string& name, eCont
 	}
 
 	// if not, create the control and add it to the name table
-	LLControlVariable* control = new LLControlVariable(name, type, initial_val, comment, persist, hidefromsettingseditor);
+	LLControlVariable* control = new LLControlVariable(name, type, initial_val, comment, persist, hidefromsettingseditor, unrecognized);
 	mNameTable[name] = control;	
 	return control;
 }
@@ -898,6 +905,8 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 
 	U32	validitems = 0;
 	bool hidefromsettingseditor = false;
+	bool unrecognized = false;
+
 	
 	for(LLSD::map_const_iterator itr = settings.beginMap(); itr != settings.endMap(); ++itr)
 	{
@@ -942,6 +951,8 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 		{
 			hidefromsettingseditor = false;
 		}
+
+		// Note: We do not load Unrecognized because that would defeat the purpose.
 		
 		// If the control exists just set the value from the input file.
 		LLControlVariable* existing_control = getControl(name);
@@ -960,6 +971,7 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 					existing_control->setPersist(persist);
 					existing_control->setHiddenFromSettingsEditor(hidefromsettingseditor);
 					existing_control->setComment(control_map["Comment"].asString());
+					existing_control->setUnrecognized(false);
 				}
 				else
 				{
@@ -991,6 +1003,8 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 			// setting you changed.
 			if (! set_default_values)
 			{
+				// Remember that this setting doesn't exist in the viewer code
+				unrecognized = true;
 				// Using PERSIST_ALWAYS insists that saveToFile() (which calls
 				// LLControlVariable::shouldSave()) must save this control
 				// variable regardless of its value. We can safely set this
@@ -1018,7 +1032,8 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 						   control_map["Value"], 
 						   control_map["Comment"].asString(), 
 						   persist,
-						   hidefromsettingseditor
+						   hidefromsettingseditor,
+						   unrecognized
 						   );
 		}
 

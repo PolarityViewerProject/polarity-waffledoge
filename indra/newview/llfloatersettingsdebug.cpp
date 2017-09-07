@@ -67,7 +67,7 @@ BOOL LLFloaterSettingsDebug::postBuild()
 
 		void apply(const std::string& name, LLControlVariable* control) override
 		{
-			if (!control->isHiddenFromSettingsEditor())
+			if (!control->isHiddenFromSettingsEditor() && !control->isUnrecognized())
 			{
 				combo->add(name, (void*)control);
 			}
