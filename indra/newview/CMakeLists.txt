@@ -1446,8 +1446,6 @@ source_group("Third Party/Alchemy" FILES
 # of them need to go first, i.e ViewerInstall.cmake
 list(APPEND viewer_HEADER_FILES
     ${alchemy_HEADER_FILES}
-    # ${firestorm_HEADER_FILES}
-    # ${polarity_HEADER_FILES}
     )
 list(APPEND viewer_SOURCE_FILES
     ${alchemy_SOURCE_FILES}
