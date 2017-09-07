@@ -80,6 +80,7 @@ set(cmake_SOURCE_FILES
     PluginAPI.cmake
     Prebuilt.cmake
     PulseAudio.cmake
+    # PVData.cmake
     Python.cmake
     TemplateCheck.cmake
     Tut.cmake
