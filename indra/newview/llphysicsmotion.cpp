@@ -527,7 +527,8 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
 		const F32 behavior_drag = getParamValue(DRAG);
 		F32 behavior_maxeffect = getParamValue(MAX_EFFECT);
 		
-		const BOOL physics_test = FALSE; // Enable this to simulate bouncing on all parts.
+        // Enable this to simulate bouncing on all parts.
+        static LLCachedControl<bool> physics_test(gSavedSettings, "AvatarPhysicsTest");
         
         if (physics_test)
                 behavior_maxeffect = 1.0f;

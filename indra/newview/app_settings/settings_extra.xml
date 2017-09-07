@@ -1342,5 +1342,17 @@
       <key>Value</key>
       <string>20</string>
     </map>
+    <!-- Extra unbranded settings -->
+    <key>AvatarPhysicsTest</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable avatar physics test mode.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   </map>
 </llsd>
