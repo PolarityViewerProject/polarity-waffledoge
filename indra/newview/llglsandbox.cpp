@@ -877,7 +877,7 @@ F32 gpu_benchmark(bool force_run)
 {
 
 	// <polarity> save GPU benchmark result and re-use it when possible
-	S32 saved_bench = gSavedSettings.getF32("Polarity_SavedGPUBandwidth");
+	S32 saved_bench = gSavedSettings.getF32("PolaritySavedGPUBandwidth");
 	if(saved_bench > 0 && !force_run && gSavedSettings.getBOOL("NoHardwareProbe"))
 	{
 		LL_INFOS() << "Skipping GPU Benchmark and returning previous result due to user preference" << LL_ENDL;
@@ -887,7 +887,7 @@ F32 gpu_benchmark(bool force_run)
 	if (gGLManager.mIsIntel)
 	{
 		LL_INFOS() << "Skipping GPU Benchmark on Intel graphics" << LL_ENDL;
-		gSavedSettings.setF32("Polarity_SavedGPUBandwidth", (F32)11.225f);
+		gSavedSettings.setF32("PolaritySavedGPUBandwidth", (F32)11.225f);
 		return 11.225f;
 	}
 	// </polarity>
@@ -1111,7 +1111,7 @@ F32 gpu_benchmark(bool force_run)
 	// Turn off subsequent benchmarking.
 	gSavedSettings.setBOOL("NoHardwareProbe", TRUE);
 	// <polarity> save GPU benchmark result and re-use it when possible
-	gSavedSettings.setF32("Polarity_SavedGPUBandwidth", (F32)bytesPerSecond.value());
+	gSavedSettings.setF32("PolaritySavedGPUBandwidth", (F32)bytesPerSecond.value());
 	return bytesPerSecond.value();
 }
 

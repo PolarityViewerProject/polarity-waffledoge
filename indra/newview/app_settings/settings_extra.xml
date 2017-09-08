@@ -1353,7 +1353,7 @@
       <key>Value</key>
       <real>60</real>
     </map>
-    <key>Polarity_SavedGPUBandwidth</key>
+    <key>PolaritySavedGPUBandwidth</key>
     <map>
       <key>Comment</key>
       <string>GPU Memory bandwidth from the last benchmark run</string>
