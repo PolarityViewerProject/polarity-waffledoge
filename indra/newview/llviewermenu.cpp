@@ -2371,6 +2371,9 @@ class LLDevelopSetLoggingLevel : public view_listener_t
 	{
 		U32 level = userdata.asInteger();
 		LLError::setDefaultLevel(static_cast<LLError::ELevel>(level));
+		// <polarity> Save and restore logging level
+		gSavedSettings.setU32("PolarityLoggingLevel", level);
+		// </polarity>
 		return true;
 	}
 };
