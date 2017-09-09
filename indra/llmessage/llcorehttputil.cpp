@@ -282,7 +282,7 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
         result = LLSD::emptyMap();
         LLCore::HttpStatus::type_enum_t errType = status.getType();
 
-        LL_WARNS()
+        LL_DEBUGS()
             << "\n--------------------------------------------------------------------------\n"
             << " Error[" << status.toTerseString() << "] cannot access url '" << response->getRequestURL()
             << "' because " << status.toString()
