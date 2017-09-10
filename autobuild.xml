@@ -252,11 +252,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c92e5fe414a014bb9a4236f130a2ac75</string>
+              <string>e7bde888d64b314fa43fe410b32d5fad</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/windows64/lib-vc141/boost-1.63.0-windows64-201703280907.tar.bz2</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-141/boost-1.63.0-windows64-201703280907.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
