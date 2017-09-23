@@ -3340,7 +3340,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	static const std::string build_arch = "x86, ";
 #endif
 	static const std::string build_config = LLVersionInfo::getBuildConfig();
-#if INTERNAL_BUILD
+#ifdef INTERNAL_BUILD
 	static const std::string internal_string = ", " + LLTrans::getString("InternalBuild");
 #else
 	static const std::string internal_string = "";
