@@ -4986,12 +4986,7 @@ void process_sim_stats(LLMessageSystem* msg, void** user_data)
 		F32 stat_value;
 		msg->getU32("Stat", "StatID", stat_id, i);
 		msg->getF32("Stat", "StatValue", stat_value, i);
-		if ((ESimStatID)stat_id == LL_SIM_STAT_LSLIPS || (ESimStatID)stat_id == LL_SIM_STAT_REGION_IDLE || (ESimStatID)stat_id == LL_SIM_STAT_REGION_IDLE_POSSIBLE
-			// <polarity> These don't always exist on OpenSim, don't warn
-			|| (ESimStatID)stat_id == LL_SIM_STAT_VIRTUAL_SIZE_KB
-			|| (ESimStatID)stat_id == LL_SIM_STAT_RESIDENT_SIZE_KB
-			// </polarity>
-			)
+		if ((ESimStatID)stat_id == LL_SIM_STAT_LSLIPS || (ESimStatID)stat_id == LL_SIM_STAT_REGION_IDLE || (ESimStatID)stat_id == LL_SIM_STAT_REGION_IDLE_POSSIBLE)
 			continue;
 
 		LLStatViewer::SimMeasurementSampler* measurementp = LLStatViewer::SimMeasurementSampler::getInstance((ESimStatID)stat_id);
@@ -5002,6 +4997,10 @@ void process_sim_stats(LLMessageSystem* msg, void** user_data)
 		}
 		else
 		{
+			// <polarity> These don't always exist on OpenSim, don't warn.
+			if (LLGridManager::getInstance()->isInSecondlife() && ((ESimStatID)stat_id == LL_SIM_STAT_VIRTUAL_SIZE_KB || (ESimStatID)stat_id == LL_SIM_STAT_RESIDENT_SIZE_KB))
+				continue;
+			// </polarity>
 			LL_WARNS() << "Unknown sim stat identifier: " << stat_id << LL_ENDL;
 		}
 	}
