@@ -1458,55 +1458,36 @@ bool LLAppViewer::frame()
 
 		pauseMainloopTimeout();
 
-		// <polarity> FPS Limiter.
-		// Only limit FPS when we are actually rendering something. Otherwise logins, logouts and teleports take much longer to complete.
-		if (LLStartUp::getStartupState() == STATE_STARTED
-				&& !gTeleportDisplay
-				&& !logoutRequestSent())
-		{
-			static LLCachedControl<bool> fps_limiter_enabled(gSavedSettings, "PolarityFrameLimiter", false);
-			if (fps_limiter_enabled)
-			{
-				// Sleep a while to limit frame rate.
-				static LLCachedControl<U32> fps_target(gSavedSettings, "PolarityFrameLimiterTarget", 60);
-				F32 min_frame_time = 1.000f / (F32)fps_target;
-				// Note: Setting the FPS target too low seems to cause severe issues
-				static const S32 MIN_FPS_LIMIT = 5;
-				S32 milliseconds_to_sleep = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0), MIN_FPS_LIMIT, 1000);
-				if (milliseconds_to_sleep > MIN_FPS_LIMIT)
-				{
-					LL_RECORD_BLOCK_TIME(FTM_FPSLIMIT);
-					ms_sleep(milliseconds_to_sleep);
-				}
-			}
-		}
-		// </polarity> FPS Limiter
-
 		// Sleep and run background threads
 		{
-			LL_RECORD_BLOCK_TIME(FTM_SLEEP);
-			
-			// yield some time to the os based on command line option
-			if(mYieldTime >= 0)
+			if (LLStartUp::getStartupState() == STATE_STARTED
+				&& !gTeleportDisplay
+				&& !logoutRequestSent())
 			{
-				LL_RECORD_BLOCK_TIME(FTM_YIELD);
-				ms_sleep(mYieldTime);
-			}
+				LL_RECORD_BLOCK_TIME(FTM_SLEEP);
 
-			// yield cooperatively when not running as foreground window
-			if (   (gViewerWindow && !gViewerWindow->getWindow()->getVisible())
-					|| !gFocusMgr.getAppHasFocus())
-			{
-				// Sleep if we're not rendering, or the window is minimized.
-				S32 milliseconds_to_sleep = llclamp(gSavedSettings.getS32("BackgroundYieldTime"), 0, 1000);
-				// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads
-				// of equal priority on Windows
-				if (milliseconds_to_sleep > 0)
+				// yield some time to the os based on command line option
+				if (mYieldTime >= 0)
 				{
-					ms_sleep(milliseconds_to_sleep);
-					// also pause worker threads during this wait period
-					LLAppViewer::getTextureCache()->pause();
-					LLAppViewer::getImageDecodeThread()->pause();
+					LL_RECORD_BLOCK_TIME(FTM_YIELD);
+					ms_sleep(mYieldTime);
+				}
+
+				// yield cooperatively when not running as foreground window
+				if ((gViewerWindow && !gViewerWindow->getWindow()->getVisible())
+					|| !gFocusMgr.getAppHasFocus() || gAgent.getAFK())
+				{
+					// Sleep if we're not rendering, or the window is minimized.
+					S32 milliseconds_to_sleep = llclamp(gSavedSettings.getS32("BackgroundYieldTime"), 0, 1000);
+					// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads
+					// of equal priority on Windows
+					if (milliseconds_to_sleep > 0)
+					{
+						ms_sleep(milliseconds_to_sleep);
+						// also pause worker threads during this wait period
+						LLAppViewer::getTextureCache()->pause();
+						LLAppViewer::getImageDecodeThread()->pause();
+					}
 				}
 			}
 			
@@ -1580,6 +1561,30 @@ bool LLAppViewer::frame()
 			{
 				gFrameStalls++;
 			}
+
+			// <xenhat> FPS Limiter.
+			// Note: Moved down here to limit FPS after the other tasks have been
+			// executed to avoid harmful throttling of essential viewer functions
+			// Only limit FPS when we are actually rendering something. Otherwise logins, logouts and teleports take much longer to complete.
+			static LLCachedControl<bool> fps_limiter_enabled(gSavedSettings, "PolarityFrameLimiterEnabled", false);
+			static LLCachedControl<F32> fps_target(gSavedSettings, "PolarityFrameLimiterTarget");
+			if (LLStartUp::getStartupState() == STATE_STARTED
+					&& !gTeleportDisplay
+					&& !logoutRequestSent()
+					&& fps_limiter_enabled
+					&& fps_target > F_APPROXIMATELY_ZERO)
+			{
+				// Sleep a while to limit frame rate.
+				F32 min_frame_time = 1.0f / fps_target;
+				S32 milliseconds_to_sleep = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.f), 0, 1000);
+				if (milliseconds_to_sleep > 0) // HTTP safety, do not sleep for more than 60 seconds
+				{
+					LL_RECORD_BLOCK_TIME(FTM_FPSLIMIT);
+					ms_sleep(milliseconds_to_sleep);
+				}
+			}
+			// </xenhat> FPS Limiter
+
 			frameTimer.reset();
 
 			resumeMainloopTimeout();
