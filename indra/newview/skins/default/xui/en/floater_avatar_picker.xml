@@ -225,6 +225,65 @@
               name="username"
               width="150" />
           </scroll_list>
+	</panel>
+        <panel
+         height="150"
+         label="Search by UUID"
+         layout="topleft"
+         left="6"
+         help_topic="avatarpicker"
+         name="SearchPanelUUID"
+         top="150"
+         width="132">
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="SearchByUUIDLabel"
+             top="8"
+             width="220">
+                Enter a person&apos;s UUID:
+            </text>
+            <line_editor
+             bevel_style="none"
+             border_style="line"
+             commit_on_focus_lost="false"
+             follows="left|top|right"
+             height="23"
+             left_delta="0"
+             name="EditUUID"
+             top_pad="0"
+             width="65" />
+            <button
+             follows="top|right"
+             height="23"
+             label="Go"
+             label_selected="Go"
+             layout="topleft"
+             left_pad="5"
+             name="FindUUID"
+             width="45" />
+            <scroll_list
+             draw_heading="true" 
+             follows="all"
+             height="98"
+             layout="topleft"
+             left="0"
+             name="SearchResultsUUID"
+             top="52"
+             width="132">
+             <columns
+              label="Name"
+              name="nameUUID"
+              width="150" />
+             <columns
+              label="Username"
+              name="usernameUUID"
+              width="150" />
+          </scroll_list>
         </panel>
     </tab_container>
     <button
