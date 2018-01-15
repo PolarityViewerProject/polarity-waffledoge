@@ -303,4 +303,12 @@
      name="cancel_btn"
      width="100"
      left_pad="5" />
+    <button
+     follows="left|bottom"
+     height="23"
+     label="Me"
+     label_selected="Me"
+     name="me_button"
+     width="100"
+     left_pad="5" />
 </floater>

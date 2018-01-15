@@ -109,6 +109,7 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
     mContextConeInAlpha(0.f),
     mContextConeOutAlpha(0.f),
     mContextConeFadeTime(0.f),
+	mForSelfAgent(false), // <xenhat/> Self Button
 	mFindUUIDAvatarNameCacheConnection() // <FS:Ansariel> Search by UUID
 {
 	mCommitCallbackRegistrar.add("Refresh.FriendList", boost::bind(&LLFloaterAvatarPicker::populateFriend, this));
@@ -174,6 +175,8 @@ BOOL LLFloaterAvatarPicker::postBuild()
 
 	getChild<LLPanel>("SearchPanelUUID")->setDefaultBtn("FindUUID");
 	// </FS:Ansariel>
+	
+	childSetAction("me_button", boost::bind(&LLFloaterAvatarPicker::onBtnSelf, this)); // <xenhat/> Self Button
 
 	setAllowMultiple(FALSE);
 	
@@ -244,6 +247,18 @@ void LLFloaterAvatarPicker::onFindUUIDAvatarNameCache(const LLUUID& av_id, const
 		search_results->setFocus(TRUE);
 
 		getChildView("ok_btn")->setEnabled(TRUE);
+
+		// <xenhat> Self Button
+		if (mForSelfAgent)
+		{
+			mForSelfAgent = false;
+			uuid_vec_t			avatar_ids;
+			std::vector<LLAvatarName>	avatar_names;
+			getSelectedAvatarData(search_results, avatar_ids, avatar_names);
+			mSelectionCallback(avatar_ids, avatar_names);
+			onBtnClose();
+		}
+		// </xenhat>
 	}
 	else
 	{
@@ -265,7 +280,7 @@ void LLFloaterAvatarPicker::onBtnFind()
 	find();
 }
 
-static void getSelectedAvatarData(const LLScrollListCtrl* from, uuid_vec_t& avatar_ids, std::vector<LLAvatarName>& avatar_names)
+void getSelectedAvatarData(const LLScrollListCtrl* from, uuid_vec_t& avatar_ids, std::vector<LLAvatarName>& avatar_names)
 {
 	std::vector<LLScrollListItem*> items = from->getAllSelected();
 	for (std::vector<LLScrollListItem*>::iterator iter = items.begin(); iter != items.end(); ++iter)
@@ -354,6 +369,25 @@ void LLFloaterAvatarPicker::onBtnRefresh()
 	getChild<LLScrollListCtrl>("NearMe")->setCommentText(getString("searching"));
 	mNearMeListComplete = FALSE;
 }
+
+// <xenhat> Self Button
+void LLFloaterAvatarPicker::onBtnSelf()
+{
+	getChild<LLScrollListCtrl>("SearchResults")->deselectAllItems(TRUE);
+	getChild<LLScrollListCtrl>("NearMe")->deselectAllItems(TRUE);
+	getChild<LLScrollListCtrl>("Friends")->deselectAllItems(TRUE);
+	getChild<LLScrollListCtrl>("SearchResultsUUID")->deselectAllItems(TRUE);
+	// TODO: Do all this without invoking UI actions
+	getChild<LLTabContainer>("ResidentChooserTabs")->selectTabByName("SearchPanelUUID");
+	auto edit_box = getChild<LLUICtrl>("EditUUID");
+	edit_box->setEnabled(TRUE);
+	edit_box->setFocus(TRUE);
+	edit_box->setValue(gAgentID);
+	getChild<LLUICtrl>("FindUUID")->setEnabled(TRUE);
+	mForSelfAgent = true;
+	onBtnFindUUID();
+}
+// </xenhat> Self Button
 
 void LLFloaterAvatarPicker::onBtnClose()
 {

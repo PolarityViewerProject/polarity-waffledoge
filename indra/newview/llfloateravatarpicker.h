@@ -34,6 +34,9 @@
 class LLAvatarName;
 class LLScrollListCtrl;
 
+
+static void getSelectedAvatarData(const LLScrollListCtrl* from, uuid_vec_t& avatar_ids, std::vector<LLAvatarName>& avatar_names);
+
 class LLFloaterAvatarPicker :public LLFloater
 {
 public:
@@ -80,6 +83,7 @@ private:
 	void onBtnFind();
 	void onBtnSelect();
 	void onBtnRefresh();
+	void onBtnSelf(); // <xenhat/> Self Button
 	void onRangeAdjust();
 	void onBtnClose();
 	void onList();
@@ -112,6 +116,8 @@ private:
 
 	validate_signal_t mOkButtonValidateSignal;
 	select_callback_t mSelectionCallback;
+
+	bool mForSelfAgent; // <xenhat/> Self Button
 };
 
 #endif
