@@ -1349,9 +1349,9 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>F32</string>
       <key>Value</key>
-      <real>60</real>
+      <real>60.0</real>
     </map>
     <key>PolarityLoggingLevel</key>
     <map>
